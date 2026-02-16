@@ -1213,6 +1213,6 @@ Email: **security@wardprotocol.org**
 
 ---
 
-**End of XLS-103d Specification**
-
+**End of Specification**
+\
 *For implementation details and visual diagrams, see `/docs/ward-integration-diagrams.md`*

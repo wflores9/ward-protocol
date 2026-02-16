@@ -1,9 +1,9 @@
-# XLS-103d: Institutional DeFi Insurance Protocol
+# Institutional DeFi Insurance Protocol
 
 **Category:** Ecosystem  
 **Status:** Draft  
 **Repository:** https://github.com/wflores9/ward-protocol  
-**Specification:** [XLS-103d-specification.md](https://github.com/wflores9/ward-protocol/blob/main/docs/XLS-103d-specification.md)
+**Specification:** [institutional-defi-insurance-specification.md](https://github.com/wflores9/ward-protocol/blob/main/docs/institutional-defi-insurance-specification.md)
 
 ---
 
@@ -167,7 +167,7 @@ This ecosystem approach validates demand before proposing protocol changes.
 
 ## Discussion Questions
 
-1. **Naming:** Is "XLS-103d" appropriate for ecosystem category? (d suffix vs standard numbering)
+1. **Numbering:** Per CONTRIBUTING.md, XLS number will be assigned automatically on PR submission
 2. **Integration:** Are there other XRPL lending protocols we should design compatibility for?
 3. **Primitives:** Would protocol-level insurance primitives be valuable for other use cases beyond lending?
 4. **Testnet:** Should we coordinate with XLS-66 implementers for joint testnet demonstration?

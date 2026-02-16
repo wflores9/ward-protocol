@@ -785,5 +785,5 @@ require(CoverageRatio >= 200%)
 
 **End of Integration Diagrams Document**
 
-*For implementation details, see XLS-103d-specification.md*
+*For implementation details, see institutional-defi-insurance-specification.md*
 [I need to paste the full content from the uploaded file]

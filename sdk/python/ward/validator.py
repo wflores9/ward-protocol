@@ -39,7 +39,7 @@ class ClaimValidator:
     """
     Validates insurance claims against ledger state and policy terms.
     
-    Implements the 9-step validation process from XLS-103d specification.
+    Implements the 9-step validation process from Ward Protocol specification.
     """
     
     def __init__(self, database: WardDatabase):

@@ -19,7 +19,7 @@ class PremiumCalculator:
     """
     Calculates insurance premiums based on risk factors.
     
-    Implements the premium pricing formula from XLS-103d Appendix B.3:
+    Implements the premium pricing formula from Ward Protocol specification Appendix B.3:
     
     premium = coverage_amount * base_rate * term_factor * risk_multiplier
     
