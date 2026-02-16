@@ -29,6 +29,7 @@ setup(
     python_requires=">=3.8",
     install_requires=[
         "xrpl-py>=2.5.0",
+        "asyncpg>=0.29.0",
     ],
     extras_require={
         "dev": [
