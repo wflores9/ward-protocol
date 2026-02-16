@@ -16,7 +16,6 @@ from xrpl.models import (
 from xrpl.wallet import Wallet
 from xrpl.asyncio.clients import AsyncWebsocketClient
 from xrpl.asyncio.transaction import submit_and_wait
-from xrpl.utils import drops_to_xrp, xrp_to_drops
 
 from .database import WardDatabase
 
@@ -106,7 +105,7 @@ class InsurancePool:
         """
         logger.info(f"Creating insurance pool with {initial_capital_xrp:,.2f} XRP")
         
-        initial_drops = xrp_to_drops(str(initial_capital_xrp))
+        initial_drops = int(initial_capital_xrp * 1_000_000)
         
         # Create AMM
         # Note: XLS-30 requires 2 assets for AMM
@@ -146,7 +145,7 @@ class InsurancePool:
         """
         logger.info(f"LP deposit: {amount_xrp:,.2f} XRP from {lp_wallet.address}")
         
-        amount_drops = xrp_to_drops(str(amount_xrp))
+        amount_drops = int(amount_xrp * 1_000_000)
         
         # AMMDeposit transaction
         # TODO: Implement actual AMMDeposit
@@ -162,7 +161,7 @@ class InsurancePool:
             available_capital=new_available
         )
         
-        logger.info(f"Capital deposited. New total: {drops_to_xrp(str(new_capital))} XRP")
+        logger.info(f"Capital deposited. New total: {new_capital / 1_000_000:.2f} XRP")
         
         return {
             "deposited": amount_drops,
@@ -211,7 +210,7 @@ class InsurancePool:
             available_capital=new_available
         )
         
-        logger.info(f"Capital withdrawn. New total: {drops_to_xrp(str(new_capital))} XRP")
+        logger.info(f"Capital withdrawn. New total: {new_capital / 1_000_000:.2f} XRP")
         
         return {
             "withdrawn": lp_tokens,

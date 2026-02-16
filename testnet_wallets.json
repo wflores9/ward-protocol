@@ -1,0 +1,17 @@
+{
+  "ward_operator": {
+    "address": "rPJsGb9V1NivCptS6P8KmsWaViVsUYfyLf",
+    "seed": "sEd7sMUeavzvoymJ8KDqq9nk73ovLxj",
+    "purpose": "Monitor defaults, create policies, manage escrows"
+  },
+  "insurance_pool": {
+    "address": "rK4dpLy9bGVmNmnJNGzkHfNdhB7XzZh9iV",
+    "seed": "sEdVCTLLTZWNgwfoNbcF5yNZyeNyFj1",
+    "purpose": "Collect premiums, payout claims"
+  },
+  "test_depositor": {
+    "address": "rf3dH3S7JdBfSfawsxf7TFpGQ2sVtH9wva",
+    "seed": "sEdVFDuXFnhRoNYznjjbH7rvck6GFNq",
+    "purpose": "Purchase insurance policies (test user)"
+  }
+}
