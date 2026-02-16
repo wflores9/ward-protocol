@@ -15,6 +15,7 @@ from xrpl.models import Subscribe, LedgerEntry, Tx
 
 from .models import Loan, LoanBroker, Vault
 from .utils.calculations import calculate_vault_loss, calculate_share_value_impact
+from .database import WardDatabase
 
 
 logging.basicConfig(level=logging.INFO)
@@ -61,7 +62,10 @@ class XLS66Monitor:
     with tfLoanDefault flag. Calculates vault losses and triggers callbacks.
     
     Example:
-        monitor = XLS66Monitor("wss://xrplcluster.com")
+        monitor = XLS66Monitor(
+            "wss://xrplcluster.com",
+            database_url="postgresql://user:pass@localhost/ward"
+        )
         
         @monitor.on_default
         async def handle_default(event: DefaultEvent):
@@ -73,7 +77,8 @@ class XLS66Monitor:
     def __init__(
         self,
         websocket_url: str = "wss://xrplcluster.com",
-        monitored_loan_brokers: Optional[List[str]] = None
+        monitored_loan_brokers: Optional[List[str]] = None,
+        database_url: Optional[str] = None
     ):
         """
         Initialize XLS-66 monitor.
@@ -82,12 +87,16 @@ class XLS66Monitor:
             websocket_url: XRPL WebSocket endpoint
             monitored_loan_brokers: List of LoanBroker IDs to monitor
                                    (None = monitor all)
+            database_url: PostgreSQL connection string (optional)
         """
         self.websocket_url = websocket_url
         self.monitored_loan_brokers = set(monitored_loan_brokers or [])
         self.client: Optional[AsyncWebsocketClient] = None
         self.running = False
         self.default_callbacks: List[Callable] = []
+        
+        # Database connection (optional)
+        self.db = WardDatabase(database_url) if database_url else None
         
         # Cache for ledger state
         self._loan_broker_cache: Dict[str, LoanBroker] = {}
@@ -112,6 +121,11 @@ class XLS66Monitor:
         """Start monitoring XLS-66 events."""
         logger.info(f"Starting XLS-66 monitor on {self.websocket_url}")
         
+        # Connect to database if configured
+        if self.db:
+            await self.db.connect()
+            logger.info("Connected to PostgreSQL database")
+        
         self.client = AsyncWebsocketClient(self.websocket_url)
         await self.client.open()
         
@@ -135,6 +149,9 @@ class XLS66Monitor:
         self.running = False
         if self.client and self.client.is_open():
             await self.client.close()
+        if self.db:
+            await self.db.disconnect()
+            logger.info("Disconnected from database")
     
     async def _handle_message(self, message: dict):
         """Process incoming WebSocket message."""
@@ -224,6 +241,38 @@ class XLS66Monitor:
                 f"{share_impact['share_value_after']:.6f} XRP "
                 f"({share_impact['loss_percentage']:.2f}% loss)"
             )
+            
+            # Store event in database
+            if self.db:
+                try:
+                    event_id = await self.db.log_default_event(
+                        loan_id=loan.loan_id,
+                        loan_broker_id=loan_broker.loan_broker_id,
+                        vault_id=vault.vault_id,
+                        borrower_address=loan.borrower,
+                        default_amount=event.default_amount,
+                        default_covered=event.default_covered,
+                        vault_loss=event.vault_loss,
+                        tx_hash=tx_hash,
+                        ledger_index=ledger_index
+                    )
+                    logger.info(f"Logged default event to database: {event_id}")
+                    
+                    # Update vault state
+                    await self.db.upsert_vault_state(
+                        vault_id=vault.vault_id,
+                        loan_broker_id=loan_broker.loan_broker_id,
+                        asset_type="XRP",  # TODO: Parse from vault.asset
+                        assets_total=vault.assets_total - event.vault_loss,
+                        assets_available=vault.assets_available,
+                        loss_unrealized=vault.loss_unrealized,
+                        shares_total=vault.shares_total,
+                        share_value=share_impact['share_value_after'],
+                        ledger_index=ledger_index
+                    )
+                    logger.info("Updated vault state in database")
+                except Exception as db_error:
+                    logger.error(f"Database error: {db_error}")
             
             # Trigger callbacks
             await self._trigger_callbacks(event)
