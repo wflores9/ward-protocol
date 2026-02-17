@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ward Protocol - Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .status-bar {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 15px 25px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+        }
+        
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #10b981;
+            box-shadow: 0 0 10px #10b981;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .card-title {
+            font-size: 0.9em;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .card-icon {
+            font-size: 1.5em;
+        }
+        
+        .card-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 10px;
+        }
+        
+        .card-label {
+            color: #6b7280;
+            font-size: 0.9em;
+        }
+        
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .metric:last-child {
+            border-bottom: none;
+        }
+        
+        .metric-label {
+            color: #6b7280;
+        }
+        
+        .metric-value {
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .health-indicator {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        
+        .health-healthy {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .health-warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .event-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .event-item {
+            padding: 15px;
+            border-left: 3px solid #ef4444;
+            background: #fef2f2;
+            margin-bottom: 10px;
+            border-radius: 4px;
+        }
+        
+        .event-time {
+            font-size: 0.85em;
+            color: #6b7280;
+            margin-bottom: 5px;
+        }
+        
+        .event-details {
+            font-size: 0.95em;
+            color: #1f2937;
+        }
+        
+        .no-events {
+            text-align: center;
+            padding: 40px;
+            color: #9ca3af;
+        }
+        
+        .refresh-btn {
+            background: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #667eea;
+        }
+        
+        .refresh-btn:hover {
+            background: #f3f4f6;
+        }
+        
+        .loading {
+            text-align: center;
+            color: white;
+            font-size: 1.2em;
+            padding: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🛡️ Ward Protocol</h1>
+            <div class="subtitle">Insurance for XRPL DeFi Lending</div>
+        </header>
+        
+        <div class="status-bar">
+            <div class="status-item">
+                <div class="status-dot" id="statusDot"></div>
+                <span id="statusText">Connecting...</span>
+            </div>
+            <div class="status-item">
+                <span id="networkInfo">XRPL Testnet</span>
+            </div>
+            <button class="refresh-btn" onclick="loadData()">🔄 Refresh</button>
+        </div>
+        
+        <div id="loading" class="loading">Loading dashboard...</div>
+        
+        <div id="dashboard" style="display: none;">
+            <!-- Stats Grid -->
+            <div class="grid">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Pool Capital</div>
+                        <div class="card-icon">💰</div>
+                    </div>
+                    <div class="card-value" id="totalCapital">-</div>
+                    <div class="card-label">Total XRP</div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Available</div>
+                        <div class="card-icon">✅</div>
+                    </div>
+                    <div class="card-value" id="availableCapital">-</div>
+                    <div class="card-label">Available XRP</div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Active Policies</div>
+                        <div class="card-icon">📋</div>
+                    </div>
+                    <div class="card-value" id="activePolicies">-</div>
+                    <div class="card-label">Coverage Active</div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Claims Paid</div>
+                        <div class="card-icon">💸</div>
+                    </div>
+                    <div class="card-value" id="claimsPaid">-</div>
+                    <div class="card-label">Total XRP</div>
+                </div>
+            </div>
+            
+            <!-- Pool Details -->
+            <div class="grid">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Pool Health</div>
+                        <div class="card-icon">🏥</div>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Coverage Ratio</span>
+                        <span class="metric-value" id="coverageRatio">-</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Status</span>
+                        <span id="healthStatus">-</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Total Exposure</span>
+                        <span class="metric-value" id="totalExposure">-</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Can Issue Policies</span>
+                        <span class="metric-value" id="canIssue">-</span>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Protocol Stats</div>
+                        <div class="card-icon">📊</div>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Total Policies</span>
+                        <span class="metric-value" id="totalPolicies">-</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Total Claims</span>
+                        <span class="metric-value" id="totalClaims">-</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Default Events</span>
+                        <span class="metric-value" id="defaultEvents">-</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Settled Claims</span>
+                        <span class="metric-value" id="settledClaims">-</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recent Defaults -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Recent Default Events</div>
+                    <div class="card-icon">🚨</div>
+                </div>
+                <div id="defaultsList" class="event-list">
+                    <div class="no-events">No default events detected</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const API_URL = 'http://localhost:8000';
+        
+        async function loadData() {
+            try {
+                // Update status
+                document.getElementById('statusText').textContent = 'Loading...';
+                
+                // Fetch all data
+                const [health, pools, stats, defaults] = await Promise.all([
+                    fetch(`${API_URL}/health`).then(r => r.json()),
+                    fetch(`${API_URL}/pools`).then(r => r.json()),
+                    fetch(`${API_URL}/stats`).then(r => r.json()),
+                    fetch(`${API_URL}/defaults?limit=10`).then(r => r.json())
+                ]);
+                
+                // Update status indicator
+                const statusDot = document.getElementById('statusDot');
+                const statusText = document.getElementById('statusText');
+                if (health.status === 'healthy') {
+                    statusDot.style.background = '#10b981';
+                    statusDot.style.boxShadow = '0 0 10px #10b981';
+                    statusText.textContent = 'Connected';
+                } else {
+                    statusDot.style.background = '#ef4444';
+                    statusDot.style.boxShadow = '0 0 10px #ef4444';
+                    statusText.textContent = 'Disconnected';
+                }
+                
+                // Update pool stats
+                const pool = pools.pools[0];
+                if (pool) {
+                    document.getElementById('totalCapital').textContent = 
+                        (pool.total_capital / 1_000_000).toLocaleString() + ' XRP';
+                    document.getElementById('availableCapital').textContent = 
+                        (pool.available_capital / 1_000_000).toLocaleString() + ' XRP';
+                    document.getElementById('activePolicies').textContent = 
+                        pool.active_policies;
+                    document.getElementById('claimsPaid').textContent = 
+                        (pool.total_claims_paid / 1_000_000).toLocaleString() + ' XRP';
+                    
+                    // Coverage ratio
+                    const ratio = pool.total_exposure > 0 
+                        ? (pool.coverage_ratio * 100).toFixed(1) + '%'
+                        : '∞ (no exposure)';
+                    document.getElementById('coverageRatio').textContent = ratio;
+                    
+                    // Health status
+                    const isHealthy = pool.total_exposure === 0 || pool.coverage_ratio >= 2.0;
+                    const healthSpan = document.getElementById('healthStatus');
+                    healthSpan.className = 'health-indicator ' + 
+                        (isHealthy ? 'health-healthy' : 'health-warning');
+                    healthSpan.textContent = isHealthy ? '✅ Healthy' : '⚠️ At Risk';
+                    
+                    document.getElementById('totalExposure').textContent = 
+                        (pool.total_exposure / 1_000_000).toLocaleString() + ' XRP';
+                    document.getElementById('canIssue').textContent = 
+                        isHealthy ? '✅ Yes' : '❌ No';
+                }
+                
+                // Update protocol stats
+                document.getElementById('totalPolicies').textContent = stats.policies.total;
+                document.getElementById('totalClaims').textContent = stats.claims.total;
+                document.getElementById('defaultEvents').textContent = stats.defaults.total_events;
+                document.getElementById('settledClaims').textContent = stats.claims.settled;
+                
+                // Update defaults list
+                const defaultsList = document.getElementById('defaultsList');
+                if (defaults.events.length === 0) {
+                    defaultsList.innerHTML = '<div class="no-events">No default events detected</div>';
+                } else {
+                    defaultsList.innerHTML = defaults.events.map(event => `
+                        <div class="event-item">
+                            <div class="event-time">${new Date(event.detected_at).toLocaleString()}</div>
+                            <div class="event-details">
+                                <strong>Vault Loss:</strong> ${(event.vault_loss / 1_000_000).toFixed(2)} XRP<br>
+                                <strong>Loan:</strong> ${event.loan_id.substring(0, 16)}...<br>
+                                <strong>Tx:</strong> ${event.tx_hash.substring(0, 16)}...
+                            </div>
+                        </div>
+                    `).join('');
+                }
+                
+                // Show dashboard
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'block';
+                
+            } catch (error) {
+                console.error('Error loading data:', error);
+                document.getElementById('statusText').textContent = 'Error: ' + error.message;
+                document.getElementById('statusDot').style.background = '#ef4444';
+            }
+        }
+        
+        // Load data on page load
+        loadData();
+        
+        // Auto-refresh every 10 seconds
+        setInterval(loadData, 10000);
+    </script>
+</body>
+</html>
