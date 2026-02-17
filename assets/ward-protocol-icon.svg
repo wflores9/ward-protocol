@@ -1,0 +1,18 @@
+<svg width="256" height="256" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+
+  <polygon 
+    points="100,15 180,60 180,140 100,185 20,140 20,60"
+    fill="none"
+    stroke="#00A6D6"
+    stroke-width="14"
+    stroke-linejoin="round"/>
+
+  <polyline
+    points="60,95 100,120 140,95"
+    fill="none"
+    stroke="#00A6D6"
+    stroke-width="14"
+    stroke-linecap="round"
+    stroke-linejoin="round"/>
+
+</svg>

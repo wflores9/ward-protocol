@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./assets/ward-protocol-logo.svg" alt="Ward Protocol" width="600">
+  <img src="./assets/ward-protocol-logo.svg" alt="Ward Protocol" width="640">
 </p>
 
 <h1 align="center">Ward Protocol</h1>
