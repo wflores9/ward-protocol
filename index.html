@@ -18,14 +18,14 @@
         }
         
         nav {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #0B1F3B 0%, #1a3a6b 100%);
             color: white;
             padding: 1rem 0;
             position: fixed;
             width: 100%;
             top: 0;
             z-index: 1000;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
         }
         
         nav .container {
@@ -39,6 +39,7 @@
         
         nav h1 {
             font-size: 1.5em;
+            color: white;
         }
         
         nav .links a {
@@ -49,11 +50,11 @@
         }
         
         nav .links a:hover {
-            text-decoration: underline;
+            color: #00A6D6;
         }
         
         .hero {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #0B1F3B 0%, #1a3a6b 100%);
             color: white;
             padding: 120px 20px 80px;
             text-align: center;
@@ -84,13 +85,13 @@
         h2 {
             font-size: 2.5em;
             margin-bottom: 30px;
-            color: #667eea;
+            color: #0B1F3B;
         }
         
         h3 {
             font-size: 1.8em;
             margin: 30px 0 15px;
-            color: #764ba2;
+            color: #00A6D6;
         }
         
         .features {
@@ -105,16 +106,17 @@
             padding: 30px;
             border-radius: 12px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border-top: 3px solid #00A6D6;
         }
         
         .feature h4 {
             font-size: 1.4em;
             margin-bottom: 15px;
-            color: #667eea;
+            color: #0B1F3B;
         }
         
         .code-block {
-            background: #1f2937;
+            background: #0B1F3B;
             color: #e5e7eb;
             padding: 20px;
             border-radius: 8px;
@@ -137,7 +139,7 @@
         .stat {
             text-align: center;
             padding: 30px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #0B1F3B 0%, #1a3a6b 100%);
             color: white;
             border-radius: 12px;
         }
@@ -146,6 +148,7 @@
             font-size: 3em;
             font-weight: bold;
             display: block;
+            color: #00A6D6;
         }
         
         .stat-label {
@@ -155,7 +158,7 @@
         
         .btn {
             display: inline-block;
-            background: #667eea;
+            background: #00A6D6;
             color: white;
             padding: 12px 30px;
             border-radius: 8px;
@@ -167,22 +170,45 @@
         
         .btn:hover {
             transform: translateY(-2px);
+            background: #0599ad;
         }
         
         .btn-secondary {
-            background: #764ba2;
+            background: transparent;
+            border: 2px solid white;
         }
         
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.1);
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin: 4px;
+        }
+        
+        .badge-blue { background: #dbeafe; color: #1e40af; }
+        .badge-green { background: #d1fae5; color: #065f46; }
+        .badge-orange { background: #ffedd5; color: #9a3412; }
+        
         footer {
-            background: #1f2937;
+            background: #0B1F3B;
             color: white;
             text-align: center;
             padding: 40px 20px;
         }
         
         footer a {
-            color: #667eea;
+            color: #00A6D6;
             text-decoration: none;
+        }
+        
+        footer a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -195,6 +221,7 @@
                 <a href="#features">Features</a>
                 <a href="#architecture">Architecture</a>
                 <a href="#api">API</a>
+                <a href="https://app.wardprotocol.org">Dashboard</a>
                 <a href="https://github.com/wflores9/ward-protocol" target="_blank">GitHub</a>
             </div>
         </div>
@@ -205,7 +232,12 @@
         <p>Institutional-grade protection against borrower defaults, liquidation slippage, and smart contract failures on the XRP Ledger.</p>
         <div style="margin-top: 30px;">
             <a href="https://github.com/wflores9/ward-protocol" class="btn">View on GitHub</a>
-            <a href="#api" class="btn btn-secondary">API Documentation</a>
+            <a href="https://app.wardprotocol.org" class="btn btn-secondary">Live Dashboard</a>
+        </div>
+        <div style="margin-top: 20px;">
+            <span class="badge badge-blue">Status: Testnet</span>
+            <span class="badge badge-green">License: MIT</span>
+            <span class="badge badge-orange">XLS: Discussion</span>
         </div>
     </div>
     
@@ -297,45 +329,45 @@
             
             <h3>Base URL</h3>
             <div class="code-block">
-                <code>http://localhost:8000</code>
+                <code>https://api.wardprotocol.org</code>
             </div>
             
             <h3>Endpoints</h3>
             
-            <h4 style="margin-top: 30px;">GET /health</h4>
+            <h4 style="margin-top: 30px; color: #0B1F3B;">GET /health</h4>
             <p>System health check</p>
             <div class="code-block">
-                <code>curl http://localhost:8000/health</code>
+                <code>curl https://api.wardprotocol.org/health</code>
             </div>
             
-            <h4 style="margin-top: 30px;">GET /pools</h4>
+            <h4 style="margin-top: 30px; color: #0B1F3B;">GET /pools</h4>
             <p>Get all insurance pools</p>
             <div class="code-block">
-                <code>curl http://localhost:8000/pools</code>
+                <code>curl https://api.wardprotocol.org/pools</code>
             </div>
             
-            <h4 style="margin-top: 30px;">GET /pools/{pool_id}</h4>
+            <h4 style="margin-top: 30px; color: #0B1F3B;">GET /pools/{pool_id}</h4>
             <p>Get specific pool details with metrics</p>
             <div class="code-block">
-                <code>curl http://localhost:8000/pools/fccc5eca-4dfa-4ac7-966f-09ce5786ff76</code>
+                <code>curl https://api.wardprotocol.org/pools/fccc5eca-4dfa-4ac7-966f-09ce5786ff76</code>
             </div>
             
-            <h4 style="margin-top: 30px;">GET /stats</h4>
+            <h4 style="margin-top: 30px; color: #0B1F3B;">GET /stats</h4>
             <p>Protocol-wide statistics</p>
             <div class="code-block">
-                <code>curl http://localhost:8000/stats</code>
+                <code>curl https://api.wardprotocol.org/stats</code>
             </div>
             
-            <h4 style="margin-top: 30px;">GET /defaults</h4>
+            <h4 style="margin-top: 30px; color: #0B1F3B;">GET /defaults</h4>
             <p>Get default events with optional vault filter</p>
             <div class="code-block">
-                <code>curl http://localhost:8000/defaults?limit=10</code>
+                <code>curl https://api.wardprotocol.org/defaults?limit=10</code>
             </div>
             
-            <h4 style="margin-top: 30px;">Interactive Docs</h4>
+            <h4 style="margin-top: 30px; color: #0B1F3B;">Interactive Docs</h4>
             <p>Full Swagger UI available at:</p>
             <div class="code-block">
-                <code>http://localhost:8000/docs</code>
+                <code>https://api.wardprotocol.org/docs</code>
             </div>
         </section>
         
@@ -377,9 +409,13 @@ python3 scripts/start_monitor.py</code>
     <footer>
         <p><strong>Ward Protocol</strong> - Insurance for XRPL DeFi Lending</p>
         <p style="margin-top: 10px;">
-            <a href="https://github.com/wflores9/ward-protocol">GitHub</a> • 
-            <a href="https://github.com/XRPLF/XRPL-Standards/discussions">XLS Discussion</a> • 
+            <a href="https://github.com/wflores9/ward-protocol">GitHub</a> •
+            <a href="https://app.wardprotocol.org">Dashboard</a> •
+            <a href="https://github.com/XRPLF/XRPL-Standards/discussions">XLS Discussion</a> •
             Built on the XRP Ledger
+        </p>
+        <p style="margin-top: 10px;">
+            <a href="mailto:wflores@wardprotocol.org">wflores@wardprotocol.org</a>
         </p>
         <p style="margin-top: 20px; opacity: 0.7;">© 2026 Ward Protocol. MIT License.</p>
     </footer>
