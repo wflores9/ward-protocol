@@ -1,5 +1,5 @@
 <pre>
-  xls: 103
+  xls: XXXX
   title: Institutional DeFi Insurance Protocol
   description: Insurance layer for XLS-66 Lending Protocol enabling institutional lenders to insure against borrower defaults and liquidation losses.
   author: Will Flores <wflores@wardprotocol.org>
