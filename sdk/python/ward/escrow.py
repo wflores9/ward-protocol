@@ -5,7 +5,7 @@ Implements 48-hour dispute window before claim payouts using XRPL Escrow.
 """
 
 import logging
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 from datetime import datetime, timedelta
 from dataclasses import dataclass
 
