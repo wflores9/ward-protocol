@@ -1,33 +1,87 @@
+# Environment
+.env
+*.env
+.env.local
+.env.production
+
 # Python
 __pycache__/
 *.py[cod]
-*.so
-venv/
-env/
-.venv
+*.pyo
+*.pyd
+.Python
+*.egg
 *.egg-info/
 dist/
 build/
+.eggs/
+.pytest_cache/
+.mypy_cache/
+*.pyc
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Virtual environments
+venv/
+env/
+.venv/
+ENV/
+env.bak/
+venv.bak/
 
 # Database
+*.sql.bak
+*.dump
 *.db
 *.sqlite3
-.env
-.env.local
+
+# Secrets - NEVER commit these
+testnet_wallets.json
+*.key
+*.pem
+*.p12
+*.pfx
+secrets/
+.secrets/
+
+# Node (if frontend added later)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
 
 # IDE
 .vscode/
 .idea/
 *.swp
-
-# OS
-.DS_Store
+*.swo
+*.sublime-project
+*.sublime-workspace
+.project
+.classpath
 
 # Logs
 *.log
+logs/
+log/
 
-# Secrets
-*.pem
-*.key
-.ward_env
-config/secrets.yaml
+# Exports and temporary files
+ward_export_*.json
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# Coverage
+htmlcov/
+.coverage
+.coverag
