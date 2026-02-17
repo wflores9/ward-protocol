@@ -1,21 +1,19 @@
-<svg width="600" height="200" viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg">
-  <!-- Background -->
-  <rect width="600" height="200" fill="#1E3A5F"/>
-  
-  <!-- Shield Icon -->
-  <g transform="translate(60, 50)">
-    <!-- Outer shield -->
-    <path d="M 45 0 L 70 15 L 70 50 L 45 70 L 20 50 L 20 15 Z" fill="none" stroke="#00D4E6" stroke-width="4"/>
-    
-    <!-- Middle layer -->
-    <path d="M 45 15 L 60 25 L 60 50 L 45 60 L 30 50 L 30 25 Z" fill="none" stroke="#00D4E6" stroke-width="4"/>
-    
-    <!-- Inner layer -->
-    <path d="M 45 30 L 52 35 L 52 50 L 45 55 L 38 50 L 38 35 Z" fill="#00D4E6"/>
+<svg width="600" height="220" viewBox="0 0 600 220" xmlns="http://www.w3.org/2000/svg">
+  <rect width="600" height="220" fill="#0F2747"/>
+  <!-- Icon -->
+  <g transform="translate(60,40)">
+    <polygon points="60,0 120,35 120,95 60,130 0,95 0,35"
+             fill="none" stroke="#1CC5B7" stroke-width="12"/>
+    <polyline points="30,60 60,80 90,60"
+              fill="none" stroke="#1CC5B7" stroke-width="12"/>
   </g>
-  
-  <!-- Ward Protocol Text -->
-  <text x="180" y="115" font-family="system-ui, -apple-system, sans-serif" font-size="56" font-weight="600" fill="#FFFFFF">
-    Ward Protocol
+  <!-- Text -->
+  <text x="220" y="95" font-family="Arial, Helvetica, sans-serif"
+        font-size="60" fill="white" font-weight="600">
+    Ward
+  </text>
+  <text x="220" y="160" font-family="Arial, Helvetica, sans-serif"
+        font-size="60" fill="white" font-weight="600">
+    Protocol
   </text>
 </svg>
