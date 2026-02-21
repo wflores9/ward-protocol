@@ -41,3 +41,9 @@ Thumbs.db
 
 # Compiled files
 *.pyc
+
+# Test coverage reports
+htmlcov/
+.coverage
+*.pyc
+__pycache__/
