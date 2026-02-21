@@ -270,3 +270,13 @@ async def get_rate_limits(request: Request, auth: dict = Depends(verify_api_key)
     if auth["role"] != "admin":
         raise HTTPException(status_code=403, detail="Admin access required")
     return {"rate_limit_tiers": RATE_LIMITS, "current_tier": auth["role"]}
+
+# Import domain API
+from api.domains import router as domains_router
+app.include_router(domains_router)
+
+# Permissioned Domains API
+from api.domains import router as domains_router
+app.include_router(domains_router)
+
+logger.info("domain_api_registered", endpoints=["GET /domains", "GET /domains/{id}", "POST /domains/{id}/check-membership"])
