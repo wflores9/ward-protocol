@@ -1,0 +1,17 @@
+{
+  "success": true,
+  "domain_id": "0a0fb36bcd46e16b4391d5c0df0d1fbb1841b602b11d13c8d06c6ed5463dc17a",
+  "tx_hash": "20C55A088BC17F393313A9B3496485CDD5A5318F7D2A0E75C00160FE1A899741",
+  "owner": "rPJsGb9V1NivCptS6P8KmsWaViVsUYfyLf",
+  "sequence": 0,
+  "accepted_credentials": [
+    {
+      "issuer": "rK4dpLy9bGVmNmnJNGzkHfNdhB7XzZh9iV",
+      "credential_type": "ACCREDITED_INVESTOR"
+    },
+    {
+      "issuer": "rPJsGb9V1NivCptS6P8KmsWaViVsUYfyLf",
+      "credential_type": "INSTITUTIONAL_KYC"
+    }
+  ]
+}
