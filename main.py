@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException, Depends, Request
+from api.docs import DESCRIPTION, TAGS_METADATA
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi.middleware import SlowAPIMiddleware
 from slowapi.errors import RateLimitExceeded
@@ -41,10 +42,11 @@ logger = structlog.get_logger()
 
 app = FastAPI(
     title="Ward Protocol API",
-    description="Institutional Insurance for XRPL DeFi Lending - Enterprise Grade",
-    version="1.0.0",
-    docs_url="/docs" if os.getenv("DEBUG", "false").lower() == "true" else None,
-    redoc_url="/redoc" if os.getenv("DEBUG", "false").lower() == "true" else None
+    description=DESCRIPTION,
+    version="0.1.0",
+    openapi_tags=TAGS_METADATA,
+    docs_url="/docs",
+    redoc_url="/redoc"
 )
 
 app.add_middleware(SecurityHeadersMiddleware)
