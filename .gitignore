@@ -1,4 +1,4 @@
-# Environment
+# Environment and secrets
 .env
 *.env
 .env.local
@@ -7,81 +7,37 @@
 # Python
 __pycache__/
 *.py[cod]
-*.pyo
-*.pyd
+*$py.class
+*.so
 .Python
-*.egg
+venv/
+env/
 *.egg-info/
 dist/
 build/
-.eggs/
+
+# Testing
 .pytest_cache/
-.mypy_cache/
-*.pyc
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Virtual environments
-venv/
-env/
-.venv/
-ENV/
-env.bak/
-venv.bak/
-
-# Database
-*.sql.bak
-*.dump
-*.db
-*.sqlite3
-
-# Secrets - NEVER commit these
-testnet_wallets.json
-*.key
-*.pem
-*.p12
-*.pfx
-secrets/
-.secrets/
-
-# Node (if frontend added later)
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# OS
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
+.coverage
+htmlcov/
+*.cover
 
 # IDE
 .vscode/
 .idea/
 *.swp
 *.swo
-*.sublime-project
-*.sublime-workspace
-.project
-.classpath
+
+# OS
+.DS_Store
+Thumbs.db
 
 # Logs
 *.log
-logs/
-log/
 
-# Exports and temporary files
-ward_export_*.json
-*.tmp
-*.temp
-*.bak
-*.backup
+# Database
+*.db
+*.sqlite
 
-# Coverage
-htmlcov/
-.coverage
-.coverag
+# Compiled files
+*.pyc
