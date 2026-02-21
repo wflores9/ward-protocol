@@ -3,7 +3,7 @@
   title: Institutional DeFi Insurance Protocol
   description: Ecosystem-level insurance layer for XLS-66 Lending Protocol vault depositors, protecting against borrower defaults exceeding First-Loss Capital coverage.
   author: Will Flores <wflores@wardprotocol.org>
-  discussion-from: https://github.com/XRPLF/XRPL-Standards/discussions/474
+  proposal-from: https://github.com/XRPLF/XRPL-Standards/discussions/474
   category: Ecosystem
   requires: XLS-65, XLS-66
   status: Draft
