@@ -1,5 +1,4 @@
 <div align="center">
-  <img src="assets/logo-horizontal.svg" alt="Ward Protocol" width="500"/>
   
   <br/>
   <br/>
@@ -230,5 +229,4 @@ Built on the XRP Ledger with:
   <strong>The tech is ready. The ecosystem needs infrastructure. Let's ship.</strong>
   <br/>
   <br/>
-  <img src="assets/logo-icon.svg" alt="Ward Protocol Icon" width="80"/>
 </div>
