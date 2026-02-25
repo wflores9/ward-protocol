@@ -47,3 +47,4 @@ htmlcov/
 .coverage
 *.pyc
 __pycache__/
+sdk/python/.venv/
