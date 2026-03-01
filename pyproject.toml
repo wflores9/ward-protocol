@@ -1,0 +1,45 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ward-protocol"
+version = "0.1.0"
+description = "On-chain insurance SDK for XRPL XLS-66 vaults — trustless, non-custodial, fully on-chain"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [
+    {name = "Ward Protocol", email = "team@wardprotocol.org"}
+]
+keywords = ["xrpl", "insurance", "defi", "blockchain", "escrow", "nft"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Office/Business :: Financial",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+    "xrpl-py>=4.0.0",
+    "httpx>=0.25.0",
+    "pydantic>=2.5.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-asyncio>=0.23",
+]
+
+[project.urls]
+Homepage = "https://wardprotocol.org"
+Repository = "https://github.com/wflores9/ward-protocol"
+Documentation = "https://api.wardprotocol.org/docs"
+"Bug Tracker" = "https://github.com/wflores9/ward-protocol/issues"
+
+[tool.setuptools]
+py-modules = ["ward_client"]
