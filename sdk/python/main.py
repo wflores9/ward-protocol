@@ -1,4 +1,4 @@
-from .get_pool import get_all_pools, PoolListResponse, Pool
+from get_pool import get_all_pools, PoolListResponse, Pool
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime
