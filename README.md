@@ -5,12 +5,14 @@
 
   **Institutional Insurance for XRPL DeFi Lending**
 
-  [![Status: Testnet](https://img.shields.io/badge/Status-Testnet-blue)](https://wardprotocol.org)
-  [![Tests: 75/75](https://img.shields.io/badge/Tests-75%2F75%20passing-brightgreen)](test_ward.py)
+  [![PyPI](https://img.shields.io/pypi/v/ward-protocol?label=PyPI&color=blue)](https://pypi.org/project/ward-protocol/)
+  [![Python 3.12](https://img.shields.io/badge/Python-3.12-3776ab)](https://www.python.org/downloads/)
   [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+  [![Live API](https://img.shields.io/badge/Live%20API-online-brightgreen)](https://api.wardprotocol.org)
+  [![Tests: 75/75](https://img.shields.io/badge/Tests-75%2F75%20passing-brightgreen)](test_ward.py)
   [![XRPL: Discussion](https://img.shields.io/badge/XRPL-Discussion-orange)](https://github.com/XRPLF/XRPL-Standards/discussions)
 
-  [Website](https://wardprotocol.org) • [Documentation](https://wardprotocol.org) • [Demo](https://app.wardprotocol.org)
+  [Website](https://wardprotocol.org) • [API Docs](https://api.wardprotocol.org/docs) • [PyPI](https://pypi.org/project/ward-protocol/)
 </div>
 
 ---
@@ -101,14 +103,17 @@ The primary deliverable is a single self-contained Python module with five harde
 ### Installation
 
 ```bash
+pip install ward-protocol
+```
+
+**For development** (clone + run tests):
+
+```bash
 git clone https://github.com/wflores9/ward-protocol.git
 cd ward-protocol
-
-# Install dependencies
-pip install xrpl-py>=4.0.0
+pip install xrpl-py pytest pytest-asyncio
 
 # Run tests (unit tests only, no network required)
-pip install pytest pytest-asyncio
 pytest test_ward.py -v -m "not integration"
 
 # Full testnet simulation (XRPL Altnet required)
@@ -292,6 +297,9 @@ Depositor wallet                Pool wallet (institution)
 ### Running the SDK
 
 ```bash
+pip install ward-protocol
+
+# Or clone for development:
 git clone https://github.com/wflores9/ward-protocol.git
 cd ward-protocol
 pip install xrpl-py pytest pytest-asyncio
@@ -382,8 +390,6 @@ Ward Protocol is open source and welcomes contributions!
 2. Create a feature branch
 3. Make your changes
 4. Submit a pull request
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ---
 
