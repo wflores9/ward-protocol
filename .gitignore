@@ -10,6 +10,7 @@ __pycache__/
 *$py.class
 *.so
 .Python
+.venv/
 venv/
 env/
 *.egg-info/
@@ -47,3 +48,16 @@ htmlcov/
 .coverage
 *.pyc
 __pycache__/
+sdk/python/.venv/
+
+# Runtime artifacts
+uvicorn.pid
+*.pid
+testnet_run.log
+
+# Legacy untracked directories
+archive/
+
+# Sentinel files (accidental shell redirections)
+=
+testnet_wallets.json
