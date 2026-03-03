@@ -273,3 +273,6 @@ MIT — see [LICENSE](LICENSE)
 ---
 
 *Ward Protocol · Software Specification · Not an insurance company · The spec is open. The rails are yours.*
+
+## Contributing
+See [CONTRIBUTING.md](CONTRIBUTING.md) for details on the protocol vs SDK layers and contribution guidelines.
