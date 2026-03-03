@@ -47,7 +47,7 @@ async def demo_chain_reader(client: AsyncWebsocketClient) -> None:
     reader = ChainReader(client)
 
     # Use well-known testnet faucet address
-    test_address = "rN7n7otQDd6FczFgLdlqtyMVrn3e1Djxv9"
+    test_address = "rK4dpLy9bGVmNmnJNGzkHfNdhB7XzZh9iV"
     try:
         balance = await reader.get_account_balance(test_address)
         print(f"Address: {balance.address}")
@@ -66,7 +66,7 @@ async def demo_monitor(client: AsyncWebsocketClient) -> None:
     monitor = WardMonitor(client, poll_interval_seconds=2)
 
     # Add faucet as "demo vault"
-    monitor.add_vault("demo_vault", "rN7n7otQDd6FczFgLdlqtyMVrn3e1Djxv9")
+    monitor.add_vault("demo_vault", "rK4dpLy9bGVmNmnJNGzkHfNdhB7XzZh9iV")
 
     async def on_change(vault_id: str, address: str, prev: int, curr: int) -> None:
         print(f"  Balance changed: {prev} -> {curr} drops")

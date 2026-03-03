@@ -94,15 +94,6 @@ class WardMonitor:
                             else:
                                 cb(vault_id, address, prev, balance.balance_drops)
                         except Exception as e:
-                            logger.error(
-                                "monitor_callback_error",
-                                vault_id=vault_id,
-                                error=str(e),
-                            )
+                            logger.error("monitor_callback_error vault_id=%s error=%s", vault_id, str(e))
             except Exception as e:
-                logger.warning(
-                    "monitor_poll_error",
-                    vault_id=vault_id,
-                    address=address,
-                    error=str(e),
-                )
+                logger.warning("monitor_poll_error vault_id=%s address=%s error=%s", vault_id, address, str(e))
