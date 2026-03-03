@@ -11,7 +11,6 @@ Five hardened modules:
 
 Security model:
   - Ward NEVER holds wallet keys — not even temporarily
-  - All authoritative state lives on XRPL — PostgreSQL is a read cache only
   - NFT policies are NON-TRANSFERABLE after issuance (tfBurnable only, NO tfTransferable)
   - Escrow conditions require cryptographic proof from the claimant (PREIMAGE-SHA-256)
     meaning only the legitimate claimant can finish the escrow — no front-running
