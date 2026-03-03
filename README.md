@@ -1,1 +1,275 @@
-<!DOCTYPE html><html lang="en-US"><head><title>Just a moment...</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><meta name="robots" content="noindex,nofollow"><meta name="viewport" content="width=device-width,initial-scale=1"><style>*{box-sizing:border-box;margin:0;padding:0}html{line-height:1.15;-webkit-text-size-adjust:100%;color:#313131;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji"}body{display:flex;flex-direction:column;height:100vh;min-height:100vh}.main-content{margin:8rem auto;padding-left:1.5rem;max-width:60rem}@media (width <= 720px){.main-content{margin-top:4rem}}#challenge-error-text{background-image:url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgZmlsbD0ibm9uZSI+PHBhdGggZmlsbD0iI0IyMEYwMyIgZD0iTTE2IDNhMTMgMTMgMCAxIDAgMTMgMTNBMTMuMDE1IDEzLjAxNSAwIDAgMCAxNiAzbTAgMjRhMTEgMTEgMCAxIDEgMTEtMTEgMTEuMDEgMTEuMDEgMCAwIDEtMTEgMTEiLz48cGF0aCBmaWxsPSIjQjIwRjAzIiBkPSJNMTcuMDM4IDE4LjYxNUgxNC44N0wxNC41NjMgOS41aDIuNzgzem0tMS4wODQgMS40MjdxLjY2IDAgMS4wNTcuMzg4LjQwNy4zODkuNDA3Ljk5NCAwIC41OTYtLjQwNy45ODQtLjM5Ny4zOS0xLjA1Ny4zODktLjY1IDAtMS4wNTYtLjM4OS0uMzk4LS4zODktLjM5OC0uOTg0IDAtLjU5Ny4zOTgtLjk4NS40MDYtLjM5NyAxLjA1Ni0uMzk3Ii8+PC9zdmc+");background-repeat:no-repeat;background-size:contain;padding-left:34px}</style><meta http-equiv="refresh" content="360"></head><body><div class="main-wrapper" role="main"><div class="main-content"><noscript><div class="h2"><span id="challenge-error-text">Enable JavaScript and cookies to continue</span></div></noscript></div></div><script>(function(){window._cf_chl_opt = {cvId: '3',cZone: 'claude.ai',cType: 'managed',cRay: '9d6c2fea29641c3f',cH: 'H2_UBtjUP1cSMCX3tNLtNBQXqXj8CuPPNAeHu54uEmg-1772578090-1.2.1.1-3sJYgjvDmmp4foQeKrAI9Ymb4esdF5Vu6RLtTfj1pT5EyJtFFRYV9X.SipwzqX3F',cUPMDTk:"\/...?__cf_chl_tk=SZOJAYS6C9YglDB0JGZQUkjtl.FfrR6U9DUb3xxowgE-1772578090-1.0.1.1-V.zZ_pqyEUvuW8BzE3Cr2c.GXUuSuuSnWzxQ.eygBrw",cFPWv: 'g',cITimeS: '1772578090',cTplC:0,cTplV:5,cTplB: '0',fa:"\/...?__cf_chl_f_tk=SZOJAYS6C9YglDB0JGZQUkjtl.FfrR6U9DUb3xxowgE-1772578090-1.0.1.1-V.zZ_pqyEUvuW8BzE3Cr2c.GXUuSuuSnWzxQ.eygBrw",md: 'Exkju7Rh2ZTBnd3f4QVsiw8lVJtV9_Xax0KgZc.5HhQ-1772578090-1.2.1.1-qIsXHJIAEHiqeI7YAjZUVw7YslkUKSv5hL.o4YZXCnw8WLmHYVOJMMQD6gZlK6sB9bGPrEAYHgAgFZVMXX_3LYHV..dQoRESGrvp7H1O_UDLiwUCLNDU3l3RoQmmcDZ9HC3dQ6g7CZjBtslZv1qm8uf9rxeUY09klF5xrdkqK8iGzNVJ8Lfd2gPTZ8RPpVdEYW9ioeKP3vDsFHmMaCXB1W34k1nvvLpkpI2ma8xNFPUuGsylmXaljjkzD5O5QhXDisjsZ6TOZYXN5ZKTAk3bq.4uXzD2VQE3c1rNrqe3chjzltCqkrbmOmOHy0CZ1lRhunftQlwhF0Ewjv_TB3fZXRIzMoYaOmL.pwIRIfK0Fg3FuP8dRvkOXx9jFphoBj4oFZDh8UA8ckE29.7vedXO0ndcA77InihNr6o61f2uboGCOxwXFuS5xMHKHgWvyuwwOtAEQy3sY2M8jU3pvVP18z802JnJcY2PQMop.02RjDrEe0ZMdrhiJnxx5AF1RiLgIPYo_h3uGEFGlEgLu8WfdU6RkayoGcp5W2Yk5msNqYNg.JvccvE5jNJ5eEPZS3nrYe9vPZdAwYWNnAT75AbfYtSU_BIag.rrQouZuFGKjxBo8hYH3yU.oHXh7Rh2ttLCzq3wcrzYgITN9NnD8pUAyTTW7H7moAxaba4uTUy1O1aEjiAA23.6.wcivK2hWkxYW9sdkGm1aFIMlHEvdSPU6dGK19LqNWt28lqnlILD7UVEO6OOKR_MDHc3jF430aXNlMrZ0dhTDTWYrM29VwfrvrSGj3p9dTl_7fOmoq9TV50gWZ4NzoriIqXO9_AqYsfeuTQpMzdjiGBEslic1dHP0O_052jXWtQ3Z.UPYn_JzoBkd8jzdSaXH8o7QvxImvXpzUxrFZynYAKM3kCnIB1W8QRSsDqdcAD12SIgMpRSlS9vmBxslaUes9N7sd7q1KXae6Q4uSwy_j49kJSvNzxpfQ',mdrd: 'g59gbWx1IAhhIs5peWJjKlXtqdhYb5QpLyALJDMv_JA-1772578090-1.2.1.1-gXZSCDpiYQq7C22.sRHNbq7IMYuj1iJdfONaR7k13z0kgUwRrKUsSpzDU.uxHly584DfOR5aUa86XEATco9doG3r.j.x2mKvTp0s.Xwjy8n2MC48rgWvmZBHuMgKlPzUc67vggOV1PT3yQ7xPtXFjl1_v3FJa6H3gtVmBSVlCQA3IN2SRbraIWvSilB2K3lZ_hJS0Jt23qXft3Qj3LptAmKvc3vTUn7LIi3wQainnpkdlvJZX8.xpWeuWFKuHoROBRy9EMOcnHnx7Zvv4GvPLhYFDNU2Uv9qw2oatFXxssq2IAyB7.iwwglqnXDmTth_5Kip99sfCPg5SjCwdLvplkne9U32sQHTedf7_0NoUkeYyPrgo.Tyma9bIwvg9WMGsrjHRP7yNA5jigezVKAhIhUwoAvtZRzKUL41Bb3pdQ0awQhbHjdbFFmFk12Ym2kuMWt1io3QOvEVyv_zw4gicF0GJKrQYt6j9MuJFC6VsOKfKZzkdhfu6nxZ1J0IUfWH3U_MsoFeeI5tkpEjvbR7SOKFm4qymZ3P.zamuvBmxDKUhE00WIw5lfvvueJ4T.Hwr78rA9utcn9b6B8YF3Vw.E7Rouc_lXw6w24QsnPaOZ78D.XiH0LMx43qbZoFTNXv293WtlsjQ63WV5rPRd2_DnLid_LtwgM4pk3X7cgvOTq63iuE8nVdZhLzQ3vIrDApsQjGoaaJgMG1_fofjgxArSLfZLppG8SPaX5.GnHgcF3.Mw18gtoKE22MdMM0YYiy3dtrgk4yllA0U0cTM6SswTLknueCof.oE5CKBIdYDVZqrny2Ho2zf7g1DVt.DsDfilzud61I0b7ihJ6y5Gbd5b6x06qRYod96ZhnikpoBJsb.dXUaS18SkD9tV4omWeJF8h34cf1VqmnXONkIn6lfmgjF_Wie8b9youTCEJJums.0ULyWva7_iEbpbKw1XfOKRA1wVJnjqUytloRZcnrzrczOxJXaaOlLkRTHdsBwHZ3WCP33pVq7Pmxx2hM2ILSPWOxDv8cFmwu9YTS8bBiFGZ6BZ_Ps5POLnW2e4HWxaVCsEAZbdI_x5VAwk044dzl3DUJyr00Y6mjUyQjVASJG0A4e0L8jka8dFhdqW9MsMeSSuFdJ1pyzDhyJWOwAbVYSuN9B5zyLMxSZwVAPc5cN0XXAnbEMBGDatc7yvFZBjCzdR9_4VLy1XYVcF5iVNYty7PiOUyI_Srb2h5.7DK_sNaKJ2grZ0KsYl8d8rS02eKNcyJa4Co5WzFIVfuA5P1N8IAlgBCnYtm2IERrfo_bLFKFXflaPDbtf.BJXb0i1_a2CmmN3sTzQwXm7YpUwkkIqtTyIFJZx3WPDmdVb1vAEyYyj2VfB6CjRnkfUiheWm6UnG9j3V7x9NWedJXldpBihdlasXotF5RAE4cQ4YTNEIu9EP6we95PZC6TuKCmjXO0CarJwSRb4ZVdcEdDoyWccGbAaoeuGDT10smSTnL2YT_izYAMbnDWuPvS6e5xSax3MWnUVmaM6WdoncVy.5rrJtfj2QD0VTd_AjT6kt9mntZmVY6WVHVNq6x27anpTTvK23Pu3y3LGv5nEV10qCd0mB6hnbNvcUlzHiEJ1miUiPpuOcsCe.ipPDTYTrvLP10EHytVtQxrVTJ6.DWAP8KT06dZuNHKFoR23M8n3ukZ1OCpfatgSpsZgifbv13pCIrg5LMiufEbBcmh8qN.Q0WBbH26mbSWoWKNO7clrzybZML6qlwYc8VOrC_0k.DXDqfrzFNXSzHOdIbxvwi1P7d0mzCMEs3Clonz2FwS.HN.TjXY.gNcA_C0lZe5Tx4IGfQ7OD47IpaGVTKws6bMhF1fdCr9u0EHE36Zx6U7jduYn4HCfuvsT75Bf0cpIKYedoCW8fnEhUu5ntC.OBhoa07YH7jLY1ug_mUFyZgtsMvEYKlLn5CHIqkQD.jNf.GrF16NJ5gIuhb7es0OVITNb050EDxTI8La87As6rZB4ltF9BJFvQCPk7ix_0IXasTyJ3Jd6gtKNQE7UN0APD1hiKyfqGI.kXZ8OgtUiFF.wHnu.m.jvQTS.lwCrVcOwHKwIIIACLBqEm2HJuM4_.DN9awYANqXPOlV1wrTw3ciTIlnjBdGjW_M8EKC3HQ8kEue55oIrl8uw_M94IwjrO_ZLKNC75WZ8MhyUlJBJzuD3tIGYQjClqdUnpOYboVlqSB9u1ksr3im1qJw7tDze86tFq8yaQMjFAA6WCE3C7OPmN00yGIuT7YKmz_8lafIXH9J2IU2cvondPw0zTmIGCNcWddtSpW4F33HJjp4ZlxAeUVP8E_6_WOMpGd12uvexz4c4TQFbkTPGfpFB93Ba9xaMHe_nVIFRk8..u5Y1hbbDZeCbtdcA.D8P_ja741B48zkax1XemQOtdIj8E8Iur0WCaIv1wDbfuKyVy0eYVkxZ0in7YppiQ65TalxyitWEQ03vfM',};var a = document.createElement('script');a.src = '/cdn-cgi/challenge-platform/h/g/orchestrate/chl_page/v1?ray=9d6c2fea29641c3f';window._cf_chl_opt.cOgUHash = location.hash === '' && location.href.indexOf('#') !== -1 ? '#' : location.hash;window._cf_chl_opt.cOgUQuery = location.search === '' && location.href.slice(0, location.href.length - window._cf_chl_opt.cOgUHash.length).indexOf('?') !== -1 ? '?' : location.search;if (window.history && window.history.replaceState) {var ogU = location.pathname + window._cf_chl_opt.cOgUQuery + window._cf_chl_opt.cOgUHash;history.replaceState(null, null,"\/...?__cf_chl_rt_tk=SZOJAYS6C9YglDB0JGZQUkjtl.FfrR6U9DUb3xxowgE-1772578090-1.0.1.1-V.zZ_pqyEUvuW8BzE3Cr2c.GXUuSuuSnWzxQ.eygBrw"+ window._cf_chl_opt.cOgUHash);a.onload = function() {history.replaceState(null, null, ogU);}}document.getElementsByTagName('head')[0].appendChild(a);}());</script></body></html>
+# Ward Protocol
+
+**The open specification for XLS-66 vault default protection on the XRP Ledger.**
+
+[![PyPI](https://img.shields.io/pypi/v/ward-protocol)](https://pypi.org/project/ward-protocol/)
+[![Python 3.12](https://img.shields.io/badge/python-3.12-blue)](https://python.org)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green)](LICENSE)
+[![Tests: 75/75](https://img.shields.io/badge/tests-75%2F75-brightgreen)](test_ward.py)
+[![XRPL: Discussion](https://img.shields.io/badge/XRPLF-Discussion%20%23474-blue)](https://github.com/XRPLF/XRPL-Standards/discussions/474)
+
+[Website](https://wardprotocol.org) · [API Docs](https://api.wardprotocol.org) · [PyPI](https://pypi.org/project/ward-protocol/) · [XRPLF Discussion #474](https://github.com/XRPLF/XRPL-Standards/discussions/474)
+
+---
+
+## What Ward Protocol Is
+
+Ward Protocol is a **software specification** — not an insurance company, not an operator, not a service.
+
+Ward defines the open standard for default protection on XLS-66 vaults. Institutions that want to offer coverage to vault depositors implement Ward's specification using their own wallets, their own capital, and their own regulatory licenses.
+
+**Ward writes the rules. Institutions run the rails. Everything settles on XRPL.**
+
+This is the same model as Stripe for payments — Stripe doesn't hold your money, they define the protocol that moves it. Ward doesn't hold depositor funds, it defines the protocol that protects them.
+
+---
+
+## The Core Invariant
+
+```python
+# Ward NEVER does this:
+await submit_and_wait(tx, client, ward_wallet)  # Ward has no wallet
+
+# Ward ALWAYS does this:
+return UnsignedTransaction(tx_dict=tx.to_dict(), ward_signed=False)
+# Institution signs and submits with their own wallet
+```
+
+Ward constructs unsigned XRPL transactions. Institutions sign them. The XRP Ledger enforces the outcome. Ward's server is irrelevant once a transaction is on-chain.
+
+---
+
+## Current Status
+
+**Testnet-proven SDK — 5 confirmed on-chain transactions, 75/75 unit tests passing.**
+
+| Metric | Value |
+|--------|-------|
+| SDK Version | 0.1.0 |
+| Unit Tests | 75/75 passing |
+| On-Chain Transactions Confirmed | 5 (XRPL Altnet) |
+| External Service Dependencies | 0 — pure XRPL |
+| Ward Holds Keys | Never |
+| Authoritative State Location | XRPL Ledger |
+| XRPLF Standards | XLS-66 · XLS-70 · XLS-80 · XLS-20 |
+
+---
+
+## Confirmed On-Chain Transactions
+
+All 5 transactions verified on XRPL Testnet Explorer — 2026-03-01.
+
+| Step | Type | Hash |
+|------|------|------|
+| 1 — Premium Payment | `Payment` | [`D541B6A2...783169`](https://testnet.xrpl.org/transactions/D541B6A2156E4BB3B22D9BD1D451598DF2D0387A25B73A5918A8779D76783169) |
+| 2 — Policy NFT Mint | `NFTokenMint` | [`B323815A...148CDF`](https://testnet.xrpl.org/transactions/B323815A6C7BA98935D2C2AA3CFC94BB956E59BA716A59430F2183D2AE148CDF) |
+| 3 — Escrow Create | `EscrowCreate` | [`9BB570DB...B0A3`](https://testnet.xrpl.org/transactions/9BB570DBC6CB9EB11339FBBDA4920E03EC2CC49EC547CBF0D031C8AABC48B0A3) |
+| 4 — Escrow Finish | `EscrowFinish` | [`E65C35A5...A3DBB`](https://testnet.xrpl.org/transactions/E65C35A568AE93E6D8A628F36A217DACB1B2A7E1A8F0A7B0912E510AED0A3DBB) |
+| 5 — Policy NFT Burn | `NFTokenBurn` | [`A5A0652C...464D8`](https://testnet.xrpl.org/transactions/A5A0652C4DA629F0D46D2A3504FDC22E410848AF5D27E956E3997346A7B464D8) |
+
+See [`testnet_proof.md`](testnet_proof.md) for full details — NFT token ID, balance changes, and the one bug discovered during the testnet run.
+
+---
+
+## Protocol Stack
+
+Ward connects four existing XRPL standards into a coherent default protection specification:
+
+| Standard | Role | Ward's Contribution |
+|----------|------|---------------------|
+| **XLS-80** | Permissioned Domains | Defines compliant domain configuration for institutional vault access |
+| **XLS-70** | On-Chain Credentials | Defines credential schema for KYC/AML-gated participation |
+| **XLS-66** | Lending Vaults | Defines monitoring spec and default detection threshold (health ratio < 1.5) |
+| **XLS-20** | NFT Policies | Defines policy metadata schema (taxon=281, `tfBurnable`, no `tfTransferable`) |
+| **XRPL Escrow** | Settlement | Defines PREIMAGE-SHA-256 condition structure for claim settlement |
+
+---
+
+## How It Works
+
+```
+Institution integrates Ward SDK
+         │
+         ▼
+Ward builds unsigned tx ──► Institution signs ──► XRPL settles
+         │                         │                    │
+   (Ward stops here)        (Institution's wallet)  (Automatic)
+```
+
+**Three phases, all on-chain:**
+
+1. **Setup** — Institution calls `TxBuilder.register_vault()`. Ward returns an unsigned `AccountSet` transaction. Institution signs and submits with their own wallet. Vault appears in XLS-80 domain registry on XRPL.
+
+2. **Coverage** — Institution calls `TxBuilder.mint_policy_nft()`. Ward returns an unsigned `NFTokenMint` with Ward's metadata schema encoded in the URI. Institution mints the NFT — it's their certificate, not Ward's.
+
+3. **Default & Settlement** — `WardMonitor` runs in the institution's own infrastructure. On default detection (vault health ratio < 1.5, confirmed over 3 ledger closes), Ward builds an unsigned `EscrowCreate`. Institution signs it. XRPL locks funds for 48 hours. Claimant finishes with PREIMAGE-SHA-256 fulfillment. NFT burns atomically — replay protection enforced by the ledger.
+
+---
+
+## SDK
+
+```bash
+pip install ward-protocol
+```
+
+### Five Hardened Modules
+
+| Module | Class | Purpose |
+|--------|-------|---------|
+| 1 | `WardClient` | Policy purchase — premium payment + NFT mint |
+| 2 | `VaultMonitor` | WebSocket default detection, 3-ledger confirmation |
+| 3 | `ClaimValidator` | 9-step adversarial-hardened on-chain validation |
+| 4 | `EscrowSettlement` | PREIMAGE-SHA-256 conditioned claim settlement |
+| 5 | `PoolHealthMonitor` | On-chain solvency and dynamic premium pricing |
+
+### Quick Start
+
+```python
+from ward_client import WardClient
+
+client = WardClient(xrpl_url="https://s.altnet.rippletest.net:51234/")
+
+# Ward builds the transaction — institution's wallet signs it
+result = await client.purchase_coverage(
+    wallet=institution_wallet,        # Institution's wallet — Ward never stores it
+    vault_address="rVaultXXX...",
+    coverage_drops=10_000_000,        # 10 XRP in drops
+    period_days=90,
+    pool_address="rPoolXXX...",
+)
+# Returns: {"policy_id", "nft_token_id", "ledger_tx", "expiry_ledger_time"}
+```
+
+### Vault Monitor — Runs in Institution's Infrastructure
+
+```python
+from ward_client import VaultMonitor
+
+# Institution runs this in their own servers — not Ward's
+monitor = VaultMonitor(
+    websocket_url="wss://s.altnet.rippletest.net:51233/",
+    vault_addresses=["rVaultXXX..."],
+)
+
+@monitor.on_verified_default
+async def handle_default(event):
+    # Ward detected the default. Institution decides what to do.
+    # Ward builds the escrow tx. Institution signs it.
+    print(f"Default confirmed: {event}")
+
+await monitor.run()
+```
+
+---
+
+## Security Model
+
+Eight security invariants — all enforced by the XRPL ledger, not Ward's server:
+
+| Invariant | Enforcement |
+|-----------|-------------|
+| Ward never holds wallet keys | By architecture — no wallet in Ward's codebase |
+| Policies non-transferable | `tfBurnable` only, no `tfTransferable` — XRPL enforces |
+| No front-running on claims | PREIMAGE-SHA-256 — only claimant holds the key |
+| Clock manipulation impossible | XRPL ledger time for all expiry logic |
+| Multi-confirmation before default | 3 ledger closes required — no single-block manipulation |
+| Replay attacks impossible | NFT burns on settlement — ledger confirms absence |
+| Rate limiting on claims | Max 3 attempts per NFT per 5-minute window |
+| Address validation | All inputs validated with ledger codec before any tx |
+
+See [`security_notes.md`](security_notes.md) for all 15 attack vectors and mitigations.
+
+---
+
+## Running the Tests
+
+```bash
+git clone https://github.com/wflores9/ward-protocol.git
+cd ward-protocol
+pip install xrpl-py pytest pytest-asyncio
+
+# Unit tests — no network required
+pytest test_ward.py -v -m "not integration"   # 75/75 pass
+
+# Full testnet simulation — XRPL Altnet required
+python testnet_sim.py
+```
+
+---
+
+## Repository Structure
+
+```
+ward-protocol/
+├── ward_client.py           # PRIMARY SDK — 5 hardened modules
+├── test_ward.py             # 75-test suite (unit, no network)
+├── testnet_sim.py           # End-to-end testnet simulation
+├── testnet_proof.md         # 5 confirmed on-chain transaction hashes
+├── security_notes.md        # 15 attack vectors and mitigations
+├── REFACTOR.md              # Architecture history — operator → protocol
+├── ward/                    # Protocol primitives
+│   ├── tx_builder.py        # Unsigned XRPL transaction construction
+│   ├── chain_reader.py      # Read-only XRPL queries, no Ward DB
+│   └── monitor.py           # Embeddable vault health monitor
+├── demo/                    # XRPLF grant demo (3-minute end-to-end)
+└── docs/                    # Specification documents
+```
+
+---
+
+## Roadmap
+
+### Phase 1 — Protocol Specification (Now → Q2 2026)
+- [x] SDK built and tested — `ward_client.py`, 75/75 tests
+- [x] Testnet simulation confirmed — 5 on-chain transactions
+- [x] XRPLF Discussion #474 — active community engagement
+- [ ] XRPLF Grant application — demo as primary evidence
+- [ ] Security audit ($15k–$50k, funded by grant)
+- [ ] Legal opinion — Ward is a software protocol, not an insurer
+
+### Phase 2 — First Institutional Partner (Q2–Q3 2026)
+- [ ] White-label licensing agreement with InsurTech or Lloyd's syndicate
+- [ ] Institution brings underwriting + regulatory licenses
+- [ ] Ward provides the on-chain rails
+- [ ] First mainnet deployment with institutional capital
+
+### Phase 3 — Acquisition-Ready (2027)
+- [ ] Live institutional partners with demonstrable TVL
+- [ ] Clean audit + legal opinion in hand
+- [ ] XRPLF PR merged — XLS-0098 recognized standard
+- [ ] Strategic conversation with Ripple or institutional acquirer
+
+---
+
+## Why This Architecture Matters
+
+Ripple acquired Hidden Road for settlement infrastructure. They backed t54 for identity. They have RLUSD for liquidity. **They don't have default protection for XLS-66 vaults.** Ward is that piece.
+
+The acquisition pitch is not "buy our insurance company." It is "buy the risk management specification layer that makes your institutional DeFi stack complete."
+
+That conversation requires three things Ward is building toward:
+1. **Embedded** — vault operators integrated deeply enough that removal is painful
+2. **Audited** — on-chain claims history that can't be reproduced overnight
+3. **Clean legal structure** — written opinion that Ward is a software protocol, not an insurer
+
+All three depend on the code never signing a transaction. See [`REFACTOR.md`](REFACTOR.md).
+
+---
+
+## Community
+
+- **Website:** [wardprotocol.org](https://wardprotocol.org)
+- **API Docs:** [api.wardprotocol.org](https://api.wardprotocol.org)
+- **XRPLF Discussion:** [#474](https://github.com/XRPLF/XRPL-Standards/discussions/474)
+- **GitHub:** [wflores9/ward-protocol](https://github.com/wflores9/ward-protocol)
+- **Email:** wflores@wardprotocol.org
+
+---
+
+## License
+
+MIT — see [LICENSE](LICENSE)
+
+---
+
+*Ward Protocol · Software Specification · Not an insurance company · The spec is open. The rails are yours.*
