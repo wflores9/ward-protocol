@@ -1,6 +1,6 @@
 {
-  "rewrites": [
-    { "source": "/docs/flows.html", "destination": "/docs/flows.html" }
+  "routes": [
+    { "src": "/docs/(.*)", "dest": "/docs/$1" }
   ],
   "cleanUrls": false
 }
