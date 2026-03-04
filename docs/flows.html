@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>XLS-0098 — Protocol Flows</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f7f8fa;
+  --surface: #ffffff;
+  --border: #e2e6ed;
+  --text: #1a1f2e;
+  --text2: #4a5568;
+  --muted: #8896a8;
+  --inst: #2c5282;
+  --inst-bg: #ebf4ff;
+  --inst-border: #bee3f8;
+  --ward: #276749;
+  --ward-bg: #e6f4ed;
+  --ward-border: #9ae6b4;
+  --xrpl: #2d3748;
+  --xrpl-bg: #edf2f7;
+  --xrpl-border: #cbd5e0;
+  --dep: #744210;
+  --dep-bg: #fffbeb;
+  --dep-border: #f6d860;
+  --handler: #553c9a;
+  --handler-bg: #faf5ff;
+  --handler-border: #d6bcfa;
+  --arrow: #4a5568;
+  --mono: 'IBM Plex Mono', monospace;
+  --sans: 'IBM Plex Sans', sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  padding: 40px 24px 60px;
+  line-height: 1.5;
+}
+
+.page {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* Header */
+.header {
+  text-align: center;
+  margin-bottom: 36px;
+  padding-bottom: 28px;
+  border-bottom: 2px solid var(--border);
+}
+.header h1 {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -.3px;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+.header p {
+  font-size: 13px;
+  color: var(--text2);
+  max-width: 540px;
+  margin: 0 auto;
+}
+
+/* Core Principle */
+.core-principle {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--ward);
+  border-radius: 10px;
+  padding: 18px 20px;
+  margin-bottom: 32px;
+  display: flex;
+  gap: 32px;
+  align-items: flex-start;
+}
+.cp-text { flex: 1; }
+.cp-text h3 { font-size: 12px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: var(--ward); margin-bottom: 10px; }
+.cp-steps { display: flex; flex-direction: column; gap: 6px; }
+.cp-step { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text2); }
+.cp-num { width: 20px; height: 20px; border-radius: 50%; background: var(--ward); color: #fff; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.cp-invariant { margin-top: 12px; padding: 10px 12px; background: #f0fff4; border: 1px solid var(--ward-border); border-radius: 6px; font-family: var(--mono); font-size: 11px; color: var(--ward); font-weight: 600; }
+.cp-diagram { flex-shrink: 0; }
+.swimlane-mini { display: flex; align-items: center; gap: 0; }
+.snode { padding: 7px 12px; border-radius: 6px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+.snode-inst { background: var(--inst-bg); border: 1px solid var(--inst-border); color: var(--inst); }
+.snode-ward { background: var(--ward-bg); border: 1px solid var(--ward-border); color: var(--ward); }
+.snode-xrpl { background: var(--xrpl-bg); border: 1px solid var(--xrpl-border); color: var(--xrpl); }
+.sarrow { color: var(--muted); font-size: 16px; padding: 0 4px; }
+.mini-label { font-family: var(--mono); font-size: 10px; color: var(--ward); background: #f0fff4; border: 1px solid var(--ward-border); border-radius: 4px; padding: 3px 7px; margin-top: 6px; text-align: center; }
+
+/* Flow sections */
+.flow {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+
+.flow-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  background: #fafbfc;
+}
+.flow-num {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--text);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.flow-title { font-size: 15px; font-weight: 700; color: var(--text); }
+.flow-subtitle { font-size: 12px; color: var(--text2); margin-top: 1px; }
+
+.flow-body { padding: 20px; }
+
+/* Swimlane diagram */
+.swimlane {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  margin-bottom: 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.lane {
+  flex: 1;
+  padding: 12px 14px;
+  border-right: 1px solid var(--border);
+  min-width: 0;
+}
+.lane:last-child { border-right: none; }
+
+.lane-header {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .8px;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid;
+}
+
+.lane-inst .lane-header { color: var(--inst); border-color: var(--inst-border); background: var(--inst-bg); margin: -12px -14px 10px; padding: 8px 14px; }
+.lane-ward .lane-header { color: var(--ward); border-color: var(--ward-border); background: var(--ward-bg); margin: -12px -14px 10px; padding: 8px 14px; }
+.lane-xrpl .lane-header { color: var(--xrpl); border-color: var(--xrpl-border); background: var(--xrpl-bg); margin: -12px -14px 10px; padding: 8px 14px; }
+.lane-dep .lane-header { color: var(--dep); border-color: var(--dep-border); background: var(--dep-bg); margin: -12px -14px 10px; padding: 8px 14px; }
+.lane-handler .lane-header { color: var(--handler); border-color: var(--handler-border); background: var(--handler-bg); margin: -12px -14px 10px; padding: 8px 14px; }
+
+.action {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text);
+  background: #f7f8fa;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 6px 9px;
+  margin-bottom: 6px;
+}
+
+.unsigned-badge {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--ward);
+  background: var(--ward-bg);
+  border: 1px solid var(--ward-border);
+  border-radius: 4px;
+  padding: 4px 8px;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.result-badge {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--xrpl);
+  background: var(--xrpl-bg);
+  border: 1px solid var(--xrpl-border);
+  border-radius: 4px;
+  padding: 4px 8px;
+  margin-bottom: 4px;
+}
+
+.flow-result {
+  font-size: 12px;
+  color: var(--text2);
+  padding: 8px 12px;
+  background: #f7f8fa;
+  border-radius: 6px;
+  border-left: 3px solid var(--ward);
+}
+.flow-result strong { color: var(--text); }
+
+.arrow-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 6px 0;
+  font-size: 11px;
+  color: var(--muted);
+}
+.arrow-line {
+  height: 1px;
+  background: var(--border);
+  flex: 1;
+}
+.arrow-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.confirm-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: #c05621;
+  background: #fffaf0;
+  border: 1px solid #fbd38d;
+  border-radius: 4px;
+  padding: 4px 8px;
+  margin-bottom: 4px;
+}
+
+.note {
+  font-size: 11px;
+  color: var(--muted);
+  font-style: italic;
+  margin-top: 6px;
+}
+
+.step-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+.step-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--text2);
+}
+.step-n {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted);
+  flex-shrink: 0;
+  margin-top: 1px;
+  width: 18px;
+}
+.step-check { color: #38a169; flex-shrink: 0; margin-top: 1px; }
+
+/* State summary table */
+.state-table {
+  margin-top: 32px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.st-header {
+  padding: 14px 20px;
+  background: var(--text);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .3px;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+th {
+  text-align: left;
+  padding: 10px 16px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: #fafbfc;
+  border-bottom: 1px solid var(--border);
+}
+td {
+  padding: 10px 16px;
+  border-bottom: 1px solid #f0f2f5;
+  color: var(--text2);
+  vertical-align: top;
+}
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: #fafbfc; }
+.td-phase { font-weight: 600; color: var(--text); font-size: 12px; }
+.td-tx { font-family: var(--mono); font-size: 11px; color: var(--inst); background: var(--inst-bg); padding: 2px 7px; border-radius: 4px; display: inline-block; }
+.td-note { font-family: var(--mono); font-size: 10px; color: var(--muted); }
+.ward-note {
+  text-align: center;
+  padding: 12px 16px;
+  font-size: 11px;
+  color: var(--muted);
+  background: #fafbfc;
+  border-top: 1px solid var(--border);
+  font-style: italic;
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <div class="header">
+    <h1>XLS-0098 — Protocol Flows</h1>
+    <p>Transaction flows for the Ward Protocol default protection specification. All flows use existing XRPL native transaction types. No custom ledger objects are introduced.</p>
+  </div>
+
+  <!-- Core Principle -->
+  <div class="core-principle">
+    <div class="cp-text">
+      <h3>Core Principle</h3>
+      <div class="cp-steps">
+        <div class="cp-step"><div class="cp-num">1</div>Institution integrates Ward SDK</div>
+        <div class="cp-step"><div class="cp-num">2</div>Ward builds unsigned XRPL transaction</div>
+        <div class="cp-step"><div class="cp-num">3</div>Institution signs with own wallet</div>
+        <div class="cp-step"><div class="cp-num">4</div>XRPL ledger enforces outcome (automatic)</div>
+      </div>
+      <div class="cp-invariant">Ward stops here. Ward never holds keys. Ward never submits transactions.</div>
+    </div>
+    <div class="cp-diagram">
+      <div class="swimlane-mini">
+        <div class="snode snode-inst">Institution Wallet</div>
+        <div class="sarrow">→</div>
+        <div class="snode snode-ward">Ward SDK</div>
+        <div class="sarrow">→</div>
+        <div class="snode snode-xrpl">XRPL Ledger</div>
+      </div>
+      <div class="mini-label">ward_signed = false — always</div>
+    </div>
+  </div>
+
+  <!-- Flow 1 -->
+  <div class="flow">
+    <div class="flow-header">
+      <div class="flow-num">1</div>
+      <div>
+        <div class="flow-title">Vault Registration</div>
+        <div class="flow-subtitle">Registers an XLS-66 vault in the Ward Protocol XLS-80 compliance domain</div>
+      </div>
+    </div>
+    <div class="flow-body">
+      <div class="swimlane">
+        <div class="lane lane-inst">
+          <div class="lane-header">Institution Wallet</div>
+          <div class="action">register_vault()</div>
+          <div class="note">Institution's wallet — Ward has no wallet</div>
+        </div>
+        <div class="lane lane-ward">
+          <div class="lane-header">Ward SDK</div>
+          <div class="unsigned-badge">unsigned AccountSet</div>
+          <div class="unsigned-badge">ward_signed = false</div>
+          <div class="note">Ward stops here</div>
+        </div>
+        <div class="lane lane-xrpl">
+          <div class="lane-header">XRPL Ledger</div>
+          <div class="result-badge">AccountSet confirmed</div>
+          <div class="result-badge">Vault in XLS-80 domain registry</div>
+        </div>
+      </div>
+      <div class="flow-result"><strong>Result:</strong> Vault address appears in XLS-80 domain registry on XRPL. Signer: Institution wallet (never Ward).</div>
+    </div>
+  </div>
+
+  <!-- Flow 2 -->
+  <div class="flow">
+    <div class="flow-header">
+      <div class="flow-num">2</div>
+      <div>
+        <div class="flow-title">Credential Issuance <span style="font-weight:400;color:var(--text2)">(XLS-70)</span></div>
+        <div class="flow-subtitle">Institution issues a KYC/AML credential to a depositor wallet</div>
+      </div>
+    </div>
+    <div class="flow-body">
+      <div class="swimlane">
+        <div class="lane lane-inst">
+          <div class="lane-header">Institution Wallet</div>
+          <div class="action">issue_credential()</div>
+          <div class="note">Institution decides who gets credentials</div>
+        </div>
+        <div class="lane lane-ward">
+          <div class="lane-header">Ward SDK</div>
+          <div class="unsigned-badge">unsigned NFTokenMint</div>
+          <div class="unsigned-badge">credential schema</div>
+          <div class="unsigned-badge">ward_signed = false</div>
+        </div>
+        <div class="lane lane-xrpl">
+          <div class="lane-header">XRPL Ledger</div>
+          <div class="result-badge">Credential NFT live</div>
+          <div class="result-badge">Depositor now eligible</div>
+        </div>
+      </div>
+      <div class="flow-result"><strong>Result:</strong> XLS-70 credential NFT in depositor's account, verifiable on-chain by any XRPL node.</div>
+    </div>
+  </div>
+
+  <!-- Flow 3 -->
+  <div class="flow">
+    <div class="flow-header">
+      <div class="flow-num">3</div>
+      <div>
+        <div class="flow-title">Policy Purchase</div>
+        <div class="flow-subtitle">Depositor pays premium; institution mints coverage policy NFT</div>
+      </div>
+    </div>
+    <div class="flow-body">
+      <div class="swimlane">
+        <div class="lane lane-dep">
+          <div class="lane-header">Depositor Wallet</div>
+          <div class="action">pay premium</div>
+          <div class="note">Payment tx to pool address</div>
+        </div>
+        <div class="lane lane-inst">
+          <div class="lane-header">Institution Wallet</div>
+          <div class="action">mint_policy()</div>
+          <div class="note">Institution mints — not Ward</div>
+        </div>
+        <div class="lane lane-ward">
+          <div class="lane-header">Ward SDK</div>
+          <div class="unsigned-badge">unsigned NFTokenMint</div>
+          <div class="unsigned-badge">taxon = 281</div>
+          <div class="unsigned-badge">tfBurnable only</div>
+          <div class="unsigned-badge">ward_signed = false</div>
+        </div>
+        <div class="lane lane-xrpl">
+          <div class="lane-header">XRPL Ledger</div>
+          <div class="result-badge">Policy NFT live</div>
+          <div class="result-badge">Non-transferable</div>
+          <div class="result-badge">Metadata on-chain</div>
+        </div>
+      </div>
+      <div class="flow-result"><strong>Result:</strong> Policy NFT in institution account, taxon=281, tfBurnable only. No tfTransferable — policies cannot be sold. Ward never minted anything.</div>
+    </div>
+  </div>
+
+  <!-- Flow 4 -->
+  <div class="flow">
+    <div class="flow-header">
+      <div class="flow-num">4</div>
+      <div>
+        <div class="flow-title">Default Detection</div>
+        <div class="flow-subtitle">Runs in institution's own infrastructure. Ward provides detection logic; institution acts on events.</div>
+      </div>
+    </div>
+    <div class="flow-body">
+      <div class="swimlane">
+        <div class="lane lane-xrpl">
+          <div class="lane-header">XRPL Ledger</div>
+          <div class="action">LoanManage tx</div>
+          <div class="confirm-badge">⚡ tfLoanDefault flag</div>
+          <div class="note">Ledger stream event</div>
+        </div>
+        <div class="lane lane-ward">
+          <div class="lane-header">WardMonitor</div>
+          <div class="confirm-badge">Confirmation 1/3</div>
+          <div class="confirm-badge">Confirmation 2/3</div>
+          <div class="confirm-badge">Confirmation 3/3 ✓</div>
+          <div class="note">3 ledger closes required — no single-block manipulation</div>
+        </div>
+        <div class="lane lane-handler">
+          <div class="lane-header">Institution Handler</div>
+          <div class="action">on_verified_default()</div>
+          <div class="unsigned-badge" style="color:var(--handler);background:var(--handler-bg);border-color:var(--handler-border);">DefaultEvent emitted</div>
+          <div class="note">Institution decides — Ward only detects</div>
+        </div>
+      </div>
+      <div class="flow-result"><strong>Note:</strong> WardMonitor runs in the institution's own servers — not Ward's. Ward provides the detection algorithm. Institution owns execution.</div>
+    </div>
+  </div>
+
+  <!-- Flow 5 -->
+  <div class="flow">
+    <div class="flow-header">
+      <div class="flow-num">5</div>
+      <div>
+        <div class="flow-title">Claim Validation <span style="font-weight:400;color:var(--text2)">(9 Steps)</span></div>
+        <div class="flow-subtitle">All 9 steps query XRPL directly. Any failure rejects the claim.</div>
+      </div>
+    </div>
+    <div class="flow-body">
+      <div class="swimlane">
+        <div class="lane lane-ward" style="flex:1.2">
+          <div class="lane-header">ClaimValidator</div>
+          <div class="step-list">
+            <div class="step-item"><div class="step-n">01</div><div class="step-check">✓</div><span>NFT exists, owned by claimant</span></div>
+            <div class="step-item"><div class="step-n">02</div><div class="step-check">✓</div><span>Policy not expired (ledger time)</span></div>
+            <div class="step-item"><div class="step-n">03</div><div class="step-check">✓</div><span>Vault address matches NFT URI</span></div>
+            <div class="step-item"><div class="step-n">04</div><div class="step-check">✓</div><span>XLS-66 vault object exists</span></div>
+            <div class="step-item"><div class="step-n">05</div><div class="step-check">✓</div><span>Health ratio &lt; 1.5 threshold</span></div>
+            <div class="step-item"><div class="step-n">06</div><div class="step-check">✓</div><span>tfLoanDefault flag confirmed</span></div>
+            <div class="step-item"><div class="step-n">07</div><div class="step-check">✓</div><span>Depositor loan position verifiable</span></div>
+            <div class="step-item"><div class="step-n">08</div><div class="step-check">✓</div><span>Pool has sufficient balance</span></div>
+            <div class="step-item"><div class="step-n">09</div><div class="step-check">✓</div><span>NFT not previously burned</span></div>
+          </div>
+        </div>
+        <div class="lane lane-xrpl">
+          <div class="lane-header">XRPL Ledger</div>
+          <div class="result-badge">account_nfts</div>
+          <div class="result-badge">server_info → close_time</div>
+          <div class="result-badge">parse NFT URI hex</div>
+          <div class="result-badge">ledger_entry → Vault</div>
+          <div class="result-badge">parse Vault fields</div>
+          <div class="result-badge">parse LoanManage tx</div>
+          <div class="result-badge">ledger_entry → Loan</div>
+          <div class="result-badge">account_info → pool</div>
+          <div class="result-badge">account_nfts (absence)</div>
+          <div class="note" style="margin-top:8px;">Steps 4–7 require XLS-66 on mainnet. Validated with mock fixtures in unit tests (75/75 passing).</div>
+        </div>
+      </div>
+      <div class="flow-result"><strong>All 9 steps pass → proceed to escrow.</strong> Any step fails → claim rejected. No off-chain data source required or permitted.</div>
+    </div>
+  </div>
+
+  <!-- Flow 6 -->
+  <div class="flow">
+    <div class="flow-header">
+      <div class="flow-num">6</div>
+      <div>
+        <div class="flow-title">Settlement <span style="font-weight:400;color:var(--text2)">(Escrow)</span></div>
+        <div class="flow-subtitle">PREIMAGE-SHA-256 + time lock. Only claimant can finish. Ward server irrelevant after EscrowCreate.</div>
+      </div>
+    </div>
+    <div class="flow-body">
+      <div class="swimlane">
+        <div class="lane lane-dep">
+          <div class="lane-header">Claimant</div>
+          <div class="action">generate preimage</div>
+          <div class="note">Offline, secret — Ward never sees it</div>
+          <div style="margin-top:10px;" class="action">share condition_hex</div>
+          <div class="note">NOT the preimage — only the condition</div>
+          <div style="margin-top:10px;padding-top:10px;border-top:1px dashed var(--border);">
+            <div class="action">EscrowFinish</div>
+            <div class="action">+ fulfillment_hex</div>
+            <div class="action">+ NFTokenBurn</div>
+            <div class="note">Only claimant can finish — no front-running</div>
+          </div>
+        </div>
+        <div class="lane lane-inst">
+          <div class="lane-header">Institution Wallet</div>
+          <div class="action">create_escrow()</div>
+          <div class="unsigned-badge">unsigned EscrowCreate</div>
+          <div class="unsigned-badge">Condition: SHA256(preimage)</div>
+          <div class="unsigned-badge">FinishAfter: +48h</div>
+          <div class="unsigned-badge">ward_signed = false</div>
+          <div class="note">Institution signs and submits</div>
+        </div>
+        <div class="lane lane-xrpl">
+          <div class="lane-header">XRPL Ledger</div>
+          <div class="result-badge">EscrowObject on-chain</div>
+          <div class="result-badge">48h dispute window</div>
+          <div class="confirm-badge" style="margin-top:4px;">⏱ FinishAfter enforced</div>
+          <div style="margin-top:10px;padding-top:10px;border-top:1px dashed var(--border);">
+            <div class="result-badge">Payout released</div>
+            <div class="result-badge">NFT burned</div>
+            <div class="result-badge">Replay impossible</div>
+          </div>
+          <div class="note" style="margin-top:6px;">Ward server irrelevant after EscrowCreate — XRPL settles automatically</div>
+        </div>
+      </div>
+      <div class="flow-result"><strong>Key guarantee:</strong> Once EscrowCreate is on-chain, Ward's operational status is irrelevant. The XRP Ledger enforces payout automatically at FinishAfter. EscrowFinish is permissionless — anyone can submit after maturity.</div>
+    </div>
+  </div>
+
+  <!-- State Summary Table -->
+  <div class="state-table">
+    <div class="st-header">State Summary — All Transitions Are XRPL Native Transactions</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Phase</th>
+          <th>XRPL State Change</th>
+          <th>Transaction</th>
+          <th>Ward Signs?</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="td-phase">Vault registered</td>
+          <td>AccountSet domain field set on-chain</td>
+          <td><span class="td-tx">AccountSet</span></td>
+          <td class="td-note">Never</td>
+        </tr>
+        <tr>
+          <td class="td-phase">Credential issued</td>
+          <td>Credential NFT in depositor account</td>
+          <td><span class="td-tx">NFTokenMint</span></td>
+          <td class="td-note">Never</td>
+        </tr>
+        <tr>
+          <td class="td-phase">Policy active</td>
+          <td>Policy NFT in institution account, taxon=281</td>
+          <td><span class="td-tx">NFTokenMint</span></td>
+          <td class="td-note">Never</td>
+        </tr>
+        <tr>
+          <td class="td-phase">Default confirmed</td>
+          <td>Detection only — no state change required</td>
+          <td><span class="td-tx" style="background:var(--dep-bg);color:var(--dep);border:none;">WebSocket</span></td>
+          <td class="td-note">Never</td>
+        </tr>
+        <tr>
+          <td class="td-phase">Escrow created</td>
+          <td>EscrowObject on-chain, funds locked 48h</td>
+          <td><span class="td-tx">EscrowCreate</span></td>
+          <td class="td-note">Never</td>
+        </tr>
+        <tr>
+          <td class="td-phase">Claim settled</td>
+          <td>EscrowObject removed, XRP transferred to claimant</td>
+          <td><span class="td-tx">EscrowFinish</span></td>
+          <td class="td-note">Never</td>
+        </tr>
+        <tr>
+          <td class="td-phase">Policy burned</td>
+          <td>NFT absent from account_nfts — replay impossible</td>
+          <td><span class="td-tx">NFTokenBurn</span></td>
+          <td class="td-note">Never</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="ward-note">All state transitions are XRPL native transactions. No off-chain state is authoritative. Ward never signs.</div>
+  </div>
+
+</div>
+</body>
+</html>
