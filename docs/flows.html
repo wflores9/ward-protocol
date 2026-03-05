@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>XLS-0098 — Protocol Flows</title>
+<title>Ward Protocol — Transaction Flows</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -331,7 +331,7 @@ tr:hover td { background: #fafbfc; }
 
   <!-- Header -->
   <div class="header">
-    <h1>XLS-0098 — Protocol Flows</h1>
+    <h1>Ward Protocol — Transaction Flows</h1>
     <p>Transaction flows for the Ward Protocol default protection specification. All flows use existing XRPL native transaction types. No custom ledger objects are introduced.</p>
   </div>
 
@@ -396,30 +396,42 @@ tr:hover td { background: #fafbfc; }
     <div class="flow-header">
       <div class="flow-num">2</div>
       <div>
-        <div class="flow-title">Credential Issuance <span style="font-weight:400;color:var(--text2)">(XLS-70)</span></div>
-        <div class="flow-subtitle">Institution issues a KYC/AML credential to a depositor wallet</div>
+        <div class="flow-title">Credential Issuance <span style="font-weight:400;color:var(--text2)">(XLS-70 + KYC Hash Anchoring)</span></div>
+        <div class="flow-subtitle">Institution performs KYC off-chain, anchors sha256 commitment on-chain. Ward validates hash before building tx.</div>
       </div>
     </div>
     <div class="flow-body">
       <div class="swimlane">
         <div class="lane lane-inst">
           <div class="lane-header">Institution Wallet</div>
-          <div class="action">issue_credential()</div>
-          <div class="note">Institution decides who gets credentials</div>
+          <div class="action">KYC performed off-chain</div>
+          <div class="note">Institution legal responsibility</div>
+          <div style="margin-top:8px;" class="action">issue_credential()</div>
+          <div class="action">+ kyc_record_hash</div>
+          <div class="note">sha256 commitment of KYC record</div>
         </div>
         <div class="lane lane-ward">
-          <div class="lane-header">Ward SDK</div>
-          <div class="unsigned-badge">unsigned NFTokenMint</div>
-          <div class="unsigned-badge">credential schema</div>
+          <div class="lane-header">Ward SDK &mdash; Validates</div>
+          <div class="confirm-badge">&check; kyc_hash is valid sha256</div>
+          <div class="confirm-badge">&check; kyc_type in allowed set</div>
+          <div class="confirm-badge">&check; depositor &ne; institution</div>
+          <div class="confirm-badge">&check; expiry = XRPL ledger time</div>
+          <div class="confirm-badge">&check; URI &le; 256 bytes</div>
+          <div style="margin-top:6px;" class="unsigned-badge">unsigned NFTokenMint</div>
+          <div class="unsigned-badge">taxon = 282 (credential)</div>
           <div class="unsigned-badge">ward_signed = false</div>
+          <div class="note" style="margin-top:6px;">Ward stops here. Institution signs.</div>
         </div>
         <div class="lane lane-xrpl">
           <div class="lane-header">XRPL Ledger</div>
           <div class="result-badge">Credential NFT live</div>
+          <div class="result-badge">kyc_hash anchored on-chain</div>
+          <div class="result-badge">taxon=282, tfBurnable</div>
           <div class="result-badge">Depositor now eligible</div>
+          <div class="note" style="margin-top:6px;">Hash is immutable post-issuance.</div>
         </div>
       </div>
-      <div class="flow-result"><strong>Result:</strong> XLS-70 credential NFT in depositor's account, verifiable on-chain by any XRPL node.</div>
+      <div class="flow-result"><strong>Ward validates:</strong> hash format, schema, expiry, URI size &mdash; not whether KYC was performed correctly (institution liability).<br><strong>DNA Protocol upgrade path:</strong> kyc_hash &rarr; zk_proof &mdash; same field, zero breaking changes.</div>
     </div>
   </div>
 
