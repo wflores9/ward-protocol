@@ -44,7 +44,7 @@ def build_kyc_hash(
     bears legal responsibility for the underlying KYC record.
 
     v2 privacy layer: XLS-96 confidential balances replace this function
-    verifier. The credential schema field 'kyc_hash' becomes 'zk_proof'.
+    XRPL-native — no external protocol dependency.
     All downstream validation steps remain identical.
     """
     payload = f"{depositor_address}|{institution_address}|{xrpl_ledger_time}|{kyc_type}"
@@ -178,7 +178,7 @@ async def issue_credential(
             "issued_at":     current_ledger_time,
             "expires_at":    expires_at,
             # v2 privacy layer (XLS-96):
-            # Replace kyc_hash with zk_proof when ZK integration is ready.
+            # XLS-96 confidential balances are the v2 upgrade path — XRPL native.
             # All downstream validation (claim step 1b) stays identical.
             "ward_signed":   False,
         }

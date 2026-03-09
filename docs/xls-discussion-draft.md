@@ -134,7 +134,7 @@ Where:
 
 **Components:**
 - Python SDK for XLS-66/65 monitoring
-- PostgreSQL database (policies, claims, events)
+- XRPL ledger (authoritative state — no Ward database)
 - Claim validation engine
 - Policy NFT minting
 - Risk-based premium calculator
