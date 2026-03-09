@@ -80,7 +80,7 @@ Ward connects four existing XRPL standards into a coherent default protection sp
 | **XLS-80** | Permissioned Domains | Defines compliant domain configuration for institutional vault access |
 | **XLS-70** | On-Chain Credentials | Defines credential schema for KYC/AML-gated participation |
 | **XLS-66** | Lending Vaults | Defines monitoring spec and default detection threshold (health ratio < 1.5) |
-| **XLS-20** | NFT Policies | Defines policy metadata schema (taxon=281, `tfBurnable`, no `tfTransferable`) |
+| **XLS-20** | NFT Policies | Defines policy metadata schema (taxon=282, `tfBurnable`, no `tfTransferable`) |
 | **XRPL Escrow** | Settlement | Defines PREIMAGE-SHA-256 condition structure for claim settlement |
 
 ---

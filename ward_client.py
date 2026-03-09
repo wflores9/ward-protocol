@@ -1938,7 +1938,7 @@ Option 3: KYC Hash Anchoring
 - Institution performs KYC off-chain
 - Ward validates hash format and schema before building unsigned tx
 - Hash is a cryptographic commitment — institution cannot alter KYC record post-issuance
-- DNA Protocol upgrade path: replace kyc_hash with zk_proof, same field position
+- v2 privacy layer: XLS-96 confidential balances + MPT selective disclosure -- XRPL native
 """
 
 import hashlib
@@ -1974,7 +1974,7 @@ def build_kyc_hash(
     attestation on-chain. Ward validates format only — the institution
     bears legal responsibility for the underlying KYC record.
 
-    DNA Protocol upgrade path: this function is replaced by a ZK proof
+    v2 privacy layer: XLS-96 confidential balances replace this function
     verifier. The credential schema field 'kyc_hash' becomes 'zk_proof'.
     All downstream validation steps remain identical.
     """
@@ -2015,8 +2015,8 @@ async def issue_credential(
         for the underlying record. Hash is immutable post-issuance —
         any KYC record change is detectable by comparing the on-chain hash.
 
-    DNA Protocol upgrade path:
-        When ZK proofs are available, kyc_hash is replaced by zk_proof
+    v2 privacy layer (XLS-96):
+        XLS-96 confidential balances + MPT selective disclosure replace kyc_hash
         in the metadata schema. This method signature stays the same.
 
     Args:
@@ -2108,7 +2108,7 @@ async def issue_credential(
             "depositor":     depositor_address,
             "issued_at":     current_ledger_time,
             "expires_at":    expires_at,
-            # DNA Protocol upgrade path:
+            # v2 privacy layer (XLS-96):
             # Replace kyc_hash with zk_proof when ZK integration is ready.
             # All downstream validation (claim step 1b) stays identical.
             "ward_signed":   False,
@@ -2219,8 +2219,8 @@ async def _validate_credential_kyc_hash(
     3. The kyc_provider matches the institution claiming to have issued it
     4. The credential has not expired (XRPL ledger time)
 
-    DNA Protocol upgrade path:
-    When ZK proofs are available, replace kyc_hash check with zk_proof
+    v2 privacy layer (XLS-96):
+    XLS-96 confidential balances replace kyc_hash in v2
     verification. This method signature stays the same.
     """
     # Get depositor's NFTs

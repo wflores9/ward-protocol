@@ -61,3 +61,4 @@ archive/
 # Sentinel files (accidental shell redirections)
 =
 testnet_wallets.json
+.vercel
