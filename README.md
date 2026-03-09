@@ -45,7 +45,7 @@ Ward constructs unsigned XRPL transactions. Institutions sign them. The XRP Ledg
 
 | Metric | Value |
 |--------|-------|
-| SDK Version | 0.1.0 |
+| SDK Version | 0.1.1 |
 | Unit Tests | 75/75 passing |
 | On-Chain Transactions Confirmed | 5 (XRPL Altnet) |
 | External Service Dependencies | 0 — pure XRPL |
