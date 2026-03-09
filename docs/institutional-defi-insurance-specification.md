@@ -535,7 +535,7 @@ Premiums are collected via standard Payment transactions:
 │  └──────────────────────────────────────┘ │
 │                                            │
 │  ┌──────────────────────────────────────┐ │
-│  │  PostgreSQL Database                 │ │
+│  │  XRPL Ledger (authoritative)          │ │
 │  │  - Policy registry                   │ │
 │  │  - Claims history                    │ │
 │  │  - Vault monitoring state            │ │
@@ -547,7 +547,7 @@ Premiums are collected via standard Payment transactions:
 
 #### 3.2.2 Database Schema
 
-**PostgreSQL Tables:**
+**XRPL Ledger Objects:**
 
 ```sql
 -- Policies
@@ -835,7 +835,7 @@ Ward Protocol operates entirely at the ecosystem layer using existing XRPL primi
 ### Phase 1: Testnet Validation (Weeks 1-4)
 
 **Week 1: Infrastructure Setup**
-- Deploy PostgreSQL database
+- XRPL ledger is authoritative state — no Ward database required
 - Configure XRPL testnet node
 - Deploy monitoring services
 - Create test insurance pool AMM
