@@ -1,88 +1,48 @@
-# Ward Protocol - Infrastructure Documentation
+# Ward Protocol — Infrastructure
 
-## Production Environment
+## Production Stack
 
 | Component | Details |
 |-----------|---------|
-| **Server** | DigitalOcean 1vCPU / 1GB RAM / 25GB SSD |
-| **OS** | Ubuntu 24.04 LTS |
+| **Site** | Netlify — static deploy, wardprotocol.org |
+| **API** | Railway — sdk/python FastAPI, api.wardprotocol.org |
 | **Runtime** | Python 3.12, FastAPI + Uvicorn |
-| **Database** | PostgreSQL 16 |
-| **Reverse Proxy** | Nginx with SSL termination |
-| **SSL** | Let's Encrypt (auto-renewal via certbot) |
-| **Domain** | api.wardprotocol.org |
-| **XRPL** | Testnet integration |
+| **XRPL** | Altnet (testnet) / Mainnet via xrpl-py |
+| **State** | XRPL ledger is authoritative — no Ward database |
+| **DNS** | CNAME → Netlify for site, Railway for API |
 
-## Security Hardening
+## Key Principle
 
-### Firewall (UFW)
-- Default deny incoming
-- Allowed: SSH (22), HTTP (80), HTTPS (443)
-- All other ports blocked
+Ward has no authoritative state outside the XRPL ledger. There is no Ward database, no Ward custody, no Ward signing keys in production. The API constructs unsigned transactions and returns them. Institutions sign and submit with their own wallets.
 
-### SSH
-- Password authentication disabled
-- Key-only authentication
-- Max 3 auth attempts per connection
-- Root login restricted to key-only
+## API Deployment (Railway)
 
-### Fail2ban
-- SSH jail: 3 failures → 2-hour ban
-- Nginx rate limit jail: 10 failures → 1-hour ban
-- Auto-starts on boot
+```bash
+# railway.toml
+[deploy]
+startCommand = "cd sdk/python && uvicorn main:app --host 0.0.0.0 --port $PORT"
+```
 
-### Nginx
-- Rate limiting: 10 req/s per IP (burst 20)
-- Gzip compression enabled
-- Security headers (X-Content-Type-Options, X-Frame-Options, Referrer-Policy)
-- Server tokens hidden
-- SSL/TLS with Let's Encrypt
+## Site Deployment (Netlify)
 
-### API Security
-- API key authentication required
-- Rate limiting per endpoint tier
-- Security headers middleware
-- CORS configuration
+Static HTML deploy from repo root. Redirects configured in `netlify.toml`.
 
-## Reliability
+Routes: `/flow`, `/topology`, `/xrpl`, `/api`, `/calendar`, `/tweets`
 
-### Memory Management
-- 2GB swap file configured
-- Swappiness tuned to 10 (prefer RAM)
-- Prevents OOM kills on 1GB instance
+## API Health
 
-### Automated Backups
-- Daily PostgreSQL dumps at 03:00 UTC
-- 7-day retention policy
-- Stored at /opt/backups/
-
-### Service Management
-- systemd service with auto-restart
-- Log rotation (14-day retention)
-- SSL auto-renewal (certbot timer)
+```bash
+curl https://api.wardprotocol.org/health
+```
 
 ## Monitoring
+
 ```bash
-# Service status
-systemctl status ward-protocol
+# Unit tests — no network required
+pytest test_ward.py -v -m "not integration"  # 75/75 pass
 
-# API health
-curl https://api.wardprotocol.org/health
-
-# Fail2ban status
-fail2ban-client status sshd
-
-# Recent logs
-journalctl -u ward-protocol --since "1 hour ago"
-
-# Backup status
-ls -la /opt/backups/*.sql.gz
+# Full testnet simulation — XRPL Altnet required
+python testnet_sim.py
 ```
 
-## Deployment
-```bash
-cd /opt/ward-protocol
-source venv/bin/activate
-git pull origin main
-sudo systemctl restart ward-protocol
-```
+See `security_notes.md` for 15 attack vectors and mitigations.
