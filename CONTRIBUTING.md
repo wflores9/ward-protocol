@@ -1,11 +1,12 @@
 # Contributing to Ward Protocol
 
-Ward is a **software protocol** for on-ledger parametric insurance primitives on the XRP Ledger.  
-Core rule: Ward **never** signs or submits transactions. Every mutation returns an unsigned transaction prepared for institutional/operator signing.
+Ward is a **software specification** for default protection on XLS-66 XRPL lending vaults.
+
+Core rule: Ward **never** signs or submits transactions. Every mutation returns an unsigned transaction prepared for institutional signing.
 
 ## Architectural Layers
 
-- **`ward/`** directory — Protocol primitives (XLS-0098 specification layer)
+- **`ward/`** directory — Protocol primitives (Discussion #474 specification layer)
   - `TxBuilder`: Constructs precise, compliant unsigned transactions
   - `ChainReader`: Typed wrappers for ledger state queries
   - `WardMonitor`: Structured logging + WebSocket event handling
@@ -19,14 +20,15 @@ Core rule: Ward **never** signs or submits transactions. Every mutation returns 
 
 ## Contribution Guidelines
 
-- Protocol / spec changes → modify `ward/` and sync to XRPL-Standards XLS-0098 branch
+- Protocol / spec changes → modify `ward/` and sync to XRPLF Discussion #474
 - SDK, demo, test, or documentation improvements → target `ward_client.py`, `demo/`, `tests/`, etc.
 - `ward/` must remain signing-free at all times
 - Always run `pytest` before pushing (keep 75/75 green)
 - Use conventional commits (fix:, feat:, docs:, refactor:, etc.)
 
-## Related Repositories
-- XRPL-Standards: github.com/wflores9/XRPL-Standards (branch: XLS-0098-insurance-protocol)
+## Related
+
+- XRPLF Discussion #474: github.com/XRPLF/XRPL-Standards/discussions/474
 - On-chain proof: `testnet_proof.md`
 
-Questions? Open an issue or reach out.
+Questions? Open an issue or reach out at wflores@wardprotocol.org
