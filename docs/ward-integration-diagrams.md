@@ -710,7 +710,7 @@ graph LR
     subgraph WardBackend["🖥️ Ward Backend"]
         Monitor[Event Monitor<br/>Polls Ledger Every 3s]
         Validator[Claim Validator<br/>Verifies Events]
-        DB[(PostgreSQL<br/>Policies<br/>Claims<br/>Metrics)]
+        DB[(XRPL Ledger<br/>Authoritative State<br/>No Ward DB)]
         Settler[Settlement Engine<br/>Manages Escrows]
     end
 

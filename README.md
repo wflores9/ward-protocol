@@ -236,7 +236,7 @@ ward-protocol/
 ### Phase 3 — Acquisition-Ready (2027)
 - [ ] Live institutional partners with demonstrable TVL
 - [ ] Clean audit + legal opinion in hand
-- [ ] XRPLF PR merged — XLS-0098 recognized standard
+- [ ] XRPLF PR merged — Discussion #474 accepted as recognized standard
 - [ ] Strategic conversation with Ripple or institutional acquirer
 
 ---
