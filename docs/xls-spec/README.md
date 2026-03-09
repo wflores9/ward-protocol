@@ -162,7 +162,7 @@ All authenticated endpoints require API key via `X-API-Key` header with tiered r
 3. **Key Management**: Multi-sig (3-of-5) institutional signers; cold storage for reserve capital
 4. **Claim Validation**: 48-hour escrow provides dispute window before settlement
 5. **No Custom Smart Contracts**: Uses only native XRPL transaction types, eliminating smart contract risk
-6. **Infrastructure Security**: Production VPS hardened with UFW firewall, Fail2ban intrusion prevention, SSH key-only auth, automated PostgreSQL backups
+6. **Infrastructure Security**: Production VPS hardened with UFW firewall, Fail2ban intrusion prevention, SSH key-only auth, XRPL ledger as authoritative state
 
 ## 5. Reference Implementation
 
@@ -171,7 +171,7 @@ All authenticated endpoints require API key via `X-API-Key` header with tiered r
 **Stack**:
 - Python 3.12 with xrpl-py SDK
 - FastAPI + Uvicorn (API server)
-- PostgreSQL 16 (policy and claims database)
+- XRPL ledger (authoritative state — no Ward database)
 - Nginx with SSL/TLS (reverse proxy)
 
 **Current Status**:
