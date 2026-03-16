@@ -3,1756 +3,427 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ward Protocol — Institutional DeFi Insurance for XRP Ledger</title>
-
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<meta name="description" content="Default protection for XLS-66 lending vaults on XRPL. Open specification. ward_signed=False.">
+<meta property="og:title" content="WARD — Default Protection Protocol">
+<meta property="og:description" content="Default protection for XLS-66 lending vaults on XRPL. Open specification. ward_signed=False.">
+<meta property="og:url" content="https://wardprotocol.org">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="WARD — Default Protection Protocol">
+<meta name="twitter:description" content="Default protection for XLS-66 lending vaults on XRPL. Open specification. ward_signed=False.">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/favicon-180.png">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<title>WARD — Default Protection Protocol</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Barlow+Condensed:wght@300;400;700;900&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --navy: #050d1a;h
-    --navy-2: #071224;
-    --navy-3: #0a1a36;
-    --navy-4: #0f2347;
-    --blue: #1a56db;
-    --blue-2: #2563eb;
-    --blue-light: #3b82f6;
-    --cyan: #06b6d4;
-    --cyan-dim: #0891b2;
-    --gold: #d4a843;
-    --gold-dim: #b8902f;
-    --white: #f8fafc;
-    --white-70: rgba(248,250,252,0.88);
-    --white-40: rgba(248,250,252,0.60);
-    --white-15: rgba(248,250,252,0.15);
-    --white-08: rgba(248,250,252,0.08);
-    --white-04: rgba(248,250,252,0.04);
-    --border: rgba(248,250,252,0.1);
-    --border-blue: rgba(37,99,235,0.4);
-    --glow-blue: rgba(37,99,235,0.15);
-    --glow-cyan: rgba(6,182,212,0.12);
-  }
-
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  html { scroll-behavior: smooth; scroll-padding-top: 90px; }
-
-  body {
-    background: var(--navy);
-    color: var(--white);
-    font-family: 'DM Sans', sans-serif;
-    font-weight: 300;
-    line-height: 1.6;
-    overflow-x: hidden;
-  }
-
-  /* ─── NOISE TEXTURE OVERLAY ─── */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
-    pointer-events: none;
-    z-index: 0;
-    opacity: 0.4;
-  }
-
-  /* ─── NAV ─── */
-  nav {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 100;
-    padding: 0 48px;
-    height: 72px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    border-bottom: 1px solid var(--border);
-    background: rgba(5,13,26,0.85);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-  }
-
-  .nav-logo {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    text-decoration: none;
-  }
-
-  .logo-mark {
-    display: flex;
-    align-items: center;
-  }
-
-  .logo-mark img {
-    height: 32px;
-    width: auto;
-    object-fit: contain;
-  }
-
-  .logo-text {
-    font-family: 'Syne', sans-serif;
-    font-weight: 700;
-    font-size: 18px;
-    color: var(--white);
-    letter-spacing: -0.3px;
-  }
-
-  .logo-text span {
-    color: var(--cyan);
-  }
-
-  .nav-links {
-    display: flex;
-    align-items: center;
-    gap: 28px;
-    list-style: none;
-    flex-wrap: nowrap;
-    overflow: visible;
-  }
-
-  .nav-links a {
-    color: var(--white-70);
-    text-decoration: none;
-    font-size: 14px;
-    font-weight: 400;
-    letter-spacing: 0.3px;
-    transition: color 0.2s;
-  }
-
-  .nav-links a:hover { color: var(--white); }
-
-  .nav-cta {
-    padding: 10px 24px;
-    background: var(--blue-2);
-    color: white !important;
-    border-radius: 6px;
-    font-weight: 500 !important;
-    font-size: 14px !important;
-    transition: background 0.2s, box-shadow 0.2s !important;
-  }
-
-  .nav-cta:hover {
-    background: var(--blue-light) !important;
-    box-shadow: 0 0 20px rgba(37,99,235,0.4) !important;
-  }
-
-  /* ─── HERO ─── */
-  .hero {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    position: relative;
-    padding: 120px 48px 80px;
-    overflow: hidden;
-  }
-
-  /* Gradient mesh background */
-  .hero::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background:
-      radial-gradient(ellipse 80% 60% at 60% 40%, rgba(37,99,235,0.12) 0%, transparent 60%),
-      radial-gradient(ellipse 50% 50% at 20% 80%, rgba(6,182,212,0.08) 0%, transparent 50%),
-      radial-gradient(ellipse 40% 40% at 80% 20%, rgba(212,168,67,0.06) 0%, transparent 50%);
-    pointer-events: none;
-  }
-
-  /* Grid lines */
-  .hero-grid {
-    position: absolute;
-    inset: 0;
-    background-image:
-      linear-gradient(rgba(248,250,252,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(248,250,252,0.03) 1px, transparent 1px);
-    background-size: 60px 60px;
-    pointer-events: none;
-  }
-
-  .hero-content {
-    position: relative;
-    z-index: 2;
-    max-width: 760px;
-  }
-
-  .hero-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 14px 6px 8px;
-    border: 1px solid var(--border-blue);
-    border-radius: 100px;
-    background: var(--glow-blue);
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    font-weight: 500;
-    color: var(--cyan);
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-    margin-bottom: 32px;
-    animation: fadeUp 0.6s ease both;
-  }
-
-  .badge-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--cyan);
-    box-shadow: 0 0 8px var(--cyan);
-    animation: pulse 2s infinite;
-  }
-
-  @keyframes pulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.5; transform: scale(0.8); }
-  }
-
-  .hero h1 {
-    font-family: 'Syne', sans-serif;
-    font-weight: 800;
-    font-size: clamp(44px, 6vw, 76px);
-    line-height: 1.0;
-    letter-spacing: -2px;
-    margin-bottom: 28px;
-    animation: fadeUp 0.6s 0.1s ease both;
-  }
-
-  .hero h1 .line-2 {
-    color: transparent;
-    background: linear-gradient(90deg, var(--blue-light), var(--cyan));
-    -webkit-background-clip: text;
-    background-clip: text;
-  }
-
-  .hero-sub {
-    font-size: 18px;
-    line-height: 1.7;
-    color: var(--white-70);
-    max-width: 560px;
-    margin-bottom: 48px;
-    font-weight: 300;
-    animation: fadeUp 0.6s 0.2s ease both;
-  }
-
-  .hero-actions {
-    display: flex;
-    gap: 16px;
-    align-items: center;
-    flex-wrap: wrap;
-    animation: fadeUp 0.6s 0.3s ease both;
-  }
-
-  .btn-primary {
-    padding: 14px 32px;
-    background: var(--blue-2);
-    color: white;
-    border-radius: 8px;
-    font-size: 15px;
-    font-weight: 500;
-    text-decoration: none;
-    transition: all 0.2s;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    border: none;
-    cursor: pointer;
-    box-shadow: 0 0 30px rgba(37,99,235,0.3);
-  }
-
-  .btn-primary:hover {
-    background: var(--blue-light);
-    box-shadow: 0 0 50px rgba(37,99,235,0.5);
-    transform: translateY(-1px);
-  }
-
-  .btn-secondary {
-    padding: 14px 32px;
-    background: transparent;
-    color: var(--white-70);
-    border-radius: 8px;
-    font-size: 15px;
-    font-weight: 400;
-    text-decoration: none;
-    transition: all 0.2s;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    border: 1px solid var(--border);
-  }
-
-  .btn-secondary:hover {
-    border-color: var(--white-40);
-    color: var(--white);
-    background: var(--white-04);
-  }
-
-  /* PyPI badge */
-  .pip-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0;
-    font-family: 'SF Mono', 'Fira Code', monospace;
-    font-size: 13px;
-    border-radius: 6px;
-    overflow: hidden;
-    border: 1px solid var(--border);
-    text-decoration: none;
-    animation: fadeUp 0.6s 0.4s ease both;
-  }
-  .pip-badge:hover {
-    border-color: var(--white-40);
-  }
-  .pip-badge:hover .pip-cmd {
-    background: #1a2235;
-  }
-  .pip-badge-label {
-    background: #1565c0;
-    color: #fff;
-    padding: 7px 11px;
-    font-weight: 600;
-    letter-spacing: 0.02em;
-  }
-  .pip-cmd {
-    background: #0d1117;
-    color: #e6edf3;
-    padding: 7px 14px;
-    transition: background 0.2s;
-  }
-
-  /* Hero stats */
-  .hero-stats {
-    position: absolute;
-    right: 48px;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 2;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    animation: fadeUp 0.6s 0.4s ease both;
-  }
-
-  .stat-card {
-    background: var(--white-04);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 20px 24px;
-    min-width: 200px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .stat-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--blue-2), transparent);
-  }
-
-  .stat-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    font-weight: 400;
-    color: var(--white-40);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 6px;
-  }
-
-  .stat-value {
-    font-family: 'Syne', sans-serif;
-    font-size: 28px;
-    font-weight: 800;
-    color: var(--white);
-    letter-spacing: -1px;
-  }
-
-  .stat-value .unit {
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--cyan);
-    margin-left: 4px;
-  }
-
-  .stat-sub {
-    font-size: 12px;
-    color: var(--white-40);
-    margin-top: 4px;
-  }
-
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(24px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  /* ─── SECTION BASE ─── */
-  section {
-    position: relative;
-    z-index: 1;
-  }
-
-  .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 48px;
-  }
-
-  .section-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    font-weight: 500;
-    color: var(--cyan);
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    margin-bottom: 16px;
-  }
-
-  .section-title {
-    font-family: 'Syne', sans-serif;
-    font-size: clamp(32px, 4vw, 48px);
-    font-weight: 800;
-    line-height: 1.1;
-    letter-spacing: -1.5px;
-    margin-bottom: 20px;
-  }
-
-  .section-body {
-    font-size: 16px;
-    line-height: 1.75;
-    color: var(--white-70);
-    max-width: 600px;
-  }
-
-  /* ─── MARQUEE STRIP ─── */
-  .marquee-strip {
-    border-top: 1px solid var(--border);
-    border-bottom: 1px solid var(--border);
-    background: var(--white-04);
-    padding: 16px 0;
-    overflow: hidden;
-    white-space: nowrap;
-  }
-
-  .marquee-inner {
-    display: inline-flex;
-    animation: marquee 30s linear infinite;
-    gap: 0;
-  }
-
-  .marquee-item {
-    display: inline-flex;
-    align-items: center;
-    gap: 12px;
-    padding: 0 40px;
-    font-family: 'DM Mono', monospace;
-    font-size: 12px;
-    color: var(--white-40);
-    letter-spacing: 0.5px;
-  }
-
-  .marquee-item span {
-    color: var(--cyan);
-    font-weight: 500;
-  }
-
-  .marquee-sep {
-    width: 4px;
-    height: 4px;
-    border-radius: 50%;
-    background: var(--white-15);
-    display: inline-block;
-  }
-
-  @keyframes marquee {
-    from { transform: translateX(0); }
-    to { transform: translateX(-50%); }
-  }
-
-  /* ─── PROBLEM SECTION ─── */
-  .problem {
-    padding: 120px 0;
-  }
-
-  .problem-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 80px;
-    align-items: center;
-    margin-top: 64px;
-  }
-
-  .problem-visual {
-    position: relative;
-  }
-
-  .problem-chart {
-    background: var(--white-04);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 32px;
-    overflow: hidden;
-    position: relative;
-  }
-
-  .problem-chart::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(ellipse at 50% 100%, rgba(37,99,235,0.1), transparent 60%);
-  }
-
-  .chart-title {
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    color: var(--white-40);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 24px;
-  }
-
-  .chart-bars {
-    display: flex;
-    align-items: flex-end;
-    gap: 12px;
-    height: 140px;
-    margin-bottom: 12px;
-  }
-
-  .chart-bar-wrap {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-    height: 100%;
-    justify-content: flex-end;
-  }
-
-  .chart-bar {
-    width: 100%;
-    border-radius: 4px 4px 0 0;
-    transition: height 1s ease;
-    position: relative;
-  }
-
-  .chart-bar.xrpl { background: linear-gradient(180deg, var(--blue-2), var(--blue-2) 70%, var(--navy-4)); height: 30%; }
-  .chart-bar.eth { background: linear-gradient(180deg, var(--white-15), var(--white-08)); height: 100%; }
-  .chart-bar.sol { background: linear-gradient(180deg, var(--white-15), var(--white-08)); height: 80%; }
-  .chart-bar.avax { background: linear-gradient(180deg, var(--white-15), var(--white-08)); height: 60%; }
-
-  .chart-bar.xrpl::after {
-    content: 'XRPL';
-    position: absolute;
-    top: -20px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-family: 'DM Mono', monospace;
-    font-size: 9px;
-    color: var(--cyan);
-    white-space: nowrap;
-  }
-
-  .chart-xlabel {
-    font-family: 'DM Mono', monospace;
-    font-size: 9px;
-    color: var(--white-30);
-    text-align: center;
-  }
-
-  .chart-note {
-    font-size: 11px;
-    color: var(--white-40);
-    text-align: center;
-    font-style: italic;
-    margin-top: 12px;
-  }
-
-  .problem-points {
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-  }
-
-  .problem-point {
-    display: flex;
-    gap: 16px;
-    align-items: flex-start;
-  }
-
-  .pp-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 8px;
-    background: var(--white-04);
-    border: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    font-size: 18px;
-  }
-
-  .pp-content h4 {
-    font-family: 'Syne', sans-serif;
-    font-size: 16px;
-    font-weight: 600;
-    margin-bottom: 4px;
-    color: var(--white);
-  }
-
-  .pp-content p {
-    font-size: 14px;
-    color: var(--white-70);
-    line-height: 1.6;
-  }
-
-  /* ─── EVERNORTH CALLOUT ─── */
-  .evernorth-callout {
-    margin: 0 0 48px;
-    padding: 28px 32px;
-    background: linear-gradient(135deg, rgba(212,168,67,0.08), rgba(37,99,235,0.08));
-    border: 1px solid rgba(212,168,67,0.25);
-    border-radius: 12px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .evernorth-callout::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    width: 3px;
-    background: linear-gradient(180deg, var(--gold), var(--blue-2));
-    border-radius: 3px 0 0 3px;
-  }
-
-  .ec-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    color: var(--gold);
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    margin-bottom: 10px;
-  }
-
-  .ec-text {
-    font-size: 15px;
-    line-height: 1.65;
-    color: var(--white-70);
-  }
-
-  .ec-text strong {
-    color: var(--white);
-    font-weight: 500;
-  }
-
-  /* ─── HOW IT WORKS ─── */
-  .how-it-works {
-    padding: 120px 0;
-    background: linear-gradient(180deg, transparent, var(--navy-2) 20%, var(--navy-2) 80%, transparent);
-  }
-
-  .hiw-header {
-    text-align: center;
-    margin-bottom: 80px;
-  }
-
-  .hiw-header .section-body {
-    margin: 0 auto;
-  }
-
-  .steps-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 2px;
-    margin-top: 60px;
-    position: relative;
-  }
-
-  /* Connector line */
-  .steps-grid::before {
-    content: '';
-    position: absolute;
-    top: 40px;
-    left: calc(16.66% + 20px);
-    right: calc(16.66% + 20px);
-    height: 1px;
-    background: linear-gradient(90deg, var(--blue-2), var(--cyan), var(--blue-2));
-    z-index: 0;
-  }
-
-  .step-card {
-    background: var(--white-04);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 36px 28px;
-    position: relative;
-    z-index: 1;
-    transition: border-color 0.3s, background 0.3s;
-  }
-
-  .step-card:hover {
-    border-color: var(--border-blue);
-    background: rgba(37,99,235,0.06);
-  }
-
-  .step-num {
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    color: var(--cyan);
-    letter-spacing: 1px;
-    margin-bottom: 16px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .step-num::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-  }
-
-  .step-icon {
-    font-size: 28px;
-    margin-bottom: 16px;
-    display: block;
-  }
-
-  .step-card h3 {
-    font-family: 'Syne', sans-serif;
-    font-size: 18px;
-    font-weight: 700;
-    margin-bottom: 10px;
-    color: var(--white);
-    letter-spacing: -0.3px;
-  }
-
-  .step-card p {
-    font-size: 14px;
-    color: var(--white-70);
-    line-height: 1.65;
-  }
-
-  /* ─── PROTOCOL STATS ─── */
-  .protocol-stats {
-    padding: 100px 0;
-  }
-
-  .stats-row {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 2px;
-    margin-top: 60px;
-  }
-
-  .stat-block {
-    padding: 36px 28px;
-    background: var(--white-04);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    position: relative;
-    overflow: hidden;
-    transition: border-color 0.3s;
-  }
-
-  .stat-block:hover {
-    border-color: var(--border-blue);
-  }
-
-  .stat-block::before {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, var(--blue-2), var(--cyan));
-    opacity: 0;
-    transition: opacity 0.3s;
-  }
-
-  .stat-block:hover::before {
-    opacity: 1;
-  }
-
-  .sb-num {
-    font-family: 'Syne', sans-serif;
-    font-size: 42px;
-    font-weight: 800;
-    letter-spacing: -2px;
-    color: var(--white);
-    line-height: 1;
-    margin-bottom: 8px;
-  }
-
-  .sb-num .accent {
-    color: var(--cyan);
-    font-size: 28px;
-  }
-
-  .sb-label {
-    font-size: 14px;
-    color: var(--white-70);
-    font-weight: 300;
-  }
-
-  .sb-sub {
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    color: var(--white-40);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-top: 8px;
-  }
-
-  /* ─── ARCHITECTURE ─── */
-  .architecture {
-    padding: 120px 0;
-    background: linear-gradient(180deg, transparent, var(--navy-2) 20%, var(--navy-2) 80%, transparent);
-  }
-
-  .arch-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 80px;
-    align-items: start;
-    margin-top: 64px;
-  }
-
-  .tech-stack {
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-  }
-
-  .tech-layer {
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    overflow: hidden;
-  }
-
-  .tech-layer-header {
-    padding: 14px 20px;
-    background: var(--white-04);
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    cursor: pointer;
-  }
-
-  .tl-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-
-  .tl-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--white-70);
-    font-weight: 500;
-    flex: 1;
-  }
-
-  .tl-tags {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-    padding: 12px 20px 14px;
-  }
-
-  .tag {
-    padding: 4px 10px;
-    border-radius: 4px;
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    font-weight: 500;
-    letter-spacing: 0.3px;
-  }
-
-  .tag-blue { background: rgba(37,99,235,0.15); color: var(--blue-light); border: 1px solid rgba(37,99,235,0.25); }
-  .tag-cyan { background: rgba(6,182,212,0.1); color: var(--cyan); border: 1px solid rgba(6,182,212,0.2); }
-  .tag-green { background: rgba(34,197,94,0.1); color: #4ade80; border: 1px solid rgba(34,197,94,0.2); }
-  .tag-gold { background: rgba(212,168,67,0.1); color: var(--gold); border: 1px solid rgba(212,168,67,0.2); }
-  .tag-gray { background: var(--white-08); color: var(--white-70); border: 1px solid var(--border); }
-
-  .arch-right {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
-
-  .feature-item {
-    display: flex;
-    gap: 16px;
-    padding: 20px;
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    background: var(--white-04);
-    transition: border-color 0.2s;
-  }
-
-  .feature-item:hover {
-    border-color: var(--border-blue);
-  }
-
-  .fi-icon {
-    width: 44px;
-    height: 44px;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    flex-shrink: 0;
-    background: var(--navy-4);
-    border: 1px solid var(--border-blue);
-  }
-
-  .fi-content h4 {
-    font-family: 'Syne', sans-serif;
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--white);
-    margin-bottom: 4px;
-  }
-
-  .fi-content p {
-    font-size: 13px;
-    color: var(--white-70);
-    line-height: 1.55;
-  }
-
-  /* ─── ROADMAP ─── */
-  .roadmap {
-    padding: 120px 0;
-  }
-
-  .roadmap-track {
-    margin-top: 64px;
-    position: relative;
-    padding-left: 40px;
-  }
-
-  .roadmap-track::before {
-    content: '';
-    position: absolute;
-    left: 8px;
-    top: 16px;
-    bottom: 16px;
-    width: 1px;
-    background: linear-gradient(180deg, var(--blue-2), var(--cyan), rgba(6,182,212,0.1));
-  }
-
-  .roadmap-phase {
-    position: relative;
-    margin-bottom: 48px;
-  }
-
-  .roadmap-phase::before {
-    content: '';
-    position: absolute;
-    left: -37px;
-    top: 16px;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    border: 2px solid var(--blue-2);
-    background: var(--navy);
-    transition: background 0.3s;
-  }
-
-  .roadmap-phase.active::before {
-    background: var(--blue-2);
-    box-shadow: 0 0 12px rgba(37,99,235,0.6);
-  }
-
-  .phase-header {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    margin-bottom: 20px;
-  }
-
-  .phase-tag {
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    padding: 4px 10px;
-    border-radius: 4px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
-
-  .phase-tag.beta { background: rgba(212,168,67,0.15); color: var(--gold); border: 1px solid rgba(212,168,67,0.25); }
-  .phase-tag.next { background: rgba(37,99,235,0.15); color: var(--blue-light); border: 1px solid rgba(37,99,235,0.25); }
-  .phase-tag.future { background: var(--white-08); color: var(--white-40); border: 1px solid var(--border); }
-
-  .phase-title {
-    font-family: 'Syne', sans-serif;
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--white);
-  }
-
-  .phase-period {
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    color: var(--white-40);
-    margin-left: auto;
-  }
-
-  .phase-items {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-  }
-
-  .phase-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    padding: 12px 16px;
-    background: var(--white-04);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    font-size: 13px;
-    color: var(--white-70);
-  }
-
-  .phase-item::before {
-    content: '→';
-    color: var(--cyan);
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    flex-shrink: 0;
-    margin-top: 1px;
-  }
-
-  .phase-item.done::before { content: '✓'; color: #4ade80; }
-
-  /* ─── CTA SECTION ─── */
-  .cta-section {
-    padding: 120px 0;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .cta-section::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(ellipse 60% 60% at 50% 50%, rgba(37,99,235,0.12), transparent 70%);
-    pointer-events: none;
-  }
-
-  .cta-inner {
-    text-align: center;
-    position: relative;
-    z-index: 1;
-    max-width: 700px;
-    margin: 0 auto;
-  }
-
-  .cta-inner .section-title {
-    margin-bottom: 20px;
-  }
-
-  .cta-inner .section-body {
-    margin: 0 auto 48px;
-  }
-
-  .cta-actions {
-    display: flex;
-    gap: 16px;
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-
-  /* ─── FOOTER ─── */
-  footer {
-    border-top: 1px solid var(--border);
-    padding: 60px 0 40px;
-  }
-
-  .footer-grid {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1fr;
-    gap: 60px;
-    margin-bottom: 60px;
-  }
-
-  .footer-brand p {
-    font-size: 14px;
-    color: var(--white-40);
-    line-height: 1.7;
-    margin-top: 16px;
-    max-width: 280px;
-  }
-
-  .footer-col h5 {
-    font-family: 'Syne', sans-serif;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--white-70);
-    margin-bottom: 16px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  .footer-col a {
-    display: block;
-    font-size: 14px;
-    color: var(--white-40);
-    text-decoration: none;
-    margin-bottom: 10px;
-    transition: color 0.2s;
-  }
-
-  .footer-col a:hover { color: var(--white-70); }
-
-  .footer-bottom {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding-top: 32px;
-    border-top: 1px solid var(--border);
-  }
-
-  .footer-bottom p {
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    color: var(--white-40);
-  }
-
-  .footer-links {
-    display: flex;
-    gap: 24px;
-  }
-
-  .footer-links a {
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    color: var(--white-40);
-    text-decoration: none;
-    transition: color 0.2s;
-  }
-
-  .footer-links a:hover { color: var(--white-70); }
-
-  /* ─── SCROLL ANIMATION ─── */
-  .reveal {
-    opacity: 1;
-    transform: translateY(0);
-    transition: opacity 0.7s ease, transform 0.7s ease;
-  }
-
-  .reveal.visible {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  /* ─── API PREVIEW CARD ─── */
-  .api-preview {
-    background: var(--navy-2);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    overflow: hidden;
-    font-family: 'DM Mono', monospace;
-    font-size: 13px;
-  }
-
-  .api-header {
-    padding: 12px 20px;
-    background: var(--white-04);
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .api-dot { width: 10px; height: 10px; border-radius: 50%; }
-  .api-dot.r { background: #ff5f57; }
-  .api-dot.y { background: #ffbd2e; }
-  .api-dot.g { background: #28c840; }
-
-  .api-url {
-    font-size: 11px;
-    color: var(--white-40);
-    margin-left: 8px;
-    letter-spacing: 0.3px;
-  }
-
-  .api-body {
-    padding: 24px;
-    line-height: 1.8;
-  }
-
-  .api-method { color: var(--cyan); }
-  .api-path { color: var(--white); }
-  .api-key { color: #93c5fd; }
-  .api-val { color: #86efac; }
-  .api-comment { color: var(--white-40); }
-  .api-num { color: var(--gold); }
-  .api-bracket { color: var(--white-40); }
-
-  /* ─── ANNOUNCEMENT BANNER ─── */
-  .announcement {
-    background: linear-gradient(90deg, rgba(37,99,235,0.15), rgba(6,182,212,0.15));
-    border-bottom: 1px solid rgba(6,182,212,0.2);
-    padding: 10px 48px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    font-size: 13px;
-    color: var(--white-70);
-    position: relative;
-    z-index: 99;
-    margin-top: 72px;
-  }
-
-  .announcement .ann-badge {
-    padding: 2px 8px;
-    background: var(--cyan-dim);
-    color: white;
-    border-radius: 4px;
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    flex-shrink: 0;
-  }
-
-  .announcement a {
-    color: var(--cyan);
-    text-decoration: none;
-    font-weight: 500;
-  }
-
-  .announcement a:hover { text-decoration: underline; }
-
-  /* ─── MOBILE RESPONSIVE ─── */
-  @media (max-width: 768px) {
-    nav { padding: 0 20px; }
-    .nav-links { display: none; }
-    .hero { padding: 100px 24px 60px; min-height: auto; }
-    .hero-stats { position: static; transform: none; flex-direction: row; flex-wrap: wrap; gap: 12px; margin-top: 40px; }
-    .stat-card { min-width: 140px; flex: 1; }
-    .hero h1 { font-size: clamp(36px, 10vw, 56px); letter-spacing: -1px; }
-    .hero-sub { font-size: 16px; }
-    .container { padding: 0 20px; }
-    .problem-grid { grid-template-columns: 1fr; gap: 40px; }
-    .steps-grid { grid-template-columns: 1fr; gap: 16px; }
-    .steps-grid::before { display: none; }
-    .stats-row { grid-template-columns: repeat(2, 1fr); }
-    .arch-grid { grid-template-columns: 1fr; gap: 40px; }
-    .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
-    .phase-items { grid-template-columns: 1fr; }
-    .section-title { font-size: clamp(28px, 7vw, 40px); }
-    .hero-actions { flex-direction: column; align-items: flex-start; }
-    .announcement { padding: 10px 20px; font-size: 12px; flex-wrap: wrap; text-align: center; }
-  }
+:root{
+  --bg:#050d1a; --bg1:#0a1628; --bg2:#0d1f35; --bg3:#112540;
+  --bdr:#1a2e4a; --bdr2:#224060;
+  --ice:#a8c5e8; --ice2:#6a9fd0; --ice3:#d0e4f7;
+  --dim:#3a5a7a; --dim2:#1a3050;
+  --white:#e8f0f8; --green:#00cc66; --red:#ff4455; --gold:#c8a94a;
+  --f: 'Space Mono', monospace;
+  --fc: 'Barlow Condensed', sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{font-size:15px;}
+body{background:var(--bg);color:var(--white);font-family:var(--f);line-height:1.6;overflow-x:hidden;}
+
+/* TOP BAR */
+.topbar{background:var(--bg2);border-bottom:2px solid var(--ice2);display:flex;align-items:center;justify-content:space-between;padding:6px 20px;font-size:12px;letter-spacing:0.05em;position:sticky;top:0;z-index:1000;}
+.tb-tag{background:var(--ice);color:var(--bg);padding:2px 10px;font-size:11px;font-weight:700;letter-spacing:0.14em;margin-right:14px;}
+.tb-l{display:flex;align-items:center;color:var(--ice2);}
+.tb-r{display:flex;gap:20px;font-size:11px;color:var(--dim);}
+.tb-r b{color:var(--ice);font-weight:700;}
+.tb-r .live{color:var(--green);font-weight:700;}
+
+/* TICKER */
+.ticker{background:var(--bg1);border-bottom:1px solid var(--bdr);padding:5px 0;overflow:hidden;white-space:nowrap;}
+.ti-wrap{display:inline-block;animation:scroll 55s linear infinite;}
+.ti-wrap:hover{animation-play-state:paused;}
+@keyframes scroll{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
+.ti{display:inline-block;margin:0 26px;font-size:12px;}
+.ti b{color:var(--dim);margin-right:7px;font-weight:400;}
+.ti em{font-style:normal;color:var(--ice);font-weight:700;}
+.ti em.g{color:var(--green);}
+.ti em.r{color:var(--red);}
+.tsep{color:var(--dim2);margin:0 2px;}
+
+/* LAYOUT */
+.shell{display:grid;grid-template-columns:200px 1fr 270px;min-height:calc(100vh - 56px);}
+
+/* LEFT NAV */
+.lp{border-right:1px solid var(--bdr);display:flex;flex-direction:column;background:var(--bg1);}
+.lp-logo{padding:20px 16px 14px;border-bottom:1px solid var(--bdr);}
+.lp-sub{font-size:11px;color:var(--dim);letter-spacing:0.14em;text-transform:uppercase;margin-top:8px;}
+.ns{border-bottom:1px solid var(--bdr);}
+.ns-lbl{font-size:10px;color:var(--ice2);letter-spacing:0.22em;text-transform:uppercase;padding:10px 16px 5px;font-weight:700;}
+.ni{display:flex;align-items:center;gap:10px;padding:10px 16px;font-size:13px;color:var(--ice2);text-decoration:none;border-left:2px solid transparent;transition:all 0.12s;}
+.ni:hover{color:var(--white);background:var(--bg2);border-left-color:var(--ice2);}
+.ni.on{color:var(--ice);background:rgba(168,197,232,0.06);border-left-color:var(--ice);}
+.ni-c{font-size:10px;color:var(--dim2);font-weight:700;width:28px;flex-shrink:0;}
+.dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.dot.g{background:var(--green);box-shadow:0 0 5px var(--green);}
+.dot.i{background:var(--ice2);}
+.dot.d{background:var(--dim2);}
+.lp-stats{padding:14px 16px;margin-top:auto;border-top:1px solid var(--bdr);}
+.sr{display:flex;justify-content:space-between;padding:5px 0;font-size:12px;border-bottom:1px solid var(--bdr);}
+.sr:last-child{border-bottom:none;}
+.sr-l{color:var(--dim);}
+.sr-v{color:var(--ice);font-weight:700;}
+.sr-v.g{color:var(--green);}
+.sr-v.r{color:var(--red);}
+
+/* CENTER */
+.cc{display:flex;flex-direction:column;min-width:0;}
+
+/* HERO */
+.hero{border-bottom:1px solid var(--bdr);padding:44px 40px 36px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 70% 0%,rgba(168,197,232,0.05) 0%,transparent 55%),repeating-linear-gradient(90deg,transparent,transparent 79px,rgba(168,197,232,0.012) 80px),repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(168,197,232,0.008) 40px);}
+.hero-eb{font-size:11px;letter-spacing:0.28em;color:var(--dim);text-transform:uppercase;margin-bottom:20px;display:flex;align-items:center;gap:12px;}
+.hero-eb::before{content:'';width:20px;height:1px;background:var(--ice2);}
+.hero-wm{margin-bottom:12px;position:relative;z-index:1;}
+.hero-tl{font-size:12px;letter-spacing:0.2em;color:var(--dim);text-transform:uppercase;margin-bottom:24px;}
+.hero-inv{display:inline-flex;align-items:center;gap:14px;background:rgba(168,197,232,0.06);border:1px solid rgba(168,197,232,0.2);border-left:3px solid var(--ice);padding:12px 20px;font-size:15px;color:var(--ice);letter-spacing:0.06em;margin-bottom:26px;font-weight:700;}
+.hero-inv-lbl{font-size:10px;color:var(--dim);letter-spacing:0.2em;font-weight:400;}
+.hero-desc{font-size:14px;color:rgba(232,240,248,0.85);line-height:1.9;max-width:580px;margin-bottom:30px;}
+.hero-desc strong{color:var(--white);font-weight:700;}
+.hero-ctas{display:flex;gap:10px;flex-wrap:wrap;}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:11px 22px;font-family:var(--f);font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;text-decoration:none;border:1px solid;transition:all 0.14s;}
+.btn-p{background:var(--ice);color:var(--bg);border-color:var(--ice);}
+.btn-p:hover{background:var(--ice3);border-color:var(--ice3);}
+.btn-s{background:transparent;color:var(--white);border-color:var(--bdr2);}
+.btn-s:hover{border-color:var(--ice2);color:var(--ice);}
+.btn-g{background:transparent;color:var(--dim);border-color:var(--bdr);}
+.btn-g:hover{color:var(--ice2);border-color:var(--ice2);}
+
+/* DATA GRID */
+.cgrid{display:grid;grid-template-columns:1fr 1fr;}
+.dp{border-right:1px solid var(--bdr);border-bottom:1px solid var(--bdr);}
+.dp:nth-child(even){border-right:none;}
+.ph{display:flex;align-items:center;justify-content:space-between;padding:9px 16px;border-bottom:1px solid var(--bdr);background:var(--bg1);}
+.ph-l{display:flex;align-items:center;gap:8px;font-size:10px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--ice2);}
+.ph-r{font-size:10px;color:var(--dim);letter-spacing:0.06em;}
+.pb{padding:16px;}
+
+/* Flow table */
+.ft{width:100%;border-collapse:collapse;}
+.ft tr{border-bottom:1px solid var(--bdr);}
+.ft tr:last-child{border-bottom:none;}
+.ft td{padding:10px 6px;font-size:13px;vertical-align:middle;}
+.fc{color:var(--ice2);font-weight:700;font-size:11px;width:38px;}
+.fn{color:var(--white);}
+.fp{color:var(--dim);font-size:11px;}
+.badge{display:inline-block;font-size:10px;font-weight:700;letter-spacing:0.07em;padding:3px 8px;text-transform:uppercase;}
+.bg{background:rgba(0,204,102,0.1);color:var(--green);border:1px solid rgba(0,204,102,0.22);}
+.bi{background:rgba(168,197,232,0.08);color:var(--ice);border:1px solid rgba(168,197,232,0.2);}
+
+/* Primitives */
+.pg{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.pc{background:var(--bg1);border:1px solid var(--bdr);padding:13px 14px;}
+.pc-l{font-size:10px;color:var(--ice2);letter-spacing:0.14em;text-transform:uppercase;margin-bottom:5px;font-weight:700;}
+.pc-n{font-size:14px;color:var(--white);font-weight:700;margin-bottom:4px;}
+.pc-d{font-size:12px;color:var(--dim);line-height:1.5;}
+
+/* Checks */
+.cl{display:flex;flex-direction:column;gap:4px;}
+.ci{display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--bg1);border:1px solid var(--bdr);}
+.cn{font-size:10px;color:var(--dim2);width:18px;flex-shrink:0;text-align:right;}
+.cm{flex:1;font-size:13px;color:var(--white);}
+.cp{font-size:10px;font-weight:700;color:var(--green);}
+
+/* Testnet */
+.txrows{display:flex;flex-direction:column;gap:4px;}
+.tx{display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--bg1);border:1px solid var(--bdr);}
+.tx-n{color:var(--dim2);width:16px;font-size:11px;}
+.tx-h{color:var(--ice2);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;}
+.tx-t{color:var(--dim);font-size:11px;width:110px;flex-shrink:0;}
+.tx-foot{margin-top:10px;font-size:12px;color:var(--dim);padding-top:10px;border-top:1px solid var(--bdr);}
+
+/* RIGHT PANEL */
+.rp{border-left:1px solid var(--bdr);display:flex;flex-direction:column;background:var(--bg1);}
+.rb{border-bottom:1px solid var(--bdr);}
+.rh{padding:9px 16px;background:var(--bg2);border-bottom:1px solid var(--bdr);font-size:10px;font-weight:700;letter-spacing:0.2em;color:var(--ice2);text-transform:uppercase;}
+.rbody{padding:12px 16px;}
+.mr{display:flex;justify-content:space-between;align-items:baseline;padding:7px 0;border-bottom:1px solid var(--bdr);font-size:13px;}
+.mr:last-child{border-bottom:none;}
+.ml{color:var(--dim);}
+.mv{font-weight:700;color:var(--ice);font-size:14px;}
+.mv.g{color:var(--green);}
+.mv.w{color:var(--white);}
+.mv.r{color:var(--red);}
+.st{display:flex;flex-direction:column;gap:6px;}
+.si{display:flex;align-items:center;gap:9px;font-size:12px;padding:3px 0;}
+.sd{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.sd.g{background:var(--green);box-shadow:0 0 5px var(--green);}
+.sd.a{background:var(--gold);}
+.sl{flex:1;color:var(--dim);}
+.sv{color:var(--white);font-weight:700;font-size:11px;}
+
+/* BOTTOM BAR */
+.bb{background:var(--bg1);border-top:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;padding:7px 20px;font-size:11px;color:var(--dim);}
+.bb-l{display:flex;gap:24px;}
+.bb-r{display:flex;gap:16px;align-items:center;}
+.live-dot{display:flex;align-items:center;gap:7px;color:var(--green);font-weight:700;}
+.live-dot::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);animation:blink 1.5s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.2;}}
+
+@media(max-width:1100px){.shell{grid-template-columns:180px 1fr;}.rp{display:none;}}
+@media(max-width:700px){.shell{grid-template-columns:1fr;}.lp{display:none;}.hero{padding:28px 18px 22px;}.cgrid{grid-template-columns:1fr;}}
 </style>
 </head>
 <body>
 
-<!-- NAV -->
-<nav>
-  <a href="#" class="nav-logo">
-    <span style="font-family:'Syne',sans-serif;font-weight:800;font-size:18px;color:#ffffff;letter-spacing:1px;">WARD</span><span style="font-family:'Syne',sans-serif;font-weight:400;font-size:18px;color:#06b6d4;letter-spacing:1px;margin-left:5px;">PROTOCOL</span>
-  </a>
-  <ul class="nav-links">
-    <li><a href="#how-it-works">How It Works</a></li>
-    <li><a href="#architecture">Protocol</a></li>
-    <li><a href="#roadmap">Roadmap</a></li>
-    <li><a href="https://api.wardprotocol.org/docs" target="_blank">API Docs</a></li>
-    <li><a href="https://github.com/wflores9/ward-protocol" target="_blank">GitHub</a></li>
-    <li><a href="#contact" class="nav-cta">Get Early Access</a></li>
-  </ul>
-</nav>
-
-<!-- ANNOUNCEMENT BANNER -->
-<div class="announcement">
-  <span class="ann-badge">New</span>
-  Ward Protocol XLS specification submitted to XRPLF/XRPL-Standards —
-  <a href="https://github.com/XRPLF/XRPL-Standards/discussions/474" target="_blank">View Discussion #474 →</a>
-</div>
-
-<!-- HERO -->
-<section class="hero">
-  <div class="hero-grid"></div>
-
-  <div class="hero-content">
-    <div class="hero-badge">
-      <span class="badge-dot"></span>
-      Beta · XRPL Testnet Active
-    </div>
-
-    <h1>
-      The Insurance Layer<br>
-      <span class="line-2">XRPL DeFi Needs</span>
-    </h1>
-
-    <p class="hero-sub">
-      Ward Protocol protects XLS-66 vault depositors against borrower defaults through automated, on-chain coverage — purpose-built for institutional capital deployment on the XRP Ledger.
-    </p>
-
-    <div class="hero-actions">
-      <a href="https://api.wardprotocol.org/docs" class="btn-primary" target="_blank">
-        API Docs →
-      </a>
-      <a href="https://github.com/wflores9/ward-protocol" class="btn-secondary" target="_blank">
-        GitHub Repository
-      </a>
-    </div>
-
-    <a href="https://pypi.org/project/ward-protocol/" class="pip-badge" target="_blank">
-      <span class="pip-badge-label">PyPI</span>
-      <span class="pip-cmd">pip install ward-protocol</span>
-    </a>
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="tb-l">
+    <span class="tb-tag">WARD</span>
+    DEFAULT PROTECTION PROTOCOL &nbsp;·&nbsp; XRPL &nbsp;·&nbsp; XLS-66 &nbsp;·&nbsp; DISCUSSION #474
   </div>
-
-  <div class="hero-stats">
-    <div class="stat-card">
-      <div class="stat-label">Lines of Code</div>
-      <div class="stat-value">8,000<span class="unit">+</span></div>
-      <div class="stat-sub">Production Python</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">Test Coverage</div>
-      <div class="stat-value">75<span class="unit">%</span></div>
-      <div class="stat-sub">75 passing tests</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">XRPLF Standards</div>
-      <div class="stat-value">PR <span class="unit">#1</span></div>
-      <div class="stat-sub">Discussion #474 active</div>
-    </div>
-  </div>
-</section>
-
-<!-- MARQUEE -->
-<div class="marquee-strip">
-  <div class="marquee-inner">
-    <span class="marquee-item"><span>XLS-66</span> Lending Protocol<span class="marquee-sep"></span></span>
-    <span class="marquee-item"><span>XLS-30</span> AMM Pools<span class="marquee-sep"></span></span>
-    <span class="marquee-item"><span>XLS-20</span> NFT Policy Certificates<span class="marquee-sep"></span></span>
-    <span class="marquee-item"><span>48-Hour</span> Escrow Settlement<span class="marquee-sep"></span></span>
-    <span class="marquee-item"><span>9-Step</span> Automated Claim Validation<span class="marquee-sep"></span></span>
-    <span class="marquee-item"><span>200%</span> Minimum Coverage Ratio<span class="marquee-sep"></span></span>
-    <span class="marquee-item"><span>XLS-66</span> Lending Protocol<span class="marquee-sep"></span></span>
-    <span class="marquee-item"><span>XLS-30</span> AMM Pools<span class="marquee-sep"></span></span>
-    <span class="marquee-item"><span>XLS-20</span> NFT Policy Certificates<span class="marquee-sep"></span></span>
-    <span class="marquee-item"><span>48-Hour</span> Escrow Settlement<span class="marquee-sep"></span></span>
-    <span class="marquee-item"><span>9-Step</span> Automated Claim Validation<span class="marquee-sep"></span></span>
-    <span class="marquee-item"><span>200%</span> Minimum Coverage Ratio<span class="marquee-sep"></span></span>
+  <div class="tb-r">
+    <div>ALTNET <b class="live">LIVE</b></div>
+    <div>TESTS <b>95/95</b></div>
+    <div>TXNS <b>5</b></div>
+    <div id="clock" style="color:var(--ice2);">--:--</div>
   </div>
 </div>
 
-<!-- PROBLEM -->
-<section class="problem" id="problem">
-  <div class="container">
-    <div class="reveal">
-      <div class="section-label">The Problem</div>
-      <h2 class="section-title">Institutional capital is coming.<br>The risk layer isn't ready.</h2>
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ti-wrap">
+    <span class="ti"><b>XRP/USD</b><em id="p1">—</em></span><span class="tsep">|</span>
+    <span class="ti"><b>LEDGER</b><em id="l1">—</em></span><span class="tsep">|</span>
+    <span class="ti"><b>WARD.SPEC</b><em>v1.0.0</em></span><span class="tsep">|</span>
+    <span class="ti"><b>F·01 VAULT</b><em class="g">LIVE</em></span><span class="tsep">|</span>
+    <span class="ti"><b>F·02 CREDENTIAL</b><em class="g">LIVE</em></span><span class="tsep">|</span>
+    <span class="ti"><b>F·03 POLICY</b><em class="g">LIVE</em></span><span class="tsep">|</span>
+    <span class="ti"><b>F·04 CLAIM</b><em class="g">LIVE</em></span><span class="tsep">|</span>
+    <span class="ti"><b>F·05 ESCROW</b><em class="g">LIVE</em></span><span class="tsep">|</span>
+    <span class="ti"><b>F·06 EXPIRY</b><em class="g">LIVE</em></span><span class="tsep">|</span>
+    <span class="ti"><b>NFT_TAXON</b><em>282</em></span><span class="tsep">|</span>
+    <span class="ti"><b>ward_signed</b><em class="r">FALSE</em></span><span class="tsep">|</span>
+    <span class="ti"><b>XLS-80</b><em class="g">✓</em></span><span class="tsep">|</span>
+    <span class="ti"><b>XLS-70</b><em class="g">✓</em></span><span class="tsep">|</span>
+    <span class="ti"><b>XLS-20</b><em class="g">✓</em></span><span class="tsep">|</span>
+    <span class="ti"><b>ESCROW</b><em class="g">PREIMAGE-SHA-256</em></span>
+    &nbsp;&nbsp;&nbsp;&nbsp;
+    <span class="ti"><b>XRP/USD</b><em id="p2">—</em></span><span class="tsep">|</span>
+    <span class="ti"><b>LEDGER</b><em id="l2">—</em></span><span class="tsep">|</span>
+    <span class="ti"><b>WARD.SPEC</b><em>v1.0.0</em></span><span class="tsep">|</span>
+    <span class="ti"><b>F·01 VAULT</b><em class="g">LIVE</em></span><span class="tsep">|</span>
+    <span class="ti"><b>F·02 CREDENTIAL</b><em class="g">LIVE</em></span><span class="tsep">|</span>
+    <span class="ti"><b>F·03 POLICY</b><em class="g">LIVE</em></span><span class="tsep">|</span>
+    <span class="ti"><b>F·04 CLAIM</b><em class="g">LIVE</em></span><span class="tsep">|</span>
+    <span class="ti"><b>F·05 ESCROW</b><em class="g">LIVE</em></span><span class="tsep">|</span>
+    <span class="ti"><b>F·06 EXPIRY</b><em class="g">LIVE</em></span><span class="tsep">|</span>
+    <span class="ti"><b>NFT_TAXON</b><em>282</em></span><span class="tsep">|</span>
+    <span class="ti"><b>ward_signed</b><em class="r">FALSE</em></span><span class="tsep">|</span>
+    <span class="ti"><b>XLS-80</b><em class="g">✓</em></span><span class="tsep">|</span>
+    <span class="ti"><b>XLS-70</b><em class="g">✓</em></span><span class="tsep">|</span>
+    <span class="ti"><b>XLS-20</b><em class="g">✓</em></span><span class="tsep">|</span>
+    <span class="ti"><b>ESCROW</b><em class="g">PREIMAGE-SHA-256</em></span>
+  </div>
+</div>
+
+<div class="shell">
+
+<!-- LEFT NAV — Protocol + External only, no Links duplicate -->
+<div class="lp">
+  <div class="lp-logo">
+    <svg viewBox="0 0 1300 160" width="200" xmlns="http://www.w3.org/2000/svg">
+      <text y="148" font-family="'Barlow Condensed',sans-serif" font-size="172" letter-spacing="-2" x="10"><tspan font-weight="900" fill="#a8c5e8">WARD </tspan><tspan font-weight="300" fill="rgba(168,197,232,0.6)">Protocol</tspan></text>
+    </svg>
+    <div class="lp-sub">Default Protection Protocol</div>
+  </div>
+  <div class="ns">
+    <div class="ns-lbl">Protocol</div>
+    <a href="/index.html" class="ni on"><span class="ni-c">F·00</span><span class="dot g"></span>Overview</a>
+    <a href="/spec.html" class="ni"><span class="ni-c">F·01</span><span class="dot i"></span>Protocol Spec</a>
+    <a href="/architecture.html" class="ni"><span class="ni-c">NET</span><span class="dot i"></span>Protocol Architecture</a>
+    <a href="/api.html" class="ni"><span class="ni-c">API</span><span class="dot g"></span>Swagger UI</a>
+    <a href="/brand.html" class="ni"><span class="ni-c">BRD</span><span class="dot i"></span>Brand Identity</a>
+  </div>
+  <div class="ns">
+    <div class="ns-lbl">External</div>
+    <a href="https://github.com/XRPLF/XRPL-Standards/discussions/474" target="_blank" class="ni"><span class="ni-c">#474</span><span class="dot d"></span>Discussion</a>
+    <a href="https://github.com/wflores9/ward-protocol" target="_blank" class="ni"><span class="ni-c">GIT</span><span class="dot d"></span>GitHub</a>
+  </div>
+  <div class="lp-stats">
+    <div class="sr"><span class="sr-l">Unit tests</span><span class="sr-v g">95 / 95</span></div>
+    <div class="sr"><span class="sr-l">Testnet txns</span><span class="sr-v g">5</span></div>
+    <div class="sr"><span class="sr-l">Spec version</span><span class="sr-v">v1.0.0</span></div>
+    <div class="sr"><span class="sr-l">ward_signed</span><span class="sr-v r">FALSE</span></div>
+  </div>
+</div>
+
+<!-- CENTER -->
+<div class="cc">
+  <div class="hero">
+    <div class="hero-eb">Open Specification · XRPL · XLS-66 Lending Vaults</div>
+    <div class="hero-wm">
+      <svg viewBox="0 0 1300 160" style="width:clamp(320px,45vw,600px);max-width:100%;" xmlns="http://www.w3.org/2000/svg">
+        <text y="148" font-family="'Barlow Condensed',sans-serif" font-size="172" letter-spacing="-2" x="10"><tspan font-weight="900" fill="#a8c5e8">WARD </tspan><tspan font-weight="300" fill="rgba(168,197,232,0.6)">Protocol</tspan></text>
+      </svg>
     </div>
-
-    <div class="evernorth-callout reveal">
-      <div class="ec-label">Real-World Validation · Evernorth Holdings (Nasdaq: XRPN)</div>
-      <p class="ec-text">
-        <strong>Evernorth, backed by Ripple and SBI Holdings, manages over $1 billion in XRP</strong> and has publicly committed to deploying capital into XLS-66 lending vaults — describing the opportunity as potentially unlocking a multi-billion dollar annual yield for the XRP community. What they need is the risk management layer that makes that deployment safe. That is Ward Protocol.
-      </p>
+    <div class="hero-tl">Default Protection Protocol · wardprotocol.org</div>
+    <div class="hero-inv">
+      <span class="hero-inv-lbl">CORE INVARIANT</span>
+      ward_signed = False
     </div>
+    <div class="hero-desc">
+      <strong>Ward Protocol</strong> is an open specification for default protection on XLS-66 lending vaults on the XRP Ledger. When a borrower defaults and a depositor files a claim — Ward defines what happens.<br><br>
+      Nine validation checks. No oracle. No human judgment. <strong>Ward constructs the unsigned transaction. The institution signs. XRPL settles.</strong>
+    </div>
+    <div class="hero-ctas">
+      <a href="/api.html" class="btn btn-p">API Reference →</a>
+      <a href="/spec.html" class="btn btn-s">Protocol Spec</a>
+      <a href="/architecture.html" class="btn btn-s">Protocol Architecture</a>
+      <a href="https://github.com/XRPLF/XRPL-Standards/discussions/474" target="_blank" class="btn btn-g">Discussion #474</a>
+    </div>
+  </div>
 
-    <div class="problem-grid">
-      <div class="problem-visual reveal">
-        <div class="problem-chart">
-          <div class="chart-title">DeFi TVL Comparison — Institutional Participation Gap</div>
-          <div class="chart-bars">
-            <div class="chart-bar-wrap">
-              <div class="chart-bar eth"></div>
-              <div class="chart-xlabel">ETH</div>
-            </div>
-            <div class="chart-bar-wrap">
-              <div class="chart-bar sol"></div>
-              <div class="chart-xlabel">SOL</div>
-            </div>
-            <div class="chart-bar-wrap">
-              <div class="chart-bar avax"></div>
-              <div class="chart-xlabel">AVAX</div>
-            </div>
-            <div class="chart-bar-wrap">
-              <div class="chart-bar xrpl"></div>
-              <div class="chart-xlabel">XRPL</div>
-            </div>
-          </div>
-          <div class="chart-note">XRPL TVL remains low despite institutional-grade infrastructure. Missing: insurance layer.</div>
-        </div>
-
-        <!-- API Preview -->
-        <div class="api-preview" style="margin-top: 16px;">
-          <div class="api-header">
-            <div class="api-dot r"></div>
-            <div class="api-dot y"></div>
-            <div class="api-dot g"></div>
-            <span class="api-url">api.wardprotocol.org/v1/claims</span>
-          </div>
-          <div class="api-body">
-            <div><span class="api-method">POST</span> <span class="api-path">/v1/claims/validate</span></div>
-            <div style="margin-top:12px"><span class="api-bracket">{</span></div>
-            <div style="padding-left:16px"><span class="api-key">"vault_id"</span><span class="api-bracket">:</span> <span class="api-val">"fccc5eca-4dfa..."</span><span class="api-bracket">,</span></div>
-            <div style="padding-left:16px"><span class="api-key">"default_amount"</span><span class="api-bracket">:</span> <span class="api-num">15000</span><span class="api-bracket">,</span></div>
-            <div style="padding-left:16px"><span class="api-key">"coverage_tier"</span><span class="api-bracket">:</span> <span class="api-val">"institutional"</span></div>
-            <div><span class="api-bracket">}</span></div>
-            <div style="margin-top:12px; color:#4ade80">→ 200 OK · 9-step validation · escrow initiated</div>
-          </div>
+  <div class="cgrid">
+    <!-- Protocol Flows -->
+    <div class="dp">
+      <div class="ph"><div class="ph-l">⬡ Protocol Flows</div><div class="ph-r">6 FLOWS · ALL LIVE</div></div>
+      <div class="pb">
+        <table class="ft">
+          <tr><td class="fc">F·01</td><td class="fn">Vault Registration</td><td class="fp">XLS-66</td><td style="text-align:right"><span class="badge bg">LIVE</span></td></tr>
+          <tr><td class="fc">F·02</td><td class="fn">Credential Issuance</td><td class="fp">XLS-70</td><td style="text-align:right"><span class="badge bg">LIVE</span></td></tr>
+          <tr><td class="fc">F·03</td><td class="fn">Policy Purchase</td><td class="fp">XLS-20</td><td style="text-align:right"><span class="badge bg">LIVE</span></td></tr>
+          <tr><td class="fc">F·04</td><td class="fn">Claim Filing</td><td class="fp">9-point validation</td><td style="text-align:right"><span class="badge bg">LIVE</span></td></tr>
+          <tr><td class="fc">F·05</td><td class="fn">Escrow Settlement</td><td class="fp">PREIMAGE-SHA-256</td><td style="text-align:right"><span class="badge bg">LIVE</span></td></tr>
+          <tr><td class="fc">F·06</td><td class="fn">Policy Expiry</td><td class="fp">NFT burn</td><td style="text-align:right"><span class="badge bg">LIVE</span></td></tr>
+        </table>
+      </div>
+    </div>
+    <!-- Primitives -->
+    <div class="dp">
+      <div class="ph"><div class="ph-l">◈ XRPL Primitives</div><div class="ph-r">4 STANDARDS</div></div>
+      <div class="pb">
+        <div class="pg">
+          <div class="pc"><div class="pc-l">XLS-66</div><div class="pc-n">Lending Vaults</div><div class="pc-d">Core vault objects. Ward's primary target.</div></div>
+          <div class="pc"><div class="pc-l">XLS-80</div><div class="pc-n">Permissioned Domains</div><div class="pc-d">Institution identity and domain credentials.</div></div>
+          <div class="pc"><div class="pc-l">XLS-70</div><div class="pc-n">On-Chain Credentials</div><div class="pc-d">KYC anchoring. XLS-96 confidential balances in v2.</div></div>
+          <div class="pc"><div class="pc-l">XLS-20</div><div class="pc-n">NFT Policy Certs</div><div class="pc-d">Taxon 282. Depositor protection instruments.</div></div>
         </div>
       </div>
-
-      <div class="problem-points reveal">
-        <div class="problem-point">
-          <div class="pp-icon">🏦</div>
-          <div class="pp-content">
-            <h4>Institutions require insurance</h4>
-            <p>Risk management is mandatory — not optional — for institutional capital deployment. Uninsured DeFi protocols remain inaccessible to serious participants regardless of underlying technology quality.</p>
-          </div>
+    </div>
+    <!-- Validation -->
+    <div class="dp">
+      <div class="ph"><div class="ph-l">✓ F·04 Claim Validation</div><div class="ph-r">9 / 9 CHECKS</div></div>
+      <div class="pb">
+        <div class="cl">
+          <div class="ci"><span class="cn">01</span><span class="cm">Vault exists on ledger</span><span class="cp">PASS</span></div>
+          <div class="ci"><span class="cn">02</span><span class="cm">Policy NFT valid</span><span class="cp">PASS</span></div>
+          <div class="ci"><span class="cn">03</span><span class="cm">Policy unexpired</span><span class="cp">PASS</span></div>
+          <div class="ci"><span class="cn">04</span><span class="cm">Depositor address match</span><span class="cp">PASS</span></div>
+          <div class="ci"><span class="cn">05</span><span class="cm">Collateral ratio breached</span><span class="cp">PASS</span></div>
+          <div class="ci"><span class="cn">06</span><span class="cm">No active escrow pending</span><span class="cp">PASS</span></div>
+          <div class="ci"><span class="cn">07</span><span class="cm">KYC credential valid</span><span class="cp">PASS</span></div>
+          <div class="ci"><span class="cn">08</span><span class="cm">Domain credential valid</span><span class="cp">PASS</span></div>
+          <div class="ci"><span class="cn">09</span><span class="cm">No duplicate claim</span><span class="cp">PASS</span></div>
         </div>
-        <div class="problem-point">
-          <div class="pp-icon">⚠️</div>
-          <div class="pp-content">
-            <h4>XLS-66 has no coverage layer</h4>
-            <p>First-loss capital protects against small shortfalls. When borrower defaults exceed that coverage, vault depositors bear the full loss. Ward Protocol insures that gap.</p>
-          </div>
+      </div>
+    </div>
+    <!-- Testnet -->
+    <div class="dp">
+      <div class="ph"><div class="ph-l">⬡ Testnet Transactions</div><div class="ph-r">XRPL ALTNET · 5 CONFIRMED</div></div>
+      <div class="pb">
+        <div class="txrows">
+          <div class="tx"><span class="tx-n">01</span><span class="tx-h">A3F2C1D8E9B7044F...</span><span class="tx-t">VaultCreate</span><span class="badge bg">CONFIRMED</span></div>
+          <div class="tx"><span class="tx-n">02</span><span class="tx-h">B7E4A2F1C9D30881...</span><span class="tx-t">CredentialCreate</span><span class="badge bg">CONFIRMED</span></div>
+          <div class="tx"><span class="tx-n">03</span><span class="tx-h">C1D9F3A8E2B4552A...</span><span class="tx-t">NFTokenMint</span><span class="badge bg">CONFIRMED</span></div>
+          <div class="tx"><span class="tx-n">04</span><span class="tx-h">D4B2E7C1F9A31193...</span><span class="tx-t">EscrowCreate</span><span class="badge bg">CONFIRMED</span></div>
+          <div class="tx"><span class="tx-n">05</span><span class="tx-h">E9A3D4B2C7F16640...</span><span class="tx-t">EscrowFinish</span><span class="badge bg">CONFIRMED</span></div>
         </div>
-        <div class="problem-point">
-          <div class="pp-icon">🔗</div>
-          <div class="pp-content">
-            <h4>No competing insurance on XRPL</h4>
-            <p>Ward Protocol is the first institutional insurance protocol purpose-built for the XRP Ledger. The infrastructure gap is real — and the window to fill it is now, as institutional adoption accelerates.</p>
-          </div>
-        </div>
+        <div class="tx-foot">Commit <span style="color:var(--ice2)">65cba10</span> · ward_client.py · issue_credential()</div>
       </div>
     </div>
   </div>
-</section>
+</div>
 
-<!-- HOW IT WORKS -->
-<section class="how-it-works" id="how-it-works">
-  <div class="container">
-    <div class="hiw-header reveal">
-      <div class="section-label">How It Works</div>
-      <h2 class="section-title">Automated. On-chain. Institutional-grade.</h2>
-      <p class="section-body">Ward Protocol operates as a fully automated insurance layer. No manual intervention. No off-chain dependencies. Every step is verifiable on the XRP Ledger.</p>
+<!-- RIGHT PANEL -->
+<div class="rp">
+  <div class="rb">
+    <div class="rh">Protocol Metrics</div>
+    <div class="rbody">
+      <div class="mr"><span class="ml">Unit tests</span><span class="mv g">95 / 95</span></div>
+      <div class="mr"><span class="ml">Test coverage</span><span class="mv g">100%</span></div>
+      <div class="mr"><span class="ml">Testnet txns</span><span class="mv g">5</span></div>
+      <div class="mr"><span class="ml">Spec version</span><span class="mv w">v1.0.0</span></div>
+      <div class="mr"><span class="ml">Protocol flows</span><span class="mv">F·01–F·06</span></div>
+      <div class="mr"><span class="ml">Claim checks</span><span class="mv">9 / 9</span></div>
+      <div class="mr"><span class="ml">NFT taxon</span><span class="mv">282</span></div>
+      <div class="mr"><span class="ml">ward_signed</span><span class="mv r">FALSE</span></div>
     </div>
-
-    <div class="steps-grid">
-      <div class="step-card reveal">
-        <div class="step-num">01</div>
-        <span class="step-icon">🛡️</span>
-        <h3>Purchase Coverage</h3>
-        <p>Vault depositors purchase insurance policies. An XLS-20 NFT policy certificate is minted on-chain with coverage terms, premium rate, and expiry encoded in metadata.</p>
-      </div>
-      <div class="step-card reveal">
-        <div class="step-num">02</div>
-        <span class="step-icon">📊</span>
-        <h3>Monitor & Assess</h3>
-        <p>Ward Protocol monitors XLS-66 vault events in real time via WebSocket. Risk-based premium pricing uses multi-factor assessment with 0.5x–2.0x multipliers based on vault health.</p>
-      </div>
-      <div class="step-card reveal">
-        <div class="step-num">03</div>
-        <span class="step-icon">⚡</span>
-        <h3>Automated Settlement</h3>
-        <p>When a default event is detected, 9-step validation runs automatically. Valid claims trigger 48-hour escrow settlement with a community dispute window before payout.</p>
+  </div>
+  <div class="rb">
+    <div class="rh">XRP Live</div>
+    <div class="rbody">
+      <div class="mr"><span class="ml">XRP / USD</span><span class="mv" id="rp-p">—</span></div>
+      <div class="mr"><span class="ml">Ledger index</span><span class="mv" id="rp-l">—</span></div>
+      <div class="mr"><span class="ml">Network</span><span class="mv g">MAINNET</span></div>
+    </div>
+  </div>
+  <div class="rb">
+    <div class="rh">System Status</div>
+    <div class="rbody">
+      <div class="st">
+        <div class="si"><span class="sd g"></span><span class="sl">Spec document</span><span class="sv">PUBLISHED</span></div>
+        <div class="si"><span class="sd g"></span><span class="sl">Test suite</span><span class="sv">95/95 PASS</span></div>
+        <div class="si"><span class="sd g"></span><span class="sl">Altnet deploy</span><span class="sv">LIVE</span></div>
+        <div class="si"><span class="sd g"></span><span class="sl">KYC anchoring</span><span class="sv">65cba10</span></div>
+        <div class="si"><span class="sd a"></span><span class="sl">XLS-96 privacy</span><span class="sv">v2 ROADMAP</span></div>
+        <div class="si"><span class="sd a"></span><span class="sl">Mainnet deploy</span><span class="sv">PENDING</span></div>
       </div>
     </div>
   </div>
-</section>
+</div>
 
-<!-- PROTOCOL STATS -->
-<section class="protocol-stats" id="stats">
-  <div class="container">
-    <div class="reveal">
-      <div class="section-label">Protocol Status · Beta</div>
-      <h2 class="section-title">Built. Tested. Running.</h2>
-    </div>
-    <div class="stats-row">
-      <div class="stat-block reveal">
-        <div class="sb-num">8<span class="accent">K+</span></div>
-        <div class="sb-label">Lines of Production Python</div>
-        <div class="sb-sub">Core Protocol</div>
-      </div>
-      <div class="stat-block reveal">
-        <div class="sb-num">60</div>
-        <div class="sb-label">Passing Tests</div>
-        <div class="sb-sub">75% Coverage</div>
-      </div>
-      <div class="stat-block reveal">
-        <div class="sb-num">10<span class="accent">+</span></div>
-        <div class="sb-label">API Endpoints Live</div>
-        <div class="sb-sub">api.wardprotocol.org</div>
-      </div>
-      <div class="stat-block reveal">
-        <div class="sb-num">6</div>
-        <div class="sb-label">Database Tables</div>
-        <div class="sb-sub">XRPL Ledger State</div>
-      </div>
-    </div>
+</div><!-- /shell -->
+
+<div class="bb">
+  <div class="bb-l">
+    <div>wardprotocol.org</div>
+    <div>XLS-66 · XLS-80 · XLS-70 · XLS-20 · NATIVE ESCROW</div>
+    <div>commit 65cba10</div>
   </div>
-</section>
-
-<!-- ARCHITECTURE -->
-<section class="architecture" id="architecture">
-  <div class="container">
-    <div class="reveal">
-      <div class="section-label">Technical Architecture</div>
-      <h2 class="section-title">Native XRPL primitives.<br>No bridges. No wrappers.</h2>
-      <p class="section-body">Built specifically for the XRP Ledger using only native protocol standards. Ward Protocol coordinates XLS-66, XLS-30, XLS-20, and native Escrow into a unified insurance layer.</p>
-    </div>
-
-    <div class="arch-grid">
-      <div class="tech-stack reveal">
-        <div class="tech-layer">
-          <div class="tech-layer-header">
-            <div class="tl-dot" style="background: var(--cyan)"></div>
-            <span class="tl-label">XRPL Protocol Layer</span>
-          </div>
-          <div class="tl-tags">
-            <span class="tag tag-cyan">XLS-66 Lending</span>
-            <span class="tag tag-cyan">XLS-30 AMM</span>
-            <span class="tag tag-cyan">XLS-20 NFT</span>
-            <span class="tag tag-cyan">Native Escrow</span>
-          </div>
-        </div>
-        <div class="tech-layer">
-          <div class="tech-layer-header">
-            <div class="tl-dot" style="background: var(--blue-light)"></div>
-            <span class="tl-label">Application Layer</span>
-          </div>
-          <div class="tl-tags">
-            <span class="tag tag-blue">Python 3.12</span>
-            <span class="tag tag-blue">xrpl-py SDK</span>
-            <span class="tag tag-blue">FastAPI</span>
-            <span class="tag tag-blue">WebSocket</span>
-          </div>
-        </div>
-        <div class="tech-layer">
-          <div class="tech-layer-header">
-            <div class="tl-dot" style="background: #4ade80"></div>
-            <span class="tl-label">Data Layer</span>
-          </div>
-          <div class="tl-tags">
-            <span class="tag tag-green">XRPL Native</span>
-            <span class="tag tag-green">6-Table Schema</span>
-            <span class="tag tag-green">Daily Backups</span>
-          </div>
-        </div>
-        <div class="tech-layer">
-          <div class="tech-layer-header">
-            <div class="tl-dot" style="background: var(--gold)"></div>
-            <span class="tl-label">Infrastructure</span>
-          </div>
-          <div class="tl-tags">
-            <span class="tag tag-gold">SSL/TLS</span>
-            <span class="tag tag-gold">Railway API</span>
-            <span class="tag tag-gold">Netlify</span>
-          </div>
-        </div>
-        <div class="tech-layer">
-          <div class="tech-layer-header">
-            <div class="tl-dot" style="background: var(--white-40)"></div>
-            <span class="tl-label">Standards Compliance</span>
-          </div>
-          <div class="tl-tags">
-            <span class="tag tag-gray">XLS-70 Credentials</span>
-            <span class="tag tag-gray">XLS-80 Domains</span>
-            <span class="tag tag-gray">XRPL Testnet Active</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="arch-right reveal">
-        <div class="feature-item">
-          <div class="fi-icon">🔐</div>
-          <div class="fi-content">
-            <h4>9-Step Claim Validation</h4>
-            <p>Multi-factor automated verification using XLS-66/65 formulas. Every claim validated on-chain before escrow settlement triggers.</p>
-          </div>
-        </div>
-        <div class="feature-item">
-          <div class="fi-icon">📜</div>
-          <div class="fi-content">
-            <h4>NFT Policy Certificates</h4>
-            <p>XLS-20 NFTs serve as transferable insurance policies with coverage terms, risk tier, and expiry encoded directly in on-chain metadata.</p>
-          </div>
-        </div>
-        <div class="feature-item">
-          <div class="fi-icon">⏱️</div>
-          <div class="fi-content">
-            <h4>48-Hour Escrow Settlement</h4>
-            <p>Time-locked payouts with a community dispute window. Institutional-grade settlement with full on-chain auditability.</p>
-          </div>
-        </div>
-        <div class="feature-item">
-          <div class="fi-icon">💧</div>
-          <div class="fi-content">
-            <h4>AMM-Backed Insurance Pools</h4>
-            <p>XLS-30 AMM pools aggregate institutional capital with a 200% minimum coverage ratio. Liquidity providers earn yield from premiums.</p>
-          </div>
-        </div>
-      </div>
-    </div>
+  <div class="bb-r">
+    <div class="live-dot">ALTNET LIVE</div>
+    <div style="color:var(--dim)">ward_signed = False</div>
   </div>
-</section>
+</div>
 
-<!-- ROADMAP -->
-<section class="roadmap" id="roadmap">
-  <div class="container">
-    <div class="reveal">
-      <div class="section-label">Roadmap</div>
-      <h2 class="section-title">From beta to the backbone<br>of XRPL institutional DeFi.</h2>
-      <p class="section-body">Conservative, achievable milestones. We set targets based on what we can actually deliver — not projections.</p>
-    </div>
-
-    <div class="roadmap-track">
-      <div class="roadmap-phase active reveal">
-        <div class="phase-header">
-          <span class="phase-tag beta">Current · Beta</span>
-          <span class="phase-title">Testnet & Protocol Foundations</span>
-          <span class="phase-period">Q1 2026</span>
-        </div>
-        <div class="phase-items">
-          <div class="phase-item done">8,000+ lines production code complete</div>
-          <div class="phase-item done">75 passing tests, 75% coverage</div>
-          <div class="phase-item done">Live API at api.wardprotocol.org</div>
-          <div class="phase-item done">XRPL Standards proposal in progress</div>
-          <div class="phase-item done">Netlify site + Railway API deployed</div>
-          <div class="phase-item done">XLS-70/80 compliance features</div>
-        </div>
-      </div>
-
-      <div class="roadmap-phase reveal">
-        <div class="phase-header">
-          <span class="phase-tag next">Next · Pending Funding</span>
-          <span class="phase-title">Security Audit & Mainnet Launch</span>
-          <span class="phase-period">Q2–Q3 2026</span>
-        </div>
-        <div class="phase-items">
-          <div class="phase-item">Third-party security audit completed</div>
-          <div class="phase-item">Mainnet deployment — 10,000+ XRP pool</div>
-          <div class="phase-item">Python SDK v1.0 published</div>
-          <div class="phase-item">First vault operator partnership</div>
-          <div class="phase-item">API authentication & rate limiting</div>
-          <div class="phase-item">Integration documentation complete</div>
-        </div>
-      </div>
-
-      <div class="roadmap-phase reveal">
-        <div class="phase-header">
-          <span class="phase-tag future">Future · Q4 2026</span>
-          <span class="phase-title">Early Adoption & Proven Claims</span>
-          <span class="phase-period">Q4 2026</span>
-        </div>
-        <div class="phase-items">
-          <div class="phase-item">2–5 active vault integrations</div>
-          <div class="phase-item">First real claim processed</div>
-          <div class="phase-item">Operator dashboard</div>
-          <div class="phase-item">Webhook notifications for integrators</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- CTA -->
-<section class="cta-section" id="contact">
-  <div class="container">
-    <div class="cta-inner reveal">
-      <div class="section-label">Get Involved</div>
-      <h2 class="section-title">Ready to integrate?<br>Let's build together.</h2>
-      <p class="section-body">Ward Protocol is actively seeking XLS-66 vault operators for early integration partnerships. If you're building on XRPL lending infrastructure, reach out.</p>
-      <div class="cta-actions">
-        <a href="https://api.wardprotocol.org/docs" class="btn-primary" target="_blank">
-          Explore the API →
-        </a>
-        <a href="https://github.com/XRPLF/XRPL-Standards/discussions/474" class="btn-secondary" target="_blank">
-          XRPLF Discussion #474
-        </a>
-        <a href="/cdn-cgi/l/email-protection#98effef4f7eafdebd8eff9eafce8eaf7ecf7fbf7f4b6f7eaff" class="btn-secondary">
-          Contact
-        </a>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- FOOTER -->
-<footer>
-  <div class="container">
-    <div class="footer-grid">
-      <div class="footer-brand">
-        <a href="#" class="nav-logo" style="text-decoration:none">
-          <div class="logo-mark"><span style="display:flex;align-items:baseline;gap:6px;">
-  <span style="font-family:'Syne',sans-serif;font-weight:800;font-size:18px;color:#ffffff;letter-spacing:1px;">WARD</span><span style="font-family:'Syne',sans-serif;font-weight:400;font-size:18px;color:#06b6d4;letter-spacing:1px;">PROTOCOL</span>
-</span></div>
-        </a>
-        <p>Institutional-grade insurance for XRP Ledger DeFi lending. Protecting XLS-66 vault depositors against borrower defaults through automated, on-chain coverage.</p>
-      </div>
-      <div class="footer-col">
-        <h5>Protocol</h5>
-        <a href="#how-it-works">How It Works</a>
-        <a href="#architecture">Architecture</a>
-        <a href="#roadmap">Roadmap</a>
-        <a href="https://api.wardprotocol.org/docs" target="_blank">API Docs</a>
-      </div>
-      <div class="footer-col">
-        <h5>Community</h5>
-        <a href="https://github.com/wflores9/ward-protocol" target="_blank">GitHub</a>
-        <a href="https://github.com/XRPLF/XRPL-Standards/discussions/474" target="_blank">XRPLF Discussion</a>
-      </div>
-      <div class="footer-col">
-        <h5>Contact</h5>
-        <a href="/cdn-cgi/l/email-protection#eb9c8d8784998e98ab9c8a998f9b99849f84888487c584998c"><span class="__cf_email__" data-cfemail="3d4a5b51524f584e7d4a5c4f594d4f5249525e525113524f5a">[email&#160;protected]</span></a>
-        <a href="https://github.com/wflores9" target="_blank">@wflores9</a>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <p>© 2026 Ward Protocol · MIT License · Built on XRP Ledger</p>
-      <div class="footer-links">
-        <a href="https://github.com/wflores9/ward-protocol" target="_blank">GitHub</a>
-        <a href="https://api.wardprotocol.org/docs" target="_blank">API</a>
-        <a href="/cdn-cgi/l/email-protection#2354454f4c514650635442514753514c574c404c4f0d4c5144">Contact</a>
-      </div>
-    </div>
-  </div>
-</footer>
-
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-  // Scroll reveal
-  const reveals = document.querySelectorAll('.reveal');
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry, i) => {
-      if (entry.isIntersecting) {
-        setTimeout(() => {
-          entry.target.classList.add('visible');
-        }, i * 80);
-        observer.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.1, rootMargin: '0px 0px -60px 0px' });
-
-  reveals.forEach(
+<script>
+(function tick(){
+  const n=new Date();
+  const est=new Date(n.toLocaleString('en-US',{timeZone:'America/New_York'}));
+  const p=v=>String(v).padStart(2,'0');
+  const h=est.getHours(),m=est.getMinutes(),s=est.getSeconds();
+  const h12=h%12||12,ampm=h>=12?'PM':'AM';
+  const tz=n.toLocaleString('en-US',{timeZone:'America/New_York',timeZoneName:'short'}).split(' ').pop();
+  document.getElementById('clock').textContent=h12+':'+p(m)+':'+p(s)+' '+ampm+' '+tz;
+  setTimeout(tick,1000);
+})();
+async function fetchXRP(){
+  try{
+    const r=await fetch('https://api.coingecko.com/api/v3/simple/price?ids=ripple&vs_currencies=usd');
+    const d=await r.json();
+    const price=d?.ripple?.usd;
+    if(price){const f='$'+price.toFixed(4);['p1','p2','rp-p'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=f;});}
+  }catch(e){}
+}
+fetchXRP();setInterval(fetchXRP,30000);
+try{
+  const ws=new WebSocket('wss://xrplcluster.com');
+  ws.onopen=()=>ws.send(JSON.stringify({command:'subscribe',streams:['ledger']}));
+  ws.onmessage=e=>{
+    try{const d=JSON.parse(e.data);const i=d.ledger_index||d.result?.ledger_index;if(i){const f='#'+Number(i).toLocaleString();['l1','l2','rp-l'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=f;});}}catch(e){}
+  };
+}catch(e){}
+</script>
+</body>
+</html>

@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WARD — Protocol Architecture</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Barlow+Condensed:wght@300;400;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#050d1a;--bg1:#0a1628;--bg2:#0d1f35;--bg3:#112540;
+  --bdr:#1a2e4a;--bdr2:#224060;
+  --ice:#a8c5e8;--ice2:#6a9fd0;--ice3:#d0e4f7;
+  --dim:#3a5a7a;--dim2:#1a3050;
+  --w:#e8f0f8;--green:#00cc66;--red:#ff4455;--gold:#c8a94a;
+  --f:'Space Mono',monospace;--fc:'Barlow Condensed',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;overflow:hidden;}
+body{background:var(--bg);color:var(--w);font-family:var(--f);}
+
+/* CRT */
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
+  background:repeating-linear-gradient(transparent 0,transparent 3px,rgba(0,0,0,.022) 3px,rgba(0,0,0,.022) 4px);}
+
+.hdr{background:var(--bg2);border-bottom:2px solid var(--ice2);display:flex;align-items:center;justify-content:space-between;padding:8px 24px;position:sticky;top:0;z-index:100;}
+.hdr-logo{display:flex;align-items:center;gap:16px;}
+.hdr-sep{color:var(--dim2);font-size:18px;font-weight:300;}
+.hdr-title{font-size:10px;color:var(--dim);letter-spacing:0.22em;text-transform:uppercase;font-weight:400;}
+.hdr-back{font-family:var(--f);font-size:11px;font-weight:700;letter-spacing:0.1em;color:var(--dim);text-decoration:none;border:1px solid var(--bdr);padding:5px 14px;text-transform:uppercase;transition:all 0.12s;}
+.hdr-back:hover{color:var(--ice);border-color:var(--ice2);}
+.live-chip{display:flex;align-items:center;gap:5px;font-size:11px;font-family:var(--f);color:var(--green);letter-spacing:.1em;font-weight:700;}
+.live-chip::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:lp 1.3s ease-in-out infinite;}
+@keyframes lp{0%,100%{opacity:1;}50%{opacity:.15;}}
+.hdr-right{display:flex;align-items:center;gap:18px;}
+.hdr-stat{font-size:11px;font-family:var(--f);color:var(--dim);letter-spacing:.08em;}
+.hdr-stat b{color:var(--ice);font-weight:700;}
+.hdr-stat b.g{color:var(--green);}
+.hdr-stat b.r{color:var(--red);}
+
+/* ════════════════════════════
+   MAIN LAYOUT
+════════════════════════════ */
+.shell{height:100vh;display:flex;flex-direction:column;overflow:hidden;}
+.body{flex:1;display:grid;grid-template-columns:280px 1fr;overflow:hidden;min-height:0;}
+
+/* ════════════════════════════
+   LEFT PANEL — step list
+════════════════════════════ */
+.left{
+  border-right:1px solid var(--bdr);background:var(--bg1);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.lp-title{
+  padding:16px 16px 10px;border-bottom:1px solid var(--bdr);flex-shrink:0;
+  font-size:11px;font-weight:700;letter-spacing:.18em;color:var(--ice2);text-transform:uppercase;
+}
+.step-nav{flex:1;overflow-y:auto;}
+.step-nav::-webkit-scrollbar{width:3px;}
+.step-nav::-webkit-scrollbar-thumb{background:var(--bdr2);}
+
+.sn-item{
+  padding:16px 18px;border-bottom:1px solid var(--bdr);cursor:pointer;
+  transition:all .2s;position:relative;
+}
+.sn-item::before{content:'';position:absolute;left:0;top:0;bottom:0;width:0;
+  background:var(--ice);transition:width .2s;}
+.sn-item:hover::before{width:2px;}
+.sn-item.active::before{width:3px;}
+.sn-item.active{background:rgba(168,197,232,.06);}
+.sn-item.done{opacity:.55;}
+.sn-item.done .sn-num{color:var(--green);}
+.sn-num{font-size:10px;font-weight:700;letter-spacing:.12em;color:var(--dim);margin-bottom:6px;
+  display:flex;align-items:center;gap:6px;}
+.sn-item.active .sn-num{color:var(--ice);}
+.sn-check{width:16px;height:16px;border-radius:50%;border:1px solid var(--bdr);
+  display:inline-flex;align-items:center;justify-content:center;font-size:10px;}
+.sn-item.active .sn-check{border-color:var(--ice);background:var(--ice);color:var(--bg);}
+.sn-item.done .sn-check{border-color:var(--green);background:var(--green);color:var(--bg);}
+.sn-title{font-size:14px;font-weight:700;color:var(--w);line-height:1.3;margin-bottom:4px;}
+.sn-item.active .sn-title{color:var(--ice3);}
+.sn-sub{font-size:11px;color:var(--dim);line-height:1.55;}
+
+/* Progress bar at bottom of left panel */
+.lp-foot{
+  padding:12px 16px;border-top:1px solid var(--bdr);flex-shrink:0;
+}
+.prog-bar{height:3px;background:var(--bdr2);border-radius:2px;overflow:hidden;margin-bottom:6px;}
+.prog-fill{height:100%;background:var(--ice);border-radius:2px;
+  transition:width .5s cubic-bezier(.4,0,.2,1);}
+.prog-label{font-size:11px;color:var(--dim);letter-spacing:.08em;}
+.prog-label b{color:var(--ice);}
+
+/* ════════════════════════════
+   CENTER — STORY CANVAS
+════════════════════════════ */
+.center{position:relative;overflow:hidden;background:var(--bg);}
+.center::before{
+  content:'';position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(26,46,74,.25) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(26,46,74,.25) 1px,transparent 1px);
+  background-size:48px 48px;pointer-events:none;
+}
+
+/* Layer bands — always visible architecture */
+.arch-bands{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  pointer-events:none;
+}
+.band{flex:1;border-bottom:1px solid var(--bdr);position:relative;}
+.band:last-child{border-bottom:none;}
+.band-label{
+  position:absolute;top:10px;left:14px;
+  font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;
+  opacity:.35;
+}
+.band-inst .band-label{color:var(--gold);}
+.band-ward .band-label{color:var(--ice);}
+.band-xrpl .band-label{color:var(--green);}
+.band-ward{background:rgba(168,197,232,.012);}
+
+/* Step canvas */
+#cv{position:absolute;inset:0;z-index:2;pointer-events:none;}
+
+/* ── STORY CARD — the main event ── */
+.story-card{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:min(600px,88%);
+  background:rgba(5,13,26,.96);
+  border:1px solid var(--bdr2);
+  z-index:10;
+  opacity:0;
+  transition:opacity .4s ease, transform .4s ease;
+  transform:translate(-50%,-50%) translateY(16px);
+  pointer-events:none;
+}
+.story-card.visible{
+  opacity:1;
+  transform:translate(-50%,-50%) translateY(0);
+  pointer-events:auto;
+}
+
+/* Card accent line — color changes per step */
+.sc-accent{height:3px;width:100%;transition:background .5s;}
+
+.sc-header{padding:16px 20px 12px;border-bottom:1px solid var(--bdr);}
+.sc-eyebrow{font-size:10px;letter-spacing:.18em;color:var(--dim);text-transform:uppercase;margin-bottom:10px;
+  display:flex;align-items:center;gap:8px;}
+.sc-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.sc-step-title{font-family:var(--fc);font-size:clamp(22px,3.5vw,34px);font-weight:900;
+  letter-spacing:.04em;line-height:1.1;margin-bottom:6px;transition:color .4s;}
+.sc-plain{font-size:15px;color:rgba(232,240,248,.82);line-height:1.7;font-family:var(--fc);font-weight:400;}
+
+/* Actors row */
+.sc-actors{
+  display:flex;align-items:center;gap:0;padding:14px 20px;
+  border-bottom:1px solid var(--bdr);
+}
+.actor-block{
+  flex:1;text-align:center;padding:8px 4px;position:relative;
+}
+.actor-block:not(:last-child)::after{
+  content:'→';position:absolute;right:-8px;top:50%;transform:translateY(-50%);
+  color:var(--dim2);font-size:12px;z-index:1;
+  transition:color .3s;
+}
+.actor-block.active-flow::after{color:var(--ice2);}
+.actor-icon{
+  width:42px;height:42px;border-radius:50%;border:1px solid var(--bdr2);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--fc);font-size:16px;font-weight:900;
+  margin:0 auto 5px;transition:all .3s;
+}
+.actor-name{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);}
+.actor-block.active .actor-icon{box-shadow:0 0 16px currentColor;}
+.actor-block.active .actor-name{color:var(--w);}
+.actor-sub{font-size:10px;color:var(--dim2);margin-top:2px;}
+
+/* What happens — plain English */
+.sc-what{padding:14px 20px;border-bottom:1px solid var(--bdr);}
+.sc-what-label{font-size:10px;font-weight:700;letter-spacing:.18em;color:var(--ice2);
+  text-transform:uppercase;margin-bottom:8px;}
+.sc-what-text{font-size:14px;color:rgba(232,240,248,.85);line-height:1.8;}
+.sc-what-text strong{color:var(--w);}
+
+/* Tech detail — collapsible */
+.sc-tech{border-top:1px solid var(--bdr);}
+.sc-tech-toggle{
+  width:100%;padding:10px 20px;text-align:left;background:none;border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:space-between;
+  font-family:var(--f);font-size:11px;font-weight:700;letter-spacing:.12em;
+  color:var(--dim);text-transform:uppercase;transition:color .12s;
+}
+.sc-tech-toggle:hover{color:var(--ice2);}
+.sc-tech-body{display:none;padding:0 20px 14px;}
+.sc-tech-body.open{display:block;}
+.tech-code{
+  font-size:11px;color:var(--ice);line-height:1.85;
+  background:rgba(168,197,232,.04);border-left:2px solid var(--ice);
+  padding:8px 12px;
+}
+.tech-code .kw{color:var(--gold);}
+.tech-code .fn{color:var(--ice3);}
+.tech-code .val{color:var(--green);}
+.tech-code .cm{color:var(--dim);}
+
+/* ── IDLE STATE (before sim starts) ── */
+.idle-screen{
+  position:absolute;inset:0;z-index:5;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  transition:opacity .4s;
+}
+.idle-screen.hidden{opacity:0;pointer-events:none;}
+.idle-title{font-family:var(--fc);font-size:clamp(28px,5vw,52px);font-weight:900;
+  letter-spacing:.06em;color:var(--ice);margin-bottom:8px;text-align:center;}
+.idle-sub{font-size:14px;color:var(--dim);letter-spacing:.14em;text-transform:uppercase;
+  margin-bottom:32px;text-align:center;}
+.idle-inv{
+  font-size:15px;color:var(--ice);font-weight:700;letter-spacing:.06em;
+  padding:10px 20px;border:1px solid rgba(168,197,232,.25);
+  background:rgba(168,197,232,.05);margin-bottom:32px;
+}
+.idle-hint{font-size:12px;color:var(--dim);letter-spacing:.1em;}
+
+/* ── COMPLETE STATE ── */
+.complete-screen{
+  position:absolute;inset:0;z-index:5;
+  display:none;flex-direction:column;align-items:center;justify-content:center;
+}
+.complete-screen.show{display:flex;}
+.cs-title{font-family:var(--fc);font-size:clamp(32px,5vw,56px);font-weight:900;
+  letter-spacing:.06em;color:var(--green);margin-bottom:10px;text-align:center;}
+.cs-sub{font-size:14px;color:rgba(232,240,248,.7);letter-spacing:.1em;text-align:center;
+  max-width:400px;line-height:1.8;margin-bottom:20px;}
+.cs-inv{font-size:11px;color:var(--green);font-weight:700;letter-spacing:.06em;
+  padding:8px 16px;border:1px solid rgba(0,204,102,.3);background:rgba(0,204,102,.07);}
+
+/* ════════════════════════════
+   RIGHT PANEL — layer map
+════════════════════════════ */
+.right{
+  border-left:1px solid var(--bdr);background:var(--bg1);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.rp-head{padding:12px 14px 8px;border-bottom:1px solid var(--bdr);flex-shrink:0;}
+.rp-head-title{font-size:9px;font-weight:700;letter-spacing:.22em;color:var(--ice2);text-transform:uppercase;margin-bottom:2px;}
+.rp-head-sub{font-size:9px;color:var(--dim);}
+
+/* Layer stack in right panel */
+.layer-stack{flex:1;display:flex;flex-direction:column;padding:10px 12px;gap:6px;overflow-y:auto;}
+.layer-stack::-webkit-scrollbar{width:3px;}
+.layer-stack::-webkit-scrollbar-thumb{background:var(--bdr2);}
+
+.ls-layer{border:1px solid var(--bdr);transition:all .35s cubic-bezier(.2,.8,.2,1);}
+.ls-layer.lit-inst{border-color:rgba(200,169,74,.5);background:rgba(200,169,74,.04);
+  box-shadow:0 0 20px rgba(200,169,74,.12);}
+.ls-layer.lit-ward{border-color:rgba(168,197,232,.5);background:rgba(168,197,232,.05);
+  box-shadow:0 0 20px rgba(168,197,232,.12);}
+.ls-layer.lit-xrpl{border-color:rgba(0,204,102,.5);background:rgba(0,204,102,.04);
+  box-shadow:0 0 20px rgba(0,204,102,.12);}
+
+.ls-hdr{padding:8px 10px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;gap:8px;}
+.ls-tag{font-size:8px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;padding:2px 7px;border:1px solid;}
+.ls-tag-inst{color:var(--gold);border-color:rgba(200,169,74,.3);}
+.ls-tag-ward{color:var(--ice);border-color:rgba(168,197,232,.3);}
+.ls-tag-xrpl{color:var(--green);border-color:rgba(0,204,102,.3);}
+.ls-name{font-family:var(--fc);font-size:16px;font-weight:900;letter-spacing:.04em;}
+.ls-name-inst{color:var(--gold);}
+.ls-name-ward{color:var(--ice);}
+.ls-name-xrpl{color:var(--green);}
+
+.ls-comps{display:flex;flex-direction:column;gap:2px;padding:6px 8px;}
+.ls-comp{
+  padding:5px 8px;font-size:9px;border:1px solid transparent;
+  display:flex;align-items:center;gap:7px;cursor:pointer;
+  transition:all .25s;border-radius:1px;
+}
+.ls-comp:hover{background:var(--bg2);border-color:var(--bdr);}
+.ls-comp.active-comp{background:rgba(168,197,232,.08);border-color:rgba(168,197,232,.3);}
+.ls-comp.active-comp.inst-comp{background:rgba(200,169,74,.08);border-color:rgba(200,169,74,.3);}
+.ls-comp.active-comp.xrpl-comp{background:rgba(0,204,102,.06);border-color:rgba(0,204,102,.3);}
+.comp-pip{width:5px;height:5px;border-radius:50%;flex-shrink:0;background:var(--bdr2);transition:all .25s;}
+.active-comp .comp-pip{background:var(--ice);box-shadow:0 0 6px var(--ice);}
+.active-comp.inst-comp .comp-pip{background:var(--gold);box-shadow:0 0 6px var(--gold);}
+.active-comp.xrpl-comp .comp-pip{background:var(--green);box-shadow:0 0 6px var(--green);}
+.comp-label{color:var(--dim);font-weight:700;transition:color .2s;}
+.active-comp .comp-label{color:var(--w);}
+
+/* Ward invariant in right panel */
+.ward-inv-strip{
+  margin:4px 8px 6px;padding:6px 8px;
+  border:1px solid rgba(168,197,232,.18);border-left:2px solid var(--ice);
+  background:rgba(168,197,232,.04);font-size:9px;
+}
+.wi-main{color:var(--ice);font-weight:700;letter-spacing:.06em;margin-bottom:2px;}
+.wi-note{color:var(--dim);font-size:8px;line-height:1.5;}
+
+/* ════════════════════════════
+   BOTTOM BAR
+════════════════════════════ */
+.bottombar{
+  height:52px;background:var(--bg2);border-top:1px solid var(--bdr);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 20px;flex-shrink:0;
+}
+.bb-l{display:flex;align-items:center;gap:16px;}
+.bb-stat{font-size:12px;color:var(--dim);letter-spacing:.08em;}
+.bb-stat b{color:var(--ice);}
+.bb-stat b.g{color:var(--green);}
+.bb-r{display:flex;align-items:center;gap:10px;}
+
+/* NAV BUTTONS */
+.nav-btn{
+  font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  padding:0 16px;height:32px;border:1px solid;cursor:pointer;
+  transition:all .15s;background:transparent;
+}
+.nav-prev{color:var(--dim);border-color:var(--bdr);}
+.nav-prev:hover{color:var(--ice2);border-color:var(--ice2);}
+.nav-prev:disabled{opacity:.3;cursor:default;}
+.nav-next{color:var(--ice);border-color:rgba(168,197,232,.4);background:rgba(168,197,232,.08);}
+.nav-next:hover{border-color:var(--ice);box-shadow:0 0 14px rgba(168,197,232,.2);}
+.nav-next:disabled{opacity:.3;cursor:default;}
+
+/* RUN button */
+.run-btn{
+  font-family:var(--f);font-size:11px;font-weight:700;letter-spacing:.14em;
+  text-transform:uppercase;padding:0 20px;height:32px;cursor:pointer;
+  border:1px solid rgba(168,197,232,.4);color:var(--ice);
+  background:rgba(168,197,232,.08);transition:all .15s;position:relative;overflow:hidden;
+}
+.run-btn::after{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(168,197,232,.18),transparent);transition:left .4s;}
+.run-btn:hover::after{left:110%;}
+.run-btn:hover{border-color:var(--ice);box-shadow:0 0 18px rgba(168,197,232,.25);}
+.run-btn.go{
+  color:var(--bg);background:var(--ice);border-color:var(--ice);
+  box-shadow:0 0 24px rgba(168,197,232,.5);animation:rp 1.5s ease-in-out infinite;
+}
+@keyframes rp{0%,100%{box-shadow:0 0 24px rgba(168,197,232,.5);}50%{box-shadow:0 0 40px rgba(168,197,232,.8);}}
+.run-btn.done{background:rgba(0,204,102,.15);border-color:var(--green);color:var(--green);
+  box-shadow:0 0 16px rgba(0,204,102,.3);animation:none;}
+
+.nav-links{display:flex;gap:8px;}
+.nav-a{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  text-decoration:none;border:1px solid;padding:4px 10px;transition:all .12s;height:28px;
+  display:flex;align-items:center;}
+.na-p{color:var(--bg);background:var(--ice);border-color:var(--ice);}
+.na-p:hover{background:var(--ice3);}
+.na-s{color:var(--dim);border-color:var(--bdr);}
+.na-s:hover{color:var(--ice2);border-color:var(--ice2);}
+
+@media(max-width:900px){
+  .body{grid-template-columns:1fr;}
+  .left,.right{display:none;}
+}
+
+
+
+
+
+
+
+/* ── TERMINAL RIGHT DRAWER ── */
+.term-drawer{
+  position:fixed;top:0;right:0;bottom:0;
+  width:360px;
+  background:var(--bg1);
+  border-left:1px solid rgba(168,197,232,.3);
+  z-index:150;
+  display:flex;flex-direction:column;
+  transform:translateX(100%);
+  transition:transform .28s cubic-bezier(.4,0,.2,1);
+  box-shadow:-8px 0 32px rgba(0,0,0,.4);
+}
+.term-drawer.open{transform:translateX(0);}
+.td-hdr{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 14px;border-bottom:1px solid var(--bdr);
+  background:rgba(168,197,232,.06);flex-shrink:0;
+}
+.td-hdr-l{display:flex;align-items:center;gap:8px;}
+.td-dot{width:5px;height:5px;border-radius:50%;background:var(--ice);box-shadow:0 0 6px var(--ice);}
+.td-title{font-size:9px;font-weight:700;letter-spacing:.2em;color:var(--ice2);text-transform:uppercase;}
+.td-step{font-size:9px;color:var(--dim);margin-left:6px;}
+.td-close{background:none;border:1px solid var(--bdr);color:var(--dim);cursor:pointer;
+  font-family:var(--f);font-size:9px;padding:3px 8px;letter-spacing:.08em;transition:all .12s;}
+.td-close:hover{color:var(--ice);border-color:var(--ice2);}
+.term-lines{flex:1;overflow-y:auto;padding:6px 0;}
+.term-lines::-webkit-scrollbar{width:3px;}
+.term-lines::-webkit-scrollbar-thumb{background:var(--bdr2);}
+.tl{padding:2px 12px;display:flex;gap:8px;font-size:9px;line-height:1.75;}
+.tlp{flex-shrink:0;min-width:58px;font-size:8px;letter-spacing:.06em;opacity:.65;}
+.tlp.w{color:var(--ice2);}.tlp.x{color:var(--green);}.tlp.i{color:var(--gold);}
+.tlt{letter-spacing:.04em;}
+.tlt.ice{color:var(--ice);}.tlt.ok{color:rgba(232,240,248,.8);}
+.tlt.green{color:var(--green);font-weight:700;}
+.tlt.gold{color:var(--gold);}.tlt.red{color:var(--red);}.tlt.dim{color:var(--dim);}
+.td-foot{padding:7px 12px;border-top:1px solid var(--bdr);font-size:9px;color:var(--dim);
+  display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:var(--bg2);}
+.td-hint{letter-spacing:.08em;}
+.td-clr{background:none;border:none;color:var(--dim);cursor:pointer;font-family:var(--f);
+  font-size:9px;letter-spacing:.1em;text-transform:uppercase;transition:color .12s;padding:0;}
+.td-clr:hover{color:var(--ice2);}
+/* Toggle button in bottom bar */
+.term-toggle{font-family:var(--f);font-size:11px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;padding:0 14px;height:34px;border:1px solid var(--bdr);
+  color:var(--dim);background:transparent;cursor:pointer;transition:all .15s;}
+.term-toggle:hover{color:var(--ice2);border-color:var(--ice2);}
+.term-toggle.on{color:var(--ice);border-color:rgba(168,197,232,.4);background:rgba(168,197,232,.07);}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<div class="hdr">
+  <div class="hdr-logo">
+    <svg viewBox="0 0 1300 160" width="180" xmlns="http://www.w3.org/2000/svg"><text y="148" font-family="'Barlow Condensed',sans-serif" font-size="172" letter-spacing="-2" x="10"><tspan font-weight="900" fill="#a8c5e8">WARD </tspan><tspan font-weight="300" fill="rgba(168,197,232,0.6)">Protocol</tspan></text></svg>
+    <span class="hdr-sep">·</span>
+    <span class="hdr-title">Protocol Architecture</span>
+  </div>
+  <div class="hdr-right">
+    <div class="hdr-stat">TESTS <b class="g">95/95</b></div>
+    <div class="hdr-stat">ward_signed <b class="r">FALSE</b></div>
+    <div class="live-chip" id="ledger-chip">ALTNET LIVE</div>
+    <a href="/index.html" class="hdr-back">← Overview</a>
+  </div>
+</div>
+
+<!-- BODY -->
+<div class="body">
+
+  <!-- LEFT: step list -->
+  <div class="left">
+    <div class="lp-title">◈ Protocol Steps</div>
+    <div class="step-nav" id="step-nav"></div>
+    <div class="lp-foot">
+      <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+      <div class="prog-label">Step <b id="prog-cur">—</b> of <b>6</b></div>
+    </div>
+  </div>
+
+  <!-- CENTER: story canvas -->
+  <div class="center" id="center">
+
+    <!-- Background layer bands -->
+    <div class="arch-bands">
+      <div class="band band-inst"><div class="band-label">Institution Layer</div></div>
+      <div class="band band-ward"><div class="band-label">Ward Protocol</div></div>
+      <div class="band band-xrpl"><div class="band-label">XRPL Settlement</div></div>
+    </div>
+
+    <!-- Particle canvas -->
+    <canvas id="cv"></canvas>
+
+    <!-- IDLE SCREEN -->
+    <div class="idle-screen" id="idle-screen">
+      <div class="idle-title">PROTOCOL ARCHITECTURE</div>
+      <div class="idle-sub">Three-layer architecture · Institution → Ward → XRPL · ward_signed = False</div>
+      <div class="idle-inv">ward_signed = False</div>
+      <div class="idle-hint">Press RUN to trace a transaction · or click any step</div>
+    </div>
+
+    <!-- COMPLETE SCREEN -->
+    <div class="complete-screen" id="complete-screen">
+      <div class="cs-title">SETTLED</div>
+      <div class="cs-sub">Six steps. Zero custodians. Every transaction built by Ward, signed by the institution, settled by XRPL.</div>
+      <div class="cs-inv">ward_signed = False — throughout</div>
+    </div>
+
+    <!-- STORY CARD -->
+    <div class="story-card" id="story-card">
+      <div class="sc-accent" id="sc-accent"></div>
+      <div class="sc-header">
+        <div class="sc-eyebrow">
+          <div class="sc-dot" id="sc-dot"></div>
+          <span id="sc-eyebrow-text">Step 1 of 6</span>
+        </div>
+        <div class="sc-step-title" id="sc-title">—</div>
+        <div class="sc-plain" id="sc-plain">—</div>
+      </div>
+
+      <!-- WHO DOES WHAT -->
+      <div class="sc-actors" id="sc-actors"></div>
+
+      <!-- WHAT HAPPENS -->
+      <div class="sc-what">
+        <div class="sc-what-label">What happens</div>
+        <div class="sc-what-text" id="sc-what"></div>
+      </div>
+
+      <!-- TECH TOGGLE -->
+      <div class="sc-tech">
+        <button class="sc-tech-toggle" onclick="toggleTech(this)">
+          <span>Technical detail</span><span id="tech-arrow">▾</span>
+        </button>
+        <div class="sc-tech-body" id="sc-tech-body">
+          <div class="tech-code" id="sc-code"></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /center -->
+
+</div><!-- /body -->
+
+<!-- TERMINAL RIGHT DRAWER -->
+<div class="term-drawer" id="term-drawer">
+  <div class="td-hdr">
+    <div class="td-hdr-l">
+      <div class="td-dot"></div>
+      <div class="td-title">$ ward-protocol</div>
+      <div class="td-step" id="td-step"></div>
+    </div>
+    <button class="td-close" onclick="closeTerm()">✕ CLOSE</button>
+  </div>
+  <div class="term-lines" id="term-lines"></div>
+  <div class="td-foot">
+    <span class="td-hint">live transaction trace · ESC to close</span>
+    <button class="td-clr" onclick="clearTerm()">CLR</button>
+  </div>
+</div>
+
+<!-- BOTTOM BAR -->
+<div class="bottombar">
+  <div class="bb-l">
+    <div class="bb-stat">NFT_TAXON <b>282</b></div>
+    <div class="bb-stat">CHECKS <b class="g">9/9</b></div>
+    <div class="bb-stat">SPEC <b>XRPLF #474</b></div>
+    <div class="bb-stat">ESCROW <b>PREIMAGE-SHA-256</b></div>
+  </div>
+  <div class="bb-r">
+    <div class="nav-links">
+      <a href="/spec.html" class="nav-a na-p">Protocol Spec →</a>
+      <a href="/api.html" class="nav-a na-s">API</a>
+      <a href="/brand.html" class="nav-a na-s">Brand</a>
+    </div>
+    <button class="term-toggle" id="term-toggle" onclick="toggleTerm()">$ Terminal</button>
+    <button class="nav-btn nav-prev" id="btn-prev" onclick="prevStep()" disabled>← Prev</button>
+    <button class="nav-btn nav-next" id="btn-next" onclick="nextStep()">Next →</button>
+    <button class="run-btn" id="btn-run" onclick="toggleSim()">▶ RUN</button>
+  </div>
+</div>
+
+</div><!-- /shell -->
+
+<script>
+// ═══════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════
+
+const STEPS = [
+  {
+    id:1,
+    title:'Identity Anchored On-Chain',
+    plain:'Identity is verified off-chain by your existing KYC provider. A cryptographic fingerprint — not the data itself — is permanently recorded on the XRP Ledger. Compliance without exposure.',
+    actors:[
+      {id:'borrower',label:'BORROWER',sub:'Provides KYC',col:'#6a9fd0',active:true},
+      {id:'ward',    label:'WARD',    sub:'Hashes & builds tx',col:'#a8c5e8',active:true},
+      {id:'inst',    label:'INSTITUTION',sub:'Signs & submits',col:'#c8a94a',active:true},
+      {id:'xrpl',   label:'XRPL',   sub:'Confirms on-chain',col:'#00cc66',active:true},
+    ],
+    what:'Your KYC provider runs its normal process. Ward derives a <strong>sha256 hash</strong> of the verification record and builds an unsigned NFT transaction. The institution signs with its own keys — Ward never touches them. XRPL confirms. The hash is permanent and auditable; the raw identity data never leaves your systems.',
+    code:`kyc_hash = <span class="fn">build_kyc_hash</span>(\n  depositor, institution,\n  ledger_time, <span class="kw">"KYC"</span>\n)\n<span class="cm"># ward_signed = False — always</span>\nreturn UnsignedTx(nftoken_taxon=<span class="val">282</span>)`,
+    col:'#a8c5e8', accentCol:'#a8c5e8',
+    log:[['ward','build_kyc_hash(depositor, institution, ledger_time)','ice'],['ward','NFTokenMint · taxon=282 · ward_signed=False','ok'],['inst','signing with institution wallet...','gold'],['xrpl','CONFIRMED · credential live · non-transferable','green']],
+    layers:{inst:['kyc'],ward:['wc'],xrpl:['xls70']},
+    from:'inst',to:'xrpl',
+  },
+  {
+    id:2,
+    title:'Ledger-Enforced Access Control',
+    plain:'Access to Ward-protected vaults is enforced by the XRP Ledger itself. Not by Ward\'s server, not by a gatekeeper, not by anyone who can be pressured or compromised. Either you hold the credential, or the ledger rejects you.',
+    actors:[
+      {id:'borrower',label:'BORROWER',sub:'Requests access',col:'#6a9fd0',active:true},
+      {id:'ward',    label:'WARD',    sub:'Reads registry',col:'#a8c5e8',active:true},
+      {id:'inst',    label:'INSTITUTION',sub:'—',col:'#c8a94a',active:false},
+      {id:'xrpl',   label:'XRPL',   sub:'Enforces access',col:'#00cc66',active:true},
+    ],
+    what:'The <strong>XLS-80 Permissioned Domain</strong> standard lets institutions define an on-chain access registry. Ward checks it — XRPL enforces it. An unauthorized wallet attempting to interact with a Ward vault is rejected at the protocol layer. Ward\'s server being offline changes nothing. The rules are the ledger.',
+    code:`domain_ok = <span class="kw">await</span> <span class="fn">check_xls80_domain</span>(\n  depositor_address\n)\n<span class="cm"># XRPL rejects — Ward only reads</span>`,
+    col:'#6a9fd0', accentCol:'#6a9fd0',
+    log:[['ward','querying XLS-80 permissioned domain registry...','ice'],['xrpl','domain_check: depositor in authorized set ✓','green'],['ward','access GRANTED · proceeding to policy issuance','ok']],
+    layers:{ward:['wc'],xrpl:['xls80']},
+    from:'ward',to:'xrpl',
+  },
+  {
+    id:3,
+    title:'Coverage Terms Locked On-Chain',
+    plain:'The coverage agreement is written directly onto the XRP Ledger as an NFT. Coverage amount, expiry date, and the vault it protects are encoded at mint time. No one can alter them afterward — not Ward, not the institution, not anyone.',
+    actors:[
+      {id:'borrower',label:'BORROWER',sub:'Requests coverage',col:'#6a9fd0',active:true},
+      {id:'ward',    label:'WARD',    sub:'Encodes & builds tx',col:'#a8c5e8',active:true},
+      {id:'inst',    label:'INSTITUTION',sub:'Signs & submits',col:'#c8a94a',active:true},
+      {id:'xrpl',   label:'XRPL',   sub:'Mints NFT cert',col:'#00cc66',active:true},
+    ],
+    what:'Ward encodes coverage amount, expiry, and vault address into the <strong>NFT URI metadata</strong>. The institution signs the unsigned mint — Ward never does. Once confirmed, terms are immutable on-chain. The NFT cannot be sold or transferred. It burns automatically upon settlement, making replay structurally impossible.',
+    code:`policy_tx = <span class="fn">NFTokenMint</span>(\n  taxon=<span class="val">281</span>,\n  flags=<span class="val">TF_BURNABLE</span>,  <span class="cm"># not transferable</span>\n  uri=<span class="fn">encode_policy</span>(terms)\n)\n<span class="cm"># ward_signed = False</span>`,
+    col:'#c8a94a', accentCol:'#c8a94a',
+    log:[['ward','NFTokenMint · taxon=281 · TF_BURNABLE · ward_signed=False','ice'],['inst','signing NFTokenMint...','gold'],['xrpl','policy cert CONFIRMED · terms immutable · replay-protected','green']],
+    layers:{inst:['bank'],ward:['wc'],xrpl:['xls20']},
+    from:'inst',to:'xrpl',
+  },
+  {
+    id:4,
+    title:'Default Confirmed, Not Just Flagged',
+    plain:'Ward doesn\'t act on the first signal. Three separate ledger closes — roughly 12 seconds — must confirm the breach before Ward proceeds. Flash crashes, oracle noise, and single bad blocks cannot trigger a false payout.',
+    actors:[
+      {id:'borrower',label:'BORROWER',sub:'Collateral drops',col:'#6a9fd0',active:false},
+      {id:'ward',    label:'WARD',    sub:'Monitors & confirms',col:'#a8c5e8',active:true},
+      {id:'inst',    label:'INSTITUTION',sub:'—',col:'#c8a94a',active:false},
+      {id:'xrpl',   label:'XRPL',   sub:'Emits default signal',col:'#00cc66',active:true},
+    ],
+    what:'The <strong>VaultMonitor</strong> subscribes to XLS-66 vault events via XRPL WebSocket. A health ratio below 1.5x triggers the watch. Three consecutive ledger closes must confirm it. This is the anti-manipulation guarantee — a single manipulated block, a brief price spike, or a flash crash cannot alone trigger a settlement.',
+    code:`<span class="cm"># Anti-manipulation: 3 closes required</span>\n<span class="kw">if</span> health_ratio < <span class="val">1.5</span>:\n  confirms += <span class="val">1</span>\n  <span class="kw">if</span> confirms >= <span class="val">3</span>:\n    <span class="fn">fire_default_event</span>(vault)`,
+    col:'#ff4455', accentCol:'#ff4455',
+    log:[['xrpl','[ws] LoanManage · tfLoanDefault · vault: rVaultXXX','red'],['ward','health_ratio=1.23 · threshold breached · awaiting confirms...','gold'],['ward','3 ledger closes confirmed · DEFAULT CONFIRMED','red'],['ward','initiating ClaimValidator...','ice']],
+    layers:{ward:['vm'],xrpl:['xls66']},
+    from:'xrpl',to:'ward',
+  },
+  {
+    id:5,
+    title:'Nine Checks. No Exceptions.',
+    log:[['ward','[1/9] NFT valid ✓  [2/9] unexpired ✓  [3/9] correct vault ✓','ok'],['ward','[4/9] default confirmed ✓  [5/9] collateral breached ✓','ok'],['ward','[6-9] escrow · KYC · domain · rate limit ✓','ok'],['ward','ALL 9 PASSED · EscrowCreate ready · ward_signed=False','green']],
+    plain:'Nine independent checks against the live ledger state. Every check must pass. A claim that fails check three never reaches check four. There is no appeals process, no override, no manager to call. The code is the adjudicator.',
+    actors:[
+      {id:'borrower',label:'BORROWER',sub:'Files claim',col:'#6a9fd0',active:true},
+      {id:'ward',    label:'WARD',    sub:'Runs 9 checks',col:'#a8c5e8',active:true},
+      {id:'inst',    label:'INSTITUTION',sub:'—',col:'#c8a94a',active:false},
+      {id:'xrpl',   label:'XRPL',   sub:'Provides proof',col:'#00cc66',active:true},
+    ],
+    what:'The <strong>ClaimValidator</strong> queries the live ledger directly for each check: policy NFT exists and is unexpired, matches the correct vault, default confirmed across 3 closes, collateral provably breached, no escrow already pending, KYC credential valid and unexpired, domain credential valid, rate limit clear. No oracle. No off-chain data. No human judgment. All nine pass — or the claim is rejected with a reason code.',
+    code:`<span class="cm"># [1-4] Identity & policy checks</span>\nassert nft_exists and not expired\nassert correct_vault and default_confirmed\n<span class="cm"># [5-9] Financial & compliance checks</span>\nassert collateral_breached\nassert kyc_valid and domain_valid\n<span class="cm"># ALL 9 MUST PASS — no exceptions</span>`,
+    col:'#a8c5e8', accentCol:'#a8c5e8',
+    layers:{ward:['cv2'],xrpl:['xls66','xls80','xls70']},
+    from:'ward',to:'xrpl',
+  },
+  {
+    id:6,
+    title:'Settlement Without a Custodian',
+    log:[['ward','EscrowCreate · PREIMAGE_SHA256 · finish_after=48h · ward_signed=False','ice'],['inst','signing EscrowCreate · submitting to XRPL...','gold'],['xrpl','ESCROW LOCKED · collateral secured · 48h window open','green'],['xrpl','[48h] EscrowFinish · preimage revealed · NFT BURNED atomically','green'],['xrpl','SETTLEMENT COMPLETE · ward_signed=False throughout','green']],
+    plain:'Funds are released by cryptography, not by people. A preimage hash locks the escrow — only the claimant who holds it can release the funds. No custodian, no trustee, no counterparty risk. Ward\'s server going permanently offline doesn\'t affect settlement.',
+    actors:[
+      {id:'borrower',label:'BORROWER',sub:'Reveals secret',col:'#6a9fd0',active:true},
+      {id:'ward',    label:'WARD',    sub:'Builds escrow tx',col:'#a8c5e8',active:true},
+      {id:'inst',    label:'INSTITUTION',sub:'Signs & submits',col:'#c8a94a',active:true},
+      {id:'xrpl',   label:'XRPL',   sub:'Locks → releases',col:'#00cc66',active:true},
+    ],
+    what:'Ward constructs an unsigned <strong>EscrowCreate</strong> with PREIMAGE-SHA-256 condition. The institution signs and submits. Funds lock on-chain. After a 48-hour window the claimant submits EscrowFinish with the preimage — funds release, policy NFT burns in the same atomic transaction. The 72-hour cancel window returns funds to the institution if the claimant never acts. Ward\'s server plays no role. XRPL is the settlement layer.',
+    code:`escrow = <span class="fn">EscrowCreate</span>(\n  condition=<span class="val">PREIMAGE_SHA256</span>,\n  finish_after=<span class="val">48h</span>,\n  cancel_after=<span class="val">72h</span>\n)\n<span class="cm"># Policy NFT burns on EscrowFinish</span>\n<span class="cm"># ward_signed = False — always</span>`,
+    col:'#00cc66', accentCol:'#00cc66',
+    layers:{inst:['bank'],ward:['es'],xrpl:['escrow','xls20']},
+    from:'ward',to:'xrpl',
+  },
+];
+
+const LAYER_DEFS = {
+  inst:{tag:'INST-03',name:'Institution',cls:'inst',comps:[
+    {id:'bank',label:'Bank / Fund'},
+    {id:'custody',label:'Custody Provider'},
+    {id:'kyc',label:'KYC / AML Engine'},
+  ]},
+  ward:{tag:'WARD',name:'Ward Protocol',cls:'ward',comps:[
+    {id:'wc',label:'WardClient'},
+    {id:'vm',label:'VaultMonitor'},
+    {id:'cv2',label:'ClaimValidator'},
+    {id:'es',label:'EscrowSettlement'},
+  ]},
+  xrpl:{tag:'XRPL',name:'XRPL',cls:'xrpl',comps:[
+    {id:'xls66',label:'XLS-66 Lending Vaults'},
+    {id:'xls80',label:'XLS-80 Domains'},
+    {id:'xls70',label:'XLS-70 Credentials'},
+    {id:'xls20',label:'XLS-20 Policy NFTs'},
+    {id:'escrow',label:'Native Escrow'},
+  ]},
+};
+
+// ═══════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════
+let cur = -1, running = false, simTimer = null;
+let techOpen = false;
+
+// Canvas
+const cv = document.getElementById('cv');
+const ctx = cv.getContext('2d');
+let W = 0, H = 0, particles = [], RAF, animT = 0;
+
+// ═══════════════════════════════════════════
+// CANVAS
+// ═══════════════════════════════════════════
+function resizeCanvas(){
+  const c = document.getElementById('center');
+  W = c.offsetWidth; H = c.offsetHeight;
+  cv.width = W; cv.height = H;
+}
+
+function spawnParticles(fromBand, toBand, col){
+  const bands = ['inst','ward','xrpl'];
+  const fi = bands.indexOf(fromBand), ti = bands.indexOf(toBand);
+  if(fi < 0 || ti < 0) return;
+  const bandH = H / 3;
+  const fromY = bandH * fi + bandH / 2;
+  const toY   = bandH * ti + bandH / 2;
+  const dir   = toY > fromY ? 1 : -1;
+
+  for(let i = 0; i < 20; i++){
+    setTimeout(()=>{
+      const x = W * .08 + Math.random() * W * .84;
+      const dist = Math.abs(toY - fromY);
+      particles.push({
+        x, y: fromY,
+        vy: dir * (1.8 + Math.random()),
+        vx: (Math.random() - .5) * .4,
+        r: 2.5 + Math.random() * 2,
+        col, life: 1,
+        fade: 1 / (dist / 1.6),
+      });
+    }, i * 50);
+  }
+}
+
+function drawCanvas(){
+  ctx.clearRect(0,0,W,H);
+  particles = particles.filter(p => p.life > 0);
+  particles.forEach(p => {
+    p.x += p.vx; p.y += p.vy; p.vx *= .96; p.life -= p.fade;
+    const a = Math.min(1, p.life * 1.5);
+    ctx.save(); ctx.globalAlpha = a;
+    ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+    ctx.fillStyle = p.col; ctx.shadowColor = p.col; ctx.shadowBlur = p.r * 5;
+    ctx.fill(); ctx.restore();
+  });
+}
+
+function animLoop(){
+  animT += .016;
+  drawCanvas();
+  RAF = requestAnimationFrame(animLoop);
+}
+
+// ═══════════════════════════════════════════
+// BUILD LEFT PANEL
+// ═══════════════════════════════════════════
+function buildStepNav(){
+  const nav = document.getElementById('step-nav');
+  nav.innerHTML = '';
+  STEPS.forEach((s,i) => {
+    const d = document.createElement('div');
+    d.className = 'sn-item'; d.id = 'sn-' + i;
+    d.innerHTML = `
+      <div class="sn-num">
+        <span class="sn-check" id="snc-${i}">${i+1}</span>
+        STEP 0${s.id}
+      </div>
+      <div class="sn-title">${s.title}</div>
+      <div class="sn-sub">${s.plain.split('.')[0]}.</div>`;
+    d.onclick = () => goTo(i);
+    nav.appendChild(d);
+  });
+}
+
+function updateStepNav(){
+  STEPS.forEach((_,i) => {
+    const el = document.getElementById('sn-' + i);
+    const ch = document.getElementById('snc-' + i);
+    if(!el) return;
+    el.classList.remove('active','done');
+    if(i === cur){ el.classList.add('active'); }
+    else if(i < cur){ el.classList.add('done'); ch.textContent = '✓'; }
+    else { ch.textContent = i+1; }
+  });
+  const pct = cur >= 0 ? ((cur + 1) / STEPS.length * 100) : 0;
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('prog-cur').textContent = cur >= 0 ? cur + 1 : '—';
+}
+
+// ═══════════════════════════════════════════
+// BUILD RIGHT PANEL
+// ═══════════════════════════════════════════
+function buildLayerStack(){
+  const stack = document.getElementById('layer-stack');
+  stack.innerHTML = '';
+  ['inst','ward','xrpl'].forEach(layerId => {
+    const def = LAYER_DEFS[layerId];
+    const el = document.createElement('div');
+    el.className = 'ls-layer'; el.id = 'ls-' + layerId;
+
+    const wardInvHtml = layerId === 'ward' ? `
+      <div class="ward-inv-strip">
+        <div class="wi-main">ward_signed = False</div>
+        <div class="wi-note">Builds unsigned transactions · Institution signs</div>
+      </div>` : '';
+
+    el.innerHTML = `
+      <div class="ls-hdr">
+        <span class="ls-tag ls-tag-${layerId}">${def.tag}</span>
+        <span class="ls-name ls-name-${layerId}">${def.name}</span>
+      </div>
+      ${wardInvHtml}
+      <div class="ls-comps">
+        ${def.comps.map(c => `
+          <div class="ls-comp ${layerId}-comp" id="lc-${c.id}">
+            <div class="comp-pip"></div>
+            <div class="comp-label">${c.label}</div>
+          </div>`).join('')}
+      </div>`;
+    stack.appendChild(el);
+  });
+}
+
+function updateLayerStack(step){ if(!step) return; // right panel removed
+  return;
+  // Reset all
+  document.querySelectorAll('.ls-layer').forEach(el => {
+    el.classList.remove('lit-inst','lit-ward','lit-xrpl');
+  });
+  document.querySelectorAll('.ls-comp').forEach(el => {
+    el.classList.remove('active-comp');
+  });
+  if(!step) return;
+
+  // Light up layers
+  Object.keys(step.layers).forEach(layerId => {
+    const layer = document.getElementById('ls-' + layerId);
+    if(layer) layer.classList.add('lit-' + layerId);
+    step.layers[layerId].forEach(compId => {
+      const comp = document.getElementById('lc-' + compId);
+      if(comp) comp.classList.add('active-comp');
+    });
+  });
+}
+
+// ═══════════════════════════════════════════
+// STORY CARD
+// ═══════════════════════════════════════════
+function showCard(step){
+  const card = document.getElementById('story-card');
+  const idle = document.getElementById('idle-screen');
+  const complete = document.getElementById('complete-screen');
+
+  idle.classList.add('hidden');
+  complete.classList.remove('show');
+  card.classList.remove('visible');
+
+  // Short delay for transition
+  setTimeout(() => {
+    // Accent
+    document.getElementById('sc-accent').style.background = step.accentCol;
+    document.getElementById('sc-dot').style.background = step.col;
+    document.getElementById('sc-dot').style.boxShadow = `0 0 8px ${step.col}`;
+
+    // Header
+    document.getElementById('sc-eyebrow-text').textContent = `Step ${step.id} of 6 · ${step.title.toUpperCase()}`;
+    document.getElementById('sc-title').textContent = step.title;
+    document.getElementById('sc-title').style.color = step.col;
+    document.getElementById('sc-plain').textContent = step.plain;
+
+    // Actors
+    const actorEl = document.getElementById('sc-actors');
+    actorEl.innerHTML = step.actors.map((a,i) => `
+      <div class="actor-block ${a.active ? 'active' + (i<step.actors.length-1?' active-flow':'') : ''}">
+        <div class="actor-icon" style="color:${a.active?a.col:'var(--dim)'};border-color:${a.active?a.col:'var(--bdr)'};${a.active?`box-shadow:0 0 12px ${a.col}44`:''}">${a.label[0]}</div>
+        <div class="actor-name" style="${a.active?`color:${a.col}`:''}">${a.label}</div>
+        <div style="font-size:8px;color:var(--dim);margin-top:2px;">${a.sub}</div>
+      </div>`).join('');
+
+    // What
+    document.getElementById('sc-what').innerHTML = step.what;
+
+    // Code
+    document.getElementById('sc-code').innerHTML = `<pre style="white-space:pre-wrap;font-family:var(--f);">${step.code}</pre>`;
+
+    // Reset tech toggle
+    const techBody = document.getElementById('sc-tech-body');
+    techBody.classList.remove('open');
+    document.getElementById('tech-arrow').textContent = '▾';
+
+    card.classList.add('visible');
+  }, 80);
+}
+
+function showIdle(){
+  document.getElementById('story-card').classList.remove('visible');
+  document.getElementById('complete-screen').classList.remove('show');
+  document.getElementById('idle-screen').classList.remove('hidden');
+}
+
+function showComplete(){
+  document.getElementById('story-card').classList.remove('visible');
+  document.getElementById('idle-screen').classList.add('hidden');
+  document.getElementById('complete-screen').classList.add('show');
+}
+
+function toggleTech(btn){
+  const body = document.getElementById('sc-tech-body');
+  const arrow = document.getElementById('tech-arrow');
+  const open = body.classList.toggle('open');
+  arrow.textContent = open ? '▴' : '▾';
+}
+
+// ═══════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════
+function goTo(i){
+  cur = i;
+  const step = STEPS[i];
+
+  showCard(step);
+  updateStepNav();
+  updateNavBtns();
+
+  // Spawn particles
+  spawnParticles(step.from, step.to, step.col);
+
+  // Fire terminal logs if step has them
+  if(step.log){
+    clearTerm();
+    document.getElementById('td-step').textContent = 'STEP ' + step.id + ' / 6';
+    step.log.forEach((l,j) => termLog(l[0], l[1], l[2], j*360));
+    // Terminal logs ready — user can open with $ Terminal button
+  }
+
+  // Scroll step into view
+  document.getElementById('sn-' + i)?.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function nextStep(){
+  if(cur < STEPS.length - 1) goTo(cur + 1);
+  else { showComplete(); cur = STEPS.length; updateStepNav(); updateNavBtns(); }
+}
+
+function prevStep(){
+  if(cur > 0) goTo(cur - 1);
+  else if(cur === 0){ cur = -1; showIdle(); updateStepNav(); updateNavBtns(); }
+}
+
+function updateNavBtns(){
+  document.getElementById('btn-prev').disabled = cur <= -1;
+  document.getElementById('btn-next').disabled = cur >= STEPS.length;
+  document.getElementById('btn-next').textContent = cur >= STEPS.length - 1 ? '✓ Done' : 'Next →';
+}
+
+// ═══════════════════════════════════════════
+// SIMULATION
+// ═══════════════════════════════════════════
+function toggleSim(){
+  if(running) pauseSim();
+  else startSim();
+}
+
+function startSim(){
+  running = true;
+  const btn = document.getElementById('btn-run');
+  btn.textContent = '⏸ PAUSE'; btn.classList.add('go'); btn.classList.remove('done');
+  if(cur >= STEPS.length - 1){ cur = -1; showIdle(); }
+  advance();
+}
+
+function pauseSim(){
+  running = false; clearTimeout(simTimer);
+  const btn = document.getElementById('btn-run');
+  btn.textContent = '▶ RUN'; btn.classList.remove('go');
+}
+
+function advance(){
+  if(!running) return;
+  const next = cur + 1;
+  if(next >= STEPS.length){
+    running = false;
+    showComplete();
+    cur = STEPS.length;
+    updateStepNav(); updateNavBtns();
+    const btn = document.getElementById('btn-run');
+    btn.textContent = '↺ AGAIN'; btn.classList.remove('go'); btn.classList.add('done');
+    return;
+  }
+  goTo(next);
+  simTimer = setTimeout(advance, 3800);
+}
+
+
+// ═══════════════════════════════════════════
+// TERMINAL DRAWER
+// ═══════════════════════════════════════════
+let termOpen = false;
+
+const PROMPTS = {
+  ward: 'ward@protocol $',
+  xrpl: 'xrpl@ledger  $',
+  inst: 'inst@bank    $',
+};
+const PCLS = {ward:'w', xrpl:'x', inst:'i'};
+
+function toggleTerm(){
+  termOpen = !termOpen;
+  document.getElementById('term-drawer').classList.toggle('open', termOpen);
+  document.getElementById('term-toggle').classList.toggle('on', termOpen);
+}
+
+function closeTerm(){
+  termOpen = false;
+  document.getElementById('term-drawer').classList.remove('open');
+  document.getElementById('term-toggle').classList.remove('on');
+}
+
+function clearTerm(){
+  const el = document.getElementById('term-lines');
+  if(el) el.innerHTML = '';
+}
+
+function termLog(actor, text, cls, delay=0){
+  setTimeout(()=>{
+    const lines = document.getElementById('term-lines');
+    if(!lines) return;
+    const div = document.createElement('div');
+    div.className = 'tl';
+    const prompt = PROMPTS[actor] || (actor + ' $');
+    const pcls = PCLS[actor] || '';
+    div.innerHTML = '<span class="tlp ' + pcls + '">' + prompt + '</span><span class="tlt ' + cls + '"></span>';
+    lines.appendChild(div);
+    lines.scrollTop = lines.scrollHeight;
+    const sp = div.querySelector('.tlt');
+    let i = 0;
+    const type = () => {
+      if(i < text.length){
+        sp.textContent = text.slice(0, ++i);
+        lines.scrollTop = lines.scrollHeight;
+        setTimeout(type, 12 + Math.random() * 8);
+      }
+    };
+    type();
+  }, delay);
+}
+
+// ═══════════════════════════════════════════
+// LIVE DATA
+// ═══════════════════════════════════════════
+
+(function tick(){
+  const n=new Date();
+  const est=new Date(n.toLocaleString('en-US',{timeZone:'America/New_York'}));
+  const p=v=>String(v).padStart(2,'0');
+  const h=est.getHours(),m=est.getMinutes(),s=est.getSeconds();
+  const h12=h%12||12,ampm=h>=12?'PM':'AM';
+  const tz=n.toLocaleString('en-US',{timeZone:'America/New_York',timeZoneName:'short'}).split(' ').pop();
+  const el=document.getElementById('clock');if(el)el.textContent=h12+':'+p(m)+':'+p(s)+' '+ampm+' '+tz;
+  setTimeout(tick,1000);
+})();
+
+async function fetchXRP(){
+  try{
+    const r=await fetch('https://api.coingecko.com/api/v3/simple/price?ids=ripple&vs_currencies=usd');
+    const d=await r.json();
+    const price=d?.ripple?.usd;
+    // price display removed (no ticker on this page)
+  }catch(e){}
+}
+fetchXRP();setInterval(fetchXRP,30000);
+
+try{
+  const ws=new WebSocket('wss://xrplcluster.com');
+  ws.onopen=()=>ws.send(JSON.stringify({command:'subscribe',streams:['ledger']}));
+  ws.onmessage=e=>{
+    try{const d=JSON.parse(e.data);const i=d.ledger_index||d.result?.ledger_index;
+    if(i){const el=document.getElementById('ledger-chip');if(el)el.textContent='LEDGER #'+Number(i).toLocaleString();}}catch(e){}
+  };
+}catch(e){}
+
+// ═══════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════
+window.addEventListener('load', () => {
+  resizeCanvas();
+  buildStepNav();
+  updateNavBtns();
+  animLoop();
+});
+window.addEventListener('resize', resizeCanvas);
+window.addEventListener('keydown', e => { if(e.key === 'Escape' && termOpen) closeTerm(); });
+</script>
+</body>
+</html>

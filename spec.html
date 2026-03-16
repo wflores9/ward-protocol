@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WARD — Protocol Spec · F·01–F·06</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Barlow+Condensed:wght@300;400;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#050d1a;--bg1:#0a1628;--bg2:#0d1f35;--bg3:#112540;
+  --bdr:#1a2e4a;--bdr2:#224060;
+  --ice:#a8c5e8;--ice2:#6a9fd0;--ice3:#d0e4f7;
+  --dim:#3a5a7a;--dim2:#1a3050;
+  --w:#e8f0f8;--green:#00cc66;--red:#ff4455;--gold:#c8a94a;
+  --f:'Space Mono',monospace;--fc:'Barlow Condensed',sans-serif;
+  /* Actor lane colors */
+  --inst-col:#c8a94a;--inst-bg:rgba(200,169,74,.07);--inst-bdr:rgba(200,169,74,.25);
+  --ward-col:#a8c5e8;--ward-bg:rgba(168,197,232,.07);--ward-bdr:rgba(168,197,232,.25);
+  --xrpl-col:#00cc66;--xrpl-bg:rgba(0,204,102,.06);--xrpl-bdr:rgba(0,204,102,.22);
+  --dep-col:#6a9fd0;--dep-bg:rgba(106,159,208,.07);--dep-bdr:rgba(106,159,208,.25);
+  --mon-col:#9f7aea;--mon-bg:rgba(159,122,234,.07);--mon-bdr:rgba(159,122,234,.25);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--f);background:var(--bg);color:var(--w);line-height:1.6;min-height:100vh;}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
+  background:repeating-linear-gradient(transparent 0,transparent 3px,rgba(0,0,0,.018) 3px,rgba(0,0,0,.018) 4px);}
+
+/* ── HEADER ── */
+.hdr{background:var(--bg2);border-bottom:2px solid var(--ice2);display:flex;align-items:center;justify-content:space-between;padding:8px 24px;position:sticky;top:0;z-index:100;}
+.hdr-logo{display:flex;align-items:center;gap:16px;}
+.hdr-sep{color:var(--dim2);font-size:18px;font-weight:300;}
+.hdr-title{font-size:11px;color:var(--dim);letter-spacing:0.22em;text-transform:uppercase;font-weight:400;}
+.hdr-back{font-family:var(--f);font-size:11px;font-weight:700;letter-spacing:0.1em;color:var(--dim);text-decoration:none;border:1px solid var(--bdr);padding:5px 14px;text-transform:uppercase;transition:all 0.12s;}
+.hdr-back:hover{color:var(--ice);border-color:var(--ice2);}
+
+/* ── TICKER ── */
+
+
+/* ── PAGE ── */
+.page{max-width:1400px;margin:0 auto;padding:40px 48px 100px;}
+@media(max-width:900px){.page{padding:32px 16px 80px;}}
+
+/* ── PAGE HEADER ── */
+.page-hdr{margin-bottom:36px;padding-bottom:28px;border-bottom:1px solid var(--bdr);text-align:center;}
+.page-title{font-family:var(--fc);font-weight:900;font-size:clamp(28px,6vw,44px);
+  letter-spacing:.08em;color:var(--ice);margin-bottom:6px;}
+.page-sub{font-size:12px;color:var(--dim);letter-spacing:.14em;text-transform:uppercase;margin-bottom:14px;}
+.page-meta{display:flex;flex-wrap:wrap;gap:16px;justify-content:center;}
+.pm{font-size:12px;color:var(--dim2);}
+.pm b{color:var(--ice);}
+.pm b.g{color:var(--green);}
+
+/* ── CORE PRINCIPLE ── */
+.core{background:var(--bg1);border:1px solid var(--bdr);border-left:3px solid var(--ice);
+  padding:24px 32px;margin-bottom:36px;display:flex;gap:40px;align-items:flex-start;flex-wrap:wrap;}
+.core-text{flex:1;min-width:260px;}
+.core-lbl{font-size:11px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--ice2);margin-bottom:12px;}
+.core-steps{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;}
+.cs{display:flex;align-items:center;gap:10px;font-size:13px;color:rgba(232,240,248,.75);}
+.csn{width:20px;height:20px;border-radius:50%;background:var(--ice);color:var(--bg);
+  font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.core-inv{font-size:13px;color:var(--ice);font-weight:700;letter-spacing:.06em;
+  padding:8px 14px;border:1px solid rgba(168,197,232,.2);border-left:2px solid var(--ice);
+  background:rgba(168,197,232,.05);}
+.core-diagram{flex-shrink:0;}
+.swimlane-mini{display:flex;align-items:center;gap:0;margin-bottom:8px;}
+.snode{padding:7px 14px;font-size:12px;font-weight:700;white-space:nowrap;border:1px solid;}
+.sn-inst{color:var(--inst-col);background:var(--inst-bg);border-color:var(--inst-bdr);}
+.sn-ward{color:var(--ward-col);background:var(--ward-bg);border-color:var(--ward-bdr);}
+.sn-xrpl{color:var(--xrpl-col);background:var(--xrpl-bg);border-color:var(--xrpl-bdr);}
+.sarrow{color:var(--dim2);font-size:16px;padding:0 4px;}
+.mini-inv{font-size:11px;color:var(--ice);font-weight:700;letter-spacing:.06em;
+  padding:4px 10px;border:1px solid rgba(168,197,232,.2);background:rgba(168,197,232,.05);
+  text-align:center;}
+
+/* ── INSTALL ── */
+.install{background:var(--bg1);border:1px solid var(--bdr);border-left:2px solid var(--ice2);
+  padding:14px 24px;margin-bottom:36px;display:flex;align-items:center;
+  justify-content:space-between;flex-wrap:wrap;gap:10px;}
+.inst-cmd{font-size:13px;color:var(--ice);letter-spacing:.06em;}
+.inst-cmd b{color:var(--ice2);}
+.inst-links{display:flex;gap:16px;font-size:11px;}
+.inst-links a{color:var(--ice2);text-decoration:none;letter-spacing:.08em;}
+.inst-links a:hover{text-decoration:underline;}
+
+/* ── FLOW BLOCKS ── */
+.flows{display:flex;flex-direction:column;gap:24px;}
+.flow{border:1px solid var(--bdr);background:var(--bg1);overflow:hidden;}
+.flow-head{display:flex;align-items:center;gap:14px;padding:16px 24px;
+  border-bottom:1px solid var(--bdr);background:var(--bg2);flex-wrap:wrap;row-gap:8px;}
+.flow-code{font-family:var(--fc);font-weight:900;font-size:clamp(20px,3vw,28px);
+  color:var(--ice2);letter-spacing:.06em;width:56px;flex-shrink:0;}
+.flow-info{flex:1;}
+.flow-title{font-family:var(--fc);font-weight:900;font-size:clamp(16px,2.5vw,22px);
+  color:var(--w);letter-spacing:.06em;margin-bottom:2px;}
+.flow-sub{font-size:11px;color:var(--dim);letter-spacing:.1em;}
+.flow-badges{display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
+.badge-prim{font-size:11px;color:var(--ice2);background:rgba(168,197,232,.08);
+  border:1px solid rgba(168,197,232,.18);padding:3px 9px;letter-spacing:.1em;text-transform:uppercase;}
+.badge-live{font-size:11px;font-weight:700;letter-spacing:.1em;padding:3px 9px;
+  text-transform:uppercase;background:rgba(0,204,102,.1);color:var(--green);
+  border:1px solid rgba(0,204,102,.22);}
+.badge-ep{font-size:11px;color:var(--dim);font-family:var(--f);padding:3px 9px;
+  border:1px solid var(--bdr);letter-spacing:.04em;}
+.badge-ep b{color:var(--ice2);}
+.badge-commit{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  padding:2px 7px;border:1px solid;color:var(--green);border-color:rgba(0,204,102,.3);
+  background:rgba(0,204,102,.06);}
+
+.flow-body{padding:22px 24px;}
+.flow-desc{font-size:14px;color:rgba(232,240,248,.65);line-height:1.8;margin-bottom:18px;}
+.flow-desc strong{color:var(--w);}
+.flow-desc code{font-family:var(--f);font-size:12px;color:var(--ice2);
+  background:rgba(168,197,232,.07);padding:1px 5px;}
+
+/* ── SWIMLANE ── */
+.swimlane{display:flex;align-items:stretch;gap:0;margin-bottom:16px;
+  border:1px solid var(--bdr);overflow:hidden;}
+.lane{flex:1;padding:14px 16px;border-right:1px solid var(--bdr);min-width:0;}
+.lane:last-child{border-right:none;}
+.lane-hdr{font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
+  margin:-12px -14px 12px;padding:7px 14px;border-bottom:1px solid;}
+.lane-inst .lane-hdr{color:var(--inst-col);background:var(--inst-bg);border-color:var(--inst-bdr);}
+.lane-ward .lane-hdr{color:var(--ward-col);background:var(--ward-bg);border-color:var(--ward-bdr);}
+.lane-xrpl .lane-hdr{color:var(--xrpl-col);background:var(--xrpl-bg);border-color:var(--xrpl-bdr);}
+.lane-dep .lane-hdr{color:var(--dep-col);background:var(--dep-bg);border-color:var(--dep-bdr);}
+.lane-mon .lane-hdr{color:var(--mon-col);background:var(--mon-bg);border-color:var(--mon-bdr);}
+
+.action{font-family:var(--f);font-size:11px;color:var(--w);background:var(--bg2);
+  border:1px solid var(--bdr);padding:5px 9px;margin-bottom:5px;}
+.note{font-size:11px;color:var(--dim);font-style:italic;margin-top:5px;line-height:1.5;}
+
+.ubadge{font-family:var(--f);font-size:11px;color:var(--ward-col);background:var(--ward-bg);
+  border:1px solid var(--ward-bdr);padding:4px 8px;margin-bottom:4px;font-weight:700;display:block;}
+.rbadge{font-family:var(--f);font-size:11px;color:var(--xrpl-col);background:var(--xrpl-bg);
+  border:1px solid var(--xrpl-bdr);padding:4px 8px;margin-bottom:4px;display:block;}
+.cbadge{font-family:var(--f);font-size:11px;color:var(--gold);background:rgba(200,169,74,.08);
+  border:1px solid rgba(200,169,74,.25);padding:4px 8px;margin-bottom:4px;
+  display:flex;align-items:center;gap:5px;}
+.lane-divider{margin:10px -14px;border-top:1px dashed var(--bdr2);padding-top:10px;padding-left:0;}
+
+/* Claim validation step list */
+.step-list{display:flex;flex-direction:column;gap:3px;margin-bottom:8px;}
+.step-item{display:flex;align-items:flex-start;gap:7px;font-size:12px;color:rgba(232,240,248,.75);}
+.step-n{font-family:var(--f);font-size:10px;color:var(--dim);flex-shrink:0;margin-top:1px;width:20px;font-weight:700;}
+.step-check{color:var(--green);flex-shrink:0;margin-top:1px;font-size:11px;}
+.step-detail{font-size:10px;color:var(--dim);margin-top:2px;}
+.step-detail code{font-family:var(--f);font-size:10px;color:var(--ice2);background:rgba(168,197,232,.07);padding:1px 4px;}
+
+/* Flow result */
+.flow-result{font-size:13px;color:rgba(232,240,248,.7);padding:10px 14px;
+  background:rgba(168,197,232,.04);border-left:2px solid var(--ice);margin-top:0;}
+.flow-result strong{color:var(--w);}
+
+/* Error codes */
+.errs{margin-top:14px;}
+.errs-title{font-size:11px;font-weight:700;letter-spacing:.2em;color:var(--dim);
+  text-transform:uppercase;margin-bottom:7px;}
+.err-row{display:flex;gap:10px;padding:4px 0;border-bottom:1px solid var(--bdr);}
+.err-row:last-child{border-bottom:none;}
+.err-code{font-size:11px;color:var(--red);font-weight:700;min-width:110px;flex-shrink:0;}
+.err-msg{font-size:11px;color:var(--dim);}
+
+/* Connector between flows */
+.connector{display:flex;align-items:center;justify-content:center;
+  padding:4px 0;gap:8px;color:var(--dim2);font-size:11px;letter-spacing:.1em;}
+.connector::before,.connector::after{content:'';flex:1;height:1px;background:var(--bdr);}
+
+/* ── STATE TABLE ── */
+.state-table{margin-top:32px;background:var(--bg1);border:1px solid var(--bdr);}
+.st-hdr{padding:14px 20px;background:var(--bg2);border-bottom:1px solid var(--bdr);
+  font-family:var(--fc);font-weight:900;font-size:18px;letter-spacing:.06em;color:var(--ice);}
+table{width:100%;border-collapse:collapse;font-size:12px;}
+th{text-align:left;padding:11px 20px;font-size:10px;font-weight:700;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--dim);background:var(--bg2);border-bottom:1px solid var(--bdr);}
+td{padding:11px 20px;border-bottom:1px solid var(--bdr2);color:rgba(232,240,248,.65);vertical-align:top;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(168,197,232,.02);}
+.td-phase{font-weight:700;color:var(--w);font-size:13px;}
+.td-tx{font-family:var(--f);font-size:11px;color:var(--ice2);
+  background:rgba(168,197,232,.08);padding:2px 7px;border:1px solid rgba(168,197,232,.18);display:inline-block;}
+.td-never{font-family:var(--f);font-size:11px;color:var(--red);}
+.ward-note{text-align:center;padding:12px 18px;font-size:11px;color:var(--dim);
+  background:var(--bg2);border-top:1px solid var(--bdr);letter-spacing:.08em;}
+
+/* ── BOTTOM NAV ── */
+.bnav{margin-top:56px;padding-top:24px;border-top:1px solid var(--bdr);display:flex;gap:10px;flex-wrap:wrap;}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;font-family:var(--f);
+  font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;
+  border:1px solid;transition:all .14s;}
+.btn-s{background:transparent;color:var(--w);border-color:var(--bdr2);}
+.btn-s:hover{border-color:var(--ice2);color:var(--ice);}
+.btn-g{background:transparent;color:var(--dim);border-color:var(--bdr);}
+.btn-g:hover{color:var(--ice2);border-color:var(--ice2);}
+
+/* ── TERMINAL PANEL (bottom of page, expandable) ── */
+.term-bar{
+  position:sticky;bottom:0;left:0;right:0;z-index:100;
+  border-top:1px solid rgba(168,197,232,.3);background:var(--bg1);
+}
+.term-bar-hdr{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:7px 20px;cursor:pointer;transition:background .15s;
+}
+.term-bar-hdr:hover{background:rgba(168,197,232,.04);}
+.tb-hdr-l{display:flex;align-items:center;gap:8px;}
+.tb-dot{width:5px;height:5px;border-radius:50%;background:var(--ice);box-shadow:0 0 6px var(--ice);}
+.tb-title{font-size:11px;font-weight:700;letter-spacing:.2em;color:var(--ice2);text-transform:uppercase;}
+.tb-hint{font-size:11px;color:var(--dim);letter-spacing:.1em;}
+.tb-toggle{font-size:11px;color:var(--dim);letter-spacing:.08em;font-family:var(--f);
+  background:none;border:1px solid var(--bdr);padding:3px 8px;cursor:pointer;transition:all .12s;}
+.tb-toggle:hover{color:var(--ice2);border-color:var(--ice2);}
+.term-body{
+  max-height:0;overflow:hidden;
+  transition:max-height .3s cubic-bezier(.4,0,.2,1);
+}
+.term-body.open{max-height:280px;}
+.term-cols{display:flex;border-top:1px solid var(--bdr);height:280px;}
+.tcol{flex:1;overflow-y:auto;border-right:1px solid var(--bdr);display:flex;flex-direction:column;}
+.tcol:last-child{border-right:none;}
+.tcol::-webkit-scrollbar{width:3px;}
+.tcol::-webkit-scrollbar-thumb{background:var(--bdr2);}
+.tcol-hdr{padding:5px 12px 4px;font-size:8px;font-weight:700;letter-spacing:.2em;
+  text-transform:uppercase;border-bottom:1px solid var(--bdr);flex-shrink:0;background:var(--bg2);}
+.tline{padding:2px 12px;display:flex;gap:7px;font-size:10px;line-height:1.8;}
+.tp3{font-size:10px;flex-shrink:0;opacity:.6;min-width:48px;letter-spacing:.06em;}
+.tp3.w{color:var(--ice2);}.tp3.x{color:var(--green);}.tp3.i{color:var(--gold);}
+.tt3{letter-spacing:.04em;}
+.tt3.ice{color:var(--ice);}.tt3.ok{color:rgba(232,240,248,.78);}
+.tt3.green{color:var(--green);font-weight:700;}
+.tt3.gold{color:var(--gold);}.tt3.red{color:var(--red);}.tt3.dim{color:var(--dim);}
+
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-logo">
+    <svg viewBox="0 0 1300 160" width="180" xmlns="http://www.w3.org/2000/svg"><text y="148" font-family="'Barlow Condensed',sans-serif" font-size="172" letter-spacing="-2" x="10"><tspan font-weight="900" fill="#a8c5e8">WARD </tspan><tspan font-weight="300" fill="rgba(168,197,232,0.6)">Protocol</tspan></text></svg>
+    <span class="hdr-sep">·</span>
+    <span class="hdr-title">Protocol Spec · F·01 – F·06</span>
+  </div>
+  <a href="/index.html" class="hdr-back">← Overview</a>
+</div>
+
+
+<div class="page">
+
+<!-- PAGE HEADER -->
+<div class="page-hdr">
+  <div class="page-title">PROTOCOL SPEC</div>
+  <div class="page-sub">F·01 – F·06 · Full transaction lifecycle · Open specification · ward-protocol v0.1.1</div>
+  <div class="page-meta">
+    <span class="pm">PyPI <b>ward-protocol==0.1.1</b></span>
+    <span class="pm">ALTNET TXNS <b class="g">5 confirmed</b></span>
+    <span class="pm">TEST COVERAGE <b class="g">95/95</b></span>
+    <span class="pm">SPEC <b>XRPLF #474</b></span>
+  </div>
+</div>
+
+<!-- CORE PRINCIPLE -->
+<div class="core">
+  <div class="core-text">
+    <div class="core-lbl">Core Principle</div>
+    <div class="core-steps">
+      <div class="cs"><div class="csn">1</div>Institution integrates Ward SDK</div>
+      <div class="cs"><div class="csn">2</div>Ward builds unsigned XRPL transaction</div>
+      <div class="cs"><div class="csn">3</div>Institution signs with own wallet</div>
+      <div class="cs"><div class="csn">4</div>XRPL enforces outcome — automatically</div>
+    </div>
+    <div class="core-inv">Ward stops here. Ward never holds keys. Ward never submits transactions.</div>
+  </div>
+  <div class="core-diagram">
+    <div class="swimlane-mini">
+      <div class="snode sn-inst">Institution Wallet</div>
+      <div class="sarrow">→</div>
+      <div class="snode sn-ward">Ward SDK</div>
+      <div class="sarrow">→</div>
+      <div class="snode sn-xrpl">XRPL Ledger</div>
+    </div>
+    <div class="mini-inv">ward_signed = False — always</div>
+  </div>
+</div>
+
+<!-- INSTALL -->
+<div class="install">
+  <div class="inst-cmd"><b>$</b> pip install ward-protocol==0.1.1</div>
+  <div class="inst-links">
+    <a href="https://pypi.org/project/ward-protocol/" target="_blank">PyPI ↗</a>
+    <a href="https://github.com/wflores9/ward-protocol" target="_blank">GitHub ↗</a>
+    <a href="/api.html">Swagger UI →</a>
+  </div>
+</div>
+
+<div class="flows">
+
+<!-- F·01 -->
+<div class="flow">
+  <div class="flow-head">
+    <div class="flow-code">F·01</div>
+    <div class="flow-info">
+      <div class="flow-title">Vault Registration</div>
+      <div class="flow-sub">Registers an XLS-66 vault in the Ward Protocol XLS-80 compliance domain</div>
+    </div>
+    <div class="flow-badges">
+      <span class="badge-prim">XLS-66</span>
+      <span class="badge-live">LIVE</span>
+      <span class="badge-ep"><b>POST</b> /api/v1/vaults/register</span>
+    </div>
+  </div>
+  <div class="flow-body">
+    <div class="swimlane">
+      <div class="lane lane-inst">
+        <div class="lane-hdr">Institution Wallet</div>
+        <div class="action">register_vault()</div>
+        <div class="note">Institution's wallet — Ward never holds keys</div>
+      </div>
+      <div class="lane lane-ward">
+        <div class="lane-hdr">Ward SDK</div>
+        <span class="ubadge">unsigned VaultCreate (XLS-66)</span>
+        <span class="ubadge">unsigned AccountSet (XLS-80 domain)</span>
+        <span class="ubadge">ward_signed = False</span>
+        <div class="note">Ward stops here — institution signs externally</div>
+      </div>
+      <div class="lane lane-xrpl">
+        <div class="lane-hdr">XRPL Ledger</div>
+        <span class="rbadge">VaultCreate confirmed</span>
+        <span class="rbadge">Vault in XLS-80 domain registry</span>
+        <span class="rbadge">PolicyNFTTaxon = 282</span>
+        <span class="rbadge">CredentialNFTTaxon = 282</span>
+      </div>
+    </div>
+    <div class="flow-result"><strong>Result:</strong> Vault active on XRPL. Emits XLS-66 events immediately. Signer: Institution wallet only. Ward's server is now irrelevant to the vault's existence.</div>
+  </div>
+</div>
+<div class="connector">↓ F·02</div>
+
+<!-- F·02 -->
+<div class="flow">
+  <div class="flow-head">
+    <div class="flow-code">F·02</div>
+    <div class="flow-info">
+      <div class="flow-title">Credential Issuance</div>
+      <div class="flow-sub">XLS-70 on-chain KYC hash anchoring · No raw PII on-chain · sha256(kyc_document) only</div>
+    </div>
+    <div class="flow-badges">
+      <span class="badge-prim">XLS-70</span>
+      <span class="badge-live">LIVE</span>
+      <span class="badge-ep"><b>POST</b> /api/v1/credentials/issue</span>
+      <span class="badge-commit">commit 65cba10</span>
+    </div>
+  </div>
+  <div class="flow-body">
+    <div class="flow-desc">Institution performs KYC off-chain using existing provider. Ward derives <strong><code>sha256(kyc_document)</code></strong> and anchors it on-chain via XLS-70 NFT. Raw PII never leaves the institution's systems. v2: <strong>XLS-96 confidential balances + MPT selective disclosure</strong> — XRPL native, zero breaking changes.</div>
+    <div class="swimlane">
+      <div class="lane lane-inst">
+        <div class="lane-hdr">Institution</div>
+        <div class="action">KYC off-chain (existing provider)</div>
+        <div class="action">issue_credential(kyc_hash)</div>
+        <div class="note">Signs NFTokenMint with institution wallet</div>
+      </div>
+      <div class="lane lane-ward">
+        <div class="lane-hdr">Ward SDK</div>
+        <div class="action">build_kyc_hash(depositor, inst, ledger_time)</div>
+        <span class="ubadge">unsigned NFTokenMint</span>
+        <span class="ubadge">taxon = 282 · non-transferable</span>
+        <span class="ubadge">URI: kyc_hash + expiry_ledger + kyc_type</span>
+        <span class="ubadge">ward_signed = False</span>
+      </div>
+      <div class="lane lane-xrpl">
+        <div class="lane-hdr">XRPL Ledger</div>
+        <span class="rbadge">Credential NFT confirmed</span>
+        <span class="rbadge">Non-transferable on-chain</span>
+        <span class="rbadge">sha256 hash permanent</span>
+        <div class="note">Raw KYC data never on-chain</div>
+      </div>
+    </div>
+    <div class="flow-result"><strong>Result:</strong> Subject address credentialed for vault interaction. Credential NFT (taxon=282) in institution account. Expiry enforced by XLS-70 ledger object. Ward never held the KYC data.</div>
+  </div>
+</div>
+<div class="connector">↓ F·03</div>
+
+<!-- F·03 -->
+<div class="flow">
+  <div class="flow-head">
+    <div class="flow-code">F·03</div>
+    <div class="flow-info">
+      <div class="flow-title">Policy Purchase</div>
+      <div class="flow-sub">XLS-20 policy NFT · Coverage terms immutably encoded in URI · Burns atomically on settlement</div>
+    </div>
+    <div class="flow-badges">
+      <span class="badge-prim">XLS-20</span>
+      <span class="badge-live">LIVE</span>
+      <span class="badge-ep"><b>POST</b> /api/v1/policies/purchase</span>
+    </div>
+  </div>
+  <div class="flow-body">
+    <div class="flow-desc">Depositor purchases a policy certificate for a specific vault. Coverage terms — amount, expiry, vault, premium — are <strong>immutably encoded in the NFT URI</strong> at mint time. <code>tfBurnable</code> only, not transferable. Burns atomically with EscrowFinish in F·06, making replay structurally impossible.</div>
+    <div class="swimlane">
+      <div class="lane lane-dep">
+        <div class="lane-hdr">Depositor</div>
+        <div class="action">purchase_coverage(vault_id, coverage_drops, duration_days)</div>
+        <div class="note">Holds policy NFT in own wallet after mint</div>
+      </div>
+      <div class="lane lane-ward">
+        <div class="lane-hdr">Ward SDK</div>
+        <div class="action">validate: XLS-70 valid, vault active, no duplicate</div>
+        <span class="ubadge">unsigned NFTokenMint</span>
+        <span class="ubadge">taxon = 281 · TF_BURNABLE</span>
+        <span class="ubadge">URI: coverage_drops | expiry_ledger | vault_id | premium_bps</span>
+        <span class="ubadge">ward_signed = False</span>
+      </div>
+      <div class="lane lane-xrpl">
+        <div class="lane-hdr">XRPL Ledger</div>
+        <span class="rbadge">Policy NFT confirmed</span>
+        <span class="rbadge">Terms immutable on-chain</span>
+        <span class="rbadge">Non-transferable (no tfTransferable)</span>
+        <span class="rbadge">Replay-protected on burn</span>
+      </div>
+    </div>
+    <div class="flow-result"><strong>Result:</strong> Policy NFT (taxon=281, tfBurnable) in depositor wallet. Coverage active immediately. Errors: <code>DuplicatePolicyError</code> · <code>VaultCapExceededError</code> · <code>CredentialExpiredError</code>.</div>
+  </div>
+</div>
+<div class="connector">↓ F·04</div>
+
+<!-- F·04 -->
+<div class="flow">
+  <div class="flow-head">
+    <div class="flow-code">F·04</div>
+    <div class="flow-info">
+      <div class="flow-title">Default Detection</div>
+      <div class="flow-sub">VaultMonitor runs in institution's infrastructure · Ward provides detection logic · 3 ledger closes required</div>
+    </div>
+    <div class="flow-badges">
+      <span class="badge-prim">XLS-66 WebSocket</span>
+      <span class="badge-live">LIVE</span>
+    </div>
+  </div>
+  <div class="flow-body">
+    <div class="flow-desc">WardMonitor subscribes to XLS-66 vault events. When <strong><code>health_ratio &lt; 1.5</code></strong>, it requires 3 consecutive ledger closes before firing a verified default event — preventing single-block manipulation, flash crashes, and oracle noise.</div>
+    <div class="swimlane">
+      <div class="lane lane-xrpl">
+        <div class="lane-hdr">XRPL Ledger</div>
+        <div class="action">LoanManage tx stream</div>
+        <span class="cbadge">⚡ tfLoanDefault flag set</span>
+        <div class="note">Ledger stream event via WebSocket</div>
+      </div>
+      <div class="lane lane-mon">
+        <div class="lane-hdr">WardMonitor (institution infra)</div>
+        <span class="cbadge">⏱ Confirmation 1 / 3</span>
+        <span class="cbadge">⏱ Confirmation 2 / 3</span>
+        <span class="cbadge">✓ Confirmation 3 / 3</span>
+        <div class="note">3 closes ≈ 12 seconds — anti-manipulation guarantee</div>
+      </div>
+      <div class="lane lane-inst">
+        <div class="lane-hdr">Institution Handler</div>
+        <div class="action">on_verified_default()</div>
+        <span class="ubadge" style="color:var(--mon-col);background:var(--mon-bg);border-color:var(--mon-bdr);">DefaultEvent → F·05 ClaimValidator</span>
+        <div class="note">Institution owns execution — Ward only detects</div>
+      </div>
+    </div>
+    <div class="flow-result"><strong>Note:</strong> WardMonitor runs in the institution's own infrastructure, not Ward's servers. Ward provides the open-source detection algorithm. No transaction is produced — this is detection only.</div>
+  </div>
+</div>
+<div class="connector">↓ F·05</div>
+
+<!-- F·05 -->
+<div class="flow">
+  <div class="flow-head">
+    <div class="flow-code">F·05</div>
+    <div class="flow-info">
+      <div class="flow-title">Claim Validation</div>
+      <div class="flow-sub">9 deterministic checks · All query XRPL directly · No oracle · No off-chain data · Any failure rejects</div>
+    </div>
+    <div class="flow-badges">
+      <span class="badge-prim">ClaimValidator · 9 checks</span>
+      <span class="badge-live">LIVE</span>
+      <span class="badge-ep"><b>POST</b> /api/v1/claims/file</span>
+    </div>
+  </div>
+  <div class="flow-body">
+    <div class="flow-desc"><strong>No oracle. No off-chain data. No human judgment.</strong> All 9 checks query live XRPL state. All 9 must pass → unsigned EscrowCreate returned. Any failure → <code>ClaimRejectedError</code> with reason code and failed check index.</div>
+    <div class="swimlane">
+      <div class="lane lane-ward" style="flex:1.2">
+        <div class="lane-hdr">ClaimValidator (Ward SDK)</div>
+        <div class="step-list">
+          <div class="step-item"><div class="step-n">01</div><div class="step-check">✓</div><div><div>NFT exists, owned by claimant</div><div class="step-detail">XRPL <code>account_nfts</code> query · Error: <code>NFT_NOT_FOUND</code></div></div></div>
+          <div class="step-item"><div class="step-n">02</div><div class="step-check">✓</div><div><div>Policy not expired</div><div class="step-detail"><code>current_ledger_index &lt; expiry_ledger</code> (from NFT URI) · Error: <code>POLICY_EXPIRED</code></div></div></div>
+          <div class="step-item"><div class="step-n">03</div><div class="step-check">✓</div><div><div>Vault address matches NFT URI</div><div class="step-detail">Prevents cross-vault attacks · Error: <code>VAULT_MISMATCH</code></div></div></div>
+          <div class="step-item"><div class="step-n">04</div><div class="step-check">✓</div><div><div>Default confirmed (3 ledger closes)</div><div class="step-detail"><code>lsfLoanDefault</code> across 3 closes · Error: <code>DEFAULT_NOT_CONFIRMED</code></div></div></div>
+          <div class="step-item"><div class="step-n">05</div><div class="step-check">✓</div><div><div>Health ratio provably breached</div><div class="step-detail"><code>collateral_value / loan_value &lt; 1.5</code> · Error: <code>COLLATERAL_SUFFICIENT</code></div></div></div>
+          <div class="step-item"><div class="step-n">06</div><div class="step-check">✓</div><div><div>No active escrow pending</div><div class="step-detail">Prevents double-settlement · Error: <code>ESCROW_ALREADY_PENDING</code></div></div></div>
+          <div class="step-item"><div class="step-n">07</div><div class="step-check">✓</div><div><div>KYC credential valid and unexpired</div><div class="step-detail">XLS-70 query · Error: <code>KYC_CREDENTIAL_INVALID</code></div></div></div>
+          <div class="step-item"><div class="step-n">08</div><div class="step-check">✓</div><div><div>Domain credential valid</div><div class="step-detail">XLS-80 registry · Error: <code>DOMAIN_NOT_AUTHORIZED</code></div></div></div>
+          <div class="step-item"><div class="step-n">09</div><div class="step-check">✓</div><div><div>Rate limit clear</div><div class="step-detail">No duplicate claim in window · Error: <code>RATE_LIMIT_EXCEEDED</code></div></div></div>
+        </div>
+      </div>
+      <div class="lane lane-xrpl">
+        <div class="lane-hdr">XRPL Ledger (live queries)</div>
+        <span class="rbadge">account_nfts</span>
+        <span class="rbadge">server_info → current_ledger_index</span>
+        <span class="rbadge">parse NFT URI hex → vault_id + expiry</span>
+        <span class="rbadge">ledger_entry → XLS-66 Vault object</span>
+        <span class="rbadge">Vault.health_ratio field</span>
+        <span class="rbadge">LoanManage tx history (3 closes)</span>
+        <span class="rbadge">ledger_entry → XLS-70 Credential</span>
+        <span class="rbadge">XLS-80 domain registry</span>
+        <span class="rbadge">account_nfts (absence check)</span>
+        <div class="note" style="margin-top:8px;">Steps 4–5 require XLS-66 on mainnet. Validated with mock fixtures (95/95 passing).</div>
+      </div>
+    </div>
+    <div class="flow-result"><strong>All 9 pass → unsigned EscrowCreate returned. ward_signed = False.</strong> Any step fails → <code>ClaimRejectedError(reason_code, failed_check)</code>. No off-chain data source required or permitted at any step.</div>
+  </div>
+</div>
+<div class="connector">↓ F·06</div>
+
+<!-- F·06 -->
+<div class="flow">
+  <div class="flow-head">
+    <div class="flow-code">F·06</div>
+    <div class="flow-info">
+      <div class="flow-title">Settlement</div>
+      <div class="flow-sub">PREIMAGE-SHA-256 escrow · 48h dispute window · Policy NFT burns atomically · Ward server irrelevant after EscrowCreate</div>
+    </div>
+    <div class="flow-badges">
+      <span class="badge-prim">PREIMAGE-SHA-256</span>
+      <span class="badge-live">LIVE</span>
+      <span class="badge-ep"><b>POST</b> /api/v1/settlement/escrow</span>
+    </div>
+  </div>
+  <div class="flow-body">
+    <div class="flow-desc"><strong>No custodian. No intermediary. XRPL is the settlement engine.</strong> Once EscrowCreate is confirmed on-chain, Ward's operational status is entirely irrelevant. EscrowFinish is permissionless — the XRPL ledger enforces payout automatically at <code>FinishAfter</code>.</div>
+    <div class="swimlane">
+      <div class="lane lane-dep">
+        <div class="lane-hdr">Claimant</div>
+        <div class="action">generate preimage (offline, secret)</div>
+        <div class="note">Ward never sees the preimage — only the condition_hex</div>
+        <div style="margin-top:10px;padding-top:10px;border-top:1px dashed var(--bdr2)">
+          <div class="action">submit EscrowFinish + fulfillment_hex</div>
+          <div class="action">+ NFTokenBurn (atomic)</div>
+          <div class="note">After FinishAfter (+48h) — permissionless</div>
+        </div>
+      </div>
+      <div class="lane lane-inst">
+        <div class="lane-hdr">Institution Wallet</div>
+        <div class="action">create_escrow(condition_hex)</div>
+        <span class="ubadge">unsigned EscrowCreate</span>
+        <span class="ubadge">Condition: SHA256(preimage)</span>
+        <span class="ubadge">FinishAfter: now + 172800s (+48h)</span>
+        <span class="ubadge">CancelAfter: now + 259200s (+72h)</span>
+        <span class="ubadge">ward_signed = False</span>
+        <div class="note">Institution signs and submits. Ward's role ends here.</div>
+      </div>
+      <div class="lane lane-xrpl">
+        <div class="lane-hdr">XRPL Ledger</div>
+        <span class="rbadge">EscrowObject on-chain</span>
+        <span class="rbadge">Funds locked — cryptographic condition</span>
+        <span class="cbadge">⏱ FinishAfter enforced by ledger</span>
+        <div style="margin-top:10px;padding-top:10px;border-top:1px dashed var(--bdr2)">
+          <span class="rbadge">Payout released to claimant</span>
+          <span class="rbadge">Policy NFT burned atomically</span>
+          <span class="rbadge">Replay structurally impossible</span>
+        </div>
+        <div class="note" style="margin-top:6px;">Ward server irrelevant after EscrowCreate — ledger settles automatically</div>
+      </div>
+    </div>
+    <div class="flow-result"><strong>Key guarantee:</strong> Once EscrowCreate is on-chain, Ward's operational status is irrelevant. The XRP Ledger enforces payout at FinishAfter. EscrowFinish is permissionless — anyone can submit after maturity. CancelAfter (+72h) returns funds to institution if claimant never acts.</div>
+  </div>
+</div>
+
+</div><!-- /flows -->
+
+<!-- STATE SUMMARY TABLE -->
+<div class="state-table">
+  <div class="st-hdr">State Summary — All Transitions Are XRPL Native Transactions</div>
+  <table>
+    <thead>
+      <tr>
+        <th>Phase</th>
+        <th>XRPL State Change</th>
+        <th>Transaction</th>
+        <th>Signer</th>
+        <th>Ward Signs?</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td class="td-phase">Vault registered</td><td>XLS-66 vault object + XLS-80 domain entry</td><td><span class="td-tx">VaultCreate + AccountSet</span></td><td>Institution</td><td class="td-never">Never</td></tr>
+      <tr><td class="td-phase">Credential issued</td><td>XLS-70 credential NFT (taxon=282) in depositor account</td><td><span class="td-tx">NFTokenMint</span></td><td>Institution</td><td class="td-never">Never</td></tr>
+      <tr><td class="td-phase">Policy active</td><td>Policy NFT (taxon=281, tfBurnable) in depositor wallet</td><td><span class="td-tx">NFTokenMint</span></td><td>Institution</td><td class="td-never">Never</td></tr>
+      <tr><td class="td-phase">Default confirmed</td><td>Detection only — no state change required</td><td><span class="td-tx" style="background:var(--mon-bg);color:var(--mon-col);border-color:var(--mon-bdr);">WebSocket event</span></td><td>—</td><td class="td-never">Never</td></tr>
+      <tr><td class="td-phase">Claim validated</td><td>9 on-chain reads — no write</td><td><span class="td-tx" style="background:var(--dep-bg);color:var(--dep-col);border-color:var(--dep-bdr);">Read-only queries</span></td><td>—</td><td class="td-never">Never</td></tr>
+      <tr><td class="td-phase">Escrow created</td><td>EscrowObject on-chain, funds locked 48h</td><td><span class="td-tx">EscrowCreate</span></td><td>Institution</td><td class="td-never">Never</td></tr>
+      <tr><td class="td-phase">Claim settled</td><td>XRP transferred to claimant, EscrowObject removed</td><td><span class="td-tx">EscrowFinish</span></td><td>Claimant</td><td class="td-never">Never</td></tr>
+      <tr><td class="td-phase">Policy burned</td><td>NFT absent from account_nfts — replay impossible</td><td><span class="td-tx">NFTokenBurn</span></td><td>Claimant (atomic)</td><td class="td-never">Never</td></tr>
+    </tbody>
+  </table>
+  <div class="ward-note">All state transitions are XRPL native transactions. No off-chain state is authoritative. Ward never signs. ward_signed = False — throughout.</div>
+</div>
+
+<div class="bnav">
+  <a href="/api.html" class="btn btn-s">API Reference →</a>
+  <a href="/architecture.html" class="btn btn-s">Protocol Architecture →</a>
+  <a href="/index.html" class="btn btn-g">← Overview</a>
+  <a href="/brand.html" class="btn btn-g">Brand →</a>
+  <a href="https://github.com/XRPLF/XRPL-Standards/discussions/474" target="_blank" class="btn btn-g">XRPLF #474 ↗</a>
+  <a href="https://github.com/wflores9/ward-protocol" target="_blank" class="btn btn-g">GitHub ↗</a>
+</div>
+
+</div><!-- /page -->
+
+<script>
+(function tick(){
+  const n=new Date(),est=new Date(n.toLocaleString('en-US',{timeZone:'America/New_York'}));
+  const p=v=>String(v).padStart(2,'0'),h=est.getHours(),m=est.getMinutes(),s=est.getSeconds();
+  const h12=h%12||12,ampm=h>=12?'PM':'AM';
+  const el=document.getElementById('clock');if(el)el.textContent=h12+':'+p(m)+':'+p(s)+' '+ampm;
+  setTimeout(tick,1000);
+})();
+async function fetchXRP(){
+  try{const r=await fetch('https://api.coingecko.com/api/v3/simple/price?ids=ripple&vs_currencies=usd');
+  const d=await r.json();const price=d?.ripple?.usd;
+  if(price){const f='$'+price.toFixed(4);['p1','p2'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=f;});}}catch(e){}
+}
+fetchXRP();setInterval(fetchXRP,30000);
+try{
+  const ws=new WebSocket('wss://xrplcluster.com');
+  ws.onopen=()=>ws.send(JSON.stringify({command:'subscribe',streams:['ledger']}));
+  ws.onmessage=e=>{try{const d=JSON.parse(e.data);const i=d.ledger_index||d.result?.ledger_index;
+  if(i){const f='#'+Number(i).toLocaleString();['l1','l2'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=f;});}}catch(e){}};
+}catch(e){}
+</script>
+
+<!-- TERMINAL BAR -->
+<div class="term-bar" id="term-bar">
+  <div class="term-bar-hdr" onclick="toggleFlowTerm()">
+    <div class="tb-hdr-l">
+      <div class="tb-dot"></div>
+      <div class="tb-title">$ ward-protocol · transaction trace</div>
+      <div class="tb-hint" id="flow-term-status">Click to expand · F·01–F·06 live output</div>
+    </div>
+    <button class="tb-toggle" id="flow-term-btn">▾ OPEN</button>
+  </div>
+  <div class="term-body" id="flow-term-body">
+    <div class="term-cols" id="flow-term-cols"></div>
+  </div>
+</div>
+
+<script>
+// ── FLOW PAGE TERMINAL
+const FLOW_LOGS = {
+  'F·01': [
+    ['ward','register_vault(institution_address, collateral_currency="XRP", min_ratio=1.5)','ice'],
+    ['ward','validate: XLS-80 domain ✓ · XLS-70 KYC ✓ · address format ✓','ok'],
+    ['ward','VaultCreate (XLS-66) unsigned · AccountSet (XLS-80) unsigned · ward_signed=False','ok'],
+    ['inst','signing VaultCreate + AccountSet with institution wallet...','gold'],
+    ['xrpl','VaultCreate CONFIRMED · vault_id: rVaultXXXXX · lsfVaultActive','green'],
+    ['xrpl','AccountSet CONFIRMED · vault in XLS-80 domain registry · PolicyNFTTaxon=282','green'],
+  ],
+  'F·02': [
+    ['ward','build_kyc_hash(depositor, institution, ledger_time, kyc_type="institutional")','ice'],
+    ['ward','5 pre-flight checks: address ✓ · type ✓ · hash format ✓ · expiry ✓ · no duplicate ✓','ok'],
+    ['ward','NFTokenMint (XLS-70) unsigned · taxon=282 · non-transferable · ward_signed=False','ok'],
+    ['inst','signing NFTokenMint...','gold'],
+    ['xrpl','CONFIRMED · credential_nft_id: XXXXXXXX · expiry_ledger: 102950000','green'],
+  ],
+  'F·03': [
+    ['ward','purchase_coverage(vault_id, depositor, coverage_drops=10_000_000, duration_days=90)','ice'],
+    ['ward','validate: XLS-70 valid ✓ · vault active ✓ · no duplicate policy ✓','ok'],
+    ['ward','NFTokenMint (XLS-20) unsigned · taxon=281 · TF_BURNABLE · URI encoded · ward_signed=False','ok'],
+    ['inst','signing NFTokenMint...','gold'],
+    ['xrpl','policy cert CONFIRMED · policy_nft_id: XXXXXXXX · terms immutable · non-transferable','green'],
+  ],
+  'F·04': [
+    ['xrpl','[ws] LoanManage · tfLoanDefault · vault: rVaultXXXXX','red'],
+    ['ward','health_ratio=1.23 · threshold breached (< 1.5) · awaiting 3 ledger confirms...','gold'],
+    ['xrpl','[ledger +1] lsfLoanDefault confirmed','gold'],
+    ['xrpl','[ledger +2] lsfLoanDefault confirmed','gold'],
+    ['xrpl','[ledger +3] lsfLoanDefault confirmed · DEFAULT VERIFIED','red'],
+    ['ward','DefaultEvent fired → ClaimValidator ready · 3-close anti-manipulation satisfied','ice'],
+  ],
+  'F·05': [
+    ['ward','validate(claimant, nft_id, vault_id) — querying live XRPL state...','ice'],
+    ['ward','[01] NFT exists ✓  [02] unexpired ✓  [03] vault match ✓  [04] default confirmed ✓','ok'],
+    ['ward','[05] collateral breached ✓  [06] no escrow pending ✓','ok'],
+    ['ward','[07] KYC credential valid ✓  [08] domain credential valid ✓  [09] rate limit clear ✓','ok'],
+    ['ward','ALL 9 PASSED · ClaimRejectedError not raised · building EscrowCreate...','green'],
+    ['ward','EscrowCreate unsigned · PREIMAGE_SHA256 · finish_after=+48h · cancel_after=+72h · ward_signed=False','ice'],
+  ],
+  'F·06': [
+    ['inst','signing EscrowCreate · submitting to XRPL...','gold'],
+    ['xrpl','ESCROW LOCKED · escrow_sequence: 12345678 · condition: SHA256(preimage)','green'],
+    ['xrpl','[+48h] FinishAfter reached · EscrowFinish now permissionless','green'],
+    ['ward','EscrowFinish unsigned · fulfillment=preimage · NFTokenBurn(policy_nft_id) atomic · ward_signed=False','ice'],
+    ['inst','signing EscrowFinish...','gold'],
+    ['xrpl','PAYOUT RELEASED · 10 XRP → rDepositor... · Policy NFT BURNED atomically · ward_signed=False throughout','green'],
+  ],
+};
+
+let flowTermOpen = false;
+
+function toggleFlowTerm(){
+  flowTermOpen = !flowTermOpen;
+  document.getElementById('flow-term-body').classList.toggle('open', flowTermOpen);
+  document.getElementById('flow-term-btn').textContent = flowTermOpen ? '▴ CLOSE' : '▾ OPEN';
+  if(flowTermOpen && document.getElementById('flow-term-cols').children.length === 0){
+    initFlowTerminal();
+  }
+}
+
+function initFlowTerminal(){
+  const cols = document.getElementById('flow-term-cols');
+  cols.innerHTML = '';
+  const actors = [
+    {id:'ward', label:'ward@protocol $', cls:'w', col:'#6a9fd0'},
+    {id:'inst', label:'inst@bank    $',  cls:'i', col:'#c8a94a'},
+    {id:'xrpl', label:'xrpl@ledger  $', cls:'x', col:'#00cc66'},
+  ];
+  actors.forEach(a => {
+    const col = document.createElement('div');
+    col.className = 'tcol'; col.id = 'ftcol-' + a.id;
+    const hdr = document.createElement('div');
+    hdr.className = 'tcol-hdr'; hdr.style.color = a.col;
+    hdr.textContent = a.label; col.appendChild(hdr);
+    cols.appendChild(col);
+  });
+
+  // Type out all logs across all flows with staggered delay
+  let delay = 0;
+  Object.entries(FLOW_LOGS).forEach(([flow, lines]) => {
+    // Flow separator
+    setTimeout(() => {
+      const wardCol = document.getElementById('ftcol-ward');
+      const sep = document.createElement('div');
+      sep.className = 'tline';
+      sep.innerHTML = `<span class="tt3 dim">── ${flow} ──────────────────────────</span>`;
+      if(wardCol) wardCol.appendChild(sep);
+    }, delay);
+    delay += 200;
+    lines.forEach(([actor, text, cls]) => {
+      setTimeout(() => {
+        const colEl = document.getElementById('ftcol-' + actor);
+        if(!colEl) return;
+        const div = document.createElement('div'); div.className = 'tline';
+        const pcls = actor === 'ward' ? 'w' : actor === 'xrpl' ? 'x' : 'i';
+        div.innerHTML = `<span class="tt3 ${cls}"></span>`;
+        colEl.appendChild(div); colEl.scrollTop = colEl.scrollHeight;
+        const sp = div.querySelector('.tt3');
+        let i = 0;
+        const type = () => { if(i < text.length){ sp.textContent = text.slice(0,++i); colEl.scrollTop = colEl.scrollHeight; setTimeout(type, 10 + Math.random()*8); }};
+        type();
+      }, delay);
+      delay += 180;
+    });
+    delay += 100;
+  });
+}
+</script>
+
+</body>
+</html>

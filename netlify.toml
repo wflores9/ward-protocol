@@ -1,0 +1,40 @@
+[[redirects]]
+  from = "/spec"
+  to = "/spec.html"
+  status = 200
+
+[[redirects]]
+  from = "/architecture"
+  to = "/architecture.html"
+  status = 200
+
+[[redirects]]
+  from = "/api"
+  to = "/api.html"
+  status = 200
+
+[[redirects]]
+  from = "/brand"
+  to = "/brand.html"
+  status = 200
+
+# Legacy redirects — old URLs still work
+[[redirects]]
+  from = "/flow"
+  to = "/spec.html"
+  status = 301
+
+[[redirects]]
+  from = "/flow.html"
+  to = "/spec.html"
+  status = 301
+
+[[redirects]]
+  from = "/topology"
+  to = "/architecture.html"
+  status = 301
+
+[[redirects]]
+  from = "/topology.html"
+  to = "/architecture.html"
+  status = 301

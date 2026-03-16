@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WARD — Brand Identity System</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;600;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:   #050d1a;
+  --bg1:  #0a1628;
+  --bg2:  #0d1f35;
+  --bdr:  #1a2e4a;
+  --bdr2: #0f1e30;
+  --ice:  #a8c5e8;
+  --ice2: #6a9fd0;
+  --ice3: #d0e4f7;
+  --dim:  #3a5a7a;
+  --dim2: #1a3050;
+  --white:#e8f0f8;
+  --gold: #c8a94a;
+  --green:#00cc66;
+  --red:  #ff4455;
+  --f:    'Space Mono', monospace;
+  --fc:   'Barlow Condensed', sans-serif;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--white);
+  font-family: var(--f);
+  line-height: 1.7;
+}
+
+/* ── COVER PAGE ── */
+.cover {
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  border-bottom: 1px solid var(--bdr);
+  position: relative;
+  overflow: hidden;
+}
+.cover-bg {
+  position:absolute; bottom:-60px; left:-20px;
+  font-family:var(--fc); font-weight:900; font-size:38vw; letter-spacing:-0.04em;
+  color:transparent; -webkit-text-stroke:1px rgba(168,197,232,0.03);
+  line-height:1; user-select:none; pointer-events:none; white-space:nowrap;
+}
+.cover-topbar {
+  height:4px;
+  background:linear-gradient(90deg, var(--ice) 0%, var(--ice) 33%, var(--gold) 33%, var(--gold) 66%, rgba(168,197,232,0.2) 66%);
+}
+.cover-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+  padding: 80px 80px 60px;
+  position: relative; z-index:1;
+}
+.cover-tag {
+  font-size:10px; letter-spacing:0.35em; color:var(--dim);
+  text-transform:uppercase; margin-bottom:24px;
+  display:flex; align-items:center; gap:14px;
+}
+.cover-tag::before { content:''; width:28px; height:1px; background:var(--ice2); }
+.cover-wordmark-label {
+  font-family:var(--fc); font-weight:900; font-size:64px;
+  letter-spacing:0.04em; color:var(--ice); line-height:1; margin-bottom:4px;
+}
+.cover-sub { font-size:11px; letter-spacing:0.22em; color:var(--dim); text-transform:uppercase; margin-bottom:36px; }
+.cover-desc { font-size:13px; color:rgba(232,240,248,0.45); line-height:1.95; max-width:500px; margin-bottom:36px; }
+.cover-desc strong { color:var(--white); }
+.cover-meta { display:flex; flex-direction:column; gap:0; }
+.cm { display:flex; justify-content:space-between; gap:40px; font-size:12px; border-bottom:1px solid var(--bdr2); padding:9px 0; }
+.cm-l { color:var(--dim); } .cm-v { color:var(--ice); font-weight:700; }
+.cover-wm-side {
+  display:flex; flex-direction:column; align-items:center; gap:20px;
+  background:var(--bg1); border:1px solid var(--bdr);
+  padding: 48px 40px;
+  position:relative;
+}
+.cover-wm-side::before,.cover-wm-side::after { content:''; position:absolute; width:14px; height:14px; }
+.cover-wm-side::before { top:16px; left:16px; border-top:1px solid rgba(168,197,232,0.2); border-left:1px solid rgba(168,197,232,0.2); }
+.cover-wm-side::after  { bottom:16px; right:16px; border-bottom:1px solid rgba(168,197,232,0.2); border-right:1px solid rgba(168,197,232,0.2); }
+.cover-wm-glow { filter:drop-shadow(0 0 32px rgba(168,197,232,0.22)) drop-shadow(0 0 64px rgba(168,197,232,0.08)); }
+.cover-wm-desc { font-size:9px; letter-spacing:0.38em; color:rgba(168,197,232,0.28); text-transform:uppercase; }
+
+.cover-footer {
+  display:flex; justify-content:space-between; align-items:center;
+  padding: 20px 80px;
+  border-top:1px solid var(--bdr2);
+  font-size:11px; color:var(--dim);
+  position:relative; z-index:1;
+}
+
+/* ── SECTION CHROME ── */
+.page { max-width:1200px; margin:0 auto; padding:80px 80px 100px; }
+.sec { margin-bottom:96px; }
+.sec-eyebrow {
+  font-size:10px; letter-spacing:0.35em; color:var(--ice2);
+  text-transform:uppercase; margin-bottom:6px;
+  display:flex; align-items:center; gap:12px;
+}
+.sec-eyebrow::before { content:''; width:18px; height:1px; background:var(--ice2); }
+.sec-title {
+  font-family:var(--fc); font-weight:900; font-size:42px;
+  letter-spacing:0.06em; color:var(--white); margin-bottom:4px;
+}
+.sec-rule { width:100%; height:1px; background:var(--bdr); margin:20px 0 40px; }
+
+/* ── WORDMARK SHOWCASE ── */
+.wm-showcase {
+  display:flex; flex-direction:column; gap:2px;
+}
+.wm-row {
+  background:var(--bg1); border:1px solid var(--bdr);
+  padding:48px 52px;
+  display:flex; align-items:center; justify-content:space-between;
+  gap:40px;
+  position:relative;
+}
+.wm-row.primary   { border-top:3px solid var(--ice); }
+.wm-row.secondary { border-top:3px solid var(--gold); background:var(--bg); }
+.wm-row.tertiary  { border-top:3px solid rgba(26,26,26,0.8); background:#ffffff; }
+.wm-badge {
+  display:inline-block; font-size:9px; font-weight:700; letter-spacing:0.12em;
+  padding:3px 10px; text-transform:uppercase; flex-shrink:0;
+}
+.wm-badge.primary   { background:rgba(168,197,232,0.08); color:var(--ice); border:1px solid rgba(168,197,232,0.2); }
+.wm-badge.secondary { background:rgba(200,169,74,0.08);  color:var(--gold); border:1px solid rgba(200,169,74,0.2); }
+.wm-badge.tertiary  { background:rgba(0,0,0,0.05); color:#555; border:1px solid rgba(0,0,0,0.15); }
+.wm-row-meta { text-align:right; min-width:200px; }
+.wm-row-name { font-size:11px; font-weight:700; letter-spacing:0.18em; text-transform:uppercase; margin-bottom:4px; }
+.wm-row.primary .wm-row-name   { color:var(--ice); }
+.wm-row.secondary .wm-row-name { color:var(--gold); }
+.wm-row.tertiary .wm-row-name  { color:#333; }
+.wm-row-use { font-size:11px; color:var(--dim); }
+.wm-row.tertiary .wm-row-use  { color:#888; }
+.wm-star {
+  position:absolute; top:12px; right:14px;
+  font-size:9px; font-weight:700; letter-spacing:0.1em;
+  color:var(--green); background:rgba(0,204,102,0.08);
+  border:1px solid rgba(0,204,102,0.18); padding:2px 8px;
+}
+
+/* ── ANATOMY ── */
+.anatomy-wrap {
+  background:var(--bg1); border:1px solid var(--bdr); padding:52px;
+}
+.anatomy-svg-row {
+  display:flex; justify-content:center; margin-bottom:48px;
+}
+.anatomy-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+.al {
+  background:var(--bg2); border:1px solid var(--bdr);
+  border-top:2px solid var(--ice); padding:20px;
+}
+.al-num { font-size:9px; color:var(--dim); letter-spacing:0.2em; margin-bottom:8px; }
+.al-title { font-family:var(--fc); font-weight:900; font-size:22px; color:var(--white); letter-spacing:0.06em; margin-bottom:8px; }
+.al-body { font-size:12px; color:var(--dim); line-height:1.75; }
+.al-body em { color:var(--ice2); font-style:normal; }
+
+/* ── GEO SPECS ── */
+.geo-grid { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+.geo-panel { background:var(--bg1); border:1px solid var(--bdr); padding:28px; }
+.geo-panel-title { font-size:10px; font-weight:700; letter-spacing:0.22em; color:var(--ice2); text-transform:uppercase; margin-bottom:18px; padding-bottom:12px; border-bottom:1px solid var(--bdr); }
+.geo-row { display:flex; justify-content:space-between; align-items:baseline; padding:8px 0; border-bottom:1px solid var(--bdr2); font-size:12px; }
+.geo-row:last-child { border-bottom:none; }
+.geo-l { color:var(--dim); } .geo-v { color:var(--ice); font-weight:700; font-size:11px; }
+
+/* ── COLOR PALETTE ── */
+.palette-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin-bottom:32px; }
+.swatch { border:1px solid var(--bdr); overflow:hidden; }
+.sw-color { height:52px; }
+.sw-info { padding:12px 14px; background:var(--bg1); }
+.sw-name { font-size:12px; color:var(--white); font-weight:700; margin-bottom:3px; }
+.sw-hex  { font-size:11px; color:var(--dim); margin-bottom:2px; }
+.sw-role { font-size:10px; color:var(--dim2); }
+
+/* ── TYPOGRAPHY ── */
+.type-grid { display:grid; grid-template-columns:1fr 1fr; gap:28px; }
+.tp { background:var(--bg1); border:1px solid var(--bdr); padding:28px; }
+.tp-eyebrow { font-size:9px; color:var(--ice2); letter-spacing:0.2em; text-transform:uppercase; margin-bottom:3px; font-weight:700; }
+.tp-role { font-size:11px; color:var(--dim); margin-bottom:20px; }
+.tp-specimen { margin-bottom:20px; }
+.tp-scale { display:flex; flex-direction:column; gap:0; }
+.tsr { display:flex; justify-content:space-between; font-size:12px; border-bottom:1px solid var(--bdr2); padding:7px 0; }
+.tsr:last-child { border-bottom:none; }
+.tsl { color:var(--dim); } .tsv { color:var(--ice2); }
+
+/* ── USAGE ── */
+.usage-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+.uc { border:1px solid var(--bdr); background:var(--bg1); padding:24px; }
+.uc.do   { border-top:3px solid var(--green); }
+.uc.dont { border-top:3px solid var(--red); }
+.uc-title { font-size:10px; font-weight:700; letter-spacing:0.2em; text-transform:uppercase; margin-bottom:18px; }
+.uc.do .uc-title   { color:var(--green); }
+.uc.dont .uc-title { color:var(--red); }
+.ui { display:flex; align-items:flex-start; gap:12px; font-size:12px; color:rgba(232,240,248,0.55); line-height:1.6; margin-bottom:12px; }
+.ui::before { content:''; margin-top:6px; width:5px; height:5px; border-radius:50%; flex-shrink:0; }
+.uc.do .ui::before   { background:var(--green); }
+.uc.dont .ui::before { background:var(--red); }
+
+/* ── SCALE MATRIX ── */
+.scale-row { display:flex; flex-direction:column; gap:20px; }
+.scale-item {
+  background:var(--bg1); border:1px solid var(--bdr);
+  padding:28px 36px;
+  display:flex; align-items:center; justify-content:space-between; gap:40px;
+}
+.scale-meta { min-width:160px; }
+.scale-label { font-size:9px; letter-spacing:0.25em; color:var(--dim); text-transform:uppercase; margin-bottom:4px; }
+.scale-px { font-family:var(--fc); font-weight:900; font-size:28px; color:var(--ice); }
+.scale-use { font-size:11px; color:var(--dim2); margin-top:4px; }
+
+/* FOOTER */
+.site-footer {
+  border-top:1px solid var(--bdr);
+  padding:28px 80px;
+  display:flex; justify-content:space-between; align-items:center;
+  font-size:11px; color:var(--dim);
+}
+
+@media(max-width:900px) {
+  .cover-body,.geo-grid,.type-grid,.usage-grid,.anatomy-grid { grid-template-columns:1fr; }
+  .palette-grid { grid-template-columns:repeat(3,1fr); }
+  .page { padding:60px 32px; }
+  .cover-body { padding:60px 32px 40px; }
+}
+
+/* ── SITE NAV (injected) ── */
+.site-nav{position:sticky;top:0;z-index:999;background:rgba(5,13,26,0.97);border-bottom:1px solid #1a2e4a;backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:44px;font-family:'Space Mono',monospace;}
+.sn-left{display:flex;align-items:center;gap:0;}
+.ni{display:flex;align-items:center;gap:7px;padding:0 12px;height:44px;font-size:11px;color:rgba(168,197,232,0.5);text-decoration:none;border-right:1px solid #1a2e4a;transition:color 0.15s;}
+.ni:first-child{border-left:1px solid #1a2e4a;}
+.ni:hover{color:#a8c5e8;}
+.ni.on{color:#a8c5e8;background:rgba(168,197,232,0.04);}
+.ni-c{font-size:9px;color:#1a3050;font-weight:700;width:26px;flex-shrink:0;}
+.ni.on .ni-c{color:#3a5a7a;}
+.dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
+.dot.g{background:#00cc66;}.dot.i{background:#a8c5e8;opacity:0.5;}.dot.d{background:#3a5a7a;}
+.sn-right{display:flex;align-items:center;gap:16px;font-size:10px;color:#3a5a7a;letter-spacing:0.1em;}
+</style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="sn-left">
+    <a href="/index.html" class="ni"><span class="ni-c">F·00</span><span class="dot g"></span>Overview</a>
+    <a href="/spec.html" class="ni"><span class="ni-c">F·01</span><span class="dot i"></span>Protocol Spec</a>
+    <a href="/architecture.html" class="ni"><span class="ni-c">NET</span><span class="dot i"></span>Protocol Architecture</a>
+    <a href="/api.html" class="ni"><span class="ni-c">API</span><span class="dot g"></span>Swagger UI</a>
+    <a href="/brand.html" class="ni on"><span class="ni-c">BRD</span><span class="dot i"></span>Brand Identity</a>
+  </div>
+  <div class="sn-right">ward_signed = False</div>
+</nav>
+
+
+<!-- ═══════════════════════════════════════════
+     COVER
+═══════════════════════════════════════════ -->
+<div class="cover">
+  <div class="cover-bg">WARD</div>
+  
+  <div class="cover-body">
+    <div>
+      <div class="cover-tag">Brand Identity System</div>
+      <div class="cover-wordmark-label">WARD</div>
+      <div class="cover-sub">Protocol · v1.0 · March 2026</div>
+      <div class="cover-desc">
+        The complete visual identity for <strong>Ward Protocol</strong> — the open specification for default protection on XLS-66 lending vaults on the XRP Ledger. This document is the canonical reference for the wordmark, colorways, typography, geometry, and usage rules.
+      </div>
+      <div class="cover-meta">
+        <div class="cm"><span class="cm-l">Status</span><span class="cm-v">Approved · v1.0</span></div>
+        <div class="cm"><span class="cm-l">Primary mark</span><span class="cm-v">WARD Protocol</span></div>
+        <div class="cm"><span class="cm-l">Primary color</span><span class="cm-v">#a8c5e8 Ice Blue</span></div>
+        <div class="cm"><span class="cm-l">Background</span><span class="cm-v">#0d1f35 Steel</span></div>
+        <div class="cm"><span class="cm-l">Display typeface</span><span class="cm-v">Barlow Condensed 900</span></div>
+        <div class="cm"><span class="cm-l">Body typeface</span><span class="cm-v">Space Mono</span></div>
+        <div class="cm"><span class="cm-l">Protocol invariant</span><span class="cm-v">ward_signed = False</span></div>
+      </div>
+    </div>
+    <div class="cover-wm-side">
+      <svg class="cover-wm-glow" viewBox="0 0 1300 160" width="100%" xmlns="http://www.w3.org/2000/svg">
+        <text y="148" font-family="'Barlow Condensed',sans-serif" font-size="172" letter-spacing="-2" x="10">
+          <tspan font-weight="900" fill="#a8c5e8">WARD </tspan><tspan font-weight="300" fill="rgba(168,197,232,0.6)">Protocol</tspan>
+        </text>
+      </svg>
+      <div class="cover-wm-desc">Default Protection Protocol · wardprotocol.org</div>
+    </div>
+  </div>
+  <div class="cover-footer">
+    <div>Ward Protocol · Brand Identity System · v1.0</div>
+    <div style="color:var(--ice2);">wardprotocol.org</div>
+    <div style="color:var(--dim2);">ward_signed = False</div>
+  </div>
+</div>
+
+<div class="page">
+
+<!-- ═══════════════════════════════════════════
+     01 — WORDMARK
+═══════════════════════════════════════════ -->
+<div class="sec">
+  <div class="sec-eyebrow">01</div>
+  <div class="sec-title">The Wordmark</div>
+  <div class="sec-rule"></div>
+
+  <div class="wm-showcase">
+
+    <!-- PRIMARY -->
+    <div class="wm-row primary">
+      <div class="wm-star">★ Default</div>
+      <svg viewBox="0 0 1300 160" width="480" xmlns="http://www.w3.org/2000/svg" style="filter:drop-shadow(0 0 24px rgba(168,197,232,0.18));">
+        <text y="148" font-family="'Barlow Condensed',sans-serif" font-size="172" letter-spacing="-2" x="10">
+          <tspan font-weight="900" fill="#a8c5e8">WARD </tspan><tspan font-weight="300" fill="rgba(168,197,232,0.6)">Protocol</tspan>
+        </text>
+      </svg>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:10px;">
+        <span class="wm-badge primary">Primary</span>
+        <div class="wm-row-meta">
+          <div class="wm-row-name">Ice Blue on Steel</div>
+          <div class="wm-row-use">#a8c5e8 on #0d1f35<br>Web · Digital · Decks · Social</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECONDARY -->
+    <div class="wm-row secondary">
+      <svg viewBox="0 0 1300 160" width="480" xmlns="http://www.w3.org/2000/svg">
+        <text y="148" font-family="'Barlow Condensed',sans-serif" font-size="172" letter-spacing="-2" x="10">
+          <tspan font-weight="900" fill="#c8a94a">WARD </tspan><tspan font-weight="300" fill="rgba(200,169,74,0.55)">Protocol</tspan>
+        </text>
+      </svg>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:10px;">
+        <span class="wm-badge secondary">Secondary</span>
+        <div class="wm-row-meta">
+          <div class="wm-row-name">Gold on Deep Navy</div>
+          <div class="wm-row-use" style="color:#666;">#c8a94a on #050d1a<br>Formal · Print · Certificates</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TERTIARY -->
+    <div class="wm-row tertiary">
+      <svg viewBox="0 0 1300 160" width="480" xmlns="http://www.w3.org/2000/svg">
+        <text y="148" font-family="'Barlow Condensed',sans-serif" font-size="172" letter-spacing="-2" x="10">
+          <tspan font-weight="900" fill="#1a1a1a">WARD </tspan><tspan font-weight="300" fill="rgba(26,26,26,0.45)">Protocol</tspan>
+        </text>
+      </svg>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:10px;">
+        <span class="wm-badge tertiary">Tertiary</span>
+        <div class="wm-row-meta">
+          <div class="wm-row-name">Black on White</div>
+          <div class="wm-row-use">#1a1a1a on #ffffff<br>Documents · Legal · Light Backgrounds</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     02 — STORY
+═══════════════════════════════════════════ -->
+<div class="sec">
+  <div class="sec-eyebrow">02</div>
+  <div class="sec-title">Design Rationale</div>
+  <div class="sec-rule"></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;">
+    <div style="background:var(--bg1);border:1px solid var(--bdr);border-left:3px solid var(--ice);padding:28px;">
+      <div style="font-family:var(--fc);font-weight:900;font-size:22px;color:var(--ice);letter-spacing:0.04em;margin-bottom:12px;">WARD, stated plainly.</div>
+      <div style="font-size:13px;color:rgba(232,240,248,0.5);line-height:1.9;">The wordmark is the name — four letters, maximum weight, no abstraction. <strong style="color:var(--white);">WARD</strong> means protection, guardianship, custody. That meaning needs no icon, no symbol, no device. When institutional capital is at stake, you spell it out.</div>
+    </div>
+    <div style="background:var(--bg1);border:1px solid var(--bdr);border-left:3px solid var(--ice);padding:28px;">
+      <div style="font-family:var(--fc);font-weight:900;font-size:22px;color:var(--ice);letter-spacing:0.04em;margin-bottom:12px;">WARD bold. Protocol light.</div>
+      <div style="font-size:13px;color:rgba(232,240,248,0.5);line-height:1.9;">The same typeface — Barlow Condensed — at opposing weights creates instant hierarchy. <strong style="color:var(--white);">900 vs 300.</strong> The protection (WARD) dominates. The category (Protocol) contextualizes. Two words. One read.</div>
+    </div>
+    <div style="background:var(--bg1);border:1px solid var(--bdr);border-left:3px solid var(--gold);padding:28px;">
+      <div style="font-family:var(--fc);font-weight:900;font-size:22px;color:var(--gold);letter-spacing:0.04em;margin-bottom:12px;">The temperature of infrastructure.</div>
+      <div style="font-size:13px;color:rgba(232,240,248,0.5);line-height:1.9;">Ice blue on deep steel deliberately rejects DeFi's amber-and-neon aesthetic. <strong style="color:var(--white);">This is the color of a Bloomberg terminal</strong> — a clearing system, a collateral ledger, a legal instrument. Not retail. Not consumer.</div>
+    </div>
+    <div style="background:var(--bg1);border:1px solid var(--bdr);border-left:3px solid var(--gold);padding:28px;">
+      <div style="font-family:var(--fc);font-weight:900;font-size:22px;color:var(--gold);letter-spacing:0.04em;margin-bottom:12px;">Barlow Condensed 900.</div>
+      <div style="font-size:13px;color:rgba(232,240,248,0.5);line-height:1.9;">Condensed type at maximum weight has a long history in financial display — ticker boards, trading terminals, wire headlines. Letter-spacing at <strong style="color:var(--white);">-2</strong>: the letters press together the way a specification should. Nothing loose.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     03 — ANATOMY
+═══════════════════════════════════════════ -->
+<div class="sec">
+  <div class="sec-eyebrow">03</div>
+  <div class="sec-title">Wordmark Anatomy</div>
+  <div class="sec-rule"></div>
+  <div class="anatomy-wrap">
+    <div class="anatomy-svg-row">
+      <svg viewBox="0 0 1300 200" width="900" xmlns="http://www.w3.org/2000/svg">
+        <!-- annotations -->
+        <rect x="10" y="2" width="1240" height="150" fill="none" stroke="rgba(168,197,232,0.05)" stroke-width="1"/>
+        <line x1="0"    y1="148" x2="1300" y2="148" stroke="rgba(168,197,232,0.08)" stroke-width="1" stroke-dasharray="4,6"/>
+        <line x1="0"    y1="2"   x2="1300" y2="2"   stroke="rgba(168,197,232,0.05)" stroke-width="1" stroke-dasharray="4,6"/>
+        <line x1="10"   y1="0"   x2="10"   y2="170" stroke="rgba(168,197,232,0.08)" stroke-width="1" stroke-dasharray="3,5"/>
+        <!-- wordmark -->
+        <text y="148" font-family="'Barlow Condensed',sans-serif" font-size="172" letter-spacing="-2" x="10">
+          <tspan font-weight="900" fill="#a8c5e8">WARD </tspan><tspan font-weight="300" fill="rgba(168,197,232,0.6)">Protocol</tspan>
+        </text>
+        <!-- measurement dots -->
+        <circle cx="10" cy="148" r="3" fill="rgba(168,197,232,0.5)"/>
+        <circle cx="10" cy="2"   r="3" fill="rgba(168,197,232,0.3)"/>
+        <!-- labels -->
+        <text x="14"   y="172" font-family="'Space Mono',monospace" font-size="9" fill="#3a5a7a" letter-spacing="0.1em">① x=10  ORIGIN</text>
+        <text x="650"  y="172" font-family="'Space Mono',monospace" font-size="9" fill="#3a5a7a" letter-spacing="0.1em" text-anchor="middle">② BASELINE y=148</text>
+        <text x="1200" y="172" font-family="'Space Mono',monospace" font-size="9" fill="#3a5a7a" letter-spacing="0.1em" text-anchor="end">③ viewBox 0 0 1300 160</text>
+        <text x="14"   y="186" font-family="'Space Mono',monospace" font-size="9" fill="#1a3050" letter-spacing="0.1em">CAP HEIGHT y≈2</text>
+        <text x="1200" y="186" font-family="'Space Mono',monospace" font-size="9" fill="#1a3050" letter-spacing="0.1em" text-anchor="end">letter-spacing: -2</text>
+      </svg>
+    </div>
+    <div class="anatomy-grid">
+      <div class="al">
+        <div class="al-num">01 — WARD</div>
+        <div class="al-title">900 Weight</div>
+        <div class="al-body">Barlow Condensed at maximum weight. Font-size <em>172px</em> in the base SVG. Fill <em>#a8c5e8</em>. The four characters form a single dense mass — the protection, stated with full force.</div>
+      </div>
+      <div class="al">
+        <div class="al-num">02 — Protocol</div>
+        <div class="al-title">300 Weight</div>
+        <div class="al-body">Same typeface, same size, weight <em>300</em>, opacity <em>60%</em>. The category contextualizes the name without competing with it. The contrast is immediate and unmistakable.</div>
+      </div>
+      <div class="al">
+        <div class="al-num">03 — Proportion</div>
+        <div class="al-title">1300 : 160</div>
+        <div class="al-body">ViewBox aspect ratio. The full lockup fills the width completely. Aspect ratio <em>8.125 : 1</em>. Rendered via SVG — infinitely scalable with no rasterization artifacts at any size.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     04 — GEOMETRY
+═══════════════════════════════════════════ -->
+<div class="sec">
+  <div class="sec-eyebrow">04</div>
+  <div class="sec-title">Geometry & Specifications</div>
+  <div class="sec-rule"></div>
+  <div class="geo-grid">
+    <div class="geo-panel">
+      <div class="geo-panel-title">SVG Element Specifications</div>
+      <div class="geo-row"><span class="geo-l">viewBox</span><span class="geo-v">0 0 1300 160</span></div>
+      <div class="geo-row"><span class="geo-l">Text x origin</span><span class="geo-v">x="10"</span></div>
+      <div class="geo-row"><span class="geo-l">Text baseline</span><span class="geo-v">y="148"</span></div>
+      <div class="geo-row"><span class="geo-l">Font family</span><span class="geo-v">Barlow Condensed</span></div>
+      <div class="geo-row"><span class="geo-l">WARD weight</span><span class="geo-v">900</span></div>
+      <div class="geo-row"><span class="geo-l">Protocol weight</span><span class="geo-v">300</span></div>
+      <div class="geo-row"><span class="geo-l">Font size</span><span class="geo-v">172px</span></div>
+      <div class="geo-row"><span class="geo-l">Letter spacing</span><span class="geo-v">-2</span></div>
+      <div class="geo-row"><span class="geo-l">WARD fill</span><span class="geo-v">#a8c5e8</span></div>
+      <div class="geo-row"><span class="geo-l">Protocol fill</span><span class="geo-v">rgba(168,197,232,0.6)</span></div>
+    </div>
+    <div class="geo-panel">
+      <div class="geo-panel-title">Display & Sizing Rules</div>
+      <div class="geo-row"><span class="geo-l">Aspect ratio</span><span class="geo-v">8.125 : 1</span></div>
+      <div class="geo-row"><span class="geo-l">Minimum rendered width</span><span class="geo-v">200px</span></div>
+      <div class="geo-row"><span class="geo-l">Nav / small context</span><span class="geo-v">180–240px</span></div>
+      <div class="geo-row"><span class="geo-l">Hero / large context</span><span class="geo-v">360–560px</span></div>
+      <div class="geo-row"><span class="geo-l">Article banner</span><span class="geo-v">380–420px</span></div>
+      <div class="geo-row"><span class="geo-l">Print minimum</span><span class="geo-v">60mm wide</span></div>
+      <div class="geo-row"><span class="geo-l">Clear space</span><span class="geo-v">= cap-W height all sides</span></div>
+      <div class="geo-row"><span class="geo-l">Small-size fallback</span><span class="geo-v">WARD only (below 160px)</span></div>
+      <div class="geo-row"><span class="geo-l">Favicon crop</span><span class="geo-v">WARD letterforms only</span></div>
+      <div class="geo-row"><span class="geo-l">Recommended glow</span><span class="geo-v">drop-shadow rgba(168,197,232,0.2)</span></div>
+    </div>
+  </div>
+
+  <!-- scale matrix -->
+  <div style="margin-top:24px;">
+    <div style="font-size:10px;letter-spacing:0.28em;color:var(--dim);text-transform:uppercase;margin-bottom:16px;">Scale Matrix</div>
+    <div class="scale-row">
+      <div class="scale-item" style="background:var(--bg2);">
+        <div class="scale-meta"><div class="scale-label">Hero / Banner</div><div class="scale-px">420px</div><div class="scale-use">Landing page, article headers</div></div>
+        <svg viewBox="0 0 1300 160" width="420" xmlns="http://www.w3.org/2000/svg" style="filter:drop-shadow(0 0 20px rgba(168,197,232,0.18));">
+          <text y="148" font-family="'Barlow Condensed',sans-serif" font-size="172" letter-spacing="-2" x="10">
+            <tspan font-weight="900" fill="#a8c5e8">WARD </tspan><tspan font-weight="300" fill="rgba(168,197,232,0.6)">Protocol</tspan>
+          </text>
+        </svg>
+      </div>
+      <div class="scale-item">
+        <div class="scale-meta"><div class="scale-label">Standard / Deck</div><div class="scale-px">280px</div><div class="scale-use">Presentations, social headers</div></div>
+        <svg viewBox="0 0 1300 160" width="280" xmlns="http://www.w3.org/2000/svg">
+          <text y="148" font-family="'Barlow Condensed',sans-serif" font-size="172" letter-spacing="-2" x="10">
+            <tspan font-weight="900" fill="#a8c5e8">WARD </tspan><tspan font-weight="300" fill="rgba(168,197,232,0.6)">Protocol</tspan>
+          </text>
+        </svg>
+      </div>
+      <div class="scale-item" style="background:var(--bg2);">
+        <div class="scale-meta"><div class="scale-label">Navigation</div><div class="scale-px">200px</div><div class="scale-use">Site nav, app header</div></div>
+        <svg viewBox="0 0 1300 160" width="200" xmlns="http://www.w3.org/2000/svg">
+          <text y="148" font-family="'Barlow Condensed',sans-serif" font-size="172" letter-spacing="-2" x="10">
+            <tspan font-weight="900" fill="#a8c5e8">WARD </tspan><tspan font-weight="300" fill="rgba(168,197,232,0.6)">Protocol</tspan>
+          </text>
+        </svg>
+      </div>
+      <div class="scale-item">
+        <div class="scale-meta"><div class="scale-label">Favicon Crop</div><div class="scale-px">WARD only</div><div class="scale-use">Below 160px rendered width</div></div>
+        <div style="display:flex;align-items:center;gap:16px;">
+          <div style="background:#0d1f35;padding:8px 10px;border:1px solid var(--bdr);">
+            <svg viewBox="0 0 640 160" width="80" xmlns="http://www.w3.org/2000/svg">
+              <text x="10" y="148" font-family="'Barlow Condensed',sans-serif" font-weight="900" font-size="172" letter-spacing="-2" fill="#a8c5e8">WARD</text>
+            </svg>
+          </div>
+          <div style="background:#0d1f35;padding:6px 8px;border:1px solid var(--bdr);">
+            <svg viewBox="0 0 640 160" width="48" xmlns="http://www.w3.org/2000/svg">
+              <text x="10" y="148" font-family="'Barlow Condensed',sans-serif" font-weight="900" font-size="172" letter-spacing="-2" fill="#a8c5e8">WARD</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     05 — COLOR
+═══════════════════════════════════════════ -->
+<div class="sec">
+  <div class="sec-eyebrow">05</div>
+  <div class="sec-title">Color System</div>
+  <div class="sec-rule"></div>
+  <div class="palette-grid">
+    <div class="swatch"><div class="sw-color" style="background:#a8c5e8;"></div><div class="sw-info"><div class="sw-name">Ice Blue</div><div class="sw-hex">#a8c5e8</div><div class="sw-role">Primary wordmark fill</div></div></div>
+    <div class="swatch"><div class="sw-color" style="background:#0d1f35;"></div><div class="sw-info"><div class="sw-name">Steel</div><div class="sw-hex">#0d1f35</div><div class="sw-role">Primary background</div></div></div>
+    <div class="swatch"><div class="sw-color" style="background:#050d1a;"></div><div class="sw-info"><div class="sw-name">Deep Navy</div><div class="sw-hex">#050d1a</div><div class="sw-role">Page / canvas BG</div></div></div>
+    <div class="swatch"><div class="sw-color" style="background:#c8a94a;"></div><div class="sw-info"><div class="sw-name">Inst. Gold</div><div class="sw-hex">#c8a94a</div><div class="sw-role">Secondary mark / accents</div></div></div>
+    <div class="swatch"><div class="sw-color" style="background:#6a9fd0;"></div><div class="sw-info"><div class="sw-name">Ice Mid</div><div class="sw-hex">#6a9fd0</div><div class="sw-role">Supporting UI elements</div></div></div>
+    <div class="swatch"><div class="sw-color" style="background:#d0e4f7;"></div><div class="sw-info"><div class="sw-name">Ice Light</div><div class="sw-hex">#d0e4f7</div><div class="sw-role">Highlights / emphasis</div></div></div>
+    <div class="swatch"><div class="sw-color" style="background:#1a2e4a;"></div><div class="sw-info"><div class="sw-name">Border</div><div class="sw-hex">#1a2e4a</div><div class="sw-role">Borders / dividers</div></div></div>
+    <div class="swatch"><div class="sw-color" style="background:#00cc66;"></div><div class="sw-info"><div class="sw-name">Signal Green</div><div class="sw-hex">#00cc66</div><div class="sw-role">Live / confirmed / pass</div></div></div>
+    <div class="swatch"><div class="sw-color" style="background:#ff4455;"></div><div class="sw-info"><div class="sw-name">Signal Red</div><div class="sw-hex">#ff4455</div><div class="sw-role">Error / default / fail</div></div></div>
+    <div class="swatch"><div class="sw-color" style="background:#ffffff;"></div><div class="sw-info"><div class="sw-name">White</div><div class="sw-hex">#ffffff</div><div class="sw-role">Tertiary mark BG (print)</div></div></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     06 — TYPOGRAPHY
+═══════════════════════════════════════════ -->
+<div class="sec">
+  <div class="sec-eyebrow">06</div>
+  <div class="sec-title">Typography</div>
+  <div class="sec-rule"></div>
+  <div class="type-grid">
+    <div class="tp">
+      <div class="tp-eyebrow">Barlow Condensed</div>
+      <div class="tp-role">Wordmark · Display headlines · Section labels · Protocol tags</div>
+      <div class="tp-specimen">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:58px;color:var(--ice);letter-spacing:-0.01em;line-height:1;margin-bottom:8px;">WARD</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:300;font-size:58px;color:rgba(168,197,232,0.6);letter-spacing:-0.01em;line-height:1;margin-bottom:16px;">Protocol</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:18px;color:var(--ice2);letter-spacing:0.1em;">ABCDEFGHIJKLMNOPQRSTUVWXYZ</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:300;font-size:18px;color:var(--dim);letter-spacing:0.08em;margin-top:4px;">abcdefghijklmnopqrstuvwxyz 0–9</div>
+      </div>
+      <div class="tp-scale">
+        <div class="tsr"><span class="tsl">Wordmark</span><span class="tsv">172px SVG / 900 / ls -2</span></div>
+        <div class="tsr"><span class="tsl">Display</span><span class="tsv">48–72px / 900</span></div>
+        <div class="tsr"><span class="tsl">Section heading</span><span class="tsv">32–42px / 900</span></div>
+        <div class="tsr"><span class="tsl">Label / tag</span><span class="tsv">16–24px / 900</span></div>
+        <div class="tsr"><span class="tsl">Weights used</span><span class="tsv">300 · 400 · 900</span></div>
+      </div>
+    </div>
+    <div class="tp">
+      <div class="tp-eyebrow">Space Mono</div>
+      <div class="tp-role">Body copy · Data · Code · UI labels · Descriptors · Metrics</div>
+      <div class="tp-specimen">
+        <div style="font-family:'Space Mono',monospace;font-size:20px;color:var(--white);margin-bottom:6px;">ward_signed = False</div>
+        <div style="font-family:'Space Mono',monospace;font-size:13px;color:var(--dim);line-height:1.8;margin-bottom:12px;">The quick brown fox jumps over<br>the lazy dog. F·01 → F·06<br>XLS-66 · XLS-80 · Discussion #474</div>
+        <div style="font-family:'Space Mono',monospace;font-size:11px;color:var(--dim2);">ABCDEFGHIJKLMNOPQRSTUVWXYZ<br>abcdefghijklmnopqrstuvwxyz 0–9</div>
+      </div>
+      <div class="tp-scale">
+        <div class="tsr"><span class="tsl">Body</span><span class="tsv">13–15px / 400 / lh 1.85</span></div>
+        <div class="tsr"><span class="tsl">Data / metrics</span><span class="tsv">12–14px / 700</span></div>
+        <div class="tsr"><span class="tsl">UI label</span><span class="tsv">9–11px / 700 / ls 0.2em</span></div>
+        <div class="tsr"><span class="tsl">Descriptor / caption</span><span class="tsv">9–10px / 400 / ls 0.3em</span></div>
+        <div class="tsr"><span class="tsl">Weights used</span><span class="tsv">400 · 700</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     07 — USAGE
+═══════════════════════════════════════════ -->
+<div class="sec">
+  <div class="sec-eyebrow">07</div>
+  <div class="sec-title">Usage Rules</div>
+  <div class="sec-rule"></div>
+  <div class="usage-grid">
+    <div class="uc do">
+      <div class="uc-title">✓ Always</div>
+      <div class="ui">Use the SVG wordmark — never render WARD Protocol as plain HTML text</div>
+      <div class="ui">Use an approved colorway: ice blue / gold / black on their correct backgrounds</div>
+      <div class="ui">Keep "Protocol" at weight 300 and 60% opacity relative to WARD</div>
+      <div class="ui">Pair all body copy, data, and UI labels with Space Mono</div>
+      <div class="ui">Maintain clear space equal to the cap-W height on all sides</div>
+      <div class="ui">At small sizes (below 160px rendered), use WARD letterforms only</div>
+      <div class="ui">Apply a subtle glow (drop-shadow rgba 168,197,232,0.2) on dark backgrounds</div>
+    </div>
+    <div class="uc dont">
+      <div class="uc-title">✗ Never</div>
+      <div class="ui">Don't change the weight relationship — WARD must always dominate Protocol visually</div>
+      <div class="ui">Don't stretch, skew, rotate, or alter the letterforms in any way</div>
+      <div class="ui">Don't change letter-spacing from -2 — it defines the compressed density of the mark</div>
+      <div class="ui">Don't use Georgia, serif, Inter, Roboto, or any weight other than 300/900</div>
+      <div class="ui">Don't place the mark on mid-tone, warm-tinted, or busy photographic backgrounds</div>
+      <div class="ui">Don't add outlines, shadows, fills, or effects inside the SVG element itself</div>
+      <div class="ui">Don't abbreviate to "WP" — the full lockup is always the correct representation</div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /page -->
+
+<div class="site-footer">
+  <div>Ward Protocol · Brand Identity System · v1.0 · March 2026</div>
+  <div style="color:var(--ice2);">wardprotocol.org · Discussion #474</div>
+  <div style="color:var(--dim2);">ward_signed = False</div>
+</div>
+
+</body>
+</html>
