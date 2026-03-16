@@ -27,11 +27,15 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 
 from ward_client import (
+    CREDENTIAL_NFT_TAXON,
     PREIMAGE_BYTES,
     RATE_LIMIT_ATTEMPTS,
     RATE_LIMIT_WINDOW_S,
     TF_BURNABLE,
+    VALID_KYC_TYPES,
     WARD_POLICY_TAXON,
+    build_kyc_hash,
+    validate_kyc_hash,
     ClaimValidator,
     EscrowRecord,
     EscrowSettlement,
@@ -1172,3 +1176,157 @@ async def test_integration_purchase_coverage_testnet():
     assert len(result["nft_token_id"]) == 64
     assert result["coverage_drops"] == 1_000_000
     print(f"\nPolicy: {result['policy_id']}  NFT: {result['nft_token_id'][:16]}...")
+
+
+# ============================================================================
+# XLS-70 CREDENTIAL TESTS
+# ============================================================================
+
+class TestBuildKycHash:
+
+    def test_returns_64_char_hex(self):
+        result = build_kyc_hash(VALID_ADDRESS, VALID_ADDRESS2, 1000000, "KYC")
+        assert isinstance(result, str)
+        assert len(result) == 64
+        assert result == result.lower()
+        assert all(c in "0123456789abcdef" for c in result)
+
+    def test_deterministic(self):
+        args = dict(depositor_address=VALID_ADDRESS, institution_address=VALID_ADDRESS2,
+                    xrpl_ledger_time=999999, kyc_type="AML")
+        assert build_kyc_hash(**args) == build_kyc_hash(**args)
+
+    def test_different_inputs_differ(self):
+        h1 = build_kyc_hash(VALID_ADDRESS, VALID_ADDRESS2, 1000000, "KYC")
+        h2 = build_kyc_hash(VALID_ADDRESS, VALID_ADDRESS2, 1000001, "KYC")
+        h3 = build_kyc_hash(VALID_ADDRESS, VALID_ADDRESS2, 1000000, "AML")
+        assert h1 != h2
+        assert h1 != h3
+
+    def test_all_valid_kyc_types(self):
+        for kyc_type in VALID_KYC_TYPES:
+            result = build_kyc_hash(VALID_ADDRESS, VALID_ADDRESS2, 500000, kyc_type)
+            assert len(result) == 64
+
+
+class TestValidateKycHash:
+
+    def test_valid_hash_passes(self):
+        validate_kyc_hash("a" * 64)  # should not raise
+
+    def test_valid_sha256_hex_passes(self):
+        validate_kyc_hash("3f4a2b1c9e8d7f6a0b5c4d3e2f1a9b8c7d6e5f4a3b2c1d0e9f8a7b6c5d4e3f2a")
+
+    def test_too_short_raises(self):
+        with pytest.raises(ValidationError):
+            validate_kyc_hash("abc123")
+
+    def test_too_long_raises(self):
+        with pytest.raises(ValidationError):
+            validate_kyc_hash("a" * 65)
+
+    def test_uppercase_rejected(self):
+        with pytest.raises(ValidationError):
+            validate_kyc_hash("A" * 64)
+
+    def test_not_string_raises(self):
+        with pytest.raises(ValidationError):
+            validate_kyc_hash(12345)
+
+    def test_non_hex_chars_raise(self):
+        with pytest.raises(ValidationError):
+            validate_kyc_hash("z" * 64)
+
+    def test_none_raises(self):
+        with pytest.raises(ValidationError):
+            validate_kyc_hash(None)
+
+
+class TestCredentialConstants:
+
+    def test_credential_nft_taxon_is_282(self):
+        assert CREDENTIAL_NFT_TAXON == 282
+
+    def test_taxon_distinct_from_policy(self):
+        assert WARD_POLICY_TAXON != CREDENTIAL_NFT_TAXON
+
+    def test_valid_kyc_types_contains_required(self):
+        assert "KYC" in VALID_KYC_TYPES
+        assert "AML" in VALID_KYC_TYPES
+        assert "ACCREDITED" in VALID_KYC_TYPES
+        assert "INSTITUTIONAL" in VALID_KYC_TYPES
+
+
+class TestIssueCredentialValidation:
+    """Input validation tests — no network required."""
+
+    def _make_client(self):
+        client = WardClient.__new__(WardClient)
+        client._xrpl_url = DEFAULT_TESTNET_URL
+        return client
+
+    def test_invalid_kyc_type_raises(self):
+        client = self._make_client()
+        wallet = FakeWallet(VALID_ADDRESS)
+        async def run():
+            await client.issue_credential(
+                institution_wallet=wallet,
+                depositor_address=VALID_ADDRESS2,
+                kyc_type="INVALID_TYPE",
+                period_days=30,
+            )
+        with pytest.raises(ValidationError, match="kyc_type must be one of"):
+            asyncio.get_event_loop().run_until_complete(run())
+
+    def test_zero_period_days_raises(self):
+        client = self._make_client()
+        wallet = FakeWallet(VALID_ADDRESS)
+        async def run():
+            await client.issue_credential(
+                institution_wallet=wallet,
+                depositor_address=VALID_ADDRESS2,
+                kyc_type="KYC",
+                period_days=0,
+            )
+        with pytest.raises(ValidationError, match="period_days must be positive"):
+            asyncio.get_event_loop().run_until_complete(run())
+
+    def test_negative_period_days_raises(self):
+        client = self._make_client()
+        wallet = FakeWallet(VALID_ADDRESS)
+        async def run():
+            await client.issue_credential(
+                institution_wallet=wallet,
+                depositor_address=VALID_ADDRESS2,
+                kyc_type="KYC",
+                period_days=-1,
+            )
+        with pytest.raises(ValidationError, match="period_days must be positive"):
+            asyncio.get_event_loop().run_until_complete(run())
+
+    def test_invalid_depositor_address_raises(self):
+        client = self._make_client()
+        wallet = FakeWallet(VALID_ADDRESS)
+        async def run():
+            await client.issue_credential(
+                institution_wallet=wallet,
+                depositor_address="not-a-valid-xrpl-address",
+                kyc_type="KYC",
+                period_days=30,
+            )
+        with pytest.raises(ValidationError):
+            asyncio.get_event_loop().run_until_complete(run())
+
+    def test_invalid_precomputed_hash_raises(self):
+        client = self._make_client()
+        wallet = FakeWallet(VALID_ADDRESS)
+        async def run():
+            await client.issue_credential(
+                institution_wallet=wallet,
+                depositor_address=VALID_ADDRESS2,
+                kyc_type="KYC",
+                period_days=30,
+                kyc_record_hash="not-a-valid-hash",
+            )
+        with pytest.raises(ValidationError):
+            asyncio.get_event_loop().run_until_complete(run())
