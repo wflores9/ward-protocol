@@ -621,6 +621,9 @@ class WardClient:
             raise ValidationError(f"kyc_type must be one of {VALID_KYC_TYPES}, got {kyc_type!r}")
         if period_days <= 0:
             raise ValidationError(f"period_days must be positive, got {period_days}")
+        # Validate pre-computed hash before any network call — ward_signed = False
+        if kyc_record_hash is not None:
+            validate_kyc_hash(kyc_record_hash)
         try:
             async with AsyncWebsocketClient(self._xrpl_url) as client:
                 ledger_result = await client.request(Ledger(ledger_index="validated"))
@@ -634,7 +637,6 @@ class WardClient:
                         kyc_type=kyc_type,
                     )
                 else:
-                    validate_kyc_hash(kyc_record_hash)
                     kyc_hash = kyc_record_hash
                 uri_data = json.dumps({
                     "ward": "1.0", "type": "credential",
