@@ -5,7 +5,7 @@
 [![PyPI](https://img.shields.io/pypi/v/ward-protocol)](https://pypi.org/project/ward-protocol/)
 [![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Tests: 75/75](https://img.shields.io/badge/tests-75%2F75-brightgreen)](tests/)
+[![Tests: 95/95](https://img.shields.io/badge/tests-95%2F95-brightgreen)](tests/)
 [![XRPL: Discussion](https://img.shields.io/badge/XRPL-Discussion%20%23474-blue)](https://github.com/XRPLF/XRPL-Standards/discussions/474)
 
 [Website](https://wardprotocol.org) · [API Docs](https://api.wardprotocol.org) · [PyPI](https://pypi.org/project/ward-protocol/) · [XRPLF Discussion #474](https://github.com/XRPLF/XRPL-Standards/discussions/474)
@@ -87,7 +87,7 @@ a transaction is on-chain.
 | Metric | Value |
 |---|---|
 | SDK Version | 0.1.1 |
-| Unit Tests | 75/75 passing |
+| Unit Tests | 95/95 passing |
 | On-Chain Transactions Confirmed | 5 (XRPL Altnet) |
 | External Service Dependencies | 0 — pure XRPL |
 | Ward Holds Keys | Never |
@@ -254,7 +254,7 @@ ward-protocol/
 ## Roadmap
 
 ### Phase 1 — Protocol Specification (Now → Q2 2026)
-- [x] SDK built and tested — 75/75 tests
+- [x] SDK built and tested — 95/95 tests
 - [x] Testnet simulation confirmed — 5 on-chain transactions
 - [x] XRPLF Discussion #474 — active community engagement
 - [ ] Ward Protocol LLC — Wyoming filing
