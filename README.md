@@ -225,7 +225,7 @@ See [security_notes.md](security_notes.md) for all 15 attack vectors.
 git clone https://github.com/wflores9/ward-protocol.git
 cd ward-protocol
 pip install xrpl-py pytest pytest-asyncio
-pytest test_ward.py -v -m "not integration"   # 75/75 pass
+pytest test_ward.py -v -m "not integration"   # 95/95 pass
 python testnet_sim.py
 ```
 
