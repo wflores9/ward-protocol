@@ -1262,7 +1262,7 @@ class TestIssueCredentialValidation:
 
     def _make_client(self):
         client = WardClient.__new__(WardClient)
-        client._xrpl_url = DEFAULT_TESTNET_URL
+        client._xrpl_url = "https://s.altnet.rippletest.net:51234/"
         return client
 
     def test_invalid_kyc_type_raises(self):
