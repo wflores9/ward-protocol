@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WARD — Swagger UI · API v1.0</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Barlow+Condensed:wght@300;400;700;900&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; }
+body { margin:0; background:#0d1f35; font-family:'Space Mono',monospace; }
+
+/* ── HEADER — matches wardprotocol.org subpages ── */
+.hdr{background:#0d1f35;border-bottom:2px solid #6a9fd0;display:flex;align-items:center;
+  justify-content:space-between;padding:8px 24px;position:sticky;top:0;z-index:1000;}
+.hdr-logo{display:flex;align-items:center;gap:16px;}
+.hdr-sep{color:#1a3050;font-size:18px;font-weight:300;}
+.hdr-title{font-size:11px;color:#3a5a7a;letter-spacing:0.22em;text-transform:uppercase;font-weight:400;}
+.hdr-back{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;letter-spacing:0.1em;
+  color:#3a5a7a;text-decoration:none;border:1px solid #1a2e4a;padding:5px 14px;
+  text-transform:uppercase;transition:all 0.12s;}
+.hdr-back:hover{color:#a8c5e8;border-color:#6a9fd0;}
+
+/* ── SWAGGER OVERRIDES ── */
+#swagger-ui {
+  max-width:1100px;
+  margin:0 auto;
+  padding:24px 24px 60px;
+}
+
+/* ── SWAGGER LIGHT THEME — Ward brand accents ── */
+
+/* Hide default swagger header */
+.swagger-ui .topbar { display:none; }
+
+/* White body */
+body { background:#f4f6f9; }
+#swagger-ui { background:#f4f6f9; }
+.swagger-ui { background:#f4f6f9 !important; }
+.swagger-ui .wrapper { background:#f4f6f9; padding:0; max-width:none; }
+
+/* Info section — hide swagger auto title */
+.swagger-ui .info .title { display:none !important; }
+.swagger-ui .info hgroup.main { display:none !important; }
+.swagger-ui .info { margin:0 0 24px; }
+.swagger-ui .info .description p {
+  color:#2d3748 !important;
+  font-family:'Space Mono',monospace !important;
+  font-size:13px !important;
+  line-height:1.7 !important;
+}
+.swagger-ui .info .base-url {
+  color:#4a5568 !important;
+  font-family:'Space Mono',monospace !important;
+  font-size:13px !important;
+}
+
+/* Scheme container */
+.swagger-ui .scheme-container {
+  background:#fff !important;
+  border-bottom:1px solid #e2e8f0 !important;
+  box-shadow:0 1px 3px rgba(0,0,0,.06) !important;
+  padding:14px 0 !important;
+}
+.swagger-ui .servers>label { color:#2d3748 !important; font-family:'Space Mono',monospace !important; font-size:12px !important; }
+.swagger-ui .servers>label select {
+  background:#fff !important; color:#1a202c !important;
+  border:1px solid #cbd5e0 !important; font-family:'Space Mono',monospace !important;
+  font-size:13px !important;
+}
+
+/* Tags */
+.swagger-ui .opblock-tag {
+  border-bottom:2px solid #e2e8f0 !important;
+  color:#0d1f35 !important;
+  font-family:'Barlow Condensed',sans-serif !important;
+  font-weight:900 !important;
+  font-size:20px !important;
+  letter-spacing:.08em !important;
+  padding:12px 0 !important;
+}
+.swagger-ui .opblock-tag small { color:#6a9fd0 !important; font-family:'Space Mono',monospace !important; font-size:12px !important; }
+.swagger-ui .opblock-tag:hover { background:rgba(168,197,232,.06) !important; }
+.swagger-ui .opblock-tag-section { margin-bottom:8px; }
+
+/* Operation blocks */
+.swagger-ui .opblock {
+  border-radius:3px !important;
+  margin-bottom:8px !important;
+  box-shadow:0 1px 3px rgba(0,0,0,.08) !important;
+  border:1px solid !important;
+}
+.swagger-ui .opblock.opblock-post { border-color:#9ae6b4 !important; background:#f0fff4 !important; }
+.swagger-ui .opblock.opblock-get  { border-color:#bee3f8 !important; background:#ebf8ff !important; }
+.swagger-ui .opblock.opblock-delete { border-color:#feb2b2 !important; background:#fff5f5 !important; }
+.swagger-ui .opblock .opblock-summary { border:none !important; padding:12px 16px !important; }
+.swagger-ui .opblock-summary-method {
+  border-radius:3px !important;
+  font-family:'Space Mono',monospace !important;
+  font-weight:700 !important;
+  font-size:13px !important;
+  min-width:70px !important;
+  letter-spacing:.06em !important;
+}
+.swagger-ui .opblock-summary-path {
+  font-family:'Space Mono',monospace !important;
+  color:#1a202c !important;
+  font-size:14px !important;
+  font-weight:700 !important;
+}
+.swagger-ui .opblock-summary-description {
+  color:#4a5568 !important;
+  font-family:'Space Mono',monospace !important;
+  font-size:12px !important;
+}
+.swagger-ui .opblock-description-wrapper p {
+  color:#2d3748 !important;
+  font-family:'Space Mono',monospace !important;
+  font-size:13px !important;
+}
+
+/* Expanded operation body */
+.swagger-ui .opblock-body { background:#fff !important; }
+.swagger-ui .opblock-section-header {
+  background:#f7fafc !important;
+  border-bottom:1px solid #e2e8f0 !important;
+}
+.swagger-ui .opblock-section-header h4 {
+  color:#2d3748 !important;
+  font-family:'Space Mono',monospace !important;
+  font-size:13px !important;
+  font-weight:700 !important;
+}
+
+/* Parameters */
+.swagger-ui table thead tr th {
+  color:#4a5568 !important;
+  font-family:'Space Mono',monospace !important;
+  font-size:12px !important;
+  border-bottom:2px solid #e2e8f0 !important;
+  background:#f7fafc !important;
+  padding:10px 12px !important;
+}
+.swagger-ui table tbody tr td {
+  color:#2d3748 !important;
+  font-family:'Space Mono',monospace !important;
+  font-size:12px !important;
+  padding:10px 12px !important;
+  border-bottom:1px solid #edf2f7 !important;
+}
+.swagger-ui .parameter__name { color:#1a202c !important; font-family:'Space Mono',monospace !important; font-size:13px !important; font-weight:700 !important; }
+.swagger-ui .parameter__type { color:#6a9fd0 !important; font-family:'Space Mono',monospace !important; font-size:12px !important; }
+.swagger-ui .parameter__in { color:#c8a94a !important; font-family:'Space Mono',monospace !important; font-size:11px !important; }
+.swagger-ui .parameter__deprecated { color:#e53e3e !important; }
+
+/* Inputs */
+.swagger-ui input[type=text], .swagger-ui textarea, .swagger-ui select {
+  background:#fff !important;
+  border:1px solid #cbd5e0 !important;
+  color:#1a202c !important;
+  font-family:'Space Mono',monospace !important;
+  font-size:13px !important;
+  border-radius:3px !important;
+  padding:8px 10px !important;
+}
+.swagger-ui input[type=text]:focus, .swagger-ui textarea:focus {
+  border-color:#6a9fd0 !important;
+  outline:2px solid rgba(106,159,208,.2) !important;
+}
+
+/* Buttons */
+.swagger-ui .btn {
+  font-family:'Space Mono',monospace !important;
+  font-size:12px !important;
+  border-radius:3px !important;
+  font-weight:700 !important;
+}
+.swagger-ui .btn.execute {
+  background:#0d1f35 !important;
+  color:#a8c5e8 !important;
+  border-color:#0d1f35 !important;
+}
+.swagger-ui .btn.execute:hover { background:#112540 !important; }
+.swagger-ui .btn.authorize {
+  color:#c8a94a !important;
+  border-color:#c8a94a !important;
+  background:transparent !important;
+}
+.swagger-ui .btn.try-out__btn {
+  color:#6a9fd0 !important;
+  border-color:#6a9fd0 !important;
+  background:transparent !important;
+}
+
+/* Response */
+.swagger-ui .responses-table { background:#fff !important; }
+.swagger-ui .response-col_status { color:#276749 !important; font-family:'Space Mono',monospace !important; font-size:13px !important; font-weight:700 !important; }
+.swagger-ui .response-col_description { color:#2d3748 !important; font-family:'Space Mono',monospace !important; font-size:13px !important; }
+.swagger-ui .highlight-code { background:#1a202c !important; border-radius:4px !important; }
+.swagger-ui .microlight { background:#1a202c !important; color:#a8c5e8 !important; font-size:12px !important; line-height:1.7 !important; }
+
+/* Models / Schemas */
+.swagger-ui section.models {
+  border:1px solid #e2e8f0 !important;
+  border-radius:4px !important;
+  background:#fff !important;
+  margin-top:24px !important;
+}
+.swagger-ui section.models h4 {
+  color:#0d1f35 !important;
+  font-family:'Barlow Condensed',sans-serif !important;
+  font-weight:900 !important;
+  font-size:18px !important;
+  letter-spacing:.08em !important;
+}
+.swagger-ui section.models .model-container {
+  background:#f7fafc !important;
+  border:1px solid #e2e8f0 !important;
+  border-radius:3px !important;
+  margin:8px !important;
+}
+.swagger-ui .model-title { color:#1a202c !important; font-family:'Space Mono',monospace !important; font-size:14px !important; font-weight:700 !important; }
+.swagger-ui .model { color:#2d3748 !important; font-family:'Space Mono',monospace !important; font-size:12px !important; line-height:1.8 !important; }
+.swagger-ui .model .property { color:#2d3748 !important; }
+.swagger-ui .model .property-type { color:#6a9fd0 !important; }
+.swagger-ui span.prop-type { color:#6a9fd0 !important; font-size:12px !important; }
+.swagger-ui span.prop-format { color:#c8a94a !important; font-size:11px !important; }
+.swagger-ui .required-label { color:#e53e3e !important; }
+
+/* Filter */
+.swagger-ui .filter input {
+  background:#fff !important;
+  border:1px solid #cbd5e0 !important;
+  color:#1a202c !important;
+  font-family:'Space Mono',monospace !important;
+  font-size:13px !important;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width:5px; height:5px; }
+::-webkit-scrollbar-track { background:#f4f6f9; }
+::-webkit-scrollbar-thumb { background:#cbd5e0; border-radius:3px; }
+::-webkit-scrollbar-thumb:hover { background:#a0aec0; }
+
+/* ── CUSTOM API TITLE ── */
+#ward-api-title {
+  max-width:1100px;
+  margin:0 auto;
+  padding:32px 24px 24px;
+  background:#f4f6f9;
+  border-bottom:1px solid #e2e8f0;
+}
+.wat-logo { margin-bottom:12px; }
+.wat-meta { display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap; }
+.wat-tag {
+  font-family:'Space Mono',monospace;
+  font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  padding:3px 10px;border:1px solid #cbd5e0;
+  color:#4a5568;background:#fff;
+}
+.wat-live {
+  color:#276749;border-color:#9ae6b4;background:#f0fff4;
+}
+.wat-desc {
+  font-family:'Space Mono',monospace;
+  font-size:13px;color:#4a5568;line-height:1.75;
+  max-width:700px;margin-bottom:4px;
+}
+.wat-inv {
+  color:#0d1f35;font-weight:700;
+}
+
+</style>
+</head>
+<body>
+
+<!-- HEADER --><!-- v2 -->
+<div class="hdr">
+  <div class="hdr-logo">
+    <svg viewBox="0 0 1300 160" width="180" xmlns="http://www.w3.org/2000/svg">
+      <text y="148" font-family="'Barlow Condensed',sans-serif" font-size="172" letter-spacing="-2" x="10"><tspan font-weight="900" fill="#a8c5e8">WARD </tspan><tspan font-weight="300" fill="rgba(168,197,232,0.6)">Protocol</tspan></text>
+    </svg>
+    <span class="hdr-sep">·</span>
+    <span class="hdr-title">Swagger UI · API v1.0</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <a href="/flow.html" class="hdr-back">Protocol Spec</a>
+    <a href="/topology.html" class="hdr-back">Architecture</a>
+    <a href="/index.html" class="hdr-back">← Overview</a>
+  </div>
+</div>
+
+<!-- SWAGGER UI -->
+<div id="ward-api-title">
+  <div class="wat-meta">
+    <span class="wat-tag">API v1.0</span>
+    <span class="wat-tag">OAS 3.0</span>
+    <span class="wat-tag wat-live">ALTNET LIVE</span>
+    <a href="/brand.html" style="font-family:'Space Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:3px 10px;border:1px solid #cbd5e0;color:#4a5568;background:#fff;text-decoration:none;">Brand →</a>
+  </div>
+  <div class="wat-desc">Default protection for XLS-66 lending vaults on the XRP Ledger. All responses include <span class="wat-inv">ward_signed: false</span>. &nbsp;<span class="wat-inv">ward_signed = False</span> — Ward constructs unsigned transactions. The institution signs. XRPL settles.</div>
+</div>
+<div id="swagger-ui"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-standalone-preset.min.js"></script>
+<script>
+const spec = {
+  openapi: "3.0.0",
+  info: {
+    title: "Ward Protocol",
+    version: "1.0.0",
+    description: `[XRPLF/XRPL-Standards #474](https://github.com/XRPLF/XRPL-Standards/discussions/474) · [GitHub](https://github.com/wflores9/ward-protocol) · [PyPI](https://pypi.org/project/ward-protocol/)`,
+    contact: { name: "Ward Protocol", url: "https://wardprotocol.org" },
+    license: { name: "Apache 2.0" }
+  },
+  servers: [
+    { url: "https://api.wardprotocol.org", description: "Production (Railway)" }
+  ],
+  tags: [
+    { name: "Protocol",    description: "Protocol info and health" },
+    { name: "Vaults",      description: "F·01 — XLS-66 vault registration · ward_signed = False" },
+    { name: "Credentials", description: "F·02 — XLS-70 KYC credential issuance · ward_signed = False" },
+    { name: "Policies",    description: "F·03 — XLS-20 NFT policy purchase · ward_signed = False" },
+    { name: "Claims",      description: "F·04 + F·05 — Default claim filing · 9-step on-chain validation · ward_signed = False" },
+    { name: "Settlement",  description: "F·06 — PREIMAGE-SHA-256 escrow settlement · ward_signed = False" },
+    { name: "Network",     description: "XRPL network status — public, no auth" },
+  ],
+  components: {
+    securitySchemes: {
+      InstitutionKey: {
+        type: "apiKey",
+        in: "header",
+        name: "X-Institution-Key",
+        description: "Institution API key. All signed transactions use the institution XRPL keypair — never Ward's. ward_signed = False always."
+      }
+    },
+    schemas: {
+      WardSignedFalse: {
+        type: "object",
+        properties: {
+          ward_signed: {
+            type: "boolean",
+            example: false,
+            description: "Core invariant. Always false. Ward never signs transactions."
+          }
+        }
+      },
+      VaultRegisterRequest: {
+        type: "object",
+        required: ["institution_address"],
+        properties: {
+          institution_address: { type: "string", example: "rN7n3473SaZBCG4dFL83w7PB5mZGGUmaz", description: "Institution XRPL address" },
+          collateral_currency: { type: "string", example: "XRP", default: "XRP" },
+          min_collateral_ratio: { type: "number", example: 1.5, default: 1.5, description: "Minimum collateral ratio (>=1.0)" },
+          domain_credential: { type: "string", description: "XLS-80 domain credential hash" },
+          policy_nft_taxon: { type: "integer", example: 282, default: 282 }
+        }
+      },
+      CredentialIssueRequest: {
+        type: "object",
+        required: ["institution_address", "depositor_address", "kyc_hash", "kyc_type"],
+        properties: {
+          institution_address: { type: "string", example: "rN7n3473SaZBCG4dFL83w7PB5mZGGUmaz" },
+          depositor_address: { type: "string", example: "rDepositor1234567890" },
+          kyc_hash: { type: "string", example: "a".repeat(64), description: "SHA-256 hash of KYC document. No raw PII on-chain." },
+          kyc_type: { type: "string", enum: ["institutional", "retail", "accredited"], example: "institutional" },
+          expiry_days: { type: "integer", example: 365, default: 365, description: "30–730 days" }
+        }
+      },
+      PolicyPurchaseRequest: {
+        type: "object",
+        required: ["vault_id", "depositor_address", "coverage_drops"],
+        properties: {
+          vault_id: { type: "string", example: "rVaultXXXXXXXXXXXXXX", description: "XLS-66 vault address" },
+          depositor_address: { type: "string", example: "rDepositor1234567890" },
+          coverage_drops: { type: "integer", example: 10000000, description: "Coverage in XRP drops (10000000 = 10 XRP)" },
+          duration_days: { type: "integer", example: 90, default: 90, description: "1–365 days" },
+          premium_bps: { type: "integer", example: 50, default: 50, description: "Premium in basis points" }
+        }
+      },
+      ClaimFileRequest: {
+        type: "object",
+        required: ["vault_id", "policy_nft_id", "claimant_address", "condition_hex"],
+        properties: {
+          vault_id: { type: "string", example: "rVaultXXXXXXXXXXXXXX" },
+          policy_nft_id: { type: "string", example: "A".repeat(64), description: "Policy NFT token ID (64 hex chars)" },
+          claimant_address: { type: "string", example: "rClaimant1234567890" },
+          condition_hex: { type: "string", description: "PREIMAGE-SHA-256 condition hex. Ward never sees the preimage — only the condition hash." }
+        }
+      },
+      EscrowCreateRequest: {
+        type: "object",
+        required: ["claim_id", "claimant_address", "coverage_drops", "condition_hex", "policy_nft_id"],
+        properties: {
+          claim_id: { type: "string", example: "CLM-9A1B" },
+          claimant_address: { type: "string", example: "rClaimant1234567890" },
+          coverage_drops: { type: "integer", example: 10000000 },
+          condition_hex: { type: "string", description: "SHA-256 condition. Fulfillment held only by claimant — Ward never sees it." },
+          policy_nft_id: { type: "string", example: "A".repeat(64) }
+        }
+      }
+    }
+  },
+  security: [{ InstitutionKey: [] }],
+  paths: {
+
+    "/": {
+      get: {
+        tags: ["Protocol"],
+        summary: "Protocol info",
+        description: "Returns Ward Protocol identity, invariant statement, spec link, and status. No auth required.",
+        operationId: "getRoot",
+        security: [],
+        responses: {
+          "200": {
+            description: "Protocol info",
+            content: { "application/json": { example: {
+              protocol: "Ward Protocol",
+              version: "1.0.0",
+              spec: "https://github.com/XRPLF/XRPL-Standards/discussions/474",
+              github: "https://github.com/wflores9/ward-protocol",
+              pypi: "ward-protocol==0.1.1",
+              ward_signed: false,
+              invariant: "Ward constructs unsigned XRPL transactions. The institution signs. XRPL settles.",
+              status: "operational"
+            }}}
+          }
+        }
+      }
+    },
+
+    "/health": {
+      get: {
+        tags: ["Protocol"],
+        summary: "Health check",
+        description: "Returns live server health. Real uptime, real XRPL URL. No fabricated fields. No auth required.",
+        operationId: "getHealth",
+        security: [],
+        responses: {
+          "200": {
+            description: "Healthy",
+            content: { "application/json": { example: {
+              status: "healthy",
+              timestamp: "2026-03-16T19:41:45.792178Z",
+              uptime_seconds: 142,
+              version: "1.0.0",
+              xrpl_url: "wss://xrplcluster.com",
+              ward_client_available: true,
+              ward_signed: false,
+              invariant: "ward_signed = False — always"
+            }}}
+          }
+        }
+      }
+    },
+
+    "/vaults": {
+      post: {
+        tags: ["Vaults"],
+        summary: "F·01 — Register XLS-66 vault",
+        description: "Register an XLS-66 lending vault on XRPL. Ward constructs an unsigned VaultCreate transaction. Institution signs with their own XRPL keypair and submits. ward_signed = False.",
+        operationId: "registerVault",
+        requestBody: {
+          required: true,
+          content: { "application/json": { schema: { $ref: "#/components/schemas/VaultRegisterRequest" } } }
+        },
+        responses: {
+          "200": { description: "Unsigned VaultCreate returned", content: { "application/json": { example: {
+            ward_signed: false, flow: "F·01", status: "spec_mode",
+            unsigned_tx_type: "VaultCreate",
+            note: "Institution signs unsigned tx with their XRPL keypair. Ward never signs."
+          }}}},
+          "401": { description: "Missing or invalid X-Institution-Key", content: { "application/json": { example: {
+            detail: { error: "MISSING_AUTH", message: "X-Institution-Key header required", ward_signed: false }
+          }}}},
+          "422": { description: "Validation error", content: { "application/json": { example: {
+            detail: { error: "VALIDATION_ERROR", message: "Invalid institution_address", ward_signed: false }
+          }}}}
+        }
+      },
+      get: {
+        tags: ["Vaults"],
+        summary: "F·01 — List active vaults",
+        description: "List Ward-registered XLS-66 vaults. Reads from XRPL ledger objects.",
+        operationId: "listVaults",
+        responses: {
+          "200": { description: "Vault list", content: { "application/json": { example: {
+            ward_signed: false, flow: "F·01", vaults: [], source: "XRPL XLS-66 ledger objects"
+          }}}},
+          "401": { description: "Auth required" }
+        }
+      }
+    },
+
+    "/vaults/{vault_id}": {
+      get: {
+        tags: ["Vaults"],
+        summary: "F·01 — Get vault details",
+        operationId: "getVault",
+        parameters: [{ name: "vault_id", in: "path", required: true, schema: { type: "string" }, example: "rVaultXXXXXXXXXXXXXX" }],
+        responses: {
+          "200": { description: "Vault details from XRPL", content: { "application/json": { example: {
+            ward_signed: false, flow: "F·01", vault_id: "rVaultXXX", source: "XRPL ledger — authoritative state only"
+          }}}},
+          "401": { description: "Auth required" }
+        }
+      }
+    },
+
+    "/credentials/issue": {
+      post: {
+        tags: ["Credentials"],
+        summary: "F·02 — Issue XLS-70 KYC credential",
+        description: "Issue an XLS-70 credential anchoring a KYC hash on XRPL. SHA-256 hash only — no raw PII ever goes on-chain. Returns unsigned NFTokenMint. ward_signed = False.",
+        operationId: "issueCredential",
+        requestBody: {
+          required: true,
+          content: { "application/json": { schema: { $ref: "#/components/schemas/CredentialIssueRequest" } } }
+        },
+        responses: {
+          "200": { description: "Unsigned NFTokenMint (XLS-70)", content: { "application/json": { example: {
+            ward_signed: false, flow: "F·02", status: "spec_mode",
+            unsigned_tx_type: "NFTokenMint", credential_nft_taxon: 282,
+            note: "Institution signs with their keypair. Ward never signs."
+          }}}},
+          "401": { description: "Auth required" },
+          "422": { description: "Invalid KYC type or validation error", content: { "application/json": { example: {
+            detail: { error: "INVALID_KYC_TYPE", message: "kyc_type must be institutional | retail | accredited", ward_signed: false }
+          }}}}
+        }
+      }
+    },
+
+    "/credentials/verify": {
+      post: {
+        tags: ["Credentials"],
+        summary: "F·02 — Verify XLS-70 credential",
+        description: "Verify a credential is valid and unexpired on XRPL. Queries account_nfts directly.",
+        operationId: "verifyCredential",
+        parameters: [
+          { name: "credential_id", in: "query", required: true, schema: { type: "string" } },
+          { name: "subject_address", in: "query", required: true, schema: { type: "string" } }
+        ],
+        responses: {
+          "200": { description: "Credential status", content: { "application/json": { example: {
+            ward_signed: false, flow: "F·02", source: "XRPL ledger — account_nfts query"
+          }}}},
+          "401": { description: "Auth required" }
+        }
+      }
+    },
+
+    "/policies/purchase": {
+      post: {
+        tags: ["Policies"],
+        summary: "F·03 — Purchase XLS-20 policy NFT",
+        description: "Mint an XLS-20 NFT policy certificate. Coverage terms encoded immutably in NFT URI. TF_BURNABLE only — non-transferable by design. Returns unsigned NFTokenMint. ward_signed = False.",
+        operationId: "purchasePolicy",
+        requestBody: {
+          required: true,
+          content: { "application/json": { schema: { $ref: "#/components/schemas/PolicyPurchaseRequest" } } }
+        },
+        responses: {
+          "200": { description: "Unsigned NFTokenMint (XLS-20)", content: { "application/json": { example: {
+            ward_signed: false, flow: "F·03", status: "spec_mode",
+            unsigned_tx_type: "NFTokenMint", policy_nft_taxon: 281,
+            flags: "TF_BURNABLE — non-transferable by design",
+            uri_encodes: "coverage_drops | expiry_ledger | vault_id | premium_bps",
+            note: "Institution signs with their keypair. Ward never signs."
+          }}}},
+          "401": { description: "Auth required" },
+          "422": { description: "Validation error (duplicate policy, vault cap exceeded)" }
+        }
+      }
+    },
+
+    "/claims/file": {
+      post: {
+        tags: ["Claims"],
+        summary: "F·04 + F·05 — File claim · 9-step validation",
+        description: "File a default claim. Ward runs 9 deterministic checks against live XRPL state. No oracle. No off-chain data. No human judgment. All 9 pass → unsigned EscrowCreate. Any failure → CLAIM_REJECTED with reason code. ward_signed = False.",
+        operationId: "fileClaim",
+        requestBody: {
+          required: true,
+          content: { "application/json": { schema: { $ref: "#/components/schemas/ClaimFileRequest" } } }
+        },
+        responses: {
+          "200": { description: "All 9 checks passed — unsigned EscrowCreate returned", content: { "application/json": { example: {
+            ward_signed: false, flow: "F·04 + F·05", validation_checks: 9, checks_passed: 9,
+            status: "spec_mode",
+            checks: [
+              { check: 1, name: "Policy NFT exists on ledger",        error_code: "NFT_NOT_FOUND" },
+              { check: 2, name: "Policy unexpired",                    error_code: "POLICY_EXPIRED" },
+              { check: 3, name: "Vault address matches NFT URI",       error_code: "VAULT_MISMATCH" },
+              { check: 4, name: "Default confirmed (3 ledger closes)", error_code: "DEFAULT_NOT_CONFIRMED" },
+              { check: 5, name: "Collateral ratio provably breached",  error_code: "COLLATERAL_SUFFICIENT" },
+              { check: 6, name: "No active escrow pending",            error_code: "ESCROW_ALREADY_PENDING" },
+              { check: 7, name: "KYC credential valid and unexpired",  error_code: "KYC_CREDENTIAL_INVALID" },
+              { check: 8, name: "Domain credential valid",             error_code: "DOMAIN_NOT_AUTHORIZED" },
+              { check: 9, name: "Rate limit clear",                    error_code: "RATE_LIMIT_EXCEEDED" }
+            ],
+            note: "All 9 checks read live XRPL ledger state. No off-chain inputs permitted."
+          }}}},
+          "401": { description: "Auth required" },
+          "422": { description: "Claim rejected — one or more checks failed", content: { "application/json": { example: {
+            detail: { error: "CLAIM_REJECTED", message: "Check 4 failed: DEFAULT_NOT_CONFIRMED", ward_signed: false }
+          }}}}
+        }
+      }
+    },
+
+    "/claims/{claim_id}": {
+      get: {
+        tags: ["Claims"],
+        summary: "F·05 — Get claim status",
+        operationId: "getClaimStatus",
+        parameters: [{ name: "claim_id", in: "path", required: true, schema: { type: "string" }, example: "CLM-9A1B" }],
+        responses: {
+          "200": { description: "Claim status from XRPL", content: { "application/json": { example: {
+            ward_signed: false, flow: "F·05", claim_id: "CLM-9A1B", source: "XRPL ledger — authoritative state only"
+          }}}},
+          "401": { description: "Auth required" }
+        }
+      }
+    },
+
+    "/settlement/escrow": {
+      post: {
+        tags: ["Settlement"],
+        summary: "F·06 — Create PREIMAGE-SHA-256 escrow",
+        description: "Build escrow for claim settlement. Ward receives condition_hex (SHA-256 hash) only — NEVER the preimage. Only the claimant holds the preimage. Returns unsigned EscrowCreate. Institution signs and submits. Ward's server is irrelevant after EscrowCreate is on-chain. NFT burns atomically with EscrowFinish. ward_signed = False.",
+        operationId: "createEscrow",
+        requestBody: {
+          required: true,
+          content: { "application/json": { schema: { $ref: "#/components/schemas/EscrowCreateRequest" } } }
+        },
+        responses: {
+          "200": { description: "Unsigned EscrowCreate returned", content: { "application/json": { example: {
+            ward_signed: false, flow: "F·06", status: "spec_mode",
+            unsigned_tx_type: "EscrowCreate",
+            condition: "PREIMAGE-SHA-256",
+            finish_after: "+48h (172800s)",
+            cancel_after: "+72h (259200s)",
+            nft_burn: "atomic with EscrowFinish — replay structurally impossible",
+            note: "Institution signs EscrowCreate. Ward's server irrelevant after this. XRPL enforces settlement."
+          }}}},
+          "401": { description: "Auth required" },
+          "422": { description: "Validation error" }
+        }
+      }
+    },
+
+    "/network/status": {
+      get: {
+        tags: ["Network"],
+        summary: "XRPL network status",
+        description: "Live XRPL connection status and network info. Public endpoint — no auth required.",
+        operationId: "networkStatus",
+        security: [],
+        responses: {
+          "200": { description: "Network status", content: { "application/json": { example: {
+            ward_signed: false,
+            xrpl_url: "wss://xrplcluster.com",
+            network: "mainnet",
+            ward_client_available: true,
+            timestamp: "2026-03-16T19:47:42.830947Z"
+          }}}}
+        }
+      }
+    }
+
+  }
+};
+
+SwaggerUIBundle({
+  spec,
+  dom_id: '#swagger-ui',
+  presets: [SwaggerUIBundle.presets.apis, SwaggerUIStandalonePreset],
+  layout: "StandaloneLayout",
+  deepLinking: true,
+  defaultModelsExpandDepth: 1,
+  defaultModelExpandDepth: 2,
+  docExpansion: "list",
+  filter: true,
+  tryItOutEnabled: true
+});
+</script>
+</body>
+</html>
