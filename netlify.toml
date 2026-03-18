@@ -1,4 +1,9 @@
 [[redirects]]
+  from = "/demo"
+  to = "/demo.html"
+  status = 200
+
+[[redirects]]
   from = "/spec"
   to = "/spec.html"
   status = 200
@@ -18,7 +23,7 @@
   to = "/brand.html"
   status = 200
 
-# Legacy redirects — old URLs still work
+# Legacy redirects
 [[redirects]]
   from = "/flow"
   to = "/spec.html"
