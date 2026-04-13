@@ -549,6 +549,10 @@ async def dashboard_vault_health(vault_id: str):
             "source": "XRPL account_info (validated ledger)",
             "xls_66_available": False,
             "note": "XLS-66 vault/loan objects may not be available on this network; returning account-level snapshot only.",
+            "health_ratio": None,
+            "health_ratio_display": "N/A (XLS-66 not available)",
+            "active_claims": [],
+            "active_claims_count": 0,
             "account_data": {
                 "Balance": acct.get("Balance"),
                 "OwnerCount": acct.get("OwnerCount"),

@@ -137,6 +137,10 @@
       <h2>Vault health (public)</h2>
       <div class="row">
         <div>
+          <label for="vaultPreset">Known vaults</label>
+          <select id="vaultPreset"></select>
+        </div>
+        <div>
           <label for="vaultId">Vault address</label>
           <input id="vaultId" placeholder="r..." autocomplete="off" spellcheck="false" />
         </div>
@@ -144,6 +148,18 @@
           <label>&nbsp;</label>
           <button id="btnVault">Check vault</button>
         </div>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <span class="pill">Health ratio</span>
+        <span id="healthRatio" class="muted">—</span>
+        <span class="pill">Claims</span>
+        <span id="claimsCount" class="muted">—</span>
+        <span class="pill">Updated</span>
+        <span id="vaultUpdated" class="muted">—</span>
+      </div>
+      <div id="claimsPanel" class="hint" style="margin-top:10px">
+        <span class="pill">Active claims</span>
+        <div id="claimsList" class="muted" style="margin-top:6px">No active claims</div>
       </div>
       <pre id="vaultOut">{ "vault": "enter an address and click Check vault" }</pre>
       <div class="hint">
@@ -156,6 +172,12 @@
   <script>
     const $ = (id) => document.getElementById(id);
     const pretty = (obj) => JSON.stringify(obj, null, 2);
+    const POLL_MS = 30_000;
+
+    const KNOWN_VAULTS = [
+      { name: "Sample vault A (testnet)", address: "rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe" },
+      { name: "Sample vault B (testnet)", address: "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh" },
+    ];
 
     function base() {
       return $("apiBase").value.replace(/\/+$/, "");
@@ -181,19 +203,93 @@
       $("statusOut").textContent = pretty({ health: h, network: n });
     }
 
-    async function checkVault() {
-      const v = $("vaultId").value.trim();
-      if (!v) {
-        $("vaultOut").textContent = pretty({ error: "missing vault address" });
+    function setVaultSummary(data) {
+      const healthRatio =
+        data?.health_ratio_display ??
+        (data?.health_ratio === null || typeof data?.health_ratio === "undefined" ? "N/A" : String(data.health_ratio));
+
+      $("healthRatio").textContent = healthRatio ?? "—";
+      $("claimsCount").textContent =
+        typeof data?.active_claims_count === "number"
+          ? String(data.active_claims_count)
+          : Array.isArray(data?.active_claims)
+            ? String(data.active_claims.length)
+            : "0";
+      $("vaultUpdated").textContent = data?.timestamp ?? "—";
+
+      const claims = Array.isArray(data?.active_claims) ? data.active_claims : [];
+      if (!claims.length) {
+        $("claimsList").textContent = "No active claims";
         return;
       }
-      $("vaultOut").textContent = pretty({ loading: true, vault_id: v });
+      $("claimsList").innerHTML = claims.map((c) => `<div>${String(c)}</div>`).join("");
+    }
+
+    async function checkVault(opts = {}) {
+      const v = $("vaultId").value.trim();
+      if (!v) {
+        if (!opts.silent) {
+          $("vaultOut").textContent = pretty({ error: "missing vault address" });
+        }
+        return;
+      }
+      if (!opts.silent) {
+        $("vaultOut").textContent = pretty({ loading: true, vault_id: v });
+      }
       const res = await getJson(base() + "/dashboard/vault/" + encodeURIComponent(v) + "/health");
+      if (res.ok) setVaultSummary(res.data);
       $("vaultOut").textContent = pretty(res);
+    }
+
+    function initKnownVaults() {
+      const sel = $("vaultPreset");
+      sel.innerHTML = "";
+      const opt0 = document.createElement("option");
+      opt0.value = "";
+      opt0.textContent = "Select a known vault…";
+      sel.appendChild(opt0);
+
+      for (const v of KNOWN_VAULTS) {
+        const opt = document.createElement("option");
+        opt.value = v.address;
+        opt.textContent = `${v.name} — ${v.address}`;
+        sel.appendChild(opt);
+      }
+
+      if (KNOWN_VAULTS.length) {
+        sel.value = KNOWN_VAULTS[0].address;
+        $("vaultId").value = KNOWN_VAULTS[0].address;
+        checkVault({ silent: true });
+      }
+    }
+
+    function startPolling() {
+      setInterval(() => {
+        refreshStatus();
+        if ($("vaultId").value.trim()) {
+          checkVault({ silent: true });
+        }
+      }, POLL_MS);
     }
 
     $("btnRefresh").addEventListener("click", refreshStatus);
     $("btnVault").addEventListener("click", checkVault);
+
+    $("vaultPreset").addEventListener("change", () => {
+      const addr = $("vaultPreset").value;
+      if (!addr) return;
+      $("vaultId").value = addr;
+      checkVault();
+    });
+
+    $("apiBase").addEventListener("change", () => {
+      refreshStatus();
+      if ($("vaultId").value.trim()) checkVault({ silent: true });
+    });
+
+    initKnownVaults();
+    refreshStatus();
+    startPolling();
   </script>
 </body>
 </html>
