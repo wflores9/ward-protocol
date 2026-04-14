@@ -24,6 +24,8 @@ from fastapi import FastAPI, HTTPException, Header, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
+from xrpl.asyncio.clients import AsyncJsonRpcClient
+from xrpl.models import AccountInfo
 
 # ── Ensure ward_client.py (repo root) is importable from sdk/python
 # Procfile: cd sdk/python && uvicorn main:app
@@ -503,6 +505,71 @@ async def network_status():
         "ward_client_available": WARD_CLIENT_AVAILABLE,
         "timestamp": datetime.utcnow().isoformat() + "Z",
     }
+
+
+# ── Dashboard — public vault health snapshot
+@app.get("/dashboard/vault/{vault_id}/health")
+async def dashboard_vault_health(vault_id: str):
+    """
+    Public, read-only vault health snapshot for the website dashboard.
+    This does NOT require auth and does not mutate anything.
+
+    If XLS-66 ledger objects are not available on the target network, this returns XRPL
+    account-level data plus a clear note.
+    """
+    client = AsyncJsonRpcClient(XRPL_RPC)
+    try:
+        resp = await client.request(AccountInfo(account=vault_id, ledger_index="validated"))
+        if not resp.is_successful():
+            # Common case on mainnet: address not funded / not found
+            if getattr(resp, "result", {}).get("error") == "actNotFound":
+                raise HTTPException(
+                    status_code=404,
+                    detail={
+                        "error": "VAULT_NOT_FOUND",
+                        "message": "Account not found on target XRPL network",
+                        "vault_id": vault_id,
+                        "xrpl_rpc": XRPL_RPC,
+                        "ward_signed": False,
+                    },
+                )
+            raise HTTPException(
+                status_code=502,
+                detail={
+                    "error": "LEDGER_ERROR",
+                    "message": "account_info failed",
+                    "result": getattr(resp, "result", None),
+                    "ward_signed": False,
+                },
+            )
+        acct = resp.result.get("account_data", {})
+        return {
+            "ward_signed": False,
+            "vault_id": vault_id,
+            "source": "XRPL account_info (validated ledger)",
+            "xls_66_available": False,
+            "note": "XLS-66 vault/loan objects may not be available on this network; returning account-level snapshot only.",
+            "health_ratio": None,
+            "health_ratio_display": "N/A (XLS-66 not available)",
+            "active_claims": [],
+            "active_claims_count": 0,
+            "account_data": {
+                "Balance": acct.get("Balance"),
+                "OwnerCount": acct.get("OwnerCount"),
+                "Sequence": acct.get("Sequence"),
+                "Flags": acct.get("Flags"),
+            },
+            "ledger_index": resp.result.get("ledger_index"),
+            "validated": resp.result.get("validated"),
+            "timestamp": datetime.utcnow().isoformat() + "Z",
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=502,
+            detail={"error": "LEDGER_ERROR", "message": str(e), "ward_signed": False},
+        )
 
 
 # ============================================================

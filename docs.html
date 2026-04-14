@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="WARD Protocol docs: 9-step claim validation, security invariants, getting started.">
+  <meta property="og:title" content="WARD — Docs">
+  <meta property="og:description" content="9-step claim validation, security invariants, and getting started for Ward Protocol.">
+  <meta property="og:url" content="https://wardprotocol.org/docs">
+  <meta property="og:type" content="website">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+  <title>WARD — Docs</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Barlow+Condensed:wght@300;400;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#050d1a; --bg2:#0d1f35;
+      --bdr:#1a2e4a;
+      --ice:#a8c5e8; --ice2:#6a9fd0; --ice3:#d0e4f7;
+      --dim:#3a5a7a; --dim2:#1a3050;
+      --w:#e8f0f8; --gold:#c8a94a; --green:#00cc66; --red:#ff4455;
+      --f:'Space Mono',monospace; --fc:'Barlow Condensed',sans-serif;
+      --max: 1080px;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:var(--f);background:var(--bg);color:var(--w);line-height:1.6;min-height:100vh}
+    body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
+      background:repeating-linear-gradient(transparent 0,transparent 3px,rgba(0,0,0,.02) 3px,rgba(0,0,0,.02) 4px);}
+    a{color:var(--ice2);text-decoration:none}
+    a:hover{color:var(--ice3)}
+    .hdr{background:var(--bg2);border-bottom:2px solid var(--ice2);display:flex;align-items:center;justify-content:space-between;padding:10px 22px;position:sticky;top:0;z-index:1000}
+    .hdr-left{display:flex;align-items:baseline;gap:14px}
+    .hdr-title{font-family:var(--fc);font-weight:900;letter-spacing:.08em;text-transform:uppercase}
+    .hdr-sub{font-size:11px;color:var(--dim);letter-spacing:.22em;text-transform:uppercase}
+    .hdr-nav{display:flex;gap:12px;flex-wrap:wrap;justify-content:flex-end}
+    .btn{font-family:var(--f);font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+      color:var(--dim);border:1px solid var(--bdr);padding:6px 12px;border-radius:10px;background:transparent;cursor:pointer}
+    .btn:hover{color:var(--ice);border-color:var(--ice2)}
+    .wrap{max-width:var(--max);margin:0 auto;padding:26px 18px 64px}
+    .hero{display:grid;gap:10px;margin:10px 0 20px}
+    .kicker{color:var(--dim);font-size:11px;letter-spacing:.26em;text-transform:uppercase}
+    h1{font-family:var(--fc);font-size:44px;line-height:1.05;letter-spacing:.02em}
+    .lead{color:var(--ice);max-width:78ch}
+    .grid{display:grid;grid-template-columns: 280px 1fr;gap:18px;align-items:start}
+    @media (max-width: 920px){ .grid{grid-template-columns:1fr} }
+    .toc{border:1px solid var(--bdr);background:rgba(13,31,53,.55);border-radius:14px;padding:14px;position:sticky;top:76px}
+    .toc h3{font-family:var(--fc);letter-spacing:.18em;text-transform:uppercase;font-size:14px;margin-bottom:10px;color:var(--ice)}
+    .toc a{display:block;padding:6px 8px;border-radius:10px;color:var(--ice2)}
+    .toc a:hover{background:rgba(168,197,232,.08);color:var(--ice3)}
+    .card{border:1px solid var(--bdr);background:rgba(13,31,53,.45);border-radius:14px;padding:16px;margin-bottom:14px}
+    h2{font-family:var(--fc);font-weight:900;letter-spacing:.08em;text-transform:uppercase;font-size:22px;margin:10px 0 10px}
+    h3{font-family:var(--fc);font-weight:900;letter-spacing:.08em;text-transform:uppercase;font-size:16px;margin:12px 0 6px;color:var(--ice)}
+    p{margin:10px 0;color:var(--ice)}
+    ul{margin:8px 0 10px 18px;color:var(--ice)}
+    li{margin:6px 0}
+    code, pre{font-family:var(--f)}
+    pre{background:rgba(0,0,0,.28);border:1px solid var(--bdr);border-radius:12px;padding:12px;overflow:auto}
+    .pill{display:inline-block;font-size:11px;border:1px solid var(--bdr);padding:2px 10px;border-radius:999px;color:var(--dim);margin-right:6px}
+    .ok{color:var(--green)}
+    .warn{color:var(--gold)}
+    .bad{color:var(--red)}
+    .muted{color:var(--dim)}
+    .hr{height:1px;background:var(--bdr);margin:14px 0}
+  </style>
+</head>
+<body>
+  <header class="hdr">
+    <div class="hdr-left">
+      <div class="hdr-title">WARD</div>
+      <div class="hdr-sub">Docs</div>
+    </div>
+    <nav class="hdr-nav">
+      <a class="btn" href="/">Home</a>
+      <a class="btn" href="/spec">Spec</a>
+      <a class="btn" href="/architecture">Architecture</a>
+      <a class="btn" href="/api">API</a>
+      <a class="btn" href="/dashboard">Dashboard</a>
+      <a class="btn" href="https://github.com/XRPLF/XRPL-Standards/discussions/474" target="_blank" rel="noreferrer">Discussion</a>
+    </nav>
+  </header>
+
+  <main class="wrap">
+    <section class="hero">
+      <div class="kicker">First click for partners</div>
+      <h1>WARD Protocol Docs</h1>
+      <p class="lead">
+        What Ward is, how the claim process works, and the security invariants that make
+        <span class="pill">ward_signed = false</span> enforceable in practice.
+      </p>
+      <p class="muted">
+        Source docs: <a href="/api">API reference</a>, <a href="/spec">flows F·01–F·06</a>,
+        <a href="https://wardprotocol.org" target="_blank" rel="noreferrer">wardprotocol.org</a>,
+        and repository files (<code>security_notes.md</code>, <code>testnet_proof.md</code>, <code>README.md</code>).
+      </p>
+    </section>
+
+    <section class="grid">
+      <aside class="toc">
+        <h3>Contents</h3>
+        <a href="#getting-started">Getting started</a>
+        <a href="#claim-validation">9-step claim validation</a>
+        <a href="#security-invariants">Security invariants</a>
+        <a href="#testnet-proof">Testnet proof</a>
+        <a href="#api-notes">API notes</a>
+      </aside>
+
+      <div>
+        <section id="getting-started" class="card">
+          <h2>Getting started</h2>
+          <p><span class="pill ok">Goal</span> Run tests locally, then run the live testnet simulation and view on-chain results.</p>
+
+          <h3>Prerequisites</h3>
+          <ul>
+            <li>Windows: use <code>py -3</code> (Python Launcher) instead of <code>python</code>.</li>
+            <li>Dependencies: see <code>requirements.txt</code>.</li>
+          </ul>
+
+          <h3>Run tests</h3>
+          <pre>py -3 -m pip install -r requirements.txt
+py -3 -m pip install pytest pytest-asyncio pytest-cov
+py -3 -m pytest test_ward.py -m "not integration"</pre>
+
+          <h3>Run testnet simulation (writes <code>testnet_run.log</code>)</h3>
+          <pre># one-time: create funded testnet wallets
+py -3 scripts\setup_testnet_wallets.py
+
+# run the simulation (UTF-8 recommended on Windows)
+py -3 -X utf8 testnet_sim.py</pre>
+
+          <h3>View execution results</h3>
+          <ul>
+            <li><span class="pill">Local log</span> <code>testnet_run.log</code></li>
+            <li><span class="pill">On-chain</span> Testnet explorer: <code>https://testnet.xrpl.org/transactions/&lt;HASH&gt;</code></li>
+            <li><span class="pill">API health</span> <code>/health</code> and <code>/network/status</code></li>
+          </ul>
+        </section>
+
+        <section id="claim-validation" class="card">
+          <h2>9-step claim validation</h2>
+          <p>
+            Ward’s claim path is designed to be <strong>ledger-verifiable</strong>: no oracle, no human judgment.
+            The reference API endpoint is <code>POST /claims/file</code>.
+          </p>
+
+          <div class="hr"></div>
+          <h3>Step 1 — Policy NFT exists (and is a Ward policy)</h3>
+          <p>Verify the claimant holds the policy NFT on-chain and that its taxon matches the Ward policy taxon.</p>
+
+          <h3>Step 2 — Policy is unexpired (ledger time)</h3>
+          <p>Expiry checks use XRPL ledger time (not the server clock) to prevent local time manipulation.</p>
+
+          <h3>Step 3 — Depositor/vault binding matches policy metadata</h3>
+          <p>The policy NFT’s metadata (URI encoding) must bind to the expected vault and claimant context.</p>
+
+          <h3>Step 4 — Default is verifiable on-chain</h3>
+          <p>
+            The loan must have the on-chain default signal (e.g. <code>lsfLoanDefault</code>) and be confirmed across multiple closes.
+            <span class="pill warn">Note</span> On XRPL Altnet, XLS-66 ledger objects may not exist; the simulation demonstrates this gap.
+          </p>
+
+          <h3>Step 5 — Collateral ratio breached</h3>
+          <p>Default must be economically justified by a provable collateral ratio breach (as defined by the protocol).</p>
+
+          <h3>Step 6 — No active escrow pending</h3>
+          <p>Reject if an escrow settlement is already pending for the same policy/claim context.</p>
+
+          <h3>Step 7 — KYC credential valid and unexpired</h3>
+          <p>Verify the depositor has a valid credential anchored on-chain (no raw PII on-ledger).</p>
+
+          <h3>Step 8 — Domain credential valid</h3>
+          <p>Verify the institution/domain authorization for the vault/flow.</p>
+
+          <h3>Step 9 — No duplicates / rate limit clear</h3>
+          <p>Reject duplicates and enforce attempt limits to reduce abuse and noisy retries.</p>
+
+          <div class="hr"></div>
+          <p class="muted">
+            Implementation note: the API returns <code>CLAIM_REJECTED</code> (422) with a reason when validation fails,
+            or returns an unsigned settlement transaction when all checks pass.
+          </p>
+        </section>
+
+        <section id="security-invariants" class="card">
+          <h2>Security invariants</h2>
+          <p><span class="pill ok">Core invariant</span> <strong>ward_signed = False</strong>. Ward never holds keys, never signs, never submits.</p>
+          <ul>
+            <li><strong>No custody / no keys</strong>: institutions sign and submit with their own wallets.</li>
+            <li><strong>Policy NFTs are non-transferable by design</strong>: minted without <code>tfTransferable</code>.</li>
+            <li><strong>Escrow settlement uses PREIMAGE-SHA-256</strong>: only the claimant holding the preimage can finish the escrow.</li>
+            <li><strong>Ledger-time expiry</strong>: all expiry logic uses XRPL ledger time.</li>
+            <li><strong>Multi-ledger confirmation</strong>: default events are only considered verified after multiple closes.</li>
+            <li><strong>Replay protection</strong>: burn policy NFT after settlement; a burned policy can’t be reused.</li>
+            <li><strong>Input validation</strong>: addresses and identifiers are validated before transaction construction.</li>
+          </ul>
+          <p class="muted">Full threat model and mitigations: see <code>security_notes.md</code> in the repo.</p>
+        </section>
+
+        <section id="testnet-proof" class="card">
+          <h2>Testnet proof</h2>
+          <p>
+            The repo includes <code>testnet_proof.md</code> with 5 confirmed on-chain transactions demonstrating
+            premium payment, policy NFT mint, escrow create/finish, and NFT burn (replay protection).
+          </p>
+          <ul>
+            <li><span class="pill">Payment</span> premium paid to pool</li>
+            <li><span class="pill">NFTokenMint</span> policy issued (taxon 281)</li>
+            <li><span class="pill">EscrowCreate</span> conditional escrow created</li>
+            <li><span class="pill">EscrowFinish</span> payout released with preimage</li>
+            <li><span class="pill">NFTokenBurn</span> policy burned after payout</li>
+          </ul>
+          <p class="muted">You can reproduce locally with <code>py -3 -X utf8 testnet_sim.py</code> and verify each hash on the XRPL Testnet Explorer.</p>
+        </section>
+
+        <section id="api-notes" class="card">
+          <h2>API notes</h2>
+          <ul>
+            <li><span class="pill">Public</span> <code>GET /health</code>, <code>GET /network/status</code></li>
+            <li><span class="pill">Institution</span> most mutating routes require <code>X-Institution-Key</code> when enabled</li>
+            <li><span class="pill">Docs</span> Swagger UI lives at <a href="/api">/api</a> (static UI)</li>
+          </ul>
+        </section>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
+
