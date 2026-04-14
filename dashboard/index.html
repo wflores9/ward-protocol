@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="WARD Risk Dashboard: public vault health monitor.">
+  <meta property="og:title" content="WARD — Risk Dashboard">
+  <meta property="og:description" content="Public vault health monitor using Ward’s API.">
+  <meta property="og:url" content="https://wardprotocol.org/dashboard">
+  <meta property="og:type" content="website">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+  <title>WARD — Risk Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Barlow+Condensed:wght@300;400;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#050d1a; --bg2:#0d1f35;
+      --bdr:#1a2e4a;
+      --ice:#a8c5e8; --ice2:#6a9fd0; --ice3:#d0e4f7;
+      --dim:#3a5a7a; --dim2:#1a3050;
+      --w:#e8f0f8; --gold:#c8a94a; --green:#00cc66; --red:#ff4455;
+      --f:'Space Mono',monospace; --fc:'Barlow Condensed',sans-serif;
+      --max: 1080px;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:var(--f);background:var(--bg);color:var(--w);line-height:1.6;min-height:100vh}
+    body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
+      background:repeating-linear-gradient(transparent 0,transparent 3px,rgba(0,0,0,.02) 3px,rgba(0,0,0,.02) 4px);}
+    a{color:var(--ice2);text-decoration:none}
+    a:hover{color:var(--ice3)}
+    .hdr{background:var(--bg2);border-bottom:2px solid var(--ice2);display:flex;align-items:center;justify-content:space-between;padding:10px 22px;position:sticky;top:0;z-index:1000}
+    .hdr-left{display:flex;align-items:baseline;gap:14px}
+    .hdr-title{font-family:var(--fc);font-weight:900;letter-spacing:.08em;text-transform:uppercase}
+    .hdr-sub{font-size:11px;color:var(--dim);letter-spacing:.22em;text-transform:uppercase}
+    .hdr-nav{display:flex;gap:12px;flex-wrap:wrap;justify-content:flex-end}
+    .btn, button, select, input{font-family:var(--f)}
+    .btn{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+      color:var(--dim);border:1px solid var(--bdr);padding:6px 12px;border-radius:10px;background:transparent;cursor:pointer}
+    .btn:hover{color:var(--ice);border-color:var(--ice2)}
+    .wrap{max-width:var(--max);margin:0 auto;padding:26px 18px 64px}
+    .hero{display:grid;gap:10px;margin:10px 0 14px}
+    .kicker{color:var(--dim);font-size:11px;letter-spacing:.26em;text-transform:uppercase}
+    h1{font-family:var(--fc);font-size:44px;line-height:1.05;letter-spacing:.02em}
+    .lead{color:var(--ice);max-width:78ch}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .card{border:1px solid var(--bdr);background:rgba(13,31,53,.45);border-radius:14px;padding:16px;margin-top:12px}
+    h2{font-family:var(--fc);font-weight:900;letter-spacing:.08em;text-transform:uppercase;font-size:18px;margin:0 0 8px}
+    label{font-size:12px;color:var(--ice);display:block;margin-bottom:6px}
+    input, select{
+      background:rgba(0,0,0,.25);
+      border:1px solid var(--bdr);
+      border-radius:10px;
+      padding:10px 12px;
+      color:var(--w);
+      min-width:260px;
+      outline:none;
+    }
+    input:focus, select:focus{border-color:var(--ice2)}
+    button{
+      background:rgba(168,197,232,.06);
+      border:1px solid var(--ice2);
+      color:var(--ice3);
+      border-radius:10px;
+      padding:10px 14px;
+      cursor:pointer;
+      font-weight:700;
+      letter-spacing:.06em;
+      text-transform:uppercase;
+      font-size:11px;
+    }
+    button:hover{background:rgba(168,197,232,.10)}
+    pre{
+      background:rgba(0,0,0,.28);
+      border:1px solid var(--bdr);
+      border-radius:12px;
+      padding:12px;
+      overflow:auto;
+      color:var(--ice3);
+      margin-top:10px;
+    }
+    .pill{display:inline-block;font-size:11px;border:1px solid var(--bdr);padding:2px 10px;border-radius:999px;color:var(--dim);margin-right:6px}
+    .warn{color:var(--gold)}
+    .muted{color:var(--dim)}
+    .hint{font-size:12px;color:var(--ice);margin-top:8px}
+  </style>
+</head>
+<body>
+  <header class="hdr">
+    <div class="hdr-left">
+      <div class="hdr-title">WARD</div>
+      <div class="hdr-sub">Risk dashboard</div>
+    </div>
+    <nav class="hdr-nav">
+      <a class="btn" href="/">Home</a>
+      <a class="btn" href="/docs">Docs</a>
+      <a class="btn" href="/api">API</a>
+      <a class="btn" href="/whitepaper">Whitepaper</a>
+      <a class="btn" href="https://github.com/XRPLF/XRPL-Standards/discussions/474" target="_blank" rel="noreferrer">Discussion</a>
+    </nav>
+  </header>
+
+  <main class="wrap">
+    <section class="hero">
+      <div class="kicker">MVP</div>
+      <h1>Public Vault Health Monitor</h1>
+      <p class="lead">
+        A lightweight dashboard that reads live status from the Ward API and XRPL.
+        This page is read-only and does not require authentication.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>API target</h2>
+      <div class="row">
+        <div>
+          <label for="apiBase">API base URL</label>
+          <select id="apiBase">
+            <option value="https://api.wardprotocol.org">Production (api.wardprotocol.org)</option>
+            <option value="http://127.0.0.1:8000">Local (127.0.0.1:8000)</option>
+          </select>
+        </div>
+        <div>
+          <label>&nbsp;</label>
+          <button id="btnRefresh">Refresh status</button>
+        </div>
+      </div>
+      <pre id="statusOut">{ "status": "click Refresh status" }</pre>
+      <div class="hint muted">
+        Uses <code>GET /health</code> and <code>GET /network/status</code>.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Vault health (public)</h2>
+      <div class="row">
+        <div>
+          <label for="vaultPreset">Known vaults</label>
+          <select id="vaultPreset"></select>
+        </div>
+        <div>
+          <label for="vaultId">Vault address</label>
+          <input id="vaultId" placeholder="r..." autocomplete="off" spellcheck="false" />
+        </div>
+        <div>
+          <label>&nbsp;</label>
+          <button id="btnVault">Check vault</button>
+        </div>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <span class="pill">Health ratio</span>
+        <span id="healthRatio" class="muted">—</span>
+        <span class="pill">Claims</span>
+        <span id="claimsCount" class="muted">—</span>
+        <span class="pill">Updated</span>
+        <span id="vaultUpdated" class="muted">—</span>
+      </div>
+      <div id="claimsPanel" class="hint" style="margin-top:10px">
+        <span class="pill">Active claims</span>
+        <div id="claimsList" class="muted" style="margin-top:6px">No active claims</div>
+      </div>
+      <pre id="vaultOut">{ "vault": "select a known vault or enter an address and click Check vault" }</pre>
+      <div class="hint">
+        <span class="pill warn">Note</span>
+        Full vault health data activates when XLS-66 passes amendment voting on mainnet — Altnet simulation available now.
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const pretty = (obj) => JSON.stringify(obj, null, 2);
+    const POLL_MS = 30_000;
+
+    const KNOWN_VAULTS = [
+      { name: "Sample vault A (testnet)", address: "rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe" },
+      { name: "Sample vault B (testnet)", address: "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh" },
+    ];
+
+    function base() {
+      return $("apiBase").value.replace(/\/+$/, "");
+    }
+
+    async function getJson(url) {
+      const r = await fetch(url, { method: "GET" });
+      const txt = await r.text();
+      let data = null;
+      try { data = JSON.parse(txt); } catch { data = { raw: txt }; }
+      if (!r.ok) return { ok: false, status: r.status, url, data };
+      return { ok: true, status: r.status, url, data };
+    }
+
+    async function refreshStatus() {
+      $("statusOut").textContent = pretty({ loading: true });
+      const [h, n] = await Promise.all([
+        getJson(base() + "/health"),
+        getJson(base() + "/network/status"),
+      ]);
+      $("statusOut").textContent = pretty({ health: h, network: n });
+    }
+
+    function setVaultSummary(data) {
+      const healthRatio =
+        data?.health_ratio_display ??
+        (data?.health_ratio === null || typeof data?.health_ratio === "undefined" ? "N/A" : String(data.health_ratio));
+
+      $("healthRatio").textContent = healthRatio ?? "—";
+      $("claimsCount").textContent =
+        typeof data?.active_claims_count === "number"
+          ? String(data.active_claims_count)
+          : Array.isArray(data?.active_claims)
+            ? String(data.active_claims.length)
+            : "0";
+      $("vaultUpdated").textContent = data?.timestamp ?? "—";
+
+      const claims = Array.isArray(data?.active_claims) ? data.active_claims : [];
+      if (!claims.length) {
+        $("claimsList").textContent = "No active claims";
+        return;
+      }
+      $("claimsList").innerHTML = claims.map((c) => `<div>${String(c)}</div>`).join("");
+    }
+
+    async function checkVault(opts = {}) {
+      const v = $("vaultId").value.trim();
+      if (!v) {
+        if (!opts.silent) $("vaultOut").textContent = pretty({ error: "missing vault address" });
+        return;
+      }
+      if (!opts.silent) $("vaultOut").textContent = pretty({ loading: true, vault_id: v });
+      const res = await getJson(base() + "/dashboard/vault/" + encodeURIComponent(v) + "/health");
+      if (res.ok) setVaultSummary(res.data);
+      $("vaultOut").textContent = pretty(res);
+    }
+
+    function initKnownVaults() {
+      const sel = $("vaultPreset");
+      sel.innerHTML = "";
+      const opt0 = document.createElement("option");
+      opt0.value = "";
+      opt0.textContent = "Select a known vault…";
+      sel.appendChild(opt0);
+
+      for (const v of KNOWN_VAULTS) {
+        const opt = document.createElement("option");
+        opt.value = v.address;
+        opt.textContent = `${v.name} — ${v.address}`;
+        sel.appendChild(opt);
+      }
+
+      if (KNOWN_VAULTS.length) {
+        sel.value = KNOWN_VAULTS[0].address;
+        $("vaultId").value = KNOWN_VAULTS[0].address;
+        checkVault({ silent: true });
+      }
+    }
+
+    function startPolling() {
+      setInterval(() => {
+        refreshStatus();
+        if ($("vaultId").value.trim()) checkVault({ silent: true });
+      }, POLL_MS);
+    }
+
+    $("btnRefresh").addEventListener("click", refreshStatus);
+    $("btnVault").addEventListener("click", checkVault);
+    $("vaultPreset").addEventListener("change", () => {
+      const addr = $("vaultPreset").value;
+      if (!addr) return;
+      $("vaultId").value = addr;
+      checkVault();
+    });
+    $("apiBase").addEventListener("change", () => {
+      refreshStatus();
+      if ($("vaultId").value.trim()) checkVault({ silent: true });
+    });
+
+    initKnownVaults();
+    refreshStatus();
+    startPolling();
+  </script>
+</body>
+</html>

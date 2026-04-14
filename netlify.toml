@@ -23,6 +23,21 @@
   to = "/brand.html"
   status = 200
 
+[[redirects]]
+  from = "/dashboard"
+  to = "/dashboard/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/docs"
+  to = "/spec.html"
+  status = 200
+
+[[redirects]]
+  from = "/whitepaper"
+  to = "/assets/whitepaper.pdf"
+  status = 200
+
 # Legacy redirects
 [[redirects]]
   from = "/flow"
