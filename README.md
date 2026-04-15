@@ -8,7 +8,7 @@
 [![Tests: 95/95](https://img.shields.io/badge/tests-95%2F95-brightgreen)](tests/)
 [![XRPL: Discussion](https://img.shields.io/badge/XRPL-Discussion%20%23474-blue)](https://github.com/XRPLF/XRPL-Standards/discussions/474)
 
-[Website](https://wardprotocol.org) · [API Docs](https://api.wardprotocol.org) · [PyPI](https://pypi.org/project/ward-protocol/) · [XRPLF Discussion #474](https://github.com/XRPLF/XRPL-Standards/discussions/474)
+[Website](https://wardprotocol.org) · [Dashboard](https://wardprotocol.org/dashboard) · [Whitepaper (PDF)](https://wardprotocol.org/whitepaper) · [API Docs](https://api.wardprotocol.org) · [PyPI](https://pypi.org/project/ward-protocol/) · [XRPLF Discussion #474](https://github.com/XRPLF/XRPL-Standards/discussions/474)
 
 ---
 
@@ -157,6 +157,22 @@ PREIMAGE-SHA-256. NFT burns atomically.
 pip install ward-protocol
 ```
 
+## Starter kit (clone + run quickly)
+
+This repo includes a minimal starter flow runner at `starter/python/flows.py` that calls the local API and prints the JSON response shapes for:
+
+- `register_vault()` (POST `/vaults`)
+- `mint_policy_nft()` (POST `/policies/purchase`)
+- full claim flow (POST `/claims/file`)
+- plus the public dashboard endpoint (GET `/dashboard/vault/{vault_id}/health`)
+
+From the repo root on Windows PowerShell:
+
+```bash
+py -m pip install -r requirements.txt
+py starter\python\flows.py
+```
+
 ### Five Hardened Modules
 
 | # | Class | Purpose |
@@ -224,7 +240,7 @@ See [security_notes.md](security_notes.md) for all 15 attack vectors.
 ```bash
 git clone https://github.com/wflores9/ward-protocol.git
 cd ward-protocol
-pip install xrpl-py pytest pytest-asyncio
+py -m pip install xrpl-py pytest pytest-asyncio
 pytest test_ward.py -v -m "not integration"   # 95/95 pass
 python testnet_sim.py
 ```

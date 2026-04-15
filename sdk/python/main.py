@@ -521,7 +521,6 @@ async def dashboard_vault_health(vault_id: str):
     try:
         resp = await client.request(AccountInfo(account=vault_id, ledger_index="validated"))
         if not resp.is_successful():
-            # Common case on mainnet: address not funded / not found
             if getattr(resp, "result", {}).get("error") == "actNotFound":
                 raise HTTPException(
                     status_code=404,
@@ -542,13 +541,14 @@ async def dashboard_vault_health(vault_id: str):
                     "ward_signed": False,
                 },
             )
+
         acct = resp.result.get("account_data", {})
         return {
             "ward_signed": False,
             "vault_id": vault_id,
             "source": "XRPL account_info (validated ledger)",
             "xls_66_available": False,
-            "note": "XLS-66 vault/loan objects may not be available on this network; returning account-level snapshot only.",
+            "note": "Full vault health data activates when XLS-66 passes amendment voting on mainnet — Altnet simulation available now.",
             "health_ratio": None,
             "health_ratio_display": "N/A (XLS-66 not available)",
             "active_claims": [],

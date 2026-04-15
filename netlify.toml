@@ -24,24 +24,19 @@
   status = 200
 
 [[redirects]]
-  from = "/docs"
-  to = "/docs.html"
-  status = 200
-
-[[redirects]]
   from = "/dashboard"
-  to = "/dashboard.html"
+  to = "/dashboard/index.html"
   status = 200
 
 [[redirects]]
-  from = "/docs/"
-  to = "/docs"
-  status = 301
+  from = "/docs"
+  to = "/spec.html"
+  status = 200
 
 [[redirects]]
-  from = "/dashboard/"
-  to = "/dashboard"
-  status = 301
+  from = "/whitepaper"
+  to = "/assets/whitepaper.pdf"
+  status = 200
 
 # Legacy redirects
 [[redirects]]
