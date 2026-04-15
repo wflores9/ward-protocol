@@ -23,6 +23,14 @@ class WardMonitor:
     Uses ChainReader for polling. For full XLS-66 default detection,
     use sdk/python/ward/monitor.XLS66Monitor which subscribes to
     the ledger stream.
+
+        WARNING: This class monitors vault balance changes via POLLING only (every
+            poll_interval_seconds). XRPL produces a new ledger every ~3-4 seconds.
+                Polling can miss events between intervals and is NOT suitable for
+                    production default detection.
+
+                        For XLS-66 default detection with 3-ledger WebSocket confirmation, use:
+                                from ward_client import VaultMonitor  (sdk/python/ward/monitor.py)
     """
 
     def __init__(
