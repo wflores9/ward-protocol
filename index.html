@@ -2,443 +2,360 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-  <meta property="og:type" content="website">
-  <meta property="og:title" content="Ward Protocol — Default Protection for XLS-66 Vaults">
-  <meta property="og:description" content="Open specification for default protection on XLS-66 lending vaults on the XRP Ledger. ward_signed = False.">
-  <meta property="og:url" content="https://wardprotocol.org/">
-  <meta property="og:image" content="https://wardprotocol.org/og-image.svg">
-  <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Ward Protocol — Default Protection for XLS-66 Vaults">
-  <meta name="twitter:description" content="Open specification for default protection on XLS-66 lending vaults on the XRP Ledger. ward_signed = False.">
-  <meta name="twitter:image" content="https://wardprotocol.org/og-image.svg">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Default protection for XLS-66 lending vaults on XRPL. Open specification. ward_signed=False.">
-<meta property="og:title" content="WARD — Default Protection Protocol">
-<meta property="og:description" content="Default protection for XLS-66 lending vaults on XRPL. Open specification. ward_signed=False.">
-<meta property="og:url" content="https://wardprotocol.org">
-<meta property="og:type" content="website">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="WARD — Default Protection Protocol">
-<meta name="twitter:description" content="Default protection for XLS-66 lending vaults on XRPL. Open specification. ward_signed=False.">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
-<link rel="apple-touch-icon" sizes="180x180" href="/favicon-180.png">
-<link rel="icon" type="image/svg+xml" href="/favicon.svg">
-<title>WARD — Default Protection Protocol</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Barlow+Condensed:wght@300;400;700;900&display=swap" rel="stylesheet">
+<title>Ward Protocol — Default Protection for XLS-66 Lending Vaults</title>
+<meta name="description" content="Ward Protocol is the open specification for deterministic default protection on XLS-66 lending vaults on the XRP Ledger.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
-:root{
-  --bg:#050d1a; --bg1:#0a1628; --bg2:#0d1f35; --bg3:#112540;
-  --bdr:#1a2e4a; --bdr2:#224060;
-  --ice:#a8c5e8; --ice2:#6a9fd0; --ice3:#d0e4f7;
-  --dim:#3a5a7a; --dim2:#1a3050;
-  --white:#e8f0f8; --green:#00cc66; --red:#ff4455; --gold:#c8a94a;
-  --f: 'Space Mono', monospace;
-  --fc: 'Barlow Condensed', sans-serif;
+:root{--steel:#0d1f35;--deep:#07111f;--mid:#132236;--ice:#a8c5e8;--ice2:#6a9fd0;--gold:#c8a94a;--green:#00cc66;--border:#1a2e4a;--dim:#3a5570;--bg:#f8fbfe;--panel:#eef5fb;--p2:#e2eef8;--sub:#2e4a63;--pad:max(24px,calc((100vw - 1160px)/2))}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Space Mono',monospace;background:var(--bg);color:var(--steel);line-height:1.6;overflow-x:hidden}
+.ticker-wrap{background:var(--steel);border-bottom:1px solid var(--border);padding:6px 0;overflow:hidden}
+.ticker{display:flex;white-space:nowrap;animation:tick 40s linear infinite}
+.ticker:hover{animation-play-state:paused}
+.tick{display:inline-flex;align-items:center;gap:8px;padding:0 32px;border-right:1px solid var(--border);font-size:10px}
+.tk{color:var(--dim)}.tv{color:var(--ice)}.tv.g{color:var(--green)}.tv.au{color:var(--gold)}
+@keyframes tick{to{transform:translateX(-50%)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+nav{position:sticky;top:0;z-index:100;background:rgba(248,251,254,.97);backdrop-filter:blur(12px);border-bottom:1px solid var(--p2);height:60px;display:flex;align-items:center;padding:0 var(--pad);justify-content:space-between}
+.logo{text-decoration:none;display:flex;align-items:center}
+.logo svg{height:20px}
+.nav-links{display:flex;align-items:center;gap:32px}
+.nav-links a{font-size:11px;color:var(--sub);text-decoration:none;letter-spacing:.05em;transition:color .15s}
+.nav-links a:hover{color:var(--steel)}
+.nav-cta{background:var(--steel);color:#fff!important;padding:8px 18px;border-radius:3px;font-weight:700;font-size:11px;letter-spacing:.07em;text-transform:uppercase}
+.nav-cta:hover{background:var(--mid)!important}
+.hero{padding:96px var(--pad) 80px;display:grid;grid-template-columns:1fr 380px;gap:80px;align-items:center}
+.hero-label{display:inline-flex;align-items:center;gap:8px;font-size:10px;color:var(--ice2);letter-spacing:.1em;text-transform:uppercase;margin-bottom:22px}
+.dot{width:5px;height:5px;background:var(--green);border-radius:50%;animation:pulse 2s ease-in-out infinite}
+h1{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:clamp(52px,6.5vw,80px);line-height:.93;letter-spacing:-.02em;text-transform:uppercase;color:var(--steel);margin-bottom:22px}
+h1 em{font-style:normal;font-weight:300;color:var(--ice2)}
+.hero-sub{font-size:12px;color:var(--sub);line-height:1.9;max-width:480px;margin-bottom:32px}
+.hero-actions{display:flex;gap:12px;align-items:center}
+.btn{padding:12px 24px;border-radius:3px;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;transition:all .15s}
+.btn-dark{background:var(--steel);color:#fff}
+.btn-dark:hover{background:var(--mid);transform:translateY(-1px)}
+.btn-ghost{color:var(--sub);border:1px solid var(--p2)}
+.btn-ghost:hover{border-color:var(--ice2);color:var(--ice2)}
+.hero-card{background:var(--steel);border-radius:4px;overflow:hidden;box-shadow:0 24px 64px rgba(13,31,53,.28)}
+.card-bar{background:var(--mid);padding:11px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)}
+.card-bar-label{font-size:9px;color:var(--ice2);letter-spacing:.1em;text-transform:uppercase}
+.card-live{font-size:9px;color:var(--green);display:flex;align-items:center;gap:5px}
+.card-live::before{content:'';width:4px;height:4px;background:var(--green);border-radius:50%;animation:pulse 2s ease-in-out infinite}
+.inv{margin:14px;padding:11px 14px;background:rgba(168,197,232,.05);border:1px solid #243d5a;border-radius:2px}
+.inv-k{font-size:9px;color:var(--ice2);letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px}
+.inv-v{font-size:13px;color:var(--gold);font-weight:700}
+.flow-list{padding:0 14px 14px}
+.flow-row{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-bottom:1px solid rgba(26,46,74,.5);font-size:10px}
+.flow-row:last-child{border-bottom:none}
+.flow-id{color:var(--ice2);width:30px;font-size:9px}
+.flow-name{color:rgba(208,228,247,.8);flex:1}
+.flow-status{color:var(--green);font-size:9px;letter-spacing:.05em}
+.card-metrics{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--border)}
+.cm{padding:11px 8px;text-align:center;border-right:1px solid var(--border)}
+.cm:last-child{border-right:none}
+.cm-v{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:20px;color:#fff;display:block;line-height:1}
+.cm-v.g{color:var(--green)}.cm-v.au{color:var(--gold)}
+.cm-k{font-size:8px;color:var(--dim);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;display:block}
+.rule{border:none;border-top:1px solid var(--p2);margin:0}
+.how{background:var(--steel);padding:80px var(--pad)}
+.section-label{font-size:10px;color:var(--ice2);letter-spacing:.12em;text-transform:uppercase;margin-bottom:14px}
+.how h2{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:clamp(34px,4.5vw,50px);color:#fff;text-transform:uppercase;letter-spacing:-.01em;line-height:1;margin-bottom:12px}
+.how h2 em{font-style:normal;font-weight:300;color:var(--ice)}
+.how-sub{font-size:12px;color:rgba(168,197,232,.6);line-height:1.85;max-width:540px;margin-bottom:48px}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border-radius:3px;overflow:hidden}
+.step{background:var(--deep);padding:30px 24px}
+.step-n{font-size:9px;color:var(--dim);letter-spacing:.1em;margin-bottom:18px}
+.step-h{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:19px;color:#fff;text-transform:uppercase;margin-bottom:9px}
+.step-p{font-size:10px;color:rgba(168,197,232,.5);line-height:1.8}
+.step-tag{display:inline-block;margin-top:16px;font-size:9px;color:var(--gold);background:rgba(200,169,74,.07);border:1px solid rgba(200,169,74,.18);border-radius:2px;padding:3px 8px}
+.standards{padding:80px var(--pad);background:var(--bg)}
+.standards h2{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:clamp(34px,4.5vw,50px);color:var(--steel);text-transform:uppercase;letter-spacing:-.01em;margin-bottom:10px}
+.standards h2 em{font-style:normal;font-weight:300;color:var(--ice2)}
+.standards-sub{font-size:12px;color:var(--sub);line-height:1.85;max-width:520px;margin-bottom:44px}
+.std-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.std{background:#fff;border:1px solid var(--p2);border-radius:3px;padding:18px 14px;text-align:center;transition:border-color .15s,transform .15s}
+.std:hover{border-color:var(--ice2);transform:translateY(-2px)}
+.std-tag{font-size:11px;color:var(--ice2);font-weight:700;display:block;margin-bottom:6px}
+.std-name{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;text-transform:uppercase;color:var(--steel);margin-bottom:5px}
+.std-desc{font-size:9px;color:var(--sub);line-height:1.6}
+.pill{display:inline-block;margin-top:8px;font-size:8px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:2px 7px;border-radius:2px}
+.pill-green{color:var(--green);background:rgba(0,204,102,.07);border:1px solid rgba(0,204,102,.18)}
+.pill-gold{color:var(--gold);background:rgba(200,169,74,.07);border:1px solid rgba(200,169,74,.2)}
+.trust{background:var(--steel);padding:72px var(--pad);display:grid;grid-template-columns:1fr auto;gap:64px;align-items:start}
+.trust-left h2{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:clamp(28px,3.5vw,40px);color:#fff;text-transform:uppercase;margin-bottom:24px}
+.quotes{display:flex;flex-direction:column;gap:12px}
+.quote{border-left:2px solid var(--gold);background:rgba(168,197,232,.04);padding:14px 18px;border-radius:0 3px 3px 0}
+.quote p{font-size:12px;color:rgba(208,228,247,.85);line-height:1.7;font-style:italic;margin-bottom:6px}
+.quote cite{font-size:9px;color:var(--ice2);font-style:normal;letter-spacing:.04em}
+.trust-metrics{display:flex;flex-direction:column;gap:10px}
+.tm{background:rgba(168,197,232,.04);border:1px solid var(--border);border-radius:3px;padding:14px 20px;text-align:center;min-width:140px}
+.tm-v{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:36px;color:var(--ice);line-height:1;display:block}
+.tm-v.g{color:var(--green)}.tm-v.au{color:var(--gold)}
+.tm-k{font-size:8px;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-top:3px;display:block}
+.licensing{padding:80px var(--pad);background:var(--bg)}
+.licensing h2{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:clamp(34px,4.5vw,50px);color:var(--steel);text-transform:uppercase;letter-spacing:-.01em;margin-bottom:10px}
+.licensing h2 em{font-style:normal;font-weight:300;color:var(--ice2)}
+.lic-sub{font-size:12px;color:var(--sub);line-height:1.85;max-width:520px;margin-bottom:44px}
+.tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.tier{background:#fff;border:1px solid var(--p2);border-radius:3px;padding:26px 22px;position:relative;transition:border-color .15s}
+.tier:hover{border-color:var(--ice2)}
+.tier.featured{background:var(--steel);border-color:var(--steel);box-shadow:0 20px 52px rgba(13,31,53,.2);transform:scale(1.02)}
+.tier-badge{position:absolute;top:-1px;right:18px;background:var(--gold);color:var(--steel);font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:3px 9px;border-radius:0 0 3px 3px}
+.tier-name{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ice2);margin-bottom:14px}
+.coming{display:inline-flex;align-items:center;gap:7px;font-size:10px;color:var(--dim);background:var(--panel);border:1px dashed var(--p2);border-radius:2px;padding:7px 12px;margin-bottom:6px}
+.tier.featured .coming{color:var(--ice2);background:rgba(168,197,232,.06);border-color:#243d5a}
+.coming::before{content:'';width:4px;height:4px;background:var(--gold);border-radius:50%;animation:pulse 2s ease-in-out infinite}
+.tier-desc{font-size:10px;color:var(--sub);margin-bottom:18px}
+.tier.featured .tier-desc{color:var(--ice2)}
+.tier-features{list-style:none;display:flex;flex-direction:column;gap:8px;margin-bottom:20px}
+.tier-features li{font-size:10px;color:var(--sub);padding-left:16px;position:relative;line-height:1.5}
+.tier.featured .tier-features li{color:var(--ice)}
+.tier-features li::before{content:'✓';position:absolute;left:0;color:var(--green);font-size:9px}
+.tier-cta{display:block;text-align:center;padding:10px;border-radius:3px;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;border:1px solid var(--p2);color:var(--steel);transition:all .15s}
+.tier-cta:hover{border-color:var(--ice2);color:var(--ice2)}
+.tier.featured .tier-cta{background:var(--ice);color:var(--steel);border-color:var(--ice)}
+.tier.featured .tier-cta:hover{background:rgba(168,197,232,.85)}
+.cta{background:linear-gradient(135deg,var(--steel) 0%,var(--mid) 100%);padding:80px var(--pad);text-align:center}
+.cta h2{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:clamp(38px,5.5vw,60px);color:#fff;text-transform:uppercase;letter-spacing:-.01em;margin-bottom:12px}
+.cta h2 em{font-style:normal;color:var(--ice)}
+.cta p{font-size:12px;color:rgba(168,197,232,.6);line-height:1.85;margin-bottom:32px}
+.cta-actions{display:flex;justify-content:center;gap:12px}
+.btn-white{background:#fff;color:var(--steel)}
+.btn-white:hover{background:rgba(208,228,247,.9)}
+.btn-outline-w{color:var(--ice);border:1px solid #243d5a}
+.btn-outline-w:hover{border-color:var(--ice2);background:rgba(168,197,232,.06)}
+footer{background:var(--deep);padding:48px var(--pad) 28px;border-top:1px solid var(--border)}
+.footer-grid{display:grid;grid-template-columns:200px 1fr;gap:64px;margin-bottom:36px;padding-bottom:36px;border-bottom:1px solid var(--border)}
+.footer-brand p{font-size:10px;color:var(--dim);line-height:1.75;margin-top:10px}
+.footer-cols{display:grid;grid-template-columns:repeat(4,1fr);gap:28px}
+.footer-cols h4{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ice2);margin-bottom:12px}
+.footer-cols a{display:block;font-size:10px;color:var(--dim);text-decoration:none;margin-bottom:7px;transition:color .15s}
+.footer-cols a:hover{color:var(--ice)}
+.footer-bot{display:flex;justify-content:space-between;font-size:10px;color:#2a3f55;flex-wrap:wrap;gap:6px}
+.footer-inv{color:var(--ice2)}
+@media(max-width:960px){
+  .hero{grid-template-columns:1fr}.hero-card{display:none}
+  .steps{grid-template-columns:1fr}.std-grid{grid-template-columns:repeat(2,1fr)}
+  .trust{grid-template-columns:1fr}.trust-metrics{flex-direction:row;flex-wrap:wrap}
+  .tiers{grid-template-columns:1fr}.tier.featured{transform:none}
+  .footer-grid{grid-template-columns:1fr;gap:28px}.footer-cols{grid-template-columns:repeat(2,1fr)}
+  .nav-links .hide{display:none}
 }
-*{margin:0;padding:0;box-sizing:border-box;}
-html{font-size:15px;}
-body{background:var(--bg);color:var(--white);font-family:var(--f);line-height:1.6;overflow-x:hidden;}
-
-/* TOP BAR */
-.topbar{background:var(--bg2);border-bottom:2px solid var(--ice2);display:flex;align-items:center;justify-content:space-between;padding:6px 20px;font-size:12px;letter-spacing:0.05em;position:sticky;top:0;z-index:1000;}
-.tb-tag{background:var(--ice);color:var(--bg);padding:2px 10px;font-size:11px;font-weight:700;letter-spacing:0.14em;margin-right:14px;}
-.tb-l{display:flex;align-items:center;color:var(--ice2);}
-.tb-r{display:flex;gap:20px;font-size:11px;color:var(--dim);}
-.tb-r b{color:var(--ice);font-weight:700;}
-.tb-r .live{color:var(--green);font-weight:700;}
-
-/* TICKER */
-.ticker{background:var(--bg1);border-bottom:1px solid var(--bdr);padding:5px 0;overflow:hidden;white-space:nowrap;}
-.ti-wrap{display:inline-block;animation:scroll 55s linear infinite;}
-.ti-wrap:hover{animation-play-state:paused;}
-@keyframes scroll{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
-.ti{display:inline-block;margin:0 26px;font-size:12px;}
-.ti b{color:var(--dim);margin-right:7px;font-weight:400;}
-.ti em{font-style:normal;color:var(--ice);font-weight:700;}
-.ti em.g{color:var(--green);}
-.ti em.r{color:var(--red);}
-.tsep{color:var(--dim2);margin:0 2px;}
-
-/* LAYOUT */
-.shell{display:grid;grid-template-columns:200px 1fr 270px;min-height:calc(100vh - 56px);}
-
-/* LEFT NAV */
-.lp{border-right:1px solid var(--bdr);display:flex;flex-direction:column;background:var(--bg1);}
-.lp-logo{padding:20px 16px 14px;border-bottom:1px solid var(--bdr);}
-.lp-sub{font-size:11px;color:var(--dim);letter-spacing:0.14em;text-transform:uppercase;margin-top:8px;}
-.ns{border-bottom:1px solid var(--bdr);}
-.ns-lbl{font-size:10px;color:var(--ice2);letter-spacing:0.22em;text-transform:uppercase;padding:10px 16px 5px;font-weight:700;}
-.ni{display:flex;align-items:center;gap:10px;padding:10px 16px;font-size:13px;color:var(--ice2);text-decoration:none;border-left:2px solid transparent;transition:all 0.12s;}
-.ni:hover{color:var(--white);background:var(--bg2);border-left-color:var(--ice2);}
-.ni.on{color:var(--ice);background:rgba(168,197,232,0.06);border-left-color:var(--ice);}
-.ni-c{font-size:10px;color:var(--dim2);font-weight:700;width:28px;flex-shrink:0;}
-.dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
-.dot.g{background:var(--green);box-shadow:0 0 5px var(--green);}
-.dot.i{background:var(--ice2);}
-.dot.d{background:var(--dim2);}
-.lp-stats{padding:14px 16px;margin-top:auto;border-top:1px solid var(--bdr);}
-.sr{display:flex;justify-content:space-between;padding:5px 0;font-size:12px;border-bottom:1px solid var(--bdr);}
-.sr:last-child{border-bottom:none;}
-.sr-l{color:var(--dim);}
-.sr-v{color:var(--ice);font-weight:700;}
-.sr-v.g{color:var(--green);}
-.sr-v.r{color:var(--red);}
-
-/* CENTER */
-.cc{display:flex;flex-direction:column;min-width:0;}
-
-/* HERO */
-.hero{border-bottom:1px solid var(--bdr);padding:44px 40px 36px;position:relative;overflow:hidden;}
-.hero::before{content:'';position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 70% 0%,rgba(168,197,232,0.05) 0%,transparent 55%),repeating-linear-gradient(90deg,transparent,transparent 79px,rgba(168,197,232,0.012) 80px),repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(168,197,232,0.008) 40px);}
-.hero-eb{font-size:11px;letter-spacing:0.28em;color:var(--dim);text-transform:uppercase;margin-bottom:20px;display:flex;align-items:center;gap:12px;}
-.hero-eb::before{content:'';width:20px;height:1px;background:var(--ice2);}
-.hero-wm{margin-bottom:12px;position:relative;z-index:1;}
-.hero-tl{font-size:12px;letter-spacing:0.2em;color:var(--dim);text-transform:uppercase;margin-bottom:24px;}
-.hero-inv{display:inline-flex;align-items:center;gap:14px;background:rgba(168,197,232,0.06);border:1px solid rgba(168,197,232,0.2);border-left:3px solid var(--ice);padding:12px 20px;font-size:15px;color:var(--ice);letter-spacing:0.06em;margin-bottom:26px;font-weight:700;}
-.hero-inv-lbl{font-size:10px;color:var(--dim);letter-spacing:0.2em;font-weight:400;}
-.hero-desc{font-size:14px;color:rgba(232,240,248,0.85);line-height:1.9;max-width:580px;margin-bottom:30px;}
-.hero-desc strong{color:var(--white);font-weight:700;}
-.hero-ctas{display:flex;gap:10px;flex-wrap:wrap;}
-.btn{display:inline-flex;align-items:center;gap:8px;padding:11px 22px;font-family:var(--f);font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;text-decoration:none;border:1px solid;transition:all 0.14s;}
-.btn-p{background:var(--ice);color:var(--bg);border-color:var(--ice);}
-.btn-p:hover{background:var(--ice3);border-color:var(--ice3);}
-.btn-s{background:transparent;color:var(--white);border-color:var(--bdr2);}
-.btn-s:hover{border-color:var(--ice2);color:var(--ice);}
-.btn-g{background:transparent;color:var(--dim);border-color:var(--bdr);}
-.btn-g:hover{color:var(--ice2);border-color:var(--ice2);}
-
-/* DATA GRID */
-.cgrid{display:grid;grid-template-columns:1fr 1fr;}
-.dp{border-right:1px solid var(--bdr);border-bottom:1px solid var(--bdr);}
-.dp:nth-child(even){border-right:none;}
-.ph{display:flex;align-items:center;justify-content:space-between;padding:9px 16px;border-bottom:1px solid var(--bdr);background:var(--bg1);}
-.ph-l{display:flex;align-items:center;gap:8px;font-size:10px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--ice2);}
-.ph-r{font-size:10px;color:var(--dim);letter-spacing:0.06em;}
-.pb{padding:16px;}
-
-/* Flow table */
-.ft{width:100%;border-collapse:collapse;}
-.ft tr{border-bottom:1px solid var(--bdr);}
-.ft tr:last-child{border-bottom:none;}
-.ft td{padding:10px 6px;font-size:13px;vertical-align:middle;}
-.fc{color:var(--ice2);font-weight:700;font-size:11px;width:38px;}
-.fn{color:var(--white);}
-.fp{color:var(--dim);font-size:11px;}
-.badge{display:inline-block;font-size:10px;font-weight:700;letter-spacing:0.07em;padding:3px 8px;text-transform:uppercase;}
-.bg{background:rgba(0,204,102,0.1);color:var(--green);border:1px solid rgba(0,204,102,0.22);}
-.bi{background:rgba(168,197,232,0.08);color:var(--ice);border:1px solid rgba(168,197,232,0.2);}
-
-/* Primitives */
-.pg{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-.pc{background:var(--bg1);border:1px solid var(--bdr);padding:13px 14px;}
-.pc-l{font-size:10px;color:var(--ice2);letter-spacing:0.14em;text-transform:uppercase;margin-bottom:5px;font-weight:700;}
-.pc-n{font-size:14px;color:var(--white);font-weight:700;margin-bottom:4px;}
-.pc-d{font-size:12px;color:var(--dim);line-height:1.5;}
-
-/* Checks */
-.cl{display:flex;flex-direction:column;gap:4px;}
-.ci{display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--bg1);border:1px solid var(--bdr);}
-.cn{font-size:10px;color:var(--dim2);width:18px;flex-shrink:0;text-align:right;}
-.cm{flex:1;font-size:13px;color:var(--white);}
-.cp{font-size:10px;font-weight:700;color:var(--green);}
-
-/* Testnet */
-.txrows{display:flex;flex-direction:column;gap:4px;}
-.tx{display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--bg1);border:1px solid var(--bdr);}
-.tx-n{color:var(--dim2);width:16px;font-size:11px;}
-.tx-h{color:var(--ice2);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;}
-.tx-t{color:var(--dim);font-size:11px;width:110px;flex-shrink:0;}
-.tx-foot{margin-top:10px;font-size:12px;color:var(--dim);padding-top:10px;border-top:1px solid var(--bdr);}
-
-/* RIGHT PANEL */
-.rp{border-left:1px solid var(--bdr);display:flex;flex-direction:column;background:var(--bg1);}
-.rb{border-bottom:1px solid var(--bdr);}
-.rh{padding:9px 16px;background:var(--bg2);border-bottom:1px solid var(--bdr);font-size:10px;font-weight:700;letter-spacing:0.2em;color:var(--ice2);text-transform:uppercase;}
-.rbody{padding:12px 16px;}
-.mr{display:flex;justify-content:space-between;align-items:baseline;padding:7px 0;border-bottom:1px solid var(--bdr);font-size:13px;}
-.mr:last-child{border-bottom:none;}
-.ml{color:var(--dim);}
-.mv{font-weight:700;color:var(--ice);font-size:14px;}
-.mv.g{color:var(--green);}
-.mv.w{color:var(--white);}
-.mv.r{color:var(--red);}
-.st{display:flex;flex-direction:column;gap:6px;}
-.si{display:flex;align-items:center;gap:9px;font-size:12px;padding:3px 0;}
-.sd{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
-.sd.g{background:var(--green);box-shadow:0 0 5px var(--green);}
-.sd.a{background:var(--gold);}
-.sl{flex:1;color:var(--dim);}
-.sv{color:var(--white);font-weight:700;font-size:11px;}
-
-/* BOTTOM BAR */
-.bb{background:var(--bg1);border-top:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;padding:7px 20px;font-size:11px;color:var(--dim);}
-.bb-l{display:flex;gap:24px;}
-.bb-r{display:flex;gap:16px;align-items:center;}
-.live-dot{display:flex;align-items:center;gap:7px;color:var(--green);font-weight:700;}
-.live-dot::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);animation:blink 1.5s ease-in-out infinite;}
-@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.2;}}
-
-@media(max-width:1100px){.shell{grid-template-columns:180px 1fr;}.rp{display:none;}}
-@media(max-width:700px){.shell{grid-template-columns:1fr;}.lp{display:none;}.hero{padding:28px 18px 22px;}.cgrid{grid-template-columns:1fr;}}
 </style>
 </head>
 <body>
 
-<!-- TOP BAR -->
-<div class="topbar">
-  <div class="tb-l">
-    <span class="tb-tag">WARD</span>
-    DEFAULT PROTECTION PROTOCOL &nbsp;·&nbsp; XRPL &nbsp;·&nbsp; XLS-66 &nbsp;·&nbsp; DISCUSSION #474
-  </div>
-  <div class="tb-r">
-    <div>ALTNET <b class="live">LIVE</b></div>
-    <div>TESTS <b>95/95</b></div>
-    <div>TXNS <b>5</b></div>
-    <div id="clock" style="color:var(--ice2);">--:--</div>
-  </div>
-</div>
+<div class="ticker-wrap"><div class="ticker">
+  <span class="tick"><span class="tk">SDK</span><span class="tv">v0.1.1</span></span>
+  <span class="tick"><span class="tk">TESTS</span><span class="tv g">95/95</span></span>
+  <span class="tick"><span class="tk">TXNS</span><span class="tv g">5 ALTNET</span></span>
+  <span class="tick"><span class="tk">XLS-66</span><span class="tv au">VOTING</span></span>
+  <span class="tick"><span class="tk">DISCUSSION</span><span class="tv">#474</span></span>
+  <span class="tick"><span class="tk">ward_signed</span><span class="tv au">FALSE</span></span>
+  <span class="tick"><span class="tk">SDK</span><span class="tv">v0.1.1</span></span>
+  <span class="tick"><span class="tk">TESTS</span><span class="tv g">95/95</span></span>
+  <span class="tick"><span class="tk">TXNS</span><span class="tv g">5 ALTNET</span></span>
+  <span class="tick"><span class="tk">XLS-66</span><span class="tv au">VOTING</span></span>
+  <span class="tick"><span class="tk">DISCUSSION</span><span class="tv">#474</span></span>
+  <span class="tick"><span class="tk">ward_signed</span><span class="tv au">FALSE</span></span>
+</div></div>
 
-<!-- TICKER -->
-<div class="ticker">
-  <div class="ti-wrap">
-    <span class="ti"><b>XRP/USD</b><em id="p1">—</em></span><span class="tsep">|</span>
-    <span class="ti"><b>LEDGER</b><em id="l1">—</em></span><span class="tsep">|</span>
-    <span class="ti"><b>WARD.SPEC</b><em>v1.0.0</em></span><span class="tsep">|</span>
-    <span class="ti"><b>F·01 VAULT</b><em class="g">LIVE</em></span><span class="tsep">|</span>
-    <span class="ti"><b>F·02 CREDENTIAL</b><em class="g">LIVE</em></span><span class="tsep">|</span>
-    <span class="ti"><b>F·03 POLICY</b><em class="g">LIVE</em></span><span class="tsep">|</span>
-    <span class="ti"><b>F·04 CLAIM</b><em class="g">LIVE</em></span><span class="tsep">|</span>
-    <span class="ti"><b>F·05 ESCROW</b><em class="g">LIVE</em></span><span class="tsep">|</span>
-    <span class="ti"><b>F·06 EXPIRY</b><em class="g">LIVE</em></span><span class="tsep">|</span>
-    <span class="ti"><b>NFT_TAXON</b><em>282</em></span><span class="tsep">|</span>
-    <span class="ti"><b>ward_signed</b><em class="r">FALSE</em></span><span class="tsep">|</span>
-    <span class="ti"><b>XLS-80</b><em class="g">✓</em></span><span class="tsep">|</span>
-    <span class="ti"><b>XLS-70</b><em class="g">✓</em></span><span class="tsep">|</span>
-    <span class="ti"><b>XLS-20</b><em class="g">✓</em></span><span class="tsep">|</span>
-    <span class="ti"><b>ESCROW</b><em class="g">PREIMAGE-SHA-256</em></span>
-    &nbsp;&nbsp;&nbsp;&nbsp;
-    <span class="ti"><b>XRP/USD</b><em id="p2">—</em></span><span class="tsep">|</span>
-    <span class="ti"><b>LEDGER</b><em id="l2">—</em></span><span class="tsep">|</span>
-    <span class="ti"><b>WARD.SPEC</b><em>v1.0.0</em></span><span class="tsep">|</span>
-    <span class="ti"><b>F·01 VAULT</b><em class="g">LIVE</em></span><span class="tsep">|</span>
-    <span class="ti"><b>F·02 CREDENTIAL</b><em class="g">LIVE</em></span><span class="tsep">|</span>
-    <span class="ti"><b>F·03 POLICY</b><em class="g">LIVE</em></span><span class="tsep">|</span>
-    <span class="ti"><b>F·04 CLAIM</b><em class="g">LIVE</em></span><span class="tsep">|</span>
-    <span class="ti"><b>F·05 ESCROW</b><em class="g">LIVE</em></span><span class="tsep">|</span>
-    <span class="ti"><b>F·06 EXPIRY</b><em class="g">LIVE</em></span><span class="tsep">|</span>
-    <span class="ti"><b>NFT_TAXON</b><em>282</em></span><span class="tsep">|</span>
-    <span class="ti"><b>ward_signed</b><em class="r">FALSE</em></span><span class="tsep">|</span>
-    <span class="ti"><b>XLS-80</b><em class="g">✓</em></span><span class="tsep">|</span>
-    <span class="ti"><b>XLS-70</b><em class="g">✓</em></span><span class="tsep">|</span>
-    <span class="ti"><b>XLS-20</b><em class="g">✓</em></span><span class="tsep">|</span>
-    <span class="ti"><b>ESCROW</b><em class="g">PREIMAGE-SHA-256</em></span>
-  </div>
-</div>
-
-<div class="shell">
-
-<!-- LEFT NAV — Protocol + External only, no Links duplicate -->
-<div class="lp">
-  <div class="lp-logo">
-    <svg viewBox="0 0 1300 160" width="200" xmlns="http://www.w3.org/2000/svg">
-      <text y="148" font-family="'Barlow Condensed',sans-serif" font-size="172" letter-spacing="-2" x="10"><tspan font-weight="900" fill="#a8c5e8">WARD </tspan><tspan font-weight="300" fill="rgba(168,197,232,0.6)">Protocol</tspan></text>
+<nav>
+  <a href="/" class="logo">
+    <svg viewBox="0 0 280 28" xmlns="http://www.w3.org/2000/svg">
+      <text x="0" y="25" font-family="'Barlow Condensed'" font-weight="900" font-size="30" letter-spacing="-1" fill="#a8c5e8">WARD</text>
+      <text x="104" y="25" font-family="'Barlow Condensed'" font-weight="300" font-size="30" letter-spacing="-1" fill="rgba(168,197,232,0.55)">Protocol</text>
     </svg>
-    <div class="lp-sub">Default Protection Protocol</div>
+  </a>
+  <div class="nav-links">
+    <a href="/spec" class="hide">Spec</a>
+    <a href="/docs" class="hide">Docs</a>
+    <a href="/dashboard" class="hide">Dashboard</a>
+    <a href="/api" class="hide">API</a>
+    <a href="mailto:wflores@wardprotocol.org" class="nav-cta">Get Access →</a>
   </div>
-  <div class="ns">
-    <div class="ns-lbl">Protocol</div>
-    <a href="/index.html" class="ni on"><span class="ni-c">F·00</span><span class="dot g"></span>Overview</a>
-    <a href="/spec.html" class="ni"><span class="ni-c">F·01</span><span class="dot i"></span>Protocol Spec</a>
-    <a href="/architecture.html" class="ni"><span class="ni-c">NET</span><span class="dot i"></span>Protocol Architecture</a>
-    <a href="/api.html" class="ni"><span class="ni-c">API</span><span class="dot g"></span>Swagger UI</a>
-    <a href="/dashboard" class="ni"><span class="ni-c">DB</span><span class="dot i"></span>Dashboard</a>
-    <a href="/whitepaper" class="ni"><span class="ni-c">PDF</span><span class="dot i"></span>Whitepaper</a>
-    <a href="/brand.html" class="ni"><span class="ni-c">BRD</span><span class="dot i"></span>Brand Identity</a><a href="/demo.html" class="ni"><span class="ni-c">BRD</span><span class="dot i"></span>Live Demo</a>
+</nav>
+
+<section class="hero">
+  <div>
+    <div class="hero-label"><span class="dot"></span>XRPLF Discussion #474 · XLS-66 · Altnet Live</div>
+    <h1>Default<br>Protection<br><em>for Institutional</em><br>Lending on XRPL.</h1>
+    <p class="hero-sub">When a borrower defaults on an XLS-66 vault, Ward defines exactly what happens. Nine on-ledger checks. No oracle. No human judgment. No Ward signature — ever.</p>
+    <div class="hero-actions">
+      <a href="/spec" class="btn btn-dark">See the Spec →</a>
+      <a href="/docs" class="btn btn-ghost">Documentation</a>
+    </div>
   </div>
-  <div class="ns">
-    <div class="ns-lbl">External</div>
-    <a href="https://github.com/XRPLF/XRPL-Standards/discussions/474" target="_blank" class="ni"><span class="ni-c">#474</span><span class="dot d"></span>Discussion</a>
-    <a href="https://github.com/wflores9/ward-protocol" target="_blank" class="ni"><span class="ni-c">GIT</span><span class="dot d"></span>GitHub</a>
+  <div class="hero-card">
+    <div class="card-bar"><span class="card-bar-label">WARD · v0.1.1 · ALTNET</span><span class="card-live">LIVE</span></div>
+    <div class="inv"><div class="inv-k">Core Invariant</div><div class="inv-v">ward_signed = False</div></div>
+    <div class="flow-list">
+      <div class="flow-row"><span class="flow-id">F·01</span><span class="flow-name">Vault Registration</span><span class="flow-status">LIVE</span></div>
+      <div class="flow-row"><span class="flow-id">F·02</span><span class="flow-name">Credential Issuance</span><span class="flow-status">LIVE</span></div>
+      <div class="flow-row"><span class="flow-id">F·03</span><span class="flow-name">Policy Purchase</span><span class="flow-status">LIVE</span></div>
+      <div class="flow-row"><span class="flow-id">F·04</span><span class="flow-name">Default Detection</span><span class="flow-status">LIVE</span></div>
+      <div class="flow-row"><span class="flow-id">F·05</span><span class="flow-name">Claim Validation</span><span class="flow-status">LIVE</span></div>
+      <div class="flow-row"><span class="flow-id">F·06</span><span class="flow-name">Escrow Settlement</span><span class="flow-status">LIVE</span></div>
+    </div>
+    <div class="card-metrics">
+      <div class="cm"><span class="cm-v g">95/95</span><span class="cm-k">Tests</span></div>
+      <div class="cm"><span class="cm-v au">FALSE</span><span class="cm-k">ward_signed</span></div>
+      <div class="cm"><span class="cm-v g">5</span><span class="cm-k">Altnet Txns</span></div>
+    </div>
   </div>
-  <div class="lp-stats">
-    <div class="sr"><span class="sr-l">Unit tests</span><span class="sr-v g">95 / 95</span></div>
-    <div class="sr"><span class="sr-l">Testnet txns</span><span class="sr-v g">5</span></div>
-    <div class="sr"><span class="sr-l">Spec version</span><span class="sr-v">v1.0.0</span></div>
-    <div class="sr"><span class="sr-l">ward_signed</span><span class="sr-v r">FALSE</span></div>
+</section>
+
+<hr class="rule">
+
+<section class="how">
+  <div class="section-label">Protocol Architecture</div>
+  <h2>Ward Builds. <em>Institution Signs.</em> XRPL Settles.</h2>
+  <p class="how-sub">Three principals. Zero custodians. Ward constructs unsigned transactions. The institution signs with their own keys. XRPL enforces the outcome. Ward's server is irrelevant once escrow is on-chain.</p>
+  <div class="steps">
+    <div class="step">
+      <div class="step-n">01 / SETUP</div>
+      <div class="step-h">Register &amp; Insure</div>
+      <p class="step-p">Vault registered in XLS-80 domain. KYC anchored via XLS-70. Coverage minted as non-transferable XLS-20 NFT — terms immutable on-chain.</p>
+      <span class="step-tag">unsigned AccountSet · NFTokenMint</span>
+    </div>
+    <div class="step">
+      <div class="step-n">02 / DETECTION</div>
+      <div class="step-h">Detect &amp; Confirm</div>
+      <p class="step-p">WardMonitor watches live XRPL WebSocket events. Health ratio below 1.5 confirmed across three consecutive ledger closes before firing default.</p>
+      <span class="step-tag">WebSocket · 3-ledger confirmation</span>
+    </div>
+    <div class="step">
+      <div class="step-n">03 / SETTLEMENT</div>
+      <div class="step-h">Validate &amp; Settle</div>
+      <p class="step-p">Nine deterministic checks against live XRPL state. All nine pass → unsigned EscrowCreate returned. Institution signs. Policy NFT burns atomically on payout.</p>
+      <span class="step-tag">PREIMAGE-SHA-256 · NFTokenBurn</span>
+    </div>
+  </div>
+</section>
+
+<section class="standards">
+  <div class="section-label">XRPL Primitives</div>
+  <h2>Four Standards. <em>One Specification.</em></h2>
+  <p class="standards-sub">Ward composes existing XRPL standards. No new chain. No bridge. No new amendment required beyond XLS-66.</p>
+  <div class="std-grid">
+    <div class="std"><span class="std-tag">XLS-66</span><div class="std-name">Lending Vaults</div><div class="std-desc">Core vault objects. Ward's primary target.</div><span class="pill pill-gold">Voting</span></div>
+    <div class="std"><span class="std-tag">XLS-80</span><div class="std-name">Permissioned Domains</div><div class="std-desc">Institution identity &amp; domain credentials.</div><span class="pill pill-green">Live</span></div>
+    <div class="std"><span class="std-tag">XLS-70</span><div class="std-name">On-Chain Credentials</div><div class="std-desc">KYC hash anchoring. No raw PII on-ledger.</div><span class="pill pill-green">Live</span></div>
+    <div class="std"><span class="std-tag">XLS-20</span><div class="std-name">NFT Policy Certs</div><div class="std-desc">Non-transferable. Burns atomically on payout.</div><span class="pill pill-green">Live</span></div>
+    <div class="std"><span class="std-tag">Escrow</span><div class="std-name">Native Settlement</div><div class="std-desc">PREIMAGE-SHA-256. Ward-irrelevant after create.</div><span class="pill pill-green">Live</span></div>
+  </div>
+</section>
+
+<section class="trust">
+  <div class="trust-left">
+    <div class="section-label" style="color:var(--ice2)">Community Signal</div>
+    <h2>Built on Signal,<br>Not Hype.</h2>
+    <div class="quotes">
+      <div class="quote">
+        <p>The deterministic claim verification and tokenless model are very well-suited for institutional use.</p>
+        <cite>Senior Protocol Engineer · Independent Technical Review · March 2026</cite>
+      </div>
+      <div class="quote">
+        <p>In Ward we Trust.</p>
+        <cite>@RealGrapedrop · XRP Intelligence, Koi · April 2026</cite>
+      </div>
+      <div class="quote">
+        <p>The protocol is ahead of the compliance tooling.</p>
+        <cite>XRPL Zone Paris · Working Group Consensus · April 14, 2026</cite>
+      </div>
+    </div>
+  </div>
+  <div class="trust-metrics">
+    <div class="tm"><span class="tm-v g">95/95</span><span class="tm-k">Tests Passing</span></div>
+    <div class="tm"><span class="tm-v">5</span><span class="tm-k">Altnet Txns</span></div>
+    <div class="tm"><span class="tm-v au">FALSE</span><span class="tm-k">ward_signed</span></div>
+    <div class="tm"><span class="tm-v">0</span><span class="tm-k">Times Ward Signs</span></div>
+  </div>
+</section>
+
+<section class="licensing" id="licensing">
+  <div class="section-label">Licensing</div>
+  <h2>Open Spec. <em>Proprietary Tooling.</em></h2>
+  <p class="lic-sub">The Ward specification is open. SDK access, hosted API, and conformance certification are available under a licensing model. All in USD — no token required. Pricing announced at mainnet deployment.</p>
+  <div class="tiers">
+    <div class="tier">
+      <div class="tier-name">Starter</div>
+      <div class="coming">Pricing Coming Soon</div>
+      <p class="tier-desc">SDK access · email support</p>
+      <ul class="tier-features">
+        <li>Ward SDK + starter repo</li>
+        <li>Postman collection</li>
+        <li>Ward-Conformant Checklist</li>
+        <li>Ward Certified badge</li>
+        <li>Email support · spec updates</li>
+      </ul>
+      <a href="mailto:wflores@wardprotocol.org" class="tier-cta">Express Interest</a>
+    </div>
+    <div class="tier featured">
+      <div class="tier-badge">Most Popular</div>
+      <div class="tier-name">Standard</div>
+      <div class="coming">Pricing Coming Soon</div>
+      <p class="tier-desc">Hosted API · onboarding engineer</p>
+      <ul class="tier-features">
+        <li>Everything in Starter</li>
+        <li>Hosted Enterprise API</li>
+        <li>Dedicated onboarding engineer</li>
+        <li>Annual conformance audit</li>
+        <li>Listed as Ward Certified partner</li>
+        <li>Early protocol access</li>
+      </ul>
+      <a href="mailto:wflores@wardprotocol.org" class="tier-cta">Express Interest</a>
+    </div>
+    <div class="tier">
+      <div class="tier-name">Enterprise</div>
+      <div class="coming">Pricing Coming Soon</div>
+      <p class="tier-desc">White-label · custom SLA</p>
+      <ul class="tier-features">
+        <li>Everything in Standard</li>
+        <li>Full white-label rights</li>
+        <li>Multi-vault dashboard</li>
+        <li>Custom SLA · 99.9% uptime</li>
+        <li>Roadmap input priority</li>
+        <li>Legal opinion included</li>
+      </ul>
+      <a href="mailto:wflores@wardprotocol.org" class="tier-cta">Contact Us</a>
+    </div>
+  </div>
+</section>
+
+<div class="cta">
+  <h2>The Spec Is Open.<br><em>The Rails Are Yours.</em></h2>
+  <p>Ward Protocol is live on Altnet. Mainnet deployment pending XLS-66 amendment.<br>First integration partners being onboarded now.</p>
+  <div class="cta-actions">
+    <a href="mailto:wflores@wardprotocol.org" class="btn btn-white">Request Access</a>
+    <a href="/spec" class="btn btn-outline-w">Read the Spec →</a>
   </div>
 </div>
 
-<!-- CENTER -->
-<div class="cc">
-  <div class="hero">
-    <div class="hero-eb">Open Specification · XRPL · XLS-66 Lending Vaults</div>
-    <div class="hero-wm">
-      <svg viewBox="0 0 1300 160" style="width:clamp(320px,45vw,600px);max-width:100%;" xmlns="http://www.w3.org/2000/svg">
-        <text y="148" font-family="'Barlow Condensed',sans-serif" font-size="172" letter-spacing="-2" x="10"><tspan font-weight="900" fill="#a8c5e8">WARD </tspan><tspan font-weight="300" fill="rgba(168,197,232,0.6)">Protocol</tspan></text>
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <svg viewBox="0 0 220 24" height="18" xmlns="http://www.w3.org/2000/svg">
+        <text x="0" y="20" font-family="'Barlow Condensed'" font-weight="900" font-size="24" letter-spacing="-1" fill="#a8c5e8">WARD</text>
+        <text x="82" y="20" font-family="'Barlow Condensed'" font-weight="300" font-size="24" letter-spacing="-1" fill="rgba(168,197,232,0.5)">Protocol</text>
       </svg>
+      <p>Default Protection Protocol<br>for XLS-66 Lending Vaults on XRPL.<br>ward_signed = False — always.</p>
     </div>
-    <div class="hero-tl">Default Protection Protocol · wardprotocol.org</div>
-    <div class="hero-inv">
-      <span class="hero-inv-lbl">CORE INVARIANT</span>
-      ward_signed = False
-    </div>
-    <div class="hero-desc">
-      <strong>Ward Protocol</strong> is an open specification for default protection on XLS-66 lending vaults on the XRP Ledger. When a borrower defaults and a depositor files a claim — Ward defines what happens.<br><br>
-      Nine validation checks. No oracle. No human judgment. <strong>Ward constructs the unsigned transaction. The institution signs. XRPL settles.</strong>
-    </div>
-    <div class="hero-ctas">
-      <a href="/api.html" class="btn btn-p">API Reference →</a>
-      <a href="/docs" class="btn btn-s">Docs</a>
-      <a href="/dashboard" class="btn btn-s">Risk Dashboard</a>
-      <a href="/spec.html" class="btn btn-s">Protocol Spec</a>
-      <a href="/architecture.html" class="btn btn-s">Protocol Architecture</a>
-      <a href="https://github.com/XRPLF/XRPL-Standards/discussions/474" target="_blank" class="btn btn-g">Discussion #474</a>
+    <div class="footer-cols">
+      <div><h4>Protocol</h4><a href="/spec">Specification</a><a href="/architecture">Architecture</a><a href="/demo">Live Demo</a><a href="/api">API Reference</a></div>
+      <div><h4>Resources</h4><a href="/docs">Documentation</a><a href="/dashboard">Risk Dashboard</a><a href="/whitepaper">Whitepaper</a><a href="/brand">Brand Identity</a></div>
+      <div><h4>Community</h4><a href="https://github.com/XRPLF/XRPL-Standards/discussions/474" target="_blank">XRPLF Discussion #474</a><a href="https://pypi.org/project/ward-protocol/" target="_blank">PyPI</a><a href="/dashboard">Vault Dashboard</a></div>
+      <div><h4>Legal</h4><a href="#">Privacy Policy</a><a href="#">Terms of Service</a><a href="/whitepaper">Whitepaper</a><a href="mailto:wflores@wardprotocol.org">Contact</a></div>
     </div>
   </div>
+  <div class="footer-bot">
+    <span>© 2026 Ward Protocol · wardprotocol.org</span>
+    <span class="footer-inv">ward_signed = False — always</span>
+  </div>
+</footer>
 
-  <div class="cgrid">
-    <!-- Protocol Flows -->
-    <div class="dp">
-      <div class="ph"><div class="ph-l">⬡ Protocol Flows</div><div class="ph-r">6 FLOWS · ALL LIVE</div></div>
-      <div class="pb">
-        <table class="ft">
-          <tr><td class="fc">F·01</td><td class="fn">Vault Registration</td><td class="fp">XLS-66</td><td style="text-align:right"><span class="badge bg">LIVE</span></td></tr>
-          <tr><td class="fc">F·02</td><td class="fn">Credential Issuance</td><td class="fp">XLS-70</td><td style="text-align:right"><span class="badge bg">LIVE</span></td></tr>
-          <tr><td class="fc">F·03</td><td class="fn">Policy Purchase</td><td class="fp">XLS-20</td><td style="text-align:right"><span class="badge bg">LIVE</span></td></tr>
-          <tr><td class="fc">F·04</td><td class="fn">Claim Filing</td><td class="fp">9-point validation</td><td style="text-align:right"><span class="badge bg">LIVE</span></td></tr>
-          <tr><td class="fc">F·05</td><td class="fn">Escrow Settlement</td><td class="fp">PREIMAGE-SHA-256</td><td style="text-align:right"><span class="badge bg">LIVE</span></td></tr>
-          <tr><td class="fc">F·06</td><td class="fn">Policy Expiry</td><td class="fp">NFT burn</td><td style="text-align:right"><span class="badge bg">LIVE</span></td></tr>
-        </table>
-      </div>
-    </div>
-    <!-- Primitives -->
-    <div class="dp">
-      <div class="ph"><div class="ph-l">◈ XRPL Primitives</div><div class="ph-r">4 STANDARDS</div></div>
-      <div class="pb">
-        <div class="pg">
-          <div class="pc"><div class="pc-l">XLS-66</div><div class="pc-n">Lending Vaults</div><div class="pc-d">Core vault objects. Ward's primary target.</div></div>
-          <div class="pc"><div class="pc-l">XLS-80</div><div class="pc-n">Permissioned Domains</div><div class="pc-d">Institution identity and domain credentials.</div></div>
-          <div class="pc"><div class="pc-l">XLS-70</div><div class="pc-n">On-Chain Credentials</div><div class="pc-d">KYC anchoring.</div></div>
-          <div class="pc"><div class="pc-l">XLS-20</div><div class="pc-n">NFT Policy Certs</div><div class="pc-d">Taxon 282. Depositor protection instruments.</div></div>
-        </div>
-      </div>
-    </div>
-    <!-- Validation -->
-    <div class="dp">
-      <div class="ph"><div class="ph-l">✓ F·04 Claim Validation</div><div class="ph-r">9 / 9 CHECKS</div></div>
-      <div class="pb">
-        <div class="cl">
-          <div class="ci"><span class="cn">01</span><span class="cm">Vault exists on ledger</span><span class="cp">PASS</span></div>
-          <div class="ci"><span class="cn">02</span><span class="cm">Policy NFT valid</span><span class="cp">PASS</span></div>
-          <div class="ci"><span class="cn">03</span><span class="cm">Policy unexpired</span><span class="cp">PASS</span></div>
-          <div class="ci"><span class="cn">04</span><span class="cm">Depositor address match</span><span class="cp">PASS</span></div>
-          <div class="ci"><span class="cn">05</span><span class="cm">Collateral ratio breached</span><span class="cp">PASS</span></div>
-          <div class="ci"><span class="cn">06</span><span class="cm">No active escrow pending</span><span class="cp">PASS</span></div>
-          <div class="ci"><span class="cn">07</span><span class="cm">KYC credential valid</span><span class="cp">PASS</span></div>
-          <div class="ci"><span class="cn">08</span><span class="cm">Domain credential valid</span><span class="cp">PASS</span></div>
-          <div class="ci"><span class="cn">09</span><span class="cm">No duplicate claim</span><span class="cp">PASS</span></div>
-        </div>
-      </div>
-    </div>
-    <!-- Testnet -->
-    <div class="dp">
-      <div class="ph"><div class="ph-l">⬡ Testnet Transactions</div><div class="ph-r">XRPL ALTNET · 5 CONFIRMED</div></div>
-      <div class="pb">
-        <div class="txrows">
-          <div class="tx"><span class="tx-n">01</span><span class="tx-h">A3F2C1D8E9B7044F...</span><span class="tx-t">VaultCreate</span><span class="badge bg">CONFIRMED</span></div>
-          <div class="tx"><span class="tx-n">02</span><span class="tx-h">B7E4A2F1C9D30881...</span><span class="tx-t">CredentialCreate</span><span class="badge bg">CONFIRMED</span></div>
-          <div class="tx"><span class="tx-n">03</span><span class="tx-h">C1D9F3A8E2B4552A...</span><span class="tx-t">NFTokenMint</span><span class="badge bg">CONFIRMED</span></div>
-          <div class="tx"><span class="tx-n">04</span><span class="tx-h">D4B2E7C1F9A31193...</span><span class="tx-t">EscrowCreate</span><span class="badge bg">CONFIRMED</span></div>
-          <div class="tx"><span class="tx-n">05</span><span class="tx-h">E9A3D4B2C7F16640...</span><span class="tx-t">EscrowFinish</span><span class="badge bg">CONFIRMED</span></div>
-        </div>
-        <div class="tx-foot">Commit <span style="color:var(--ice2)">65cba10</span> · ward_client.py · issue_credential()</div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- RIGHT PANEL -->
-<div class="rp">
-  <div class="rb">
-    <div class="rh">Protocol Metrics</div>
-    <div class="rbody">
-      <div class="mr"><span class="ml">Unit tests</span><span class="mv g">95 / 95</span></div>
-      <div class="mr"><span class="ml">Test coverage</span><span class="mv g">100%</span></div>
-      <div class="mr"><span class="ml">Testnet txns</span><span class="mv g">5</span></div>
-      <div class="mr"><span class="ml">Spec version</span><span class="mv w">v1.0.0</span></div>
-      <div class="mr"><span class="ml">Protocol flows</span><span class="mv">F·01–F·06</span></div>
-      <div class="mr"><span class="ml">Claim checks</span><span class="mv">9 / 9</span></div>
-      <div class="mr"><span class="ml">NFT taxon</span><span class="mv">282</span></div>
-      <div class="mr"><span class="ml">ward_signed</span><span class="mv r">FALSE</span></div>
-    </div>
-  </div>
-  <div class="rb">
-    <div class="rh">XRP Live</div>
-    <div class="rbody">
-      <div class="mr"><span class="ml">XRP / USD</span><span class="mv" id="rp-p">—</span></div>
-      <div class="mr"><span class="ml">Ledger index</span><span class="mv" id="rp-l">—</span></div>
-      <div class="mr"><span class="ml">Network</span><span class="mv g">MAINNET</span></div>
-    </div>
-  </div>
-  <div class="rb">
-    <div class="rh">System Status</div>
-    <div class="rbody">
-      <div class="st">
-        <div class="si"><span class="sd g"></span><span class="sl">Spec document</span><span class="sv">PUBLISHED</span></div>
-        <div class="si"><span class="sd g"></span><span class="sl">Test suite</span><span class="sv">95/95 PASS</span></div>
-        <div class="si"><span class="sd g"></span><span class="sl">Altnet deploy</span><span class="sv">LIVE</span></div>
-        <div class="si"><span class="sd g"></span><span class="sl">KYC anchoring</span><span class="sv">65cba10</span></div>
-        
-        <div class="si"><span class="sd a"></span><span class="sl">Mainnet deploy</span><span class="sv">PENDING</span></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-</div><!-- /shell -->
-
-<div class="bb">
-  <div class="bb-l">
-    <div>wardprotocol.org</div>
-    <div>XLS-66 · XLS-80 · XLS-70 · XLS-20 · NATIVE ESCROW</div>
-    <div>commit 65cba10</div>
-  </div>
-  <div class="bb-r">
-    <div class="live-dot">ALTNET LIVE</div>
-    <div style="color:var(--dim)">ward_signed = False</div>
-  </div>
-</div>
-
-<script>
-(function tick(){
-  const n=new Date();
-  const est=new Date(n.toLocaleString('en-US',{timeZone:'America/New_York'}));
-  const p=v=>String(v).padStart(2,'0');
-  const h=est.getHours(),m=est.getMinutes(),s=est.getSeconds();
-  const h12=h%12||12,ampm=h>=12?'PM':'AM';
-  const tz=n.toLocaleString('en-US',{timeZone:'America/New_York',timeZoneName:'short'}).split(' ').pop();
-  document.getElementById('clock').textContent=h12+':'+p(m)+':'+p(s)+' '+ampm+' '+tz;
-  setTimeout(tick,1000);
-})();
-async function fetchXRP(){
-  try{
-    const r=await fetch('https://api.coingecko.com/api/v3/simple/price?ids=ripple&vs_currencies=usd');
-    const d=await r.json();
-    const price=d?.ripple?.usd;
-    if(price){const f='$'+price.toFixed(4);['p1','p2','rp-p'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=f;});}
-  }catch(e){}
-}
-fetchXRP();setInterval(fetchXRP,30000);
-try{
-  const ws=new WebSocket('wss://xrplcluster.com');
-  ws.onopen=()=>ws.send(JSON.stringify({command:'subscribe',streams:['ledger']}));
-  ws.onmessage=e=>{
-    try{const d=JSON.parse(e.data);const i=d.ledger_index||d.result?.ledger_index;if(i){const f='#'+Number(i).toLocaleString();['l1','l2','rp-l'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=f;});}}catch(e){}
-  };
-}catch(e){}
-</script>
 </body>
 </html>
