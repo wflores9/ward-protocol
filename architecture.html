@@ -545,7 +545,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
     <div class="nav-links">
       <a href="/spec.html" class="nav-a na-p">Protocol Spec →</a>
       <a href="/api.html" class="nav-a na-s">API</a>
-      <a href="/brand.html" class="nav-a na-s">Brand</a><a href="/demo.html" class="nav-a na-s">Brand</a>
+      <a href="/brand.html" class="nav-a na-s">Brand</a><a href="/demo.html" class="nav-a na-s">Demo</a>
     </div>
     <button class="term-toggle" id="term-toggle" onclick="toggleTerm()">$ Terminal</button>
     <button class="nav-btn nav-prev" id="btn-prev" onclick="prevStep()" disabled>← Prev</button>
@@ -1092,4 +1092,20 @@ window.addEventListener('resize', resizeCanvas);
 window.addEventListener('keydown', e => { if(e.key === 'Escape' && termOpen) closeTerm(); });
 </script>
 </body>
+
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <svg viewBox="0 0 220 24" height="18" xmlns="http://www.w3.org/2000/svg"><text x="0" y="20" font-family="'Barlow Condensed'" font-weight="900" font-size="24" letter-spacing="-1" fill="#a8c5e8">WARD</text><text x="82" y="20" font-family="'Barlow Condensed'" font-weight="300" font-size="24" letter-spacing="-1" fill="rgba(168,197,232,0.5)">Protocol</text></svg>
+      <p>Default Protection Protocol<br>for XLS-66 Lending Vaults on XRPL.<br>ward_signed = False — always.</p>
+    </div>
+    <div class="footer-cols">
+      <div><h4>Protocol</h4><a href="/spec">Specification</a><a href="/architecture">Architecture</a><a href="/demo">Live Demo</a><a href="/api">API Reference</a></div>
+      <div><h4>Resources</h4><a href="/docs">Documentation</a><a href="/dashboard">Risk Dashboard</a><a href="/whitepaper">Whitepaper</a><a href="/brand">Brand Identity</a></div>
+      <div><h4>Community</h4><a href="https://github.com/XRPLF/XRPL-Standards/discussions/474" target="_blank">XRPLF Discussion #474</a><a href="https://pypi.org/project/ward-protocol/" target="_blank">PyPI</a><a href="/dashboard">Vault Dashboard</a></div>
+      <div><h4>Legal</h4><a href="#">Privacy Policy</a><a href="#">Terms of Service</a><a href="mailto:wflores@wardprotocol.org">Contact</a></div>
+    </div>
+  </div>
+  <div class="footer-bot"><span>© 2026 Ward Protocol · wardprotocol.org</span><span class="footer-inv">ward_signed = False — always</span></div>
+</footer>
 </html>
