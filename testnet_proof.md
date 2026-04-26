@@ -110,7 +110,7 @@ This is the only code change required to go from unit tests passing → testnet 
 ## Reproduce
 
 ```bash
-git clone https://github.com/wflores9/ward-protocol.git
+git clone https://github.com/wflores9/ward-protocol.git  # contributor access — public at mainnet
 cd ward-protocol
 pip install xrpl-py pytest pytest-asyncio
 
