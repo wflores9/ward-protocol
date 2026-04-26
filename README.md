@@ -238,7 +238,7 @@ See [security_notes.md](security_notes.md) for all 15 attack vectors.
 ## Running the Tests
 
 ```bash
-git clone https://github.com/wflores9/ward-protocol.git
+git clone https://github.com/wflores9/ward-protocol.git  # contributor access — repo public at mainnet
 cd ward-protocol
 py -m pip install xrpl-py pytest pytest-asyncio
 pytest test_ward.py -v -m "not integration"   # 95/95 pass
@@ -252,7 +252,7 @@ python testnet_sim.py
 ```
 ward-protocol/
 ├── ward_client.py           # PRIMARY SDK — 5 hardened modules
-├── test_ward.py             # 75-test suite
+├── test_ward.py             # 95-test suite
 ├── testnet_sim.py           # End-to-end testnet simulation
 ├── testnet_proof.md         # 5 confirmed on-chain transaction hashes
 ├── security_notes.md        # 15 attack vectors and mitigations
