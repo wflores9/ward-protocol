@@ -1,5 +1,5 @@
 """
-Ward Protocol SDK — Hardened On-Chain Insurance for XRPL XLS-66 Vaults
+Ward Protocol SDK — Hardened Default Protection for XRPL XLS-66 Vaults
 =======================================================================
 
 Five hardened modules:
@@ -93,7 +93,7 @@ TF_BURNABLE     = 0x00000001  # Issuer (== minter when self-minted) can burn
 TF_ONLY_XRP     = 0x00000002
 # TF_TRANSFERABLE = 0x00000008  ← deliberately OMITTED so policies cannot be sold
 
-# Ward Protocol NFT taxon — identifies Ward insurance policies on-chain
+# Ward Protocol NFT taxon — identifies Ward default protection policies on-chain
 WARD_POLICY_TAXON = 281
 
 # XLS-70 credential constants
@@ -391,7 +391,7 @@ def validate_kyc_hash(kyc_hash):
 
 class WardClient:
     """
-    Entry point for depositors purchasing Ward insurance policies.
+    Entry point for depositors purchasing Ward default protection policies.
 
     The depositor's wallet:
       1. Pays the premium to the pool address (Payment transaction).
@@ -427,7 +427,7 @@ class WardClient:
         premium_rate: float = 0.01,
     ) -> Dict[str, Any]:
         """
-        Purchase an insurance policy: pay premium + mint non-transferable NFT.
+        Purchase a default protection policy: pay premium + mint non-transferable NFT.
 
         All amounts are in drops (1 XRP = 1,000,000 drops).
 
@@ -1250,7 +1250,7 @@ class ClaimValidator:
 
         Checks: NFT exists with CREDENTIAL_NFT_TAXON, valid kyc_hash format,
         not expired, depositor address matches URI. Read-only — ward_signed = False.
-        v2: XLS-96 confidential balances replace kyc_hash.
+        # Future: privacy-preserving credential verification under evaluation.
         """
         try:
             account_nfts_result = await self._client.request(
@@ -2050,7 +2050,7 @@ class PoolHealthMonitor:
 
 async def _demo() -> None:  # pragma: no cover
     """
-    Quick testnet smoke-test.
+    Quick testnet smoke-test.h
 
     Demonstrates purchase_coverage with a faucet wallet.
     Requires XRPL testnet access.
