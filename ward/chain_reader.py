@@ -1,15 +1,22 @@
 """
-Chain reader for Ward Protocol - XRPL ledger and account queries.
+Ward Protocol — chain_reader.py
 
-Provides read-only access to account info, balances, ledger entries,
+Read-only XRPL ledger and account queries.
+Provides low-level access to account info, balances, ledger entries,
 and escrow objects.
+
+Note: This is an infrastructure helper. The caller is responsible for
+managing the AsyncWebsocketClient lifecycle (pass it in via constructor).
+For higher-level on-chain reads, use ward.validator or ward.pool directly.
 """
 
-from typing import Optional, Dict, List, Any
+from typing import List
 from dataclasses import dataclass
 
 from xrpl.asyncio.clients import AsyncWebsocketClient
 from xrpl.models.requests import AccountInfo, AccountObjects, AccountTx
+
+from ward.primitives import LedgerError
 
 
 @dataclass
@@ -42,9 +49,10 @@ class ChainReader:
     Read-only XRPL chain access for Ward Protocol.
 
     Requires an AsyncWebsocketClient for queries.
+    The caller manages the connection lifecycle.
     """
 
-    def __init__(self, client: AsyncWebsocketClient):
+    def __init__(self, client: AsyncWebsocketClient) -> None:
         self.client = client
 
     async def get_account_balance(self, address: str) -> AccountBalance:
@@ -56,11 +64,14 @@ class ChainReader:
 
         Returns:
             AccountBalance with balance_drops and sequence
+
+        Raises:
+            LedgerError: if AccountInfo request fails
         """
         request = AccountInfo(account=address)
         response = await self.client.request(request)
         if not response.is_successful():
-            raise ValueError(f"AccountInfo failed: {response.result}")
+            raise LedgerError(f"AccountInfo failed for {address}: {response.result}")
         data = response.result["account_data"]
         return AccountBalance(
             address=address,
@@ -69,38 +80,45 @@ class ChainReader:
         )
 
     async def verify_account_exists(self, address: str) -> bool:
-        """Check if an account exists on the ledger."""
+        """
+        Check if an XRPL account exists (has been funded).
+
+        Returns:
+            True if account exists, False if unfunded
+        """
         try:
             await self.get_account_balance(address)
             return True
-        except Exception:
+        except LedgerError:
             return False
 
     async def get_account_objects(
         self,
         address: str,
-        *,
-        obj_type: Optional[str] = None,
-        limit: int = 400,
-    ) -> List[Dict[str, Any]]:
+        obj_type: str | None = None,
+    ) -> list:
         """
-        Get account-owned ledger objects.
+        Get all objects owned by an account.
 
         Args:
-            address: Account address
-            obj_type: Optional filter (e.g. "escrow", "offer", "check")
-            limit: Max objects to return
+            address:  XRPL classic address
+            obj_type: optional ledger-object type filter (e.g. "escrow", "nft_page")
 
         Returns:
-            List of raw account objects
+            List of raw ledger-object dicts
+
+        Raises:
+            LedgerError: if AccountObjects request fails
         """
-        params: Dict[str, Any] = {"account": address, "limit": limit}
+        kwargs: dict = {"account": address}
         if obj_type:
-            params["type"] = obj_type
-        request = AccountObjects(**params)
+            kwargs["type"] = obj_type
+        request = AccountObjects(**kwargs)
         response = await self.client.request(request)
         if not response.is_successful():
-            raise ValueError(f"AccountObjects failed: {response.result}")
+            raise LedgerError(
+                f"AccountObjects failed for {address}: {response.result}"
+            )
         return response.result.get("account_objects", [])
 
     async def get_escrows(self, address: str) -> List[EscrowInfo]:
@@ -123,8 +141,8 @@ class ChainReader:
                     sequence=obj.get("Sequence", 0),
                     amount_drops=int(obj.get("Amount", 0)),
                     destination=obj.get("Destination", ""),
-                    finish_after=obj.get("FinishAfter", ""),
-                    cancel_after=obj.get("CancelAfter", ""),
+                    finish_after=str(obj.get("FinishAfter", "")),
+                    cancel_after=str(obj.get("CancelAfter", "")),
                     owner=obj.get("Account", address),
                 )
             )
@@ -133,30 +151,25 @@ class ChainReader:
     async def get_account_transactions(
         self,
         address: str,
-        *,
         limit: int = 20,
-        ledger_index_min: int = -1,
-        ledger_index_max: int = -1,
-    ) -> List[Dict[str, Any]]:
+    ) -> list:
         """
         Get recent transactions for an account.
 
         Args:
-            address: Account address
-            limit: Max transactions
-            ledger_index_min: Min ledger (default -1 = earliest)
-            ledger_index_max: Max ledger (default -1 = latest)
+            address: XRPL classic address
+            limit:   max transactions to return (default 20)
 
         Returns:
-            List of transaction objects
+            List of transaction dicts
+
+        Raises:
+            LedgerError: if AccountTx request fails
         """
-        request = AccountTx(
-            account=address,
-            ledger_index_min=ledger_index_min,
-            ledger_index_max=ledger_index_max,
-            limit=limit,
-        )
+        request = AccountTx(account=address, limit=limit)
         response = await self.client.request(request)
         if not response.is_successful():
-            raise ValueError(f"AccountTx failed: {response.result}")
+            raise LedgerError(
+                f"AccountTx failed for {address}: {response.result}"
+            )
         return response.result.get("transactions", [])
