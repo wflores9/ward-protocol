@@ -6,14 +6,14 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "ward-protocol"
 version = "0.2.2"
-description = "Open specification for XLS-66 vault default protection on the XRP Ledger — trustless, non-custodial, fully on-chain"
+description = "Open specification for XLS-66 vault default protection on the XRP Ledger"
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
 authors = [
   {name = "Ward Protocol", email = "team@wardprotocol.org"}
 ]
-keywords = ["xrpl", "default-protection", "defi", "blockchain", "escrow", "nft", "xls-66", "lending-vaults"]
+keywords = ["xrpl", "default-protection", "defi", "blockchain", "escrow", "nft", "xls-66"]
 classifiers = [
   "Development Status :: 4 - Beta",
   "Intended Audience :: Developers",
@@ -48,8 +48,8 @@ Documentation = "https://api.wardprotocol.org/docs"
 
 
 # ---------------------------------------------------------------------------
-# Package discovery — include both the ward/ package AND the shim module.
-# ward_client.py is a deprecated shim; it will be removed in v0.3.0.
+# Package discovery
+# ward_client.py shim is listed as a py-module; ward/ package found via find
 # ---------------------------------------------------------------------------
 [tool.setuptools.packages.find]
 where = ["."]
@@ -60,28 +60,7 @@ py-modules = ["ward_client"]
 
 
 # ---------------------------------------------------------------------------
-# pytest configuration
-# ---------------------------------------------------------------------------
-[tool.pytest.ini_options]
-python_files  = ["test_*.py"]
-python_classes = ["Test*"]
-python_functions = ["test_*"]
-asyncio_mode  = "auto"
-addopts = [
-  "-v",
-  "--cov=ward",
-  "--cov-report=term-missing",
-  "--strict-markers",
-]
-markers = [
-  "unit: Unit tests — no network required",
-  "integration: Integration tests — hit XRPL testnet",
-  "slow: Slow-running tests",
-]
-
-
-# ---------------------------------------------------------------------------
-# Coverage configuration
+# Coverage — note: no backslashes in TOML strings (use single-char patterns)
 # ---------------------------------------------------------------------------
 [tool.coverage.run]
 branch = true
@@ -97,5 +76,4 @@ exclude_lines = [
   "pragma: no cover",
   "if TYPE_CHECKING:",
   "raise NotImplementedError",
-  "@(abc\.)?abstractmethod",
 ]
