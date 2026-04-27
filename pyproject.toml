@@ -2,9 +2,10 @@
 requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
+
 [project]
 name = "ward-protocol"
-version = "0.1.1"
+version = "0.2.2"
 description = "Open specification for XLS-66 vault default protection on the XRP Ledger — trustless, non-custodial, fully on-chain"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -29,11 +30,15 @@ dependencies = [
   "pydantic>=2.5.0",
 ]
 
+
 [project.optional-dependencies]
 dev = [
-  "pytest>=7.0",
+  "pytest>=7.4",
   "pytest-asyncio>=0.23",
+  "pytest-cov>=4.1",
+  "anyio[trio]>=4.0",
 ]
+
 
 [project.urls]
 Homepage = "https://wardprotocol.org"
@@ -41,5 +46,56 @@ Repository = "https://github.com/wflores9/ward-protocol"
 Documentation = "https://api.wardprotocol.org/docs"
 "Bug Tracker" = "https://github.com/wflores9/ward-protocol/issues"
 
+
+# ---------------------------------------------------------------------------
+# Package discovery — include both the ward/ package AND the shim module.
+# ward_client.py is a deprecated shim; it will be removed in v0.3.0.
+# ---------------------------------------------------------------------------
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["ward", "ward.*"]
+
 [tool.setuptools]
 py-modules = ["ward_client"]
+
+
+# ---------------------------------------------------------------------------
+# pytest configuration
+# ---------------------------------------------------------------------------
+[tool.pytest.ini_options]
+python_files  = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+asyncio_mode  = "auto"
+addopts = [
+  "-v",
+  "--cov=ward",
+  "--cov-report=term-missing",
+  "--strict-markers",
+]
+markers = [
+  "unit: Unit tests — no network required",
+  "integration: Integration tests — hit XRPL testnet",
+  "slow: Slow-running tests",
+]
+
+
+# ---------------------------------------------------------------------------
+# Coverage configuration
+# ---------------------------------------------------------------------------
+[tool.coverage.run]
+branch = true
+source = ["ward"]
+omit = [
+  "*/tests/*",
+  "ward/__init__.py",
+  "ward_client.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+  "pragma: no cover",
+  "if TYPE_CHECKING:",
+  "raise NotImplementedError",
+  "@(abc\.)?abstractmethod",
+]
