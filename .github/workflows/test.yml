@@ -1,0 +1,86 @@
+# Ward Protocol SDK — Continuous Integration
+#
+# Runs on every push to main and every pull request targeting main.
+# Tests the SDK against Python 3.10, 3.11, and 3.12.
+#
+# Jobs:
+#   test   — install deps, run unit tests, upload coverage
+#   lint   — ruff + mypy static analysis
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Cancel in-flight runs on the same branch/PR to save minutes
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Unit tests — Python 3.10 / 3.11 / 3.12
+  # ---------------------------------------------------------------------------
+  test:
+    name: Test (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install Ward SDK with dev dependencies
+        run: pip install -e ".[dev]"
+
+      - name: Run unit tests (no network required)
+        run: pytest test_ward.py -v -m "not integration" --tb=short
+
+      - name: Upload coverage to Codecov
+        if: matrix.python-version == '3.11'
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./coverage.xml
+          flags: unittests
+          name: ward-protocol-coverage
+          fail_ci_if_error: false
+
+  # ---------------------------------------------------------------------------
+  # Static analysis — ruff (lint) + mypy (types)
+  # ---------------------------------------------------------------------------
+  lint:
+    name: Lint & Type Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install linting tools
+        run: pip install ruff mypy xrpl-py pydantic
+
+      - name: Ruff lint
+        run: ruff check ward/ --select=E,F,W,I --ignore=E501
+
+      - name: Mypy type check (ward package)
+        run: mypy ward/ --ignore-missing-imports --no-strict-optional
+        continue-on-error: true   # type errors are warnings until we add full stubs
