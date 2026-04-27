@@ -133,3 +133,10 @@ TIER_MULTIPLIERS: dict = {
     "elevated": 1.50,
     "high":     2.00,
 }
+
+# ---------------------------------------------------------------------------
+# Module-level aliases for backward compatibility
+# (TIER_MINT_GATES lives inside LicenseTier class but modules may import it directly)
+# ---------------------------------------------------------------------------
+
+TIER_MINT_GATES = LicenseTier.TIER_MINT_GATES
