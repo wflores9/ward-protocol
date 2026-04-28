@@ -1,5 +1,5 @@
 """
-Ward Protocol — Module 5: PoolHealthMonitor
+Ward Protocol - Module 5: PoolHealthMonitor
 
 On-chain solvency and dynamic premium monitoring for insurance pools.
 
@@ -7,7 +7,7 @@ Fixes applied:
     #1  Extracted from ward_client.py monolith into own module.
     #3  AsyncJsonRpcClient used as async context manager.
     #7  active_coverage_drops derived on-chain from AccountNFTs (trust boundary fix).
-    #7  Owner reserve calculated correctly: base + (OwnerCount × 2 XRP).
+    #7  Owner reserve calculated correctly: base + (OwnerCount x 2 XRP).
     #3  License tier enforcement integrated (Starter/Standard/Enterprise).
 """
 
@@ -35,122 +35,99 @@ from ward.constants import (
     XRPL_BASE_RESERVE_DROPS,
     XRPL_OWNER_RESERVE_DROPS,
 )
-from ward.primitives import LedgerError, ValidationError, validate_xrpl_address
+from ward.primitives import (
+    LedgerError,
+    ValidationError,
+    validate_xrpl_address,
+)
 
 logger = logging.getLogger("ward.pool")
 
 
-# ---------------------------------------------------------------------------
-# PoolHealth snapshot
-# ---------------------------------------------------------------------------
-
-
-@dataclass
+@dataclass(frozen=True)
 class PoolHealth:
-    """Point-in-time snapshot of pool solvency. All values from on-chain data."""
+    pool_address:           str
+    balance_drops:          int
+    usable_drops:           int
+    active_coverage_drops:  int
+    owner_count:            int
+    coverage_ratio:         float
+    is_solvent:             bool
+    dynamic_premium_rate:   float
+    risk_tier:              str
 
-    pool_address:          str
-    balance_drops:         int
-    usable_drops:          int    # balance minus reserves
-    active_coverage_drops: int    # sum of all live policy coverage amounts
-    owner_count:           int    # on-chain OwnerCount (for reserve calc)
-    coverage_ratio:        float  # usable / active_coverage (inf if no exposure)
-    is_solvent:            bool   # ratio >= MIN_COVERAGE_RATIO
-    dynamic_premium_rate:  float  # annualised rate for current tier
-    risk_tier:             str    # "safest" | "safe" | "moderate" | "elevated" | "high"
-
-    @property
     def balance_xrp(self) -> float:
         return self.balance_drops / 1_000_000
 
-    @property
     def usable_xrp(self) -> float:
         return self.usable_drops / 1_000_000
 
-    @property
     def active_coverage_xrp(self) -> float:
         return self.active_coverage_drops / 1_000_000
 
 
-# ---------------------------------------------------------------------------
-# PoolHealthMonitor
-# ---------------------------------------------------------------------------
-
-
 class PoolHealthMonitor:
     """
-    Module 5 — On-chain pool solvency and dynamic premium monitoring.
+    Monitor solvency and compute dynamic premiums for a Ward insurance pool.
 
-    Dynamic premium formula (Ward Protocol spec Appendix B):
-        base_rate    = 1–5% annual, based on risk tier
-        multiplier   = 0.5×–2.0×, based on coverage ratio
-        premium_rate = base_rate × multiplier × (term_days / 365)
+    Reads on-chain state only - no caller-supplied balance or coverage inputs.
 
-    Coverage ratio tiers:
-        ≥ 5.0×  → safest    1% × 0.50 = 0.50% annual
-        ≥ 3.0×  → safe      2% × 0.75 = 1.50% annual
-        ≥ 2.0×  → moderate  3% × 1.00 = 3.00% annual
-        ≥ 1.5×  → elevated  4% × 1.50 = 6.00% annual
-        < 1.5×  → high      5% × 2.00 = 10.0% annual
+    Usage::
 
-    Trust boundary fix:
-        active_coverage_drops is now derived on-chain by reading all Ward
-        policy NFTs (taxon=WARD_POLICY_TAXON) held in the pool’s NFTokenPage
-        and summing the “c” (coverage_drops) field from each NFT’s URI metadata.
-        It is NO LONGER accepted as a caller-supplied parameter.
+        monitor = PoolHealthMonitor(pool_address="rPool...")
+        health = await monitor.get_health()
+        if not health.is_solvent:
+            ...
+
+    Trust boundary:
+        active_coverage_drops is always derived from on-chain AccountNFTs.
+        It is NEVER accepted as a caller-supplied parameter.
     """
 
     def __init__(
         self,
         pool_address: str,
-        xrpl_url: str = DEFAULT_TESTNET_URL,
-        license_tier: str = LicenseTier.STARTER,
+        url: str = DEFAULT_TESTNET_URL,
     ) -> None:
         validate_xrpl_address(pool_address, "pool_address")
-        self._pool_address  = pool_address
-        self._url           = xrpl_url
-        self._license_tier  = license_tier.lower()
-
-    # ------------------------------------------------------------------
-    # Public API
-    # ------------------------------------------------------------------
+        self._pool_address = pool_address
+        self._url = url
 
     async def get_health(self) -> PoolHealth:
         """
-        Fetch and calculate current pool health entirely from on-chain data.
+        Fetch on-chain state and return a PoolHealth snapshot.
 
         Steps:
-            1. Fetch AccountInfo → balance_drops, owner_count.
-            2. Compute usable_drops = balance - base_reserve - (owner_count * owner_reserve).
-            3. Fetch all Ward policy NFTs from AccountNFTs → sum coverage amounts.
-            4. Compute coverage_ratio, risk_tier, dynamic_premium_rate.
+          1. AccountInfo  - balance, owner_count
+          2. Compute usable balance (balance - owner reserve)
+          3. AccountNFTs  - sum active coverage from Ward policy NFTs
+          4. Compute coverage ratio, risk tier, dynamic premium
 
         Returns:
-            PoolHealth snapshot.
-
-        Raises:
-            LedgerError: if XRPL requests fail.
+            PoolHealth dataclass with all computed fields.
         """
         async with AsyncJsonRpcClient(self._url) as client:
-            # Step 1: Account balance + owner count
-            account_resp = await client.request(
+            # Step 1: Account info
+            resp = await client.request(
                 AccountInfo(account=self._pool_address, ledger_index="validated")
             )
-            if not account_resp.is_successful():
+            if not resp.is_successful():
                 raise LedgerError(
-                    f"AccountInfo failed for {self._pool_address}: "
-                    f"{account_resp.result}"
+                    f"AccountInfo failed for {self._pool_address}: {resp.result}"
                 )
 
-            acct_data    = account_resp.result["account_data"]
-            balance_drops = int(acct_data["Balance"])
-            owner_count   = int(acct_data.get("OwnerCount", 0))
+            account_data  = resp.result["account_data"]
+            balance_drops = int(account_data["Balance"])
+            owner_count   = int(account_data.get("OwnerCount", 0))
 
-            # Step 2: Usable balance (minus reserves)
-            reserve = XRPL_BASE_RESERVE_DROPS + (owner_count * XRPL_OWNER_RESERVE_DROPS)
-            usable_drops = max(0, balance_drops - reserve)
+            # Step 2: Compute usable balance
+            reserve_drops = (
+                XRPL_BASE_RESERVE_DROPS
+                + (owner_count * XRPL_OWNER_RESERVE_DROPS)
+            )
+            usable_drops = max(0, balance_drops - reserve_drops)
 
-            # Step 3: Active coverage from on-chain NFTs
+            # Step 3: Sum active coverage from on-chain NFTs
             active_coverage_drops = await self._sum_active_coverage(client)
 
         # Step 4: Compute ratios and tier
@@ -178,68 +155,60 @@ class PoolHealthMonitor:
 
     def is_minting_allowed(
         self,
-        health: PoolHealth,
-        license_tier: Optional[str] = None,
+        risk_tier: str,
+        license_tier: str = "starter",
     ) -> bool:
         """
-        Check whether new policy minting is allowed given the pool’s risk tier
-        and the license tier’s mint gate.
-
-        "high" always blocks minting regardless of license tier.
+        Return True if minting is allowed for this risk tier and license tier.
 
         Args:
-            health:       Current PoolHealth snapshot from get_health().
-            license_tier: Override license tier; defaults to self._license_tier.
+            risk_tier:    Pool risk tier ("safest", "safe", "moderate",
+                          "elevated", "high").
+            license_tier: Purchaser license tier ("starter", "standard",
+                          "enterprise").
 
         Returns:
-            True if minting is permitted.
+            True if minting is allowed, False otherwise.
         """
-        tier = (license_tier or self._license_tier).lower()
-        allowed_risk_tiers = LicenseTier.TIER_MINT_GATES.get(tier, set())
-        return health.risk_tier in allowed_risk_tiers
+        allowed = TIER_MINT_GATES.get(license_tier, set())
+        return risk_tier in allowed
 
-    def calculate_premium(
+    async def calculate_premium(
         self,
-        health: PoolHealth,
         coverage_drops: int,
         period_days: int,
-    ) -> Dict[str, int]:
+        license_tier: str = "starter",
+    ) -> int:
         """
-        Calculate the policy premium in drops for given coverage and term.
+        Calculate premium in drops for a given coverage amount and period.
 
         Args:
             coverage_drops: Coverage amount in drops.
-            period_days:    Policy term in days.
-            health:         Current pool health (provides dynamic_premium_rate).
+            period_days:    Coverage period in days.
+            license_tier:   Purchaser license tier.
 
         Returns:
-            Dict with keys:
-                premium_drops    — total premium (minimum 1 drop).
-                coverage_drops   — echo of the input.
-                period_days      — echo of the input.
-                annual_rate      — annualised rate used.
+            Premium amount in drops (integer, >= 1).
         """
-        annual_rate   = health.dynamic_premium_rate
-        premium_drops = int(coverage_drops * annual_rate * period_days / 365)
-        if premium_drops < 1:
-            premium_drops = 1
-        return {
-            "premium_drops":  premium_drops,
-            "coverage_drops": coverage_drops,
-            "period_days":    period_days,
-            "annual_rate":    annual_rate,
-        }
+        health = await self.get_health()
 
-    # ------------------------------------------------------------------
-    # Internal
-    # ------------------------------------------------------------------
+        if not self.is_minting_allowed(health.risk_tier, license_tier):
+            raise ValidationError(
+                f"Minting not allowed: pool risk tier {health.risk_tier!r} "
+                f"exceeds limit for license tier {license_tier!r}"
+            )
+
+        premium_drops = int(
+            coverage_drops * health.dynamic_premium_rate * period_days / 365
+        )
+        return max(1, premium_drops)
 
     async def _sum_active_coverage(self, client: AsyncJsonRpcClient) -> int:
         """
         Sum the coverage amounts of all active Ward policy NFTs held by the pool.
 
         Reads AccountNFTs, filters by WARD_POLICY_TAXON, decodes URI metadata,
-        and sums the “c” (coverage_drops) field.
+        and sums the "c" (coverage_drops) field.
 
         Returns:
             Total active coverage in drops.
@@ -249,9 +218,8 @@ class PoolHealthMonitor:
 
         while True:
             kwargs: Dict = {
-                "account":  self._pool_address,
-                "nft_taxon": WARD_POLICY_TAXON,
-                "limit":    200,
+                "account": self._pool_address,
+                "limit":   200,
             }
             if marker:
                 kwargs["marker"] = marker
@@ -271,14 +239,15 @@ class PoolHealthMonitor:
                 if not uri_hex:
                     continue
                 try:
-                    uri_str = bytes.fromhex(uri_hex).decode("utf-8")
-                    meta    = json.loads(uri_str)
-                    # Support both compact ("c") and legacy ("coverage_drops") keys
-                    raw = meta.get("c") or meta.get("coverage_drops")
-                    if raw is not None:
-                        total += int(raw)
-                except Exception:
-                    continue
+                    metadata = json.loads(bytes.fromhex(uri_hex).decode("utf-8"))
+                    coverage = int(
+                        metadata.get("coverage_drops")
+                        or metadata.get("c")
+                        or 0
+                    )
+                    total += coverage
+                except Exception as exc:
+                    logger.debug("Skipping NFT with unparseable URI: %s", exc)
 
             marker = resp.result.get("marker")
             if not marker:
@@ -287,9 +256,30 @@ class PoolHealthMonitor:
         return total
 
     @staticmethod
-    def _classify_tier(ratio: float) -> str:
-        """Return the risk tier string for the given coverage ratio."""
-        for threshold, tier in RISK_TIER_THRESHOLDS:
-            if ratio >= threshold:
-                return tier
+    def _classify_tier(coverage_ratio: float) -> str:
+        """
+        Classify the pool's risk tier based on the coverage ratio.
+
+        Thresholds (from RISK_TIER_THRESHOLDS in constants):
+            >= safest_threshold  -> "safest"
+            >= safe_threshold    -> "safe"
+            >= moderate_threshold-> "moderate"
+            >= elevated_threshold-> "elevated"
+            else                 -> "high"
+
+        Args:
+            coverage_ratio: usable_drops / active_coverage_drops.
+
+        Returns:
+            Risk tier string.
+        """
+        thresholds = RISK_TIER_THRESHOLDS
+        if coverage_ratio >= thresholds.get("safest", 3.0):
+            return "safest"
+        if coverage_ratio >= thresholds.get("safe", 2.0):
+            return "safe"
+        if coverage_ratio >= thresholds.get("moderate", 1.5):
+            return "moderate"
+        if coverage_ratio >= thresholds.get("elevated", 1.2):
+            return "elevated"
         return "high"
