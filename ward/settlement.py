@@ -70,6 +70,10 @@ class EscrowSettlement:
     The condition_hex (sha256 of preimage) is submitted by the pool.
     The fulfillment_hex (the preimage) is submitted only by the claimant.
 
+    Timing semantics:
+      finish_after_ripple: pool MUST finish BEFORE this time (dispute window opens).
+      cancel_after_ripple: pool can cancel AFTER this time if unclaimed.
+
     Tier note:
       Starter:    pool operator submits create/cancel (manual tooling).
       Standard:   hosted API wraps this module.
@@ -91,16 +95,10 @@ class EscrowSettlement:
         """
         Create a time-locked + crypto-conditioned EscrowCreate from the pool.
 
-        Args:
-            pool_wallet:      Pool operator wallet (funds escrowed from here).
-            claimant_address: XRPL address of the insured party (escrow dest).
-            payout_drops:     Claim payout in drops.
-            condition_hex:    CryptoCondition from claimant.
-            nft_token_id:     Policy NFT being settled.
-            claim_id:         Ward claim identifier for audit trail.
-
-        Returns:
-            EscrowRecord with on-chain sequence number and timing.
+        finish_after_ripple = current_time + ESCROW_DISPUTE_HOURS * 3600.
+        Pool must finish() BEFORE that deadline (dispute window opens after).
+        cancel_after_ripple = current_time + ESCROW_CANCEL_HOURS  * 3600.
+        Pool can cancel() AFTER cancel_after_ripple if claimant never finished.
         """
         validate_xrpl_address(claimant_address, "claimant_address")
         validate_drops_amount(payout_drops, "payout_drops")
@@ -161,13 +159,14 @@ class EscrowSettlement:
         fulfillment_hex: str,
     ) -> Dict[str, str]:
         """
-        Finish the escrow (release payout) and burn the policy NFT atomically.
+        Finish the escrow (release payout) before the dispute window opens.
 
-        The claimant provides fulfillment_hex (the preimage in DER format).
-        Ward never holds or generates the preimage - it comes from the claimant.
+        The pool must call this BEFORE finish_after_ripple.
+        After finish_after_ripple the dispute window opens and
+        finishing is no longer allowed.
 
         Args:
-            pool_wallet:     Pool operator wallet (submits the EscrowFinish).
+            pool_wallet:     Pool operator wallet.
             escrow_record:   Record from create_claim_escrow.
             fulfillment_hex: Preimage fulfillment hex from the claimant.
 
@@ -177,13 +176,13 @@ class EscrowSettlement:
         async with AsyncJsonRpcClient(self._url) as client:
             current_time = await get_ledger_close_time(client)
 
-            if current_time < escrow_record.finish_after_ripple:
-                remaining = escrow_record.finish_after_ripple - current_time
+            if current_time >= escrow_record.finish_after_ripple:
+                deadline = escrow_record.finish_after_ripple
+                over = current_time - deadline
                 raise ValidationError(
-                    f"Escrow dispute window not yet open: "
-                    f"{remaining // 3600}h {(remaining % 3600) // 60}m remaining "
-                    f"(ledger time {current_time} < "
-                    f"finish_after {escrow_record.finish_after_ripple})"
+                    f"Escrow dispute window is open: "
+                    f"deadline {deadline} passed {over}s ago "
+                    f"(ledger time {current_time})"
                 )
 
             pool_wallet = validate_wallet(pool_wallet, "pool_wallet")
@@ -241,13 +240,8 @@ class EscrowSettlement:
         """
         Cancel the escrow and return funds to the pool (after cancel window).
 
-        Args:
-            pool_wallet:   Pool operator wallet (escrow owner).
-            escrow_record: Record from create_claim_escrow.
-            reason:        Reason for cancellation (stored in Memo).
-
-        Returns:
-            Transaction hash of the EscrowCancel.
+        The pool can cancel AFTER cancel_after_ripple if the claimant
+        never finished the escrow.
         """
         async with AsyncJsonRpcClient(self._url) as client:
             current_time = await get_ledger_close_time(client)
