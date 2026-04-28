@@ -72,13 +72,6 @@ class PoolHealthMonitor:
 
     Reads on-chain state only - no caller-supplied balance or coverage inputs.
 
-    Usage::
-
-        monitor = PoolHealthMonitor(pool_address="rPool...")
-        health = await monitor.get_health()
-        if not health.is_solvent:
-            ...
-
     Trust boundary:
         active_coverage_drops is always derived from on-chain AccountNFTs.
         It is NEVER accepted as a caller-supplied parameter.
@@ -96,15 +89,6 @@ class PoolHealthMonitor:
     async def get_health(self) -> PoolHealth:
         """
         Fetch on-chain state and return a PoolHealth snapshot.
-
-        Steps:
-          1. AccountInfo  - balance, owner_count
-          2. Compute usable balance (balance - owner reserve)
-          3. AccountNFTs  - sum active coverage from Ward policy NFTs
-          4. Compute coverage ratio, risk tier, dynamic premium
-
-        Returns:
-            PoolHealth dataclass with all computed fields.
         """
         async with AsyncJsonRpcClient(self._url) as client:
             # Step 1: Account info
@@ -160,15 +144,6 @@ class PoolHealthMonitor:
     ) -> bool:
         """
         Return True if minting is allowed for this risk tier and license tier.
-
-        Args:
-            risk_tier:    Pool risk tier ("safest", "safe", "moderate",
-                          "elevated", "high").
-            license_tier: Purchaser license tier ("starter", "standard",
-                          "enterprise").
-
-        Returns:
-            True if minting is allowed, False otherwise.
         """
         allowed = TIER_MINT_GATES.get(license_tier, set())
         return risk_tier in allowed
@@ -181,14 +156,6 @@ class PoolHealthMonitor:
     ) -> int:
         """
         Calculate premium in drops for a given coverage amount and period.
-
-        Args:
-            coverage_drops: Coverage amount in drops.
-            period_days:    Coverage period in days.
-            license_tier:   Purchaser license tier.
-
-        Returns:
-            Premium amount in drops (integer, >= 1).
         """
         health = await self.get_health()
 
@@ -209,9 +176,6 @@ class PoolHealthMonitor:
 
         Reads AccountNFTs, filters by WARD_POLICY_TAXON, decodes URI metadata,
         and sums the "c" (coverage_drops) field.
-
-        Returns:
-            Total active coverage in drops.
         """
         total = 0
         marker = None
@@ -260,26 +224,16 @@ class PoolHealthMonitor:
         """
         Classify the pool's risk tier based on the coverage ratio.
 
-        Thresholds (from RISK_TIER_THRESHOLDS in constants):
-            >= safest_threshold  -> "safest"
-            >= safe_threshold    -> "safe"
-            >= moderate_threshold-> "moderate"
-            >= elevated_threshold-> "elevated"
-            else                 -> "high"
+        RISK_TIER_THRESHOLDS is a list of (threshold, tier_name) tuples
+        sorted in descending order of threshold.
 
         Args:
             coverage_ratio: usable_drops / active_coverage_drops.
 
         Returns:
-            Risk tier string.
+            Risk tier string ("safest", "safe", "moderate", "elevated", "high").
         """
-        thresholds = RISK_TIER_THRESHOLDS
-        if coverage_ratio >= thresholds.get("safest", 3.0):
-            return "safest"
-        if coverage_ratio >= thresholds.get("safe", 2.0):
-            return "safe"
-        if coverage_ratio >= thresholds.get("moderate", 1.5):
-            return "moderate"
-        if coverage_ratio >= thresholds.get("elevated", 1.2):
-            return "elevated"
+        for threshold, tier_name in RISK_TIER_THRESHOLDS:
+            if coverage_ratio >= threshold:
+                return tier_name
         return "high"
