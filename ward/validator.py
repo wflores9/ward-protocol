@@ -8,13 +8,14 @@ Fixes: #1 Extracted. #3 asyncio.gather for steps 1/4/9. #7 dual URI format.
 """
 
 from __future__ import annotations
+
 import asyncio
 import json
 import logging
 import time
 from collections import deque
 from dataclasses import dataclass
-from typing import Dict, Optional, Tuple
+from typing import Optional, Tuple
 
 from xrpl.asyncio.clients import AsyncJsonRpcClient
 from xrpl.models import AccountInfo, AccountNFTs, LedgerEntry
@@ -23,7 +24,6 @@ from ward.constants import (
     CLAIM_RATE_LIMIT_MAX,
     CLAIM_RATE_LIMIT_WINDOW_S,
     DEFAULT_TESTNET_URL,
-    LSF_LOAN_DEFAULT,
     MIN_COVERAGE_RATIO,
     WARD_POLICY_TAXON,
     XRPL_BASE_RESERVE_DROPS,

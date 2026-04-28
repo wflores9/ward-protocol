@@ -935,8 +935,8 @@ class TestPoolHealthMonitor:
     async def test_starter_tier_blocks_elevated_minting(self):
         """Tier gate: Starter must not mint at elevated risk (index.html tier rules)."""
         from ward.constants import LicenseTier
-        # 21.5M - 20M = 1.5M usable vs 1M coverage = 1.5x = elevated tier
-        monitor = self._make_monitor(balance_drops=21_500_000, coverage_drops=1_000_000)
+        # 23.5M - (20M base + 2M owner@1) = 1.5M usable vs 1M coverage = 1.5x = elevated tier
+        monitor = self._make_monitor(balance_drops=23_500_000, coverage_drops=1_000_000)
         try:
             health = await monitor.get_health()
             allowed = monitor.is_minting_allowed(health, LicenseTier.STARTER)
@@ -948,7 +948,8 @@ class TestPoolHealthMonitor:
     async def test_enterprise_tier_allows_elevated_minting(self):
         """Tier gate: Enterprise can mint at elevated risk."""
         from ward.constants import LicenseTier
-        monitor = self._make_monitor(balance_drops=21_500_000, coverage_drops=1_000_000)
+        # 23.5M - (20M base + 2M owner@1) = 1.5M usable vs 1M coverage = 1.5x = elevated tier
+        monitor = self._make_monitor(balance_drops=23_500_000, coverage_drops=1_000_000)
         try:
             health = await monitor.get_health()
             allowed = monitor.is_minting_allowed(health, LicenseTier.ENTERPRISE)

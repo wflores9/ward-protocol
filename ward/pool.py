@@ -13,19 +13,16 @@ Fixes applied:
 
 from __future__ import annotations
 
-import asyncio
 import json
 import logging
 from dataclasses import dataclass
-from typing import Dict, List, Optional
+from typing import Dict
 
 from xrpl.asyncio.clients import AsyncJsonRpcClient
 from xrpl.models import AccountInfo, AccountNFTs
-from xrpl.utils import hex_to_str
 
 from ward.constants import (
     DEFAULT_TESTNET_URL,
-    LicenseTier,
     MIN_COVERAGE_RATIO,
     RISK_TIER_THRESHOLDS,
     TIER_BASE_RATES,
@@ -139,27 +136,35 @@ class PoolHealthMonitor:
 
     def is_minting_allowed(
         self,
-        risk_tier: str,
+        health: PoolHealth,
         license_tier: str = "starter",
     ) -> bool:
         """
-        Return True if minting is allowed for this risk tier and license tier.
+        Return True if minting is allowed for this pool health and license tier.
         """
         allowed = TIER_MINT_GATES.get(license_tier, set())
-        return risk_tier in allowed
+        return health.risk_tier in allowed
 
-    async def calculate_premium(
+    def calculate_premium(
         self,
+        health: PoolHealth,
         coverage_drops: int,
         period_days: int,
         license_tier: str = "starter",
-    ) -> int:
+    ) -> dict:
         """
         Calculate premium in drops for a given coverage amount and period.
-        """
-        health = await self.get_health()
 
-        if not self.is_minting_allowed(health.risk_tier, license_tier):
+        Args:
+            health:         PoolHealth snapshot from get_health().
+            coverage_drops: Coverage amount in drops.
+            period_days:    Coverage period in days.
+            license_tier:   License tier string.
+
+        Returns:
+            Dict with key "premium_drops" (int).
+        """
+        if not self.is_minting_allowed(health, license_tier):
             raise ValidationError(
                 f"Minting not allowed: pool risk tier {health.risk_tier!r} "
                 f"exceeds limit for license tier {license_tier!r}"
@@ -168,7 +173,7 @@ class PoolHealthMonitor:
         premium_drops = int(
             coverage_drops * health.dynamic_premium_rate * period_days / 365
         )
-        return max(1, premium_drops)
+        return {"premium_drops": max(1, premium_drops)}
 
     async def _sum_active_coverage(self, client: AsyncJsonRpcClient) -> int:
         """

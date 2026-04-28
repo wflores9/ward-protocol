@@ -39,13 +39,12 @@ from ward.constants import (
     WARD_POLICY_TAXON,
 )
 from ward.primitives import (
-    LedgerError,
     ValidationError,
     get_ledger_close_time,
     submit_with_retry,
     validate_drops_amount,
-    validate_xrpl_address,
     validate_wallet,
+    validate_xrpl_address,
 )
 
 logger = logging.getLogger("ward.client")
@@ -143,7 +142,7 @@ class WardClient:
                 amount=str(premium_drops),
             )
             payment = await autofill(payment, client)
-            premium_result = await submit_with_retry(client, payment, wallet)
+            premium_result = await submit_with_retry(payment, client, wallet)
             premium_tx = premium_result.result.get("tx_json", {}).get("hash", "")
 
             # Step 2: Determine expiry from ledger close time
@@ -180,7 +179,7 @@ class WardClient:
                 memos=[memo],
             )
             mint_tx = await autofill(mint_tx, client)
-            mint_result  = await submit_with_retry(client, mint_tx, wallet)
+            mint_result  = await submit_with_retry(mint_tx, client, wallet)
             mint_tx_hash = mint_result.result.get("tx_json", {}).get("hash", "")
             nft_token_id = mint_result.result.get(
                 "meta", {}

@@ -15,7 +15,7 @@ from __future__ import annotations
 import json
 import logging
 from dataclasses import dataclass
-from typing import Dict, Optional
+from typing import Dict
 
 from xrpl.asyncio.clients import AsyncJsonRpcClient
 from xrpl.asyncio.transaction import autofill
@@ -27,13 +27,9 @@ from ward.constants import (
     DEFAULT_TESTNET_URL,
     ESCROW_CANCEL_HOURS,
     ESCROW_DISPUTE_HOURS,
-    WARD_POLICY_TAXON,
-    TF_BURNABLE,
 )
 from ward.primitives import (
-    LedgerError,
     ValidationError,
-    WardError,
     get_ledger_close_time,
     submit_with_retry,
     validate_drops_amount,
