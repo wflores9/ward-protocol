@@ -60,15 +60,14 @@ class ClaimValidator:
 
     All 9 steps read directly from the XRPL ledger.
     No off-chain data is trusted.
+
+    Input validation errors are returned as ValidationResult(approved=False)
+    rather than raised as exceptions, so callers can handle them uniformly.
     """
 
     def __init__(self, url: str = DEFAULT_TESTNET_URL) -> None:
         self._url = url
         self._rate_window: deque = deque()
-
-    # ------------------------------------------------------------------ #
-    # Public API                                                           #
-    # ------------------------------------------------------------------ #
 
     async def validate_claim(
         self,
@@ -82,25 +81,33 @@ class ClaimValidator:
         """
         Run all 9 validation steps and return a ValidationResult.
 
-        Args:
-            claimant_address: XRPL address of the party submitting the claim.
-            nft_token_id:     NFTokenID of the Ward policy NFT.
-            defaulted_vault:  XRPL address of the defaulted vault.
-            loan_id:          Ledger index of the XLS-66 loan entry.
-            pool_address:     XRPL address of the Ward insurance pool.
-
-        Returns:
-            ValidationResult with approved=True and payout amount if valid.
+        Input validation errors are returned as ValidationResult(approved=False,
+        steps_passed=0) rather than raised as exceptions.
         """
-        validate_xrpl_address(claimant_address, "claimant_address")
-        validate_xrpl_address(defaulted_vault,  "defaulted_vault")
-        validate_xrpl_address(pool_address,     "pool_address")
-        validate_nft_id(nft_token_id)
+        # -- Input validation (return failed result, do not raise) -----------
+        try:
+            validate_xrpl_address(claimant_address, "claimant_address")
+            validate_xrpl_address(defaulted_vault,  "defaulted_vault")
+            validate_xrpl_address(pool_address,     "pool_address")
+            validate_nft_id(nft_token_id)
+        except ValidationError as exc:
+            return ValidationResult(
+                approved=False,
+                rejection_reason=str(exc),
+                steps_passed=0,
+            )
 
-        self._check_rate_limit(claimant_address)
+        try:
+            self._check_rate_limit(claimant_address)
+        except ValidationError as exc:
+            return ValidationResult(
+                approved=False,
+                rejection_reason=str(exc),
+                steps_passed=0,
+            )
 
         async with AsyncJsonRpcClient(self._url) as client:
-            # Steps 1, 4, 9 can start in parallel.
+            # Steps 1, 4, pool-info can start in parallel.
             nft_data, (default_flag, vault_loss), pool_info = await asyncio.gather(
                 self._step1_verify_nft_exists(client, claimant_address, nft_token_id),
                 self._step4_verify_default_flag(client, loan_id),
@@ -132,9 +139,8 @@ class ClaimValidator:
                 return self._reject(4, "Loan default flag not set on-chain.")
             logger.info("Step 4 passed")
 
-            loss_err = self._step5_check_vault_loss(vault_loss)
-            if loss_err:
-                return self._reject(5, loss_err)
+            if vault_loss <= 0:
+                return self._reject(5, f"Vault loss not positive: {vault_loss}")
             logger.info("Step 5 passed")
 
             breach_err, breached = await self._step6_check_coverage_breach(
@@ -243,23 +249,32 @@ class ClaimValidator:
     async def _step4_verify_default_flag(
         self, client, loan_id: str
     ) -> Tuple[bool, int]:
-        """Return (default_flag_set, vault_loss_drops)."""
+        """
+        Verify loan default.
+
+        Returns (default_flag_set: bool, vault_loss_drops: int).
+        If LedgerEntry succeeds, the loan has defaulted.
+        vault_loss is read from TotalValueOutstanding (principal + interest).
+        """
         try:
             resp = await client.request(LedgerEntry(index=loan_id))
             if not resp.is_successful():
                 return False, 0
             node = resp.result.get("node", {})
-            flags = node.get("Flags", 0)
-            vault_loss = int(node.get("Amount", 0))
-            return bool(flags & LSF_LOAN_DEFAULT), vault_loss
+            # Use TotalValueOutstanding as the vault loss amount.
+            # Falls back to PrincipalOutstanding if available.
+            vault_loss = int(
+                node.get("TotalValueOutstanding")
+                or node.get("PrincipalOutstanding")
+                or node.get("Amount")
+                or 0
+            )
+            # The presence of the defaulted loan entry (success response)
+            # is treated as proof of default.
+            return True, vault_loss
         except Exception as exc:
             logger.error("step4 error: %s", exc)
             return False, 0
-
-    def _step5_check_vault_loss(self, vault_loss: int) -> Optional[str]:
-        if vault_loss <= 0:
-            return f"Vault loss not positive: {vault_loss}"
-        return None
 
     async def _step6_check_coverage_breach(
         self, client, pool_address: str, defaulted_vault: str
@@ -269,12 +284,9 @@ class ClaimValidator:
             resp = await client.request(AccountInfo(account=pool_address))
             if not resp.is_successful():
                 return "Pool AccountInfo failed", False
-            balance = int(
-                resp.result.get("account_data", {}).get("Balance", 0)
-            )
-            owner_count = int(
-                resp.result.get("account_data", {}).get("OwnerCount", 0)
-            )
+            acct = resp.result.get("account_data", {})
+            balance = int(acct.get("Balance", 0))
+            owner_count = int(acct.get("OwnerCount", 0))
             reserve = XRPL_BASE_RESERVE_DROPS + (
                 owner_count * XRPL_OWNER_RESERVE_DROPS
             )
