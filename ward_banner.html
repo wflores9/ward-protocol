@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1500">
+<title>Ward Protocol — Banner</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1500px;height:500px;overflow:hidden}
+body{
+  font-family:'Space Mono',monospace;
+  background:#07111f;
+  color:#e8f0f8;
+  position:relative;
+}
+
+/* ── background wordmark ── */
+.bg-word{
+  position:absolute;
+  bottom:-40px;right:-30px;
+  font-family:'Barlow Condensed',sans-serif;
+  font-weight:900;
+  font-size:460px;
+  letter-spacing:-.04em;
+  color:#a8c5e8;
+  opacity:.028;
+  line-height:1;
+  pointer-events:none;
+  user-select:none;
+}
+
+/* ── top status strip ── */
+.strip{
+  position:absolute;top:0;left:0;right:0;
+  height:3px;
+  background:linear-gradient(90deg,#00cc66 0%,#00cc66 65%,#3a5570 65%);
+}
+
+/* ── main layout ── */
+.layout{
+  display:grid;
+  grid-template-columns:1fr 420px;
+  height:100%;
+  position:relative;
+  z-index:1;
+}
+
+/* ── left panel ── */
+.left{
+  padding:52px 64px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+}
+
+.eyebrow{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-size:10px;
+  color:#6a9fd0;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  margin-bottom:20px;
+}
+.dot{
+  width:6px;height:6px;
+  background:#00cc66;
+  border-radius:50%;
+  flex-shrink:0;
+}
+
+h1{
+  font-family:'Barlow Condensed',sans-serif;
+  font-weight:900;
+  font-size:108px;
+  line-height:.9;
+  letter-spacing:-.025em;
+  text-transform:uppercase;
+  color:#e8f0f8;
+}
+h1 em{
+  font-style:normal;
+  font-weight:300;
+  color:#6a9fd0;
+  display:block;
+}
+
+.tagline{
+  font-size:13px;
+  color:rgba(168,197,232,.55);
+  line-height:1.8;
+  max-width:520px;
+  margin-top:18px;
+}
+
+.badge-row{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:auto;
+  padding-top:28px;
+}
+.badge{
+  font-size:9px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  padding:5px 11px;
+  border-radius:2px;
+  border:1px solid rgba(168,197,232,.15);
+  color:rgba(168,197,232,.6);
+}
+.badge.g{color:#00cc66;border-color:rgba(0,204,102,.25);background:rgba(0,204,102,.06)}
+.badge.au{color:#c8a94a;border-color:rgba(200,169,74,.25);background:rgba(200,169,74,.06)}
+
+/* ── right panel ── */
+.right{
+  background:#0d1f35;
+  border-left:1px solid #1a2e4a;
+  display:flex;
+  flex-direction:column;
+}
+
+.card-bar{
+  background:#132236;
+  border-bottom:1px solid #1a2e4a;
+  padding:12px 20px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.card-bar-label{font-size:9px;color:#6a9fd0;letter-spacing:.1em;text-transform:uppercase}
+.live{font-size:9px;color:#00cc66;display:flex;align-items:center;gap:5px}
+.live::before{content:'';width:4px;height:4px;background:#00cc66;border-radius:50%}
+
+.inv-block{
+  margin:16px;
+  padding:13px 16px;
+  background:rgba(168,197,232,.04);
+  border:1px solid #1e3550;
+  border-radius:2px;
+}
+.inv-k{font-size:8px;color:#6a9fd0;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px}
+.inv-v{font-size:11px;color:#c8a94a;font-weight:700}
+
+.flow-list{padding:0 16px}
+.flow-row{
+  display:flex;
+  align-items:center;
+  padding:9px 10px;
+  border-bottom:1px solid rgba(26,46,74,.6);
+  font-size:10px;
+  gap:10px;
+}
+.flow-row:last-child{border-bottom:none}
+.flow-id{font-size:8px;color:#3a5570;width:24px;flex-shrink:0}
+.flow-name{color:rgba(208,228,247,.7);flex:1}
+.flow-ok{color:#00cc66;font-size:9px;letter-spacing:.05em}
+
+.metrics{
+  margin-top:auto;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  border-top:1px solid #1a2e4a;
+}
+.metric{
+  padding:13px 10px;
+  text-align:center;
+  border-right:1px solid #1a2e4a;
+}
+.metric:last-child{border-right:none}
+.m-val{
+  font-family:'Barlow Condensed',sans-serif;
+  font-weight:900;
+  font-size:22px;
+  display:block;
+  line-height:1;
+  color:#e8f0f8;
+}
+.m-val.g{color:#00cc66}
+.m-val.au{color:#c8a94a}
+.m-key{font-size:7px;color:#3a5570;text-transform:uppercase;letter-spacing:.07em;margin-top:3px;display:block}
+
+/* ── bottom bar ── */
+.bottom-bar{
+  position:absolute;bottom:0;left:0;right:0;
+  height:36px;
+  background:#0a1628;
+  border-top:1px solid #1a2e4a;
+  display:flex;
+  align-items:center;
+  padding:0 64px;
+  gap:36px;
+  z-index:2;
+}
+.bb-item{
+  font-size:9px;
+  color:#3a5570;
+  letter-spacing:.06em;
+  display:flex;
+  align-items:center;
+  gap:7px;
+}
+.bb-item span{color:#6a9fd0}
+.bb-item span.g{color:#00cc66}
+.bb-url{margin-left:auto;font-size:9px;color:#3a5570;letter-spacing:.05em}
+</style>
+</head>
+<body>
+
+<div class="bg-word">W</div>
+<div class="strip"></div>
+
+<div class="layout">
+
+  <!-- LEFT -->
+  <div class="left">
+    <div>
+      <div class="eyebrow"><span class="dot"></span>Open Specification · XRP Ledger</div>
+      <h1>Ward<em>Protocol</em></h1>
+      <p class="tagline">Deterministic default protection for XLS-66 lending vaults.<br>
+        ward_signed&nbsp;=&nbsp;false — Ward constructs unsigned transactions.<br>
+        The institution signs. XRPL settles.</p>
+    </div>
+    <div class="badge-row">
+      <span class="badge g">106/106 Tests Passing</span>
+      <span class="badge au">XLS-66 · XLS-20 · XLS-70</span>
+      <span class="badge">PREIMAGE-SHA-256 Escrow</span>
+      <span class="badge">ward_signed = false</span>
+      <span class="badge">Python SDK · TS Starter</span>
+    </div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="right">
+    <div class="card-bar">
+      <span class="card-bar-label">Protocol Flows</span>
+      <span class="live">Altnet Live</span>
+    </div>
+
+    <div class="inv-block">
+      <div class="inv-k">Core Invariant</div>
+      <div class="inv-v">ward_signed = false — always</div>
+    </div>
+
+    <div class="flow-list">
+      <div class="flow-row"><span class="flow-id">F·01</span><span class="flow-name">Vault Registration (XLS-66)</span><span class="flow-ok">✓ PASS</span></div>
+      <div class="flow-row"><span class="flow-id">F·02</span><span class="flow-name">Credential Issuance (XLS-70)</span><span class="flow-ok">✓ PASS</span></div>
+      <div class="flow-row"><span class="flow-id">F·03</span><span class="flow-name">Policy Purchase (XLS-20 NFT)</span><span class="flow-ok">✓ PASS</span></div>
+      <div class="flow-row"><span class="flow-id">F·04</span><span class="flow-name">Default Detection · 3-Ledger</span><span class="flow-ok">✓ PASS</span></div>
+      <div class="flow-row"><span class="flow-id">F·05</span><span class="flow-name">Claim Validation · 9 Checks</span><span class="flow-ok">✓ PASS</span></div>
+      <div class="flow-row"><span class="flow-id">F·06</span><span class="flow-name">Escrow Settlement</span><span class="flow-ok">✓ PASS</span></div>
+    </div>
+
+    <div class="metrics">
+      <div class="metric"><span class="m-val g">106/106</span><span class="m-key">Tests</span></div>
+      <div class="metric"><span class="m-val au">6</span><span class="m-key">Flows</span></div>
+      <div class="metric"><span class="m-val">v0.2.2</span><span class="m-key">Version</span></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="bottom-bar">
+  <div class="bb-item">TESTS <span class="g">106/106 passing</span></div>
+  <div class="bb-item">NETWORK <span>XRPL Altnet</span></div>
+  <div class="bb-item">STANDARDS <span>XLS-66 · XLS-20 · XLS-70</span></div>
+  <div class="bb-item">SDK <span>Python · TypeScript (xrpl@4.6.0)</span></div>
+  <div class="bb-url">wardprotocol.org</div>
+</div>
+
+</body>
+</html>
