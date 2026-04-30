@@ -196,10 +196,10 @@ def make_preimage_condition(preimage: bytes) -> Tuple[str, str]:
         suitable for EscrowCreate.condition and EscrowFinish.fulfillment.
 
     Raises:
-        ValueError: if preimage is not exactly 32 bytes.
+        ValidationError: if preimage is not exactly 32 bytes.
     """
     if len(preimage) != 32:
-        raise ValueError(f"Preimage must be exactly 32 bytes, got {len(preimage)}")
+        raise ValidationError(f"Preimage must be exactly 32 bytes, got {len(preimage)}")
 
     digest = hashlib.sha256(preimage).digest()
     # PREIMAGE-SHA-256 ASN.1 encoding

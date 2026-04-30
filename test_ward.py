@@ -427,7 +427,7 @@ class TestPreimageConditionCryptography:
         assert c1 != c2
 
     def test_wrong_length_raises(self):
-        with pytest.raises(ValueError):
+        with pytest.raises(ValidationError):
             make_preimage_condition(b"\x00" * 16)
 
     def test_generate_claim_condition_returns_three_items(self):
