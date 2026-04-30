@@ -10,8 +10,8 @@ managing the AsyncWebsocketClient lifecycle (pass it in via constructor).
 For higher-level on-chain reads, use ward.validator or ward.pool directly.
 """
 
-from typing import List
 from dataclasses import dataclass
+from typing import List
 
 from xrpl.asyncio.clients import AsyncWebsocketClient
 from xrpl.models.requests import AccountInfo, AccountObjects, AccountTx

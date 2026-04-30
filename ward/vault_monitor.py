@@ -15,19 +15,18 @@ import asyncio
 import logging
 import time
 from collections import defaultdict, deque
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any, Callable, Dict, List, Optional, Set
 
 from xrpl.asyncio.clients import AsyncWebsocketClient
-from xrpl.models import AccountInfo, LedgerEntry, Subscribe
+from xrpl.models import LedgerEntry, Subscribe
 
 from ward.constants import (
     DEFAULT_CONFIRM_COUNT,
     DEFAULT_TESTNET_WS,
     LSF_LOAN_DEFAULT,
-    LSF_LOAN_IMPAIRED,
 )
-from ward.primitives import LedgerError, ValidationError, validate_xrpl_address
+from ward.primitives import validate_xrpl_address
 
 logger = logging.getLogger("ward.vault_monitor")
 

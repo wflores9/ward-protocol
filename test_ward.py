@@ -935,8 +935,8 @@ class TestPoolHealthMonitor:
     async def test_starter_tier_blocks_elevated_minting(self):
         """Tier gate: Starter must not mint at elevated risk (index.html tier rules)."""
         from ward.constants import LicenseTier
-        # 21.5M - 20M = 1.5M usable vs 1M coverage = 1.5x = elevated tier
-        monitor = self._make_monitor(balance_drops=21_500_000, coverage_drops=1_000_000)
+        # 23.5M - (20M base + 2M owner@1) = 1.5M usable vs 1M coverage = 1.5x = elevated tier
+        monitor = self._make_monitor(balance_drops=23_500_000, coverage_drops=1_000_000)
         try:
             health = await monitor.get_health()
             allowed = monitor.is_minting_allowed(health, LicenseTier.STARTER)
@@ -948,7 +948,8 @@ class TestPoolHealthMonitor:
     async def test_enterprise_tier_allows_elevated_minting(self):
         """Tier gate: Enterprise can mint at elevated risk."""
         from ward.constants import LicenseTier
-        monitor = self._make_monitor(balance_drops=21_500_000, coverage_drops=1_000_000)
+        # 23.5M - (20M base + 2M owner@1) = 1.5M usable vs 1M coverage = 1.5x = elevated tier
+        monitor = self._make_monitor(balance_drops=23_500_000, coverage_drops=1_000_000)
         try:
             health = await monitor.get_health()
             allowed = monitor.is_minting_allowed(health, LicenseTier.ENTERPRISE)
@@ -1134,6 +1135,592 @@ class TestCredentialConstants:
     def test_valid_kyc_types_contains_required(self):
         assert "KYC_VERIFIED" in VALID_KYC_TYPES
         assert "AML_CLEARED"  in VALID_KYC_TYPES
+
+
+# ===========================================================================
+# Tests: PoolHealthMonitor — advanced coverage gaps (pool.py refactor)
+# ===========================================================================
+
+
+class TestPoolHealthMonitorAdvanced:
+    """Coverage for pool.py changes: active-coverage trust boundary, reserve
+    math, tier gates, and calculate_premium signature."""
+
+    def _make_pool_monitor(self, balance_drops=30_000_000, coverage_drops=0,
+                           owner_count=0):
+        pool_nfts = [_make_pool_nft_entry(coverage_drops)] if coverage_drops > 0 else []
+
+        async def mock_request(req):
+            from xrpl.models import AccountInfo as _AI, AccountNFTs as _ANFTs
+            if isinstance(req, _AI):
+                return _make_success_response({
+                    "account_data": {
+                        "Balance": str(balance_drops),
+                        "OwnerCount": owner_count,
+                    }
+                })
+            elif isinstance(req, _ANFTs):
+                return _make_success_response({"account_nfts": pool_nfts})
+            return _make_fail_response()
+
+        monitor = PoolHealthMonitor(pool_address=VALID_ADDRESS)
+        _patch = patch(
+            "ward.pool.AsyncJsonRpcClient",
+            _async_client_factory(mock_request),
+        )
+        _patch.start()
+        monitor._mock_patch = _patch
+        return monitor
+
+    def _stop(self, m):
+        p = getattr(m, "_mock_patch", None)
+        if p:
+            try:
+                p.stop()
+            except RuntimeError:
+                pass
+
+    @pytest.mark.asyncio
+    async def test_pool_active_coverage_on_chain(self):
+        """active_coverage_drops is read from on-chain AccountNFTs, not caller."""
+        nft1 = _make_pool_nft_entry(500_000)
+        nft2 = dict(_make_pool_nft_entry(300_000))
+        nft2["NFTokenID"] = "D" * 64
+
+        async def mock_request(req):
+            from xrpl.models import AccountInfo as _AI, AccountNFTs as _ANFTs
+            if isinstance(req, _AI):
+                return _make_success_response({
+                    "account_data": {"Balance": "30000000", "OwnerCount": 0}
+                })
+            elif isinstance(req, _ANFTs):
+                return _make_success_response({"account_nfts": [nft1, nft2]})
+            return _make_fail_response()
+
+        monitor = PoolHealthMonitor(pool_address=VALID_ADDRESS)
+        _patch = patch("ward.pool.AsyncJsonRpcClient",
+                       _async_client_factory(mock_request))
+        _patch.start()
+        try:
+            health = await monitor.get_health()
+            assert health.active_coverage_drops == 800_000
+        finally:
+            try:
+                _patch.stop()
+            except RuntimeError:
+                pass
+
+    @pytest.mark.asyncio
+    async def test_pool_owner_reserve_calculation(self):
+        """usable = balance - (base_reserve + OwnerCount × owner_reserve)."""
+        from ward.constants import XRPL_BASE_RESERVE_DROPS, XRPL_OWNER_RESERVE_DROPS
+
+        owner_count = 5
+        balance = 50_000_000
+        expected_usable = max(
+            0,
+            balance - XRPL_BASE_RESERVE_DROPS - owner_count * XRPL_OWNER_RESERVE_DROPS,
+        )
+        monitor = self._make_pool_monitor(
+            balance_drops=balance, coverage_drops=0, owner_count=owner_count
+        )
+        try:
+            health = await monitor.get_health()
+            assert health.usable_drops == expected_usable
+        finally:
+            self._stop(monitor)
+
+    def test_pool_tier_gate_starter_blocked_elevated(self):
+        """Starter license is blocked when pool risk tier is 'elevated'."""
+        from ward.constants import LicenseTier
+
+        monitor = PoolHealthMonitor(pool_address=VALID_ADDRESS)
+        health = PoolHealth(
+            pool_address=VALID_ADDRESS,
+            balance_drops=23_500_000,
+            usable_drops=1_500_000,
+            active_coverage_drops=1_000_000,
+            owner_count=1,
+            coverage_ratio=1.5,
+            is_solvent=True,
+            dynamic_premium_rate=0.06,
+            risk_tier="elevated",
+        )
+        assert not monitor.is_minting_allowed(health, LicenseTier.STARTER)
+
+    def test_pool_tier_gate_standard_allows_elevated(self):
+        """Standard license is allowed when pool risk tier is 'elevated'."""
+        from ward.constants import LicenseTier
+
+        monitor = PoolHealthMonitor(pool_address=VALID_ADDRESS)
+        health = PoolHealth(
+            pool_address=VALID_ADDRESS,
+            balance_drops=23_500_000,
+            usable_drops=1_500_000,
+            active_coverage_drops=1_000_000,
+            owner_count=1,
+            coverage_ratio=1.5,
+            is_solvent=True,
+            dynamic_premium_rate=0.06,
+            risk_tier="elevated",
+        )
+        assert monitor.is_minting_allowed(health, LicenseTier.STANDARD)
+
+    def test_pool_tier_gate_all_blocked_high(self):
+        """All license tiers are blocked when pool risk tier is 'high'."""
+        from ward.constants import LicenseTier
+
+        monitor = PoolHealthMonitor(pool_address=VALID_ADDRESS)
+        health = PoolHealth(
+            pool_address=VALID_ADDRESS,
+            balance_drops=20_000_000,
+            usable_drops=0,
+            active_coverage_drops=1_000_000,
+            owner_count=0,
+            coverage_ratio=0.0,
+            is_solvent=False,
+            dynamic_premium_rate=0.10,
+            risk_tier="high",
+        )
+        for tier in (LicenseTier.STARTER, LicenseTier.STANDARD, LicenseTier.ENTERPRISE):
+            assert not monitor.is_minting_allowed(health, tier), (
+                f"{tier!r} should be blocked at 'high' risk"
+            )
+
+    def test_pool_calculate_premium_sync(self):
+        """calculate_premium is synchronous and returns dict{'premium_drops': int}."""
+        import inspect
+
+        monitor = PoolHealthMonitor(pool_address=VALID_ADDRESS)
+        assert not inspect.iscoroutinefunction(monitor.calculate_premium), (
+            "calculate_premium must be sync, not async"
+        )
+        health = PoolHealth(
+            pool_address=VALID_ADDRESS,
+            balance_drops=50_000_000,
+            usable_drops=30_000_000,
+            active_coverage_drops=1_000_000,
+            owner_count=0,
+            coverage_ratio=30.0,
+            is_solvent=True,
+            dynamic_premium_rate=0.005,
+            risk_tier="safest",
+        )
+        result = monitor.calculate_premium(health, 1_000_000, 30)
+        assert isinstance(result, dict), "calculate_premium must return a dict"
+        assert "premium_drops" in result
+        assert isinstance(result["premium_drops"], int)
+        assert result["premium_drops"] > 0
+
+
+# ===========================================================================
+# Tests: ClaimValidator — URI dual-format, parallelism, step-9 reserve
+# ===========================================================================
+
+
+class TestClaimValidatorAdvanced(TestClaimValidatorAdversarial):
+    """URI format parsing, asyncio.gather concurrency, and step-9 OwnerCount."""
+
+    def test_validator_dual_uri_format_legacy(self):
+        """_parse_nft_metadata accepts legacy 'protocol: ward/v1' URI format."""
+        metadata = {
+            "protocol":           "ward/v1",
+            "vault_address":      VALID_ADDRESS,
+            "coverage_drops":     "500000",
+            "expiry_ledger_time": 999_999_999,
+        }
+        uri_hex = json.dumps(metadata, separators=(",", ":")).encode().hex().upper()
+        nft_data = {
+            "URI":           uri_hex,
+            "NFTokenID":     VALID_NFT_ID,
+            "NFTokenTaxon":  WARD_POLICY_TAXON,
+        }
+        parsed, err = ClaimValidator._parse_nft_metadata(nft_data)
+        assert err is None, f"Unexpected error: {err}"
+        assert parsed["vault_address"] == VALID_ADDRESS
+        assert parsed["coverage_drops"] == "500000"
+
+    def test_validator_dual_uri_format_compact(self):
+        """_parse_nft_metadata accepts compact v0.2 URI format (w/v/c/e keys)."""
+        metadata = {
+            "w": "ward-v1",
+            "v": VALID_ADDRESS,
+            "c": "1000000",
+            "e": 999_999_999,
+        }
+        uri_hex = json.dumps(metadata, separators=(",", ":")).encode().hex().upper()
+        nft_data = {
+            "URI":          uri_hex,
+            "NFTokenID":    VALID_NFT_ID,
+            "NFTokenTaxon": WARD_POLICY_TAXON,
+        }
+        parsed, err = ClaimValidator._parse_nft_metadata(nft_data)
+        assert err is None, f"Unexpected error: {err}"
+        assert parsed["v"] == VALID_ADDRESS
+        assert parsed["c"] == "1000000"
+
+    def test_validator_owner_reserve_in_step9(self):
+        """Step 9 solvency check: OwnerCount drives reserve, not just base."""
+        validator = ClaimValidator()
+
+        # With OwnerCount=0: usable = 30M - 20M = 10M; payout=5M; ratio=2 → pass
+        assert validator._step9_check_pool_solvency(
+            {"Balance": "30000000", "OwnerCount": 0}, 5_000_000
+        ) is None
+
+        # With OwnerCount=5: reserve = 20M+10M = 30M; usable = 0 < payout → fail
+        result = validator._step9_check_pool_solvency(
+            {"Balance": "30000000", "OwnerCount": 5}, 5_000_000
+        )
+        assert result is not None
+        assert "insolvent" in result.lower()
+
+    @pytest.mark.asyncio
+    async def test_validator_steps_run_concurrently(self):
+        """validate_claim calls asyncio.gather to parallelise steps 1, 4, pool."""
+        import asyncio as _asyncio
+
+        _orig_gather = _asyncio.gather
+        gather_widths: List[int] = []
+
+        async def spy_gather(*coros, **kwargs):
+            gather_widths.append(len(coros))
+            return await _orig_gather(*coros, **kwargs)
+
+        validator = self._make_validator_with_mocks()
+        with patch("ward.validator.asyncio.gather", new=spy_gather):
+            await self._validate(
+                validator,
+                claimant_address=VALID_ADDRESS,
+                nft_token_id=VALID_NFT_ID,
+                defaulted_vault=VALID_ADDRESS,
+                loan_id=VALID_LOAN_ID,
+                pool_address=VALID_ADDRESS2,
+            )
+
+        assert gather_widths, "asyncio.gather was never called"
+        assert any(n >= 3 for n in gather_widths), (
+            f"Expected gather with ≥3 coroutines; got widths={gather_widths}"
+        )
+
+
+# ===========================================================================
+# Tests: EscrowSettlement — timing semantics and trust model
+# ===========================================================================
+
+
+class TestEscrowSettlementAdvanced:
+    """Timing (48h/72h), ward-never-sees-preimage invariant, ward_signed=False."""
+
+    def _make_settlement_mocks(self, current_time: int = 100_000_000):
+        """Return (settlement, context_manager_stack_patches)."""
+        from xrpl.wallet import Wallet as _Wallet
+
+        pool_wallet = _Wallet.create()
+        fake_resp = MagicMock()
+        fake_resp.result = {"hash": "A" * 64, "Sequence": 1}
+
+        async def noop_request(req):
+            return _make_success_response({})
+
+        patches = [
+            patch("ward.settlement.AsyncJsonRpcClient",
+                  _async_client_factory(noop_request)),
+            patch("ward.settlement.get_ledger_close_time",
+                  AsyncMock(return_value=current_time)),
+            patch("ward.settlement.submit_with_retry",
+                  AsyncMock(return_value=fake_resp)),
+            patch("ward.settlement.autofill",
+                  AsyncMock(side_effect=lambda tx, c: tx)),
+        ]
+        return pool_wallet, patches
+
+    @pytest.mark.asyncio
+    async def test_settlement_finish_after_48h(self):
+        """EscrowRecord.finish_after_ripple = ledger_time + 48 × 3600."""
+        from ward.constants import ESCROW_DISPUTE_HOURS
+
+        KNOWN_TIME = 100_000_000
+        pool_wallet, patches = self._make_settlement_mocks(KNOWN_TIME)
+        _, cond, _ = generate_claim_condition()
+
+        settlement = EscrowSettlement()
+        for p in patches:
+            p.start()
+        try:
+            record = await settlement.create_claim_escrow(
+                pool_wallet=pool_wallet,
+                claimant_address=VALID_ADDRESS,
+                payout_drops=500_000,
+                condition_hex=cond,
+                nft_token_id=VALID_NFT_ID,
+                claim_id="claim-48h",
+            )
+        finally:
+            for p in patches:
+                try:
+                    p.stop()
+                except RuntimeError:
+                    pass
+
+        assert record.finish_after_ripple == KNOWN_TIME + ESCROW_DISPUTE_HOURS * 3_600
+        assert not getattr(record, "ward_signed", False)  # ward_signed = False
+
+    @pytest.mark.asyncio
+    async def test_settlement_cancel_after_72h(self):
+        """EscrowRecord.cancel_after_ripple = ledger_time + 72 × 3600."""
+        from ward.constants import ESCROW_CANCEL_HOURS
+
+        KNOWN_TIME = 100_000_000
+        pool_wallet, patches = self._make_settlement_mocks(KNOWN_TIME)
+        _, cond, _ = generate_claim_condition()
+
+        settlement = EscrowSettlement()
+        for p in patches:
+            p.start()
+        try:
+            record = await settlement.create_claim_escrow(
+                pool_wallet=pool_wallet,
+                claimant_address=VALID_ADDRESS,
+                payout_drops=500_000,
+                condition_hex=cond,
+                nft_token_id=VALID_NFT_ID,
+                claim_id="claim-72h",
+            )
+        finally:
+            for p in patches:
+                try:
+                    p.stop()
+                except RuntimeError:
+                    pass
+
+        assert record.cancel_after_ripple == KNOWN_TIME + ESCROW_CANCEL_HOURS * 3_600
+        assert not getattr(record, "ward_signed", False)  # ward_signed = False
+
+    def test_settlement_ward_never_sees_preimage(self):
+        """create_claim_escrow signature has condition_hex, never fulfillment_hex."""
+        import inspect
+
+        settlement = EscrowSettlement()
+        params = list(inspect.signature(settlement.create_claim_escrow).parameters)
+        assert "condition_hex" in params
+        assert "fulfillment_hex" not in params
+        assert "preimage" not in params
+
+    def test_settlement_ward_signed_false(self):
+        """EscrowRecord carries no server-side signing flag; ward_signed=False."""
+        record = EscrowRecord(
+            claim_id="test",
+            nft_token_id=VALID_NFT_ID,
+            pool_address=VALID_ADDRESS,
+            claimant_address=VALID_ADDRESS2,
+            payout_drops=500_000,
+            escrow_sequence=1,
+            condition_hex="A" * 78,
+            tx_hash="B" * 64,
+        )
+        # ward_signed is False — Ward never holds server-side keys
+        assert not getattr(record, "ward_signed", False)
+        assert "ward_signed" not in record.__dataclass_fields__
+
+
+# ===========================================================================
+# Tests: VaultMonitor — reconnect loop and confirmation gate
+# ===========================================================================
+
+
+class TestVaultMonitorAdvanced:
+    """Reconnect on drop, recovery path, and 3-ledger confirmation gate."""
+
+    @pytest.mark.asyncio
+    async def test_monitor_reconnect_on_disconnect(self):
+        """run() reconnects automatically after a WebSocket disconnect."""
+        import asyncio as _asyncio
+
+        monitor = VaultMonitor(vault_addresses=[VALID_ADDRESS])
+        connect_count = 0
+
+        class _FakeClient:
+            async def __aenter__(self):
+                nonlocal connect_count
+                connect_count += 1
+                if connect_count == 1:
+                    raise OSError("simulated disconnect")
+                monitor._stop_event.set()
+                monitor._running = False
+                return self
+
+            async def __aexit__(self, *a):
+                pass
+
+            def __aiter__(self):
+                return self
+
+            async def __anext__(self):
+                raise StopAsyncIteration
+
+            async def send(self, *a):
+                pass
+
+        with patch("ward.vault_monitor.AsyncWebsocketClient", lambda _url: _FakeClient()):
+            with patch("ward.vault_monitor.asyncio.sleep", AsyncMock()):
+                await _asyncio.wait_for(monitor.run(), timeout=3.0)
+
+        assert connect_count == 2, (
+            f"Expected 2 connect attempts after 1 disconnect; got {connect_count}"
+        )
+
+    @pytest.mark.asyncio
+    async def test_monitor_resets_counter_on_recovery(self):
+        """When on-chain verify returns None (loan recovered), callback never fires."""
+        from ward.vault_monitor import DefaultSignal
+
+        monitor = VaultMonitor(vault_addresses=[VALID_ADDRESS], confirm_count=1)
+        fired: List = []
+
+        @monitor.on_verified_default
+        async def cb(event):
+            fired.append(event)
+
+        signal = DefaultSignal(
+            vault_address=VALID_ADDRESS,
+            loan_id=VALID_LOAN_ID,
+            health_ratio=0.5,
+            ledger_index=1000,
+        )
+        monitor._pending[VALID_LOAN_ID] = signal
+
+        with patch.object(monitor, "_verify_default_on_chain",
+                          AsyncMock(return_value=None)):
+            await monitor._process_pending_confirmations(AsyncMock(), 1001)
+
+        assert len(fired) == 0, "Callback must not fire when on-chain verify returns None"
+
+    @pytest.mark.asyncio
+    async def test_monitor_requires_3_consecutive_closes(self):
+        """on_verified_default fires on the 3rd ledger close, not the 2nd."""
+        from ward.vault_monitor import DefaultSignal, VerifiedDefault
+
+        monitor = VaultMonitor(vault_addresses=[VALID_ADDRESS], confirm_count=3)
+        fired: List = []
+
+        @monitor.on_verified_default
+        async def cb(event):
+            fired.append(event)
+
+        signal = DefaultSignal(
+            vault_address=VALID_ADDRESS,
+            loan_id=VALID_LOAN_ID,
+            health_ratio=0.5,
+            ledger_index=1000,
+        )
+        monitor._pending[VALID_LOAN_ID] = signal
+
+        verified_event = VerifiedDefault(
+            vault_address=VALID_ADDRESS,
+            loan_id=VALID_LOAN_ID,
+            health_ratio=0.5,
+            first_ledger_index=1000,
+            confirmed_ledger=1003,
+        )
+        mock_verify = AsyncMock(return_value=verified_event)
+        mock_client = AsyncMock()
+
+        with patch.object(monitor, "_verify_default_on_chain", mock_verify):
+            await monitor._process_pending_confirmations(mock_client, 1001)
+            assert len(fired) == 0, "Must not fire after 1st close"
+
+            await monitor._process_pending_confirmations(mock_client, 1002)
+            assert len(fired) == 0, "Must not fire after 2nd close"
+
+            await monitor._process_pending_confirmations(mock_client, 1003)
+            assert len(fired) == 1, "Must fire exactly once after 3rd close"
+
+
+# ===========================================================================
+# Tests: primitives — submit_with_retry and URI guard
+# ===========================================================================
+
+
+class TestPrimitivesAdvanced:
+    """submit_with_retry retry logic and the 512-hex-char URI guard."""
+
+    @pytest.mark.asyncio
+    async def test_submit_with_retry_retries_on_tel_insuf_fee(self):
+        """submit_with_retry retries on telINSUF_FEE_P then succeeds."""
+        from ward.primitives import submit_with_retry
+
+        call_count = 0
+
+        async def mock_submit(tx, client, wallet):
+            nonlocal call_count
+            call_count += 1
+            resp = MagicMock()
+            if call_count < 2:
+                resp.is_successful.return_value = False
+                resp.result = {
+                    "meta":          {"TransactionResult": "telINSUF_FEE_P"},
+                    "engine_result": "telINSUF_FEE_P",
+                }
+            else:
+                resp.is_successful.return_value = True
+                resp.result = {"meta": {"TransactionResult": "tesSUCCESS"}}
+            return resp
+
+        with patch("ward.primitives.submit_and_wait", mock_submit):
+            with patch("ward.primitives.asyncio.sleep", AsyncMock()):
+                result = await submit_with_retry(
+                    MagicMock(), MagicMock(), MagicMock(),
+                    max_attempts=3, base_delay=0.0,
+                )
+
+        assert call_count == 2, f"Expected 2 attempts; got {call_count}"
+        assert result.is_successful()
+
+    @pytest.mark.asyncio
+    async def test_submit_with_retry_raises_on_non_retryable(self):
+        """submit_with_retry raises LedgerError immediately on tecNO_DST."""
+        from ward.primitives import submit_with_retry, LedgerError
+
+        call_count = 0
+
+        async def mock_submit(tx, client, wallet):
+            nonlocal call_count
+            call_count += 1
+            resp = MagicMock()
+            resp.is_successful.return_value = False
+            resp.result = {
+                "meta":          {"TransactionResult": "tecNO_DST"},
+                "engine_result": "tecNO_DST",
+            }
+            return resp
+
+        with patch("ward.primitives.submit_and_wait", mock_submit):
+            with pytest.raises(LedgerError, match="tecNO_DST"):
+                await submit_with_retry(MagicMock(), MagicMock(), MagicMock())
+
+        assert call_count == 1, "Non-retryable error must not be retried"
+
+    def test_uri_hex_assertion_fires_over_512(self):
+        """_parse_nft_metadata rejects any NFT URI longer than 512 hex chars."""
+        long_meta = {
+            "w":     "ward-v1",
+            "v":     VALID_ADDRESS,
+            "c":     "1000000",
+            "e":     999_999,
+            "extra": "x" * 300,   # pushes JSON well over 256 bytes
+        }
+        uri_hex = json.dumps(long_meta, separators=(",", ":")).encode().hex().upper()
+        assert len(uri_hex) > 512, "Test setup: URI must exceed 512 hex chars"
+
+        nft_data = {
+            "URI":          uri_hex,
+            "NFTokenID":    VALID_NFT_ID,
+            "NFTokenTaxon": WARD_POLICY_TAXON,
+        }
+        _, err = ClaimValidator._parse_nft_metadata(nft_data)
+        assert err is not None, "Expected an error for URI > 512 hex chars"
+        assert "512" in err
 
 
 # ===========================================================================

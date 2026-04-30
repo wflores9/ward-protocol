@@ -7,9 +7,7 @@ and XLS-66 loan defaults.
 
 import asyncio
 import logging
-from typing import Callable, Optional, Dict, List, Awaitable
-
-from xrpl.asyncio.clients import AsyncWebsocketClient
+from typing import Callable, Dict, List, Optional
 
 from .chain_reader import ChainReader
 

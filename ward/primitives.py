@@ -20,7 +20,7 @@ import time
 from typing import Optional, Tuple
 
 from xrpl.asyncio.clients import AsyncJsonRpcClient
-from xrpl.asyncio.transaction import autofill, submit_and_wait
+from xrpl.asyncio.transaction import submit_and_wait
 from xrpl.core.addresscodec import is_valid_classic_address
 from xrpl.models import Ledger, ServerInfo
 from xrpl.models.transactions import Transaction
