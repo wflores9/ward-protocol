@@ -12,8 +12,6 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
-import time
-from collections import deque
 from dataclasses import dataclass
 from typing import Optional, Tuple
 
@@ -21,8 +19,6 @@ from xrpl.asyncio.clients import AsyncJsonRpcClient
 from xrpl.models import AccountInfo, AccountNFTs, LedgerEntry
 
 from ward.constants import (
-    CLAIM_RATE_LIMIT_MAX,
-    CLAIM_RATE_LIMIT_WINDOW_S,
     DEFAULT_TESTNET_URL,
     MIN_COVERAGE_RATIO,
     WARD_POLICY_TAXON,
@@ -32,6 +28,7 @@ from ward.constants import (
 from ward.primitives import (
     LedgerError,
     ValidationError,
+    check_rate_limit,
     get_ledger_close_time,
     validate_nft_id,
     validate_xrpl_address,
@@ -67,7 +64,6 @@ class ClaimValidator:
 
     def __init__(self, url: str = DEFAULT_TESTNET_URL) -> None:
         self._url = url
-        self._rate_window: deque = deque()
 
     async def validate_claim(
         self,
@@ -84,7 +80,7 @@ class ClaimValidator:
         Input validation errors are returned as ValidationResult(approved=False,
         steps_passed=0) rather than raised as exceptions.
         """
-        # -- Input validation (return failed result, do not raise) -----------
+        # -- Input validation at boundary (2.10 address injection) ----------
         try:
             validate_xrpl_address(claimant_address, "claimant_address")
             validate_xrpl_address(defaulted_vault,  "defaulted_vault")
@@ -97,17 +93,8 @@ class ClaimValidator:
                 steps_passed=0,
             )
 
-        try:
-            self._check_rate_limit(claimant_address)
-        except ValidationError as exc:
-            return ValidationResult(
-                approved=False,
-                rejection_reason=str(exc),
-                steps_passed=0,
-            )
-
         async with AsyncJsonRpcClient(self._url) as client:
-            # Steps 1, 4, pool-info can start in parallel.
+            # Steps 1, 4, pool-info run concurrently.
             nft_data, (default_flag, vault_loss), pool_info = await asyncio.gather(
                 self._step1_verify_nft_exists(client, claimant_address, nft_token_id),
                 self._step4_verify_default_flag(client, loan_id),
@@ -157,6 +144,14 @@ class ClaimValidator:
                 metadata.get("coverage_drops") or metadata.get("c") or 0
             )
             payout = min(vault_loss, policy_coverage)
+
+            # Step 9: rate-limit per NFT token ID (2.12) then pool solvency.
+            # Rate-limit checked here so steps 1–8 (cheap chain reads) run first
+            # and the window is only consumed when the claim is otherwise valid.
+            try:
+                check_rate_limit(nft_token_id)
+            except ValidationError as exc:
+                return self._reject(9, str(exc))
 
             sol_err = self._step9_check_pool_solvency(pool_info, payout)
             if sol_err:
@@ -327,23 +322,6 @@ class ClaimValidator:
         except Exception as exc:
             logger.error("fetch_pool_info error: %s", exc)
             return None
-
-    # ------------------------------------------------------------------ #
-    # Utilities                                                            #
-    # ------------------------------------------------------------------ #
-
-    def _check_rate_limit(self, address: str) -> None:
-        now = time.monotonic()
-        self._rate_window = deque(
-            t for t in self._rate_window
-            if now - t < CLAIM_RATE_LIMIT_WINDOW_S
-        )
-        if len(self._rate_window) >= CLAIM_RATE_LIMIT_MAX:
-            raise ValidationError(
-                f"Rate limit exceeded: max {CLAIM_RATE_LIMIT_MAX} "
-                f"claims per {CLAIM_RATE_LIMIT_WINDOW_S}s"
-            )
-        self._rate_window.append(now)
 
     @staticmethod
     def _reject(step: int, reason: str) -> ValidationResult:

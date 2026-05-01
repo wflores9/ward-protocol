@@ -23,16 +23,19 @@ DEFAULT_MAINNET_WS:  str = "wss://xrplcluster.com/"
 # XLS-20 NFToken flags
 # ---------------------------------------------------------------------------
 
-TF_BURNABLE:  int = 0x00000001   # Issuer can burn the NFT
-TF_ONLY_XRP:  int = 0x00000002   # Not used by Ward, but present in xrpl-py
-# TF_TRANSFERABLE intentionally omitted — Ward policies are non-transferable
+TF_BURNABLE:      int = 0x00000001   # Issuer can burn the NFT
+TF_ONLY_XRP:      int = 0x00000002   # Not used by Ward, but present in xrpl-py
+TF_TRANSFERABLE:  int = 0x00000008   # Defined here to DOCUMENT its absence.
+# Ward policies MUST NOT use TF_TRANSFERABLE. Only TF_BURNABLE is set.
+# Audit check: assert (flags & TF_TRANSFERABLE) == 0 on every NFTokenMint.
 
 # ---------------------------------------------------------------------------
 # Ward Protocol NFT taxon values  (XLS-20 §4.3)
 # ---------------------------------------------------------------------------
 
-WARD_POLICY_TAXON:    int = 282   # Default-protection policy NFT
-CREDENTIAL_NFT_TAXON: int = 283   # KYC/AML credential NFT
+WARD_POLICY_TAXON:    int = 281   # Default-protection policy NFT (XLS-20 taxon)
+WARD_CREDENTIAL_TAXON: int = 282  # KYC/AML credential NFT (XLS-70)
+CREDENTIAL_NFT_TAXON: int = WARD_CREDENTIAL_TAXON   # backward-compat alias
 
 # ---------------------------------------------------------------------------
 # KYC / credential
@@ -140,3 +143,18 @@ TIER_MULTIPLIERS: dict = {
 # ---------------------------------------------------------------------------
 
 TIER_MINT_GATES = LicenseTier.TIER_MINT_GATES
+
+# ---------------------------------------------------------------------------
+# Monitor endpoint whitelist  (attack vector 2.7 — monitor spoofing)
+# Only TLS (wss://) endpoints. ws:// connections are always rejected.
+# ---------------------------------------------------------------------------
+
+ALLOWED_WS_URLS: frozenset = frozenset({
+    "wss://s.altnet.rippletest.net:51233/",
+    "wss://xrplcluster.com/",
+    "wss://s1.ripple.com/",
+    "wss://s2.ripple.com/",
+})
+
+# Heartbeat: reconnect if no ledger_closed event received within this window.
+MONITOR_HEARTBEAT_TIMEOUT_S: int = 60
