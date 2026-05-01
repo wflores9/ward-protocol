@@ -4,7 +4,7 @@
 
 [![Website](https://img.shields.io/badge/website-wardprotocol.org-blue)](https://www.wardprotocol.org)
 [![SDK Version](https://img.shields.io/badge/SDK-v0.2.2-green)](#sdk-changelog)
-[![Tests](https://img.shields.io/badge/tests-95%2F95-brightgreen)](#running-tests)
+[![Tests](https://img.shields.io/badge/tests-146%2F146-brightgreen)](#running-tests)
 [![XRPL Standards](https://img.shields.io/badge/XRPL-XLS--66%20%C2%B7%20XLS--70%20%C2%B7%20XLS--20-orange)](https://github.com/XRPLF/XRPL-Standards)
 [![License](https://img.shields.io/badge/license-MIT-lightgrey)](LICENSE)
 
