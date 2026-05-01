@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+           https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>org.ward</groupId>
+  <artifactId>ward-java-starter</artifactId>
+  <version>0.2.2</version>
+  <packaging>jar</packaging>
+
+  <name>Ward Protocol — Java Starter</name>
+  <description>
+    Java starter examples for Ward Protocol using xrpl4j v6.0.0.
+    Demonstrates vault registration (F·01), claim validation (F·02),
+    and escrow settlement (F·03). ward_signed = false throughout.
+  </description>
+
+  <properties>
+    <java.version>17</java.version>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <xrpl4j.version>6.0.0</xrpl4j.version>
+    <jackson.version>2.17.2</jackson.version>
+    <slf4j.version>2.0.13</slf4j.version>
+  </properties>
+
+  <dependencies>
+
+    <!-- xrpl4j core: address codec, key pairs, crypto conditions -->
+    <dependency>
+      <groupId>org.xrpl</groupId>
+      <artifactId>xrpl4j-core</artifactId>
+      <version>${xrpl4j.version}</version>
+    </dependency>
+
+    <!-- xrpl4j client: JSON-RPC and WebSocket -->
+    <dependency>
+      <groupId>org.xrpl</groupId>
+      <artifactId>xrpl4j-client</artifactId>
+      <version>${xrpl4j.version}</version>
+    </dependency>
+
+    <!-- xrpl4j crypto: wallet generation, signing -->
+    <dependency>
+      <groupId>org.xrpl</groupId>
+      <artifactId>xrpl4j-crypto-bouncycastle</artifactId>
+      <version>${xrpl4j.version}</version>
+    </dependency>
+
+    <!-- Jackson for JSON serialisation -->
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>${jackson.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.datatype</groupId>
+      <artifactId>jackson-datatype-jdk8</artifactId>
+      <version>${jackson.version}</version>
+    </dependency>
+
+    <!-- Logging -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <version>${slf4j.version}</version>
+    </dependency>
+
+    <!-- dotenv for .env file loading -->
+    <dependency>
+      <groupId>io.github.cdimascio</groupId>
+      <artifactId>dotenv-java</artifactId>
+      <version>3.0.0</version>
+    </dependency>
+
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.13.0</version>
+        <configuration>
+          <source>${java.version}</source>
+          <target>${java.version}</target>
+        </configuration>
+      </plugin>
+
+      <!-- Shade plugin to create runnable fat-jars -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>3.6.0</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals><goal>shade</goal></goals>
+            <configuration>
+              <createDependencyReducedPom>false</createDependencyReducedPom>
+              <filters>
+                <filter>
+                  <artifact>*:*</artifact>
+                  <excludes>
+                    <exclude>META-INF/*.SF</exclude>
+                    <exclude>META-INF/*.DSA</exclude>
+                    <exclude>META-INF/*.RSA</exclude>
+                  </excludes>
+                </filter>
+              </filters>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>
