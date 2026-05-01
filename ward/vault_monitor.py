@@ -22,11 +22,13 @@ from xrpl.asyncio.clients import AsyncWebsocketClient
 from xrpl.models import LedgerEntry, Subscribe
 
 from ward.constants import (
+    ALLOWED_WS_URLS,
     DEFAULT_CONFIRM_COUNT,
     DEFAULT_TESTNET_WS,
     LSF_LOAN_DEFAULT,
+    MONITOR_HEARTBEAT_TIMEOUT_S,
 )
-from ward.primitives import validate_xrpl_address
+from ward.primitives import ValidationError, validate_xrpl_address
 
 logger = logging.getLogger("ward.vault_monitor")
 
@@ -94,6 +96,9 @@ class VaultMonitor:
         websocket_url: str = DEFAULT_TESTNET_WS,
         confirm_count: int = DEFAULT_CONFIRM_COUNT,
     ) -> None:
+        # 2.7 — reject non-TLS and unknown endpoints at construction time.
+        _validate_ws_url(websocket_url)
+
         self._ws_url        = websocket_url
         self._confirm_count = confirm_count
 
@@ -145,9 +150,11 @@ class VaultMonitor:
 
     async def run(self) -> None:
         """
-        Start monitoring. Reconnects automatically on disconnect.
+        Start monitoring. Reconnects automatically on disconnect or heartbeat timeout.
 
-        Exponential backoff: 1s, 2s, 4s, 8s (max 60s).
+        Exponential backoff: 1s, 2s, 4s, 8s … max 60s.
+        Heartbeat: if no ledger_closed event arrives within
+        MONITOR_HEARTBEAT_TIMEOUT_S seconds, treat as disconnect (2.15).
         """
         self._running = True
         delay = 1.0
@@ -157,10 +164,7 @@ class VaultMonitor:
                 async with AsyncWebsocketClient(self._ws_url) as client:
                     delay = 1.0  # reset on successful connect
                     await self._subscribe(client)
-                    async for message in client:
-                        if self._stop_event.is_set():
-                            break
-                        await self._handle_message(client, message)
+                    await self._run_with_heartbeat(client)
             except asyncio.CancelledError:
                 break
             except Exception as exc:
@@ -171,6 +175,32 @@ class VaultMonitor:
                     )
                     await asyncio.sleep(delay)
                     delay = min(delay * 2, 60.0)
+
+    async def _run_with_heartbeat(self, client: AsyncWebsocketClient) -> None:
+        """
+        Run the message loop with a per-message heartbeat timeout (2.15).
+
+        If no message arrives within MONITOR_HEARTBEAT_TIMEOUT_S seconds,
+        raises asyncio.TimeoutError to trigger reconnect.
+        """
+        aiter = client.__aiter__()
+        while True:
+            try:
+                message = await asyncio.wait_for(
+                    aiter.__anext__(),
+                    timeout=float(MONITOR_HEARTBEAT_TIMEOUT_S),
+                )
+            except asyncio.TimeoutError:
+                logger.warning(
+                    "VaultMonitor heartbeat timeout (%ds) — reconnecting.",
+                    MONITOR_HEARTBEAT_TIMEOUT_S,
+                )
+                raise
+            except StopAsyncIteration:
+                return
+            if self._stop_event.is_set():
+                return
+            await self._handle_message(client, message)
 
     async def stop(self) -> None:
         self._stop_event.set()
@@ -312,3 +342,30 @@ class VaultMonitor:
                 await cb(event)
             except Exception as exc:
                 logger.error("Callback error: %s", exc)
+
+
+# ---------------------------------------------------------------------------
+# Module-level helpers
+# ---------------------------------------------------------------------------
+
+
+def _validate_ws_url(url: str) -> None:
+    """
+    Validate a WebSocket URL against the allow-list (attack vector 2.7).
+
+    Rules:
+      - Must use wss:// (TLS required — ws:// is rejected)
+      - Must be in ALLOWED_WS_URLS
+
+    Raises:
+        ValidationError: if the URL fails either check.
+    """
+    if not url.startswith("wss://"):
+        raise ValidationError(
+            f"VaultMonitor WebSocket URL must use wss:// (TLS required): {url!r}"
+        )
+    if url not in ALLOWED_WS_URLS:
+        raise ValidationError(
+            f"VaultMonitor WebSocket URL not in allowed list: {url!r}. "
+            f"Allowed: {sorted(ALLOWED_WS_URLS)}"
+        )

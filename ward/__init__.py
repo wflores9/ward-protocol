@@ -19,6 +19,7 @@ __version__ = "0.2.2"
 
 from ward.client import WardClient
 from ward.constants import (
+    ALLOWED_WS_URLS,
     CLAIM_RATE_LIMIT_MAX,
     CLAIM_RATE_LIMIT_WINDOW_S,
     CREDENTIAL_NFT_TAXON,
@@ -30,9 +31,12 @@ from ward.constants import (
     ESCROW_DISPUTE_HOURS,
     LSF_LOAN_DEFAULT,
     MIN_COVERAGE_RATIO,
+    MONITOR_HEARTBEAT_TIMEOUT_S,
     RIPPLE_EPOCH_OFFSET,
     TF_BURNABLE,
+    TF_TRANSFERABLE,
     VALID_KYC_TYPES,
+    WARD_CREDENTIAL_TAXON,
     WARD_POLICY_TAXON,
     XRP_MAX_DROPS,
     XRPL_BASE_RESERVE_DROPS,
@@ -45,11 +49,13 @@ from ward.primitives import (
     SecurityError,
     ValidationError,
     WardError,
+    check_rate_limit,
     generate_claim_preimage,
     get_ledger_close_time,
     make_preimage_condition,
     ripple_time_now,
     submit_with_retry,
+    validate_drops,
     validate_drops_amount,
     validate_nft_id,
     validate_wallet,
@@ -71,8 +77,9 @@ __all__ = [
     "WardError", "ValidationError", "SecurityError", "LedgerError",
 
     # Validators / crypto utilities
-    "validate_xrpl_address", "validate_drops_amount", "validate_nft_id",
-    "validate_wallet",
+    "validate_xrpl_address", "validate_drops_amount", "validate_drops",
+    "validate_nft_id", "validate_wallet",
+    "check_rate_limit",
     "make_preimage_condition", "generate_claim_preimage",
     "get_ledger_close_time", "ripple_time_now",
     "submit_with_retry",
@@ -83,15 +90,18 @@ __all__ = [
     # Network endpoints
     "DEFAULT_TESTNET_URL", "DEFAULT_TESTNET_WS",
     "DEFAULT_MAINNET_URL", "DEFAULT_MAINNET_WS",
+    "ALLOWED_WS_URLS",
 
     # NFT / taxon constants
-    "WARD_POLICY_TAXON", "CREDENTIAL_NFT_TAXON", "TF_BURNABLE",
+    "WARD_POLICY_TAXON", "WARD_CREDENTIAL_TAXON", "CREDENTIAL_NFT_TAXON",
+    "TF_BURNABLE", "TF_TRANSFERABLE",
     "VALID_KYC_TYPES",
 
     # Risk / rate constants
     "MIN_COVERAGE_RATIO",
     "CLAIM_RATE_LIMIT_MAX", "CLAIM_RATE_LIMIT_WINDOW_S",
     "ESCROW_DISPUTE_HOURS", "ESCROW_CANCEL_HOURS",
+    "MONITOR_HEARTBEAT_TIMEOUT_S",
 
     # XRPL chain constants
     "LSF_LOAN_DEFAULT",

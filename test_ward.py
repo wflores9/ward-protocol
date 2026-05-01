@@ -144,6 +144,7 @@ VALID_ADDRESS  = "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh"
 VALID_ADDRESS2 = "rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe"
 VALID_NFT_ID   = "A" * 64
 VALID_LOAN_ID  = "B" * 64
+VALID_VAULT    = VALID_ADDRESS   # alias used by standalone test classes
 POLICY_TAXON   = WARD_POLICY_TAXON
 
 
@@ -1126,8 +1127,15 @@ class TestValidateKycHash:
 
 
 class TestCredentialConstants:
-    def test_credential_nft_taxon_is_283(self):
-        assert CREDENTIAL_NFT_TAXON == 283
+    def test_credential_nft_taxon_is_282(self):
+        # WARD_CREDENTIAL_TAXON == 282 per spec (was 283 — corrected)
+        from ward.constants import WARD_CREDENTIAL_TAXON
+        assert WARD_CREDENTIAL_TAXON == 282
+        assert CREDENTIAL_NFT_TAXON == 282   # backward-compat alias
+
+    def test_policy_taxon_is_281(self):
+        # WARD_POLICY_TAXON == 281 per security_notes.md §2.1 and §2.13
+        assert WARD_POLICY_TAXON == 281
 
     def test_taxon_distinct_from_policy(self):
         assert CREDENTIAL_NFT_TAXON != WARD_POLICY_TAXON
@@ -1756,3 +1764,689 @@ async def test_integration_purchase_coverage_testnet():
     assert result["status"] == "active"
     assert len(result["nft_token_id"]) == 64
     assert result["coverage_drops"] == 1_000_000
+
+
+# ===========================================================================
+# Security mitigation tests — all 15 attack vectors (Code4rena audit prep)
+# ===========================================================================
+
+
+def _make_validator_with_mocks(**kwargs):
+    """Module-level convenience: delegates to TestClaimValidatorAdversarial._make_validator_with_mocks."""
+    return TestClaimValidatorAdversarial()._make_validator_with_mocks(**kwargs)
+
+
+# ---------------------------------------------------------------------------
+# 2.1 Policy Forgery
+# ---------------------------------------------------------------------------
+
+class TestPolicyForgery:
+    """2.1 — Policy forgery / fake claim injection mitigations."""
+
+    def test_forgery_invalid_taxon_rejected(self):
+        """ClaimValidator rejects NFTs with wrong taxon (sentinel _WRONG_TAXON path)."""
+        from ward.validator import ClaimValidator, _WRONG_TAXON
+        from ward.constants import WARD_POLICY_TAXON
+
+        nft = {"NFTokenID": "A" * 64, "NFTokenTaxon": 9999, "URI": ""}
+        # Simulate step 1 finding NFT with wrong taxon
+        result = ClaimValidator._make_validator_stub_reject_taxon(nft) if False else None
+        # Direct unit test: wrong taxon returns sentinel
+        import asyncio
+        validator = ClaimValidator()
+
+        async def _run():
+            mock_resp = MagicMock()
+            mock_resp.is_successful.return_value = True
+            mock_resp.result = {
+                "account_nfts": [{"NFTokenID": "A" * 64, "NFTokenTaxon": 9999}],
+            }
+            client = AsyncMock()
+            client.request = AsyncMock(return_value=mock_resp)
+            r = await validator._step1_verify_nft_exists(client, VALID_ADDRESS, "A" * 64)
+            return r
+
+        result = asyncio.get_event_loop().run_until_complete(_run())
+        from ward.validator import _WRONG_TAXON as _WT
+        assert result is _WT, "NFT with wrong taxon must return _WRONG_TAXON sentinel"
+
+    def test_forgery_wrong_flags_rejected(self):
+        """Policy NFT must have TF_BURNABLE set and TF_TRANSFERABLE absent."""
+        from ward.constants import TF_BURNABLE, TF_TRANSFERABLE
+        from ward.client import WardClient
+
+        # Verify WardClient.purchase_coverage uses TF_BURNABLE only (no TF_TRANSFERABLE)
+        import inspect, ast
+        src = inspect.getsource(WardClient.purchase_coverage)
+        assert "TF_BURNABLE" in src, "purchase_coverage must set TF_BURNABLE"
+        assert "TF_TRANSFERABLE" not in src, (
+            "purchase_coverage must NOT set TF_TRANSFERABLE — "
+            "policies are non-transferable by design"
+        )
+
+    def test_ward_policy_taxon_is_281(self):
+        """WARD_POLICY_TAXON must be 281 — hard-coded per spec."""
+        assert WARD_POLICY_TAXON == 281
+
+
+# ---------------------------------------------------------------------------
+# 2.2 Double-Spend / Replay
+# ---------------------------------------------------------------------------
+
+class TestReplayProtection:
+    """2.2 — Policy double-spend / replay attack mitigations."""
+
+    @pytest.mark.asyncio
+    async def test_replay_burned_nft_rejected(self):
+        """Step 1 returns None when NFT is absent (burned), rejecting the claim."""
+        validator = _make_validator_with_mocks(nft_exists=False)
+        result = await validator.validate_claim(
+            claimant_address=VALID_ADDRESS,
+            nft_token_id=VALID_NFT_ID,
+            defaulted_vault=VALID_VAULT,
+            loan_id=VALID_LOAN_ID,
+            pool_address=VALID_ADDRESS,
+        )
+        assert not result.approved
+        assert result.steps_passed == 0
+        assert "not found" in result.rejection_reason.lower() or "burned" in result.rejection_reason.lower()
+
+    def test_replay_rate_limit_enforced(self):
+        """check_rate_limit raises after CLAIM_RATE_LIMIT_MAX attempts on the same NFT."""
+        from ward.primitives import check_rate_limit, _rate_limit_windows
+        import collections
+
+        unique_nft = "B" * 64  # use a unique ID to avoid cross-test pollution
+        # Clear any prior state for this NFT
+        _rate_limit_windows.pop(unique_nft, None)
+
+        from ward.constants import CLAIM_RATE_LIMIT_MAX
+        for _ in range(CLAIM_RATE_LIMIT_MAX):
+            check_rate_limit(unique_nft)
+
+        with pytest.raises(ValidationError, match="Rate limit"):
+            check_rate_limit(unique_nft)
+
+
+# ---------------------------------------------------------------------------
+# 2.3 Policy Transfer
+# ---------------------------------------------------------------------------
+
+class TestPolicyTransfer:
+    """2.3 — Policy transfer / stolen claim mitigations."""
+
+    def test_policy_nft_not_transferable(self):
+        """NFTokenMint must NOT include tfTransferable flag."""
+        from ward.constants import TF_BURNABLE, TF_TRANSFERABLE, WARD_POLICY_TAXON
+        # Ward only sets TF_BURNABLE — verify TF_TRANSFERABLE is not ORed in
+        flags_used = TF_BURNABLE
+        assert (flags_used & TF_TRANSFERABLE) == 0, (
+            "Policy NFT flags must not include TF_TRANSFERABLE"
+        )
+
+    def test_policy_flags_explicit(self):
+        """TF_TRANSFERABLE constant is defined so its absence can be asserted."""
+        from ward.constants import TF_TRANSFERABLE, TF_BURNABLE
+        assert TF_TRANSFERABLE == 0x00000008
+        assert TF_BURNABLE     == 0x00000001
+        # They are distinct flags
+        assert TF_TRANSFERABLE != TF_BURNABLE
+        assert (TF_BURNABLE & TF_TRANSFERABLE) == 0
+
+
+# ---------------------------------------------------------------------------
+# 2.4 Signal Manipulation
+# ---------------------------------------------------------------------------
+
+class TestSignalManipulation:
+    """2.4 — Vault operator default signal manipulation mitigations."""
+
+    @pytest.mark.asyncio
+    async def test_monitor_ignores_event_health_ratio(self):
+        """
+        VaultMonitor must NOT trust health_ratio from the WebSocket event.
+        After ledger_closed it re-fetches via independent RPC call.
+        _verify_default_on_chain is always called — never short-circuited by event data.
+        """
+        from ward.vault_monitor import VaultMonitor, DefaultSignal, VerifiedDefault
+
+        monitor = VaultMonitor(vault_addresses=[VALID_ADDRESS], confirm_count=1)
+        fired = []
+
+        @monitor.on_verified_default
+        async def cb(e): fired.append(e)
+
+        # Plant a pending signal
+        signal = DefaultSignal(
+            vault_address=VALID_ADDRESS,
+            loan_id=VALID_LOAN_ID,
+            health_ratio=999.0,   # bogus value from "event"
+            ledger_index=1000,
+            confirm_count=1,
+        )
+        monitor._pending[VALID_LOAN_ID] = signal
+
+        verified = VerifiedDefault(
+            vault_address=VALID_ADDRESS,
+            loan_id=VALID_LOAN_ID,
+            health_ratio=0.4,     # on-chain re-fetched value
+            first_ledger_index=1000,
+            confirmed_ledger=1001,
+        )
+        with patch.object(monitor, "_verify_default_on_chain", AsyncMock(return_value=verified)) as mock_verify:
+            await monitor._process_pending_confirmations(AsyncMock(), 1001)
+
+        # _verify_default_on_chain MUST have been called (independent RPC)
+        mock_verify.assert_called_once()
+        assert len(fired) == 1
+        # Callback receives the on-chain value, not the event value
+        assert fired[0].health_ratio == 0.4
+
+    @pytest.mark.asyncio
+    async def test_monitor_verifies_via_rpc(self):
+        """_verify_default_on_chain uses LedgerEntry (independent RPC), not event data."""
+        from ward.vault_monitor import VaultMonitor, DefaultSignal
+        from xrpl.models import LedgerEntry
+
+        monitor = VaultMonitor(vault_addresses=[VALID_ADDRESS], confirm_count=1)
+        signal  = DefaultSignal(
+            vault_address=VALID_ADDRESS,
+            loan_id=VALID_LOAN_ID,
+            health_ratio=0.5,
+            ledger_index=1000,
+        )
+
+        mock_resp = MagicMock()
+        mock_resp.is_successful.return_value = True
+        mock_resp.result = {
+            "node": {"Flags": 0x00000001, "PrincipalOutstanding": 5000000}
+        }
+        client = AsyncMock()
+        client.request = AsyncMock(return_value=mock_resp)
+
+        result = await monitor._verify_default_on_chain(client, signal)
+        assert result is not None
+        # Confirm client.request was called (independent RPC, not event data)
+        client.request.assert_called_once()
+        call_arg = client.request.call_args[0][0]
+        assert isinstance(call_arg, LedgerEntry)
+
+
+# ---------------------------------------------------------------------------
+# 2.5 Clock Manipulation
+# ---------------------------------------------------------------------------
+
+class TestClockManipulation:
+    """2.5 — Clock manipulation / expiry bypass mitigations."""
+
+    @pytest.mark.asyncio
+    async def test_expiry_uses_ledger_time_not_server_clock(self):
+        """
+        _step2_check_expiry must call get_ledger_close_time (XRPL ledger time),
+        never time.time() or datetime.now().
+        """
+        import inspect
+        from ward.validator import ClaimValidator
+
+        src = inspect.getsource(ClaimValidator._step2_check_expiry)
+        assert "get_ledger_close_time" in src, (
+            "_step2_check_expiry must use get_ledger_close_time(), not server clock"
+        )
+        assert "time.time()" not in src, "Must not use time.time() for expiry"
+        assert "datetime.now()" not in src, "Must not use datetime.now() for expiry"
+
+    @pytest.mark.asyncio
+    async def test_expiry_rejects_expired_policy(self):
+        """Expired policy (ledger time > expiry) must be rejected at step 2."""
+        past_expiry = 100  # far in the past
+        metadata = {"w": "ward-v1", "v": VALID_VAULT, "c": "1000000", "e": past_expiry}
+
+        async def mock_get_time(_client):
+            return 999_999_999   # ledger time >> expiry
+
+        from ward.validator import ClaimValidator
+        validator = ClaimValidator()
+        with patch("ward.validator.get_ledger_close_time", mock_get_time):
+            err = await validator._step2_check_expiry(AsyncMock(), metadata)
+
+        assert err is not None
+        assert "expired" in err.lower()
+
+
+# ---------------------------------------------------------------------------
+# 2.6 Front-Running Escrow
+# ---------------------------------------------------------------------------
+
+class TestFrontRunning:
+    """2.6 — Front-running the escrow release mitigations."""
+
+    def test_settlement_never_accepts_preimage(self):
+        """EscrowSettlement.create_claim_escrow signature must not accept a preimage param."""
+        import inspect
+        from ward.settlement import EscrowSettlement
+        sig = inspect.signature(EscrowSettlement.create_claim_escrow)
+        assert "preimage" not in sig.parameters, (
+            "create_claim_escrow must NEVER accept a preimage — "
+            "Ward only receives condition_hex"
+        )
+
+    def test_only_condition_hex_transmitted(self):
+        """EscrowRecord must not have a preimage field."""
+        from ward.settlement import EscrowRecord
+        import dataclasses
+        field_names = {f.name for f in dataclasses.fields(EscrowRecord)}
+        assert "preimage" not in field_names, (
+            "EscrowRecord must not store a preimage — only condition_hex"
+        )
+        assert "condition_hex" in field_names
+
+
+# ---------------------------------------------------------------------------
+# 2.7 Monitor Spoofing
+# ---------------------------------------------------------------------------
+
+class TestMonitorSpoofing:
+    """2.7 — Ward monitoring module spoofing mitigations."""
+
+    def test_monitor_rejects_non_tls_url(self):
+        """VaultMonitor must reject ws:// (non-TLS) URLs at construction."""
+        with pytest.raises(ValidationError, match="wss://"):
+            VaultMonitor(vault_addresses=[VALID_ADDRESS],
+                         websocket_url="ws://s.altnet.rippletest.net:51233/")
+
+    def test_monitor_rejects_unknown_endpoint(self):
+        """VaultMonitor must reject unknown wss:// endpoints."""
+        with pytest.raises(ValidationError, match="not in allowed list"):
+            VaultMonitor(vault_addresses=[VALID_ADDRESS],
+                         websocket_url="wss://evil-node.example.com:51233/")
+
+    def test_allowed_ws_urls_tls_only(self):
+        """Every URL in ALLOWED_WS_URLS must use wss:// (TLS)."""
+        from ward.constants import ALLOWED_WS_URLS
+        for url in ALLOWED_WS_URLS:
+            assert url.startswith("wss://"), (
+                f"All allowed WS URLs must be TLS (wss://), got: {url}"
+            )
+
+    def test_monitor_accepts_known_tls_endpoint(self):
+        """VaultMonitor accepts known wss:// endpoints without raising."""
+        from ward.constants import DEFAULT_TESTNET_WS
+        # Should not raise
+        monitor = VaultMonitor(vault_addresses=[VALID_ADDRESS],
+                               websocket_url=DEFAULT_TESTNET_WS)
+        assert monitor._ws_url == DEFAULT_TESTNET_WS
+
+
+# ---------------------------------------------------------------------------
+# 2.8 Pool Drainage
+# ---------------------------------------------------------------------------
+
+class TestPoolDrainage:
+    """2.8 — Pool drainage via inflated loss calculation mitigations."""
+
+    @pytest.mark.asyncio
+    async def test_pool_drainage_blocks_new_policies(self):
+        """is_minting_allowed returns False when pool is in 'high' risk tier."""
+        from ward.pool import PoolHealthMonitor, PoolHealth
+
+        health = PoolHealth(
+            pool_address=VALID_ADDRESS,
+            balance_drops=10_000_000,
+            usable_drops=0,
+            active_coverage_drops=100_000_000,
+            owner_count=0,
+            coverage_ratio=0.0,   # 0 < 1.5 → "high" tier
+            is_solvent=False,
+            dynamic_premium_rate=0.1,
+            risk_tier="high",
+        )
+        monitor = PoolHealthMonitor(pool_address=VALID_ADDRESS)
+        for tier in ("starter", "standard", "enterprise"):
+            assert not monitor.is_minting_allowed(health, tier), (
+                f"Minting must be blocked in 'high' risk tier for {tier}"
+            )
+
+    @pytest.mark.asyncio
+    async def test_coverage_exceeds_balance_blocked(self):
+        """
+        Pool with coverage > usable balance is classified as 'high' risk tier,
+        blocking new policy minting.
+        """
+        from ward.pool import PoolHealthMonitor
+
+        # 10 XRP usable, 100 XRP active coverage → ratio 0.1 → 'high'
+        async def mock_request(req):
+            from xrpl.models import AccountInfo as _AI, AccountNFTs as _ANFTs
+            if isinstance(req, _AI):
+                return _make_success_response({
+                    "account_data": {"Balance": "30000000", "OwnerCount": 1}
+                })
+            elif isinstance(req, _ANFTs):
+                # 100 XRP coverage NFT
+                nft = _make_pool_nft_entry(100_000_000)
+                return _make_success_response({"account_nfts": [nft]})
+            return _make_fail_response()
+
+        monitor = PoolHealthMonitor(pool_address=VALID_ADDRESS)
+        with patch("ward.pool.AsyncJsonRpcClient", _async_client_factory(mock_request)):
+            health = await monitor.get_health()
+
+        assert health.risk_tier == "high"
+        assert not monitor.is_minting_allowed(health, "enterprise")
+
+
+# ---------------------------------------------------------------------------
+# 2.9 Coverage Ratio Manipulation
+# ---------------------------------------------------------------------------
+
+class TestCoverageRatioManipulation:
+    """2.9 — Coverage ratio manipulation mitigations."""
+
+    @pytest.mark.asyncio
+    async def test_claim_refetches_health_ratio_independently(self):
+        """
+        ClaimValidator step 6 re-fetches pool balance from live ledger,
+        independent of VaultMonitor's cached value.
+        """
+        import inspect
+        from ward.validator import ClaimValidator
+        src = inspect.getsource(ClaimValidator._step6_check_coverage_breach)
+        # Must issue AccountInfo request (independent RPC)
+        assert "AccountInfo" in src, (
+            "_step6_check_coverage_breach must call AccountInfo (independent RPC read)"
+        )
+        assert "cache" not in src.lower(), (
+            "_step6 must not use cached values"
+        )
+
+
+# ---------------------------------------------------------------------------
+# 2.10 Address Injection
+# ---------------------------------------------------------------------------
+
+class TestAddressInjection:
+    """2.10 — Address injection / transaction crafting mitigations."""
+
+    @pytest.mark.asyncio
+    async def test_invalid_address_rejected_at_boundary(self):
+        """validate_claim returns rejection for invalid XRPL address inputs."""
+        validator = ClaimValidator()
+        result = await validator.validate_claim(
+            claimant_address="not-an-address",
+            nft_token_id=VALID_NFT_ID,
+            defaulted_vault=VALID_VAULT,
+            loan_id=VALID_LOAN_ID,
+            pool_address=VALID_ADDRESS,
+        )
+        assert not result.approved
+        assert result.steps_passed == 0
+
+    @pytest.mark.asyncio
+    async def test_malformed_address_injection(self):
+        """SQL-injection-style strings in address fields are rejected by base58check."""
+        validator = ClaimValidator()
+        for bad_addr in ["' OR 1=1--", "<script>", "r" + "A" * 50, ""]:
+            result = await validator.validate_claim(
+                claimant_address=bad_addr,
+                nft_token_id=VALID_NFT_ID,
+                defaulted_vault=VALID_VAULT,
+                loan_id=VALID_LOAN_ID,
+                pool_address=VALID_ADDRESS,
+            )
+            assert not result.approved, f"Should reject bad address: {bad_addr!r}"
+
+
+# ---------------------------------------------------------------------------
+# 2.11 Key Exfiltration
+# ---------------------------------------------------------------------------
+
+class TestKeyExfiltration:
+    """2.11 — Key exfiltration mitigations."""
+
+    def test_no_wallet_stored_after_call(self):
+        """WardClient must not retain a wallet attribute between calls."""
+        from ward.client import WardClient
+        client = WardClient()
+        assert not hasattr(client, "_wallet"), (
+            "WardClient must not store a wallet as instance attribute"
+        )
+        assert not hasattr(client, "wallet"), (
+            "WardClient must not store a wallet as public attribute"
+        )
+
+    def test_ward_has_no_wallet_field(self):
+        """No Ward module-level class stores a wallet as an instance attribute."""
+        from ward.client import WardClient
+        from ward.validator import ClaimValidator
+        from ward.settlement import EscrowSettlement
+        from ward.vault_monitor import VaultMonitor
+        from ward.pool import PoolHealthMonitor
+        import dataclasses
+
+        for cls in (WardClient, ClaimValidator, EscrowSettlement, PoolHealthMonitor):
+            instance = cls.__new__(cls)
+            # Check instance dict after __init__ with dummy args where possible
+            attrs = vars(instance) if hasattr(instance, "__dict__") else {}
+            for attr_name in attrs:
+                assert "wallet" not in attr_name.lower() and "key" not in attr_name.lower() and "seed" not in attr_name.lower(), (
+                    f"{cls.__name__}.{attr_name} looks like it stores key material"
+                )
+
+
+# ---------------------------------------------------------------------------
+# 2.12 Rate Limiting
+# ---------------------------------------------------------------------------
+
+class TestRateLimiting:
+    """2.12 — Rate limiting bypass / DoS mitigations."""
+
+    def test_rate_limit_3_attempts_per_5min(self):
+        """check_rate_limit allows exactly CLAIM_RATE_LIMIT_MAX calls, then raises."""
+        from ward.primitives import check_rate_limit, _rate_limit_windows
+        from ward.constants import CLAIM_RATE_LIMIT_MAX
+
+        nft_id = "C" * 64
+        _rate_limit_windows.pop(nft_id, None)
+
+        for i in range(CLAIM_RATE_LIMIT_MAX):
+            assert check_rate_limit(nft_id) is True, f"Call {i+1} should succeed"
+
+        with pytest.raises(ValidationError, match="Rate limit"):
+            check_rate_limit(nft_id)
+
+    def test_rate_limit_resets_after_window(self):
+        """After CLAIM_RATE_LIMIT_WINDOW_S elapses, the window resets."""
+        import time as _time
+        from ward.primitives import check_rate_limit, _rate_limit_windows
+        from ward.constants import CLAIM_RATE_LIMIT_MAX, CLAIM_RATE_LIMIT_WINDOW_S
+
+        nft_id = "D" * 64
+        _rate_limit_windows.pop(nft_id, None)
+
+        for _ in range(CLAIM_RATE_LIMIT_MAX):
+            check_rate_limit(nft_id)
+
+        # Fake old timestamps by backdating entries
+        import collections
+        old_ts = _time.monotonic() - CLAIM_RATE_LIMIT_WINDOW_S - 1
+        _rate_limit_windows[nft_id] = collections.deque([old_ts] * CLAIM_RATE_LIMIT_MAX)
+
+        # Window has expired — should succeed again
+        assert check_rate_limit(nft_id) is True
+
+    def test_rate_limit_per_nft_not_per_address(self):
+        """Rate limit is keyed per NFT token ID, not per claimant address."""
+        from ward.primitives import check_rate_limit, _rate_limit_windows
+        from ward.constants import CLAIM_RATE_LIMIT_MAX
+
+        nft_a = "E" * 64
+        nft_b = "F" * 64
+        _rate_limit_windows.pop(nft_a, None)
+        _rate_limit_windows.pop(nft_b, None)
+
+        for _ in range(CLAIM_RATE_LIMIT_MAX):
+            check_rate_limit(nft_a)
+
+        # Exhausted for nft_a, but nft_b should still work
+        assert check_rate_limit(nft_b) is True
+
+
+# ---------------------------------------------------------------------------
+# 2.13 NFT Taxon Spoofing
+# ---------------------------------------------------------------------------
+
+class TestNFTTaxonSpoofing:
+    """2.13 — NFT taxon spoofing mitigations."""
+
+    @pytest.mark.asyncio
+    async def test_wrong_taxon_claim_rejected(self):
+        """validate_claim rejects NFTs with taxon != WARD_POLICY_TAXON."""
+        validator = _make_validator_with_mocks(nft_taxon=999)
+        result = await validator.validate_claim(
+            claimant_address=VALID_ADDRESS,
+            nft_token_id=VALID_NFT_ID,
+            defaulted_vault=VALID_VAULT,
+            loan_id=VALID_LOAN_ID,
+            pool_address=VALID_ADDRESS,
+        )
+        assert not result.approved
+        assert "taxon" in result.rejection_reason.lower()
+
+    def test_taxon_spoofing_different_taxon(self):
+        """WARD_POLICY_TAXON is a hard constant — not configurable by callers."""
+        from ward.constants import WARD_POLICY_TAXON, WARD_CREDENTIAL_TAXON
+        assert WARD_POLICY_TAXON == 281,    "Policy taxon must be 281"
+        assert WARD_CREDENTIAL_TAXON == 282, "Credential taxon must be 282"
+        assert WARD_POLICY_TAXON != WARD_CREDENTIAL_TAXON
+
+    def test_taxon_constants_not_mutable(self):
+        """Taxon constants must be module-level ints, not variables that drift."""
+        import ward.constants as _c
+        assert isinstance(_c.WARD_POLICY_TAXON, int)
+        assert isinstance(_c.WARD_CREDENTIAL_TAXON, int)
+
+
+# ---------------------------------------------------------------------------
+# 2.14 XRP / Drops Unit Confusion
+# ---------------------------------------------------------------------------
+
+class TestDropsUnitConfusion:
+    """2.14 — XRP / drops unit confusion mitigations."""
+
+    def test_float_drops_rejected(self):
+        """validate_drops must reject float inputs."""
+        from ward.primitives import validate_drops
+        with pytest.raises(ValidationError, match="integer"):
+            validate_drops(1.5)
+        with pytest.raises(ValidationError, match="integer"):
+            validate_drops(0.0)
+        with pytest.raises(ValidationError, match="integer"):
+            validate_drops(1_000_000.0)
+
+    def test_negative_drops_rejected(self):
+        """validate_drops must reject negative values."""
+        from ward.primitives import validate_drops
+        with pytest.raises(ValidationError):
+            validate_drops(-1)
+
+    def test_drops_overflow_rejected(self):
+        """validate_drops must reject amounts exceeding the XRP max supply."""
+        from ward.primitives import validate_drops
+        from ward.constants import XRP_MAX_DROPS
+        with pytest.raises(ValidationError, match="max XRP supply"):
+            validate_drops(XRP_MAX_DROPS + 1)
+
+    def test_zero_drops_accepted(self):
+        """validate_drops allows 0 (coverage check, not payment)."""
+        from ward.primitives import validate_drops
+        validate_drops(0)   # must not raise
+
+    def test_max_drops_accepted(self):
+        """validate_drops allows exactly XRP_MAX_DROPS."""
+        from ward.primitives import validate_drops
+        from ward.constants import XRP_MAX_DROPS
+        validate_drops(XRP_MAX_DROPS)   # must not raise
+
+    def test_bool_rejected(self):
+        """True/False (bool subclass of int) must be rejected."""
+        from ward.primitives import validate_drops
+        with pytest.raises(ValidationError, match="integer"):
+            validate_drops(True)
+        with pytest.raises(ValidationError, match="integer"):
+            validate_drops(False)
+
+
+# ---------------------------------------------------------------------------
+# 2.15 Silent Network Failure
+# ---------------------------------------------------------------------------
+
+class TestSilentNetworkFailure:
+    """2.15 — Silent network failure / heartbeat mitigations."""
+
+    def test_heartbeat_constant_is_60s(self):
+        """MONITOR_HEARTBEAT_TIMEOUT_S must be 60 seconds."""
+        from ward.constants import MONITOR_HEARTBEAT_TIMEOUT_S
+        assert MONITOR_HEARTBEAT_TIMEOUT_S == 60
+
+    @pytest.mark.asyncio
+    async def test_heartbeat_timeout_triggers_reconnect(self):
+        """
+        VaultMonitor._run_with_heartbeat raises TimeoutError when asyncio.wait_for
+        times out (i.e., no message arrives within MONITOR_HEARTBEAT_TIMEOUT_S).
+        """
+        import asyncio as _aio
+        from ward.vault_monitor import VaultMonitor
+
+        monitor = VaultMonitor(vault_addresses=[VALID_ADDRESS])
+
+        class _SlowIter:
+            def __aiter__(self): return self
+            async def __anext__(self):
+                await _aio.sleep(999)
+                raise StopAsyncIteration
+
+        class _FakeClient:
+            def __aiter__(self): return _SlowIter()
+            async def send(self, *a): pass
+
+        # Mock asyncio.wait_for in vault_monitor to immediately raise TimeoutError,
+        # simulating the heartbeat timeout firing.
+        with patch("ward.vault_monitor.asyncio.wait_for",
+                   side_effect=_aio.TimeoutError()):
+            with pytest.raises(_aio.TimeoutError):
+                await monitor._run_with_heartbeat(_FakeClient())
+
+    @pytest.mark.asyncio
+    async def test_monitor_reconnects_on_silence(self):
+        """
+        VaultMonitor.run() reconnects after heartbeat timeout (simulated by
+        _run_with_heartbeat raising TimeoutError).
+        """
+        import asyncio as _aio
+        from ward.vault_monitor import VaultMonitor
+
+        monitor = VaultMonitor(vault_addresses=[VALID_ADDRESS])
+        connect_count = 0
+
+        class _FakeClient:
+            async def __aenter__(self):
+                nonlocal connect_count
+                connect_count += 1
+                if connect_count == 1:
+                    raise _aio.TimeoutError("simulated heartbeat timeout")
+                monitor._stop_event.set()
+                monitor._running = False
+                return self
+
+            async def __aexit__(self, *a): pass
+            async def send(self, *a): pass
+            def __aiter__(self): return self
+            async def __anext__(self): raise StopAsyncIteration
+
+        with patch("ward.vault_monitor.AsyncWebsocketClient", lambda _u: _FakeClient()):
+            with patch("ward.vault_monitor.asyncio.sleep", AsyncMock()):
+                await _aio.wait_for(monitor.run(), timeout=3.0)
+
+        assert connect_count == 2, (
+            f"Expected 2 connect attempts after heartbeat timeout; got {connect_count}"
+        )

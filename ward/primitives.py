@@ -13,9 +13,11 @@ Fixes applied:
 from __future__ import annotations
 
 import asyncio
+import collections
 import hashlib
 import logging
 import secrets
+import threading
 import time
 from typing import Optional, Tuple
 
@@ -27,6 +29,8 @@ from xrpl.models.transactions import Transaction
 from xrpl.wallet import Wallet
 
 from ward.constants import (
+    CLAIM_RATE_LIMIT_MAX,
+    CLAIM_RATE_LIMIT_WINDOW_S,
     RETRYABLE_ENGINE_RESULTS,
     RIPPLE_EPOCH_OFFSET,
     XRP_MAX_DROPS,
@@ -93,6 +97,31 @@ def validate_drops_amount(drops: int, label: str = "amount") -> None:
         )
 
 
+def validate_drops(drops: int, label: str = "amount") -> None:
+    """
+    Strict integer-drops validator (attack vector 2.14 — XRP unit confusion).
+
+    Rules:
+      - Must be int — floats are REJECTED (1.5 XRP != 1_500_000 drops)
+      - Must be >= 0
+      - Must be <= XRP_MAX_DROPS (100 billion XRP in drops)
+
+    Raises:
+        ValidationError: if any condition fails.
+    """
+    if isinstance(drops, bool) or not isinstance(drops, int):
+        raise ValidationError(
+            f"{label} must be an integer (not {type(drops).__name__}). "
+            "Use drops (integer), never XRP floats."
+        )
+    if drops < 0:
+        raise ValidationError(f"{label} must be >= 0, got {drops}")
+    if drops > XRP_MAX_DROPS:
+        raise ValidationError(
+            f"{label} {drops} exceeds max XRP supply ({XRP_MAX_DROPS} drops)"
+        )
+
+
 def validate_nft_id(nft_id: str, label: str = "NFT token ID") -> None:
     """
     Assert that nft_id is a 64-character uppercase hex string.
@@ -110,6 +139,44 @@ def validate_nft_id(nft_id: str, label: str = "NFT token ID") -> None:
         raise ValidationError(
             f"{label} must be uppercase hex (0-9, A-F)"
         )
+
+
+# ---------------------------------------------------------------------------
+# Rate limiter — per NFT token ID  (attack vector 2.12 — rate limiting bypass)
+# ---------------------------------------------------------------------------
+
+_rate_limit_lock: threading.Lock = threading.Lock()
+_rate_limit_windows: dict = {}   # nft_token_id -> deque[float]
+
+
+def check_rate_limit(nft_token_id: str) -> bool:
+    """
+    Thread-safe sliding-window rate limiter per NFT token ID.
+
+    Allows at most CLAIM_RATE_LIMIT_MAX attempts within any CLAIM_RATE_LIMIT_WINDOW_S
+    second window for a given nft_token_id.
+
+    Returns:
+        True if within the limit.
+
+    Raises:
+        ValidationError: if the rate limit is exceeded.
+    """
+    now = time.monotonic()
+    with _rate_limit_lock:
+        if nft_token_id not in _rate_limit_windows:
+            _rate_limit_windows[nft_token_id] = collections.deque()
+        window = _rate_limit_windows[nft_token_id]
+        # Evict timestamps older than the window
+        while window and now - window[0] >= CLAIM_RATE_LIMIT_WINDOW_S:
+            window.popleft()
+        if len(window) >= CLAIM_RATE_LIMIT_MAX:
+            raise ValidationError(
+                f"Rate limit exceeded for NFT {nft_token_id[:16]}...: "
+                f"max {CLAIM_RATE_LIMIT_MAX} attempts per {CLAIM_RATE_LIMIT_WINDOW_S}s"
+            )
+        window.append(now)
+    return True
 
 
 def validate_wallet(wallet: object, label: str = "wallet") -> Wallet:
