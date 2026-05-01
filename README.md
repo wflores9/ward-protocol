@@ -52,7 +52,7 @@ This invariant is enforced at the architecture level across every module. No War
 | Metric | Value |
 |---|---|
 | **SDK Version** | 0.2.2 |
-| **Unit Tests** | 106/106 passing |
+| **Unit Tests** | 146/146 passing |
 | **On-Chain Transactions Confirmed** | 5 (XRPL Altnet) |
 | **External Service Dependencies** | 0 — pure XRPL |
 | **Ward Holds Keys** | Never |
@@ -341,7 +341,7 @@ The test suite (`test_ward.py`) covers:
 
 ### v0.1.1
 - Monolithic `ward_client.py` — single-file SDK
-- 106/106 unit tests passing
+- 146/146 unit tests passing
 
 ---
 
@@ -374,7 +374,7 @@ ward-protocol/
 ## Roadmap
 
 ### Phase 1 — Protocol Specification (Now → Q2 2026)
-- [x] SDK built and tested — 106/106 tests
+- [x] SDK built and tested — 146/146 tests
 - [x] v0.2.x modular refactor — 7 hardening fixes, 3-tier licensing
 - [x] Testnet simulation confirmed — 5 on-chain transactions
 - [x] XRPLF Discussion #474 — active community engagement
