@@ -1,0 +1,47 @@
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;900&family=Space+Mono:wght@400;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --steel:  #0d1f35;
+  --deep:   #07111f;
+  --mid:    #132236;
+  --ice:    #a8c5e8;
+  --ice2:   #6a9fd0;
+  --gold:   #c8a94a;
+  --green:  #00cc66;
+  --border: #1a2e4a;
+  --dim:    #3a5570;
+  --panel:  #eef5fb;
+  --p2:     #e2eef8;
+  --sub:    #2e4a63;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Space Mono', monospace;
+  background: var(--panel);
+  color: var(--steel);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* ticker */
+.ticker-wrap { background: var(--steel); border-bottom: 1px solid var(--border); padding: 6px 0; overflow: hidden; }
+.ticker { display: flex; white-space: nowrap; animation: tick 40s linear infinite; }
+.ticker:hover { animation-play-state: paused; }
+.tick-item { display: inline-flex; align-items: center; gap: 8px; padding: 0 32px; border-right: 1px solid var(--border); font-size: 10px; }
+.tk { color: var(--dim); }
+.tv { color: var(--ice); }
+.tv.g { color: var(--green); }
+.tv.au { color: var(--gold); }
+
+@keyframes tick { to { transform: translateX(-50%); } }
+@keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:.35; } }
+@keyframes fade-up { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+
+.animate-fade-up { animation: fade-up .5s ease both; }
+.ward-gold { color: var(--gold); font-weight: 700; }

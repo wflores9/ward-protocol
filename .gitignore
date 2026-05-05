@@ -65,3 +65,5 @@ testnet_wallets.json
 
 # Local Netlify folder
 .netlify
+.next/
+node_modules/
