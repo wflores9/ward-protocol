@@ -10,8 +10,9 @@ import logging
 import warnings
 from typing import Callable, Dict, List, Optional
 
-from .chain_reader import ChainReader
 from ward.primitives import SecurityError
+
+from .chain_reader import ChainReader
 
 logger = logging.getLogger(__name__)
 
