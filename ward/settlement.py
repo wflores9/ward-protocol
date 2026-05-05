@@ -52,7 +52,7 @@ class EscrowRecord:
     escrow_sequence:      int
     condition_hex:        str
     tx_hash:              str
-    finish_after_ripple:  int = 0
+    dispute_deadline_ripple: int = 0
     cancel_after_ripple:  int = 0
 
 
@@ -67,7 +67,7 @@ class EscrowSettlement:
     The fulfillment_hex (the preimage) is submitted only by the claimant.
 
     Timing semantics:
-      finish_after_ripple: pool MUST finish BEFORE this time (dispute window opens).
+      dispute_deadline_ripple: pool MUST finish BEFORE this time (dispute window opens).
       cancel_after_ripple: pool can cancel AFTER this time if unclaimed.
 
     Tier note:
@@ -91,7 +91,7 @@ class EscrowSettlement:
         """
         Create a time-locked + crypto-conditioned EscrowCreate from the pool.
 
-        finish_after_ripple = current_time + ESCROW_DISPUTE_HOURS * 3600.
+        dispute_deadline_ripple = current_time + ESCROW_DISPUTE_HOURS * 3600.
         Pool must finish() BEFORE that deadline (dispute window opens after).
         cancel_after_ripple = current_time + ESCROW_CANCEL_HOURS  * 3600.
         Pool can cancel() AFTER cancel_after_ripple if claimant never finished.
@@ -102,7 +102,7 @@ class EscrowSettlement:
 
         async with AsyncJsonRpcClient(self._url) as client:
             current_time = await get_ledger_close_time(client)
-            finish_after_ripple = current_time + (ESCROW_DISPUTE_HOURS * _SECONDS_PER_HOUR)
+            dispute_deadline_ripple = current_time + (ESCROW_DISPUTE_HOURS * _SECONDS_PER_HOUR)
             cancel_after_ripple = current_time + (ESCROW_CANCEL_HOURS  * _SECONDS_PER_HOUR)
 
             audit_memo = json.dumps(
@@ -113,7 +113,7 @@ class EscrowSettlement:
                 account=pool_wallet.classic_address,
                 destination=claimant_address,
                 amount=str(payout_drops),
-                finish_after=finish_after_ripple,
+                finish_after=dispute_deadline_ripple,
                 cancel_after=cancel_after_ripple,
                 condition=condition_hex,
                 memos=[
@@ -127,13 +127,13 @@ class EscrowSettlement:
             response  = await submit_with_retry(escrow_tx, client, pool_wallet)
 
             tx_hash = response.result.get("hash", "")
-            seq     = response.result.get("Sequence") or escrow_tx.sequence or 0
+            seq     = response.result.get("tx_json", {}).get("Sequence") or escrow_tx.sequence or 0
 
             logger.info(
                 "EscrowCreate: %s  claim=%s  payout=%d drops  "
                 "finish_after=%d  cancel_after=%d",
                 tx_hash[:16], claim_id, payout_drops,
-                finish_after_ripple, cancel_after_ripple,
+                dispute_deadline_ripple, cancel_after_ripple,
             )
             return EscrowRecord(
                 claim_id=claim_id,
@@ -144,7 +144,7 @@ class EscrowSettlement:
                 escrow_sequence=seq,
                 condition_hex=condition_hex,
                 tx_hash=tx_hash,
-                finish_after_ripple=finish_after_ripple,
+                dispute_deadline_ripple=dispute_deadline_ripple,
                 cancel_after_ripple=cancel_after_ripple,
             )
 
@@ -157,8 +157,8 @@ class EscrowSettlement:
         """
         Finish the escrow (release payout) before the dispute window opens.
 
-        The pool must call this BEFORE finish_after_ripple.
-        After finish_after_ripple the dispute window opens and
+        The pool must call this BEFORE dispute_deadline_ripple.
+        After dispute_deadline_ripple the dispute window opens and
         finishing is no longer allowed.
 
         Args:
@@ -172,8 +172,8 @@ class EscrowSettlement:
         async with AsyncJsonRpcClient(self._url) as client:
             current_time = await get_ledger_close_time(client)
 
-            if current_time >= escrow_record.finish_after_ripple:
-                deadline = escrow_record.finish_after_ripple
+            if current_time >= escrow_record.dispute_deadline_ripple:
+                deadline = escrow_record.dispute_deadline_ripple
                 over = current_time - deadline
                 raise ValidationError(
                     f"Escrow dispute window is open: "

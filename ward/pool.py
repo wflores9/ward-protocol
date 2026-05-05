@@ -26,15 +26,16 @@ from ward.constants import (
     MIN_COVERAGE_RATIO,
     RISK_TIER_THRESHOLDS,
     TIER_BASE_RATES,
-    TIER_MINT_GATES,
     TIER_MULTIPLIERS,
     WARD_POLICY_TAXON,
     XRPL_BASE_RESERVE_DROPS,
     XRPL_OWNER_RESERVE_DROPS,
+    LicenseTier,
 )
 from ward.primitives import (
     LedgerError,
     ValidationError,
+    validate_drops,
     validate_xrpl_address,
 )
 
@@ -142,7 +143,7 @@ class PoolHealthMonitor:
         """
         Return True if minting is allowed for this pool health and license tier.
         """
-        allowed = TIER_MINT_GATES.get(license_tier, set())
+        allowed = LicenseTier.TIER_MINT_GATES.get(license_tier, set())
         return health.risk_tier in allowed
 
     def calculate_premium(
@@ -209,12 +210,13 @@ class PoolHealthMonitor:
                     continue
                 try:
                     metadata = json.loads(bytes.fromhex(uri_hex).decode("utf-8"))
-                    coverage = int(
+                    raw_coverage = int(
                         metadata.get("coverage_drops")
                         or metadata.get("c")
                         or 0
                     )
-                    total += coverage
+                    validate_drops(raw_coverage, "coverage_drops")
+                    total += raw_coverage
                 except Exception as exc:
                     logger.debug("Skipping NFT with unparseable URI: %s", exc)
 

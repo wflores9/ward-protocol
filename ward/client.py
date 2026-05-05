@@ -35,11 +35,12 @@ from xrpl.wallet import Wallet
 from ward.constants import (
     DEFAULT_TESTNET_URL,
     TF_BURNABLE,
-    TIER_MINT_GATES,
     WARD_POLICY_TAXON,
+    LicenseTier,
 )
 from ward.primitives import (
     ValidationError,
+    WardError,
     get_ledger_close_time,
     submit_with_retry,
     validate_drops_amount,
@@ -122,7 +123,7 @@ class WardClient:
         # -- Tier gate check ------------------------------------------------
         # (Risk tier enforcement happens at mint time in pool.py; here we
         # block unsupported tiers from reaching the network at all.)
-        allowed = TIER_MINT_GATES.get(license_tier)
+        allowed = LicenseTier.TIER_MINT_GATES.get(license_tier)
         if allowed is None:
             raise ValidationError(
                 f"Unknown license tier: {license_tier!r}. "
@@ -184,6 +185,10 @@ class WardClient:
             nft_token_id = mint_result.result.get(
                 "meta", {}
             ).get("nftoken_id", "")
+            if not nft_token_id:
+                raise WardError(
+                    "NFT mint succeeded but nftoken_id is empty in response metadata"
+                )
 
             logger.info(
                 "Policy purchased: vault=%s cov=%d tier=%s nft=%s",

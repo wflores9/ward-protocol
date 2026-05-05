@@ -11,7 +11,6 @@ For higher-level on-chain reads, use ward.validator or ward.pool directly.
 """
 
 from dataclasses import dataclass
-from typing import List
 
 from xrpl.asyncio.clients import AsyncWebsocketClient
 from xrpl.models.requests import AccountInfo, AccountObjects, AccountTx
@@ -121,7 +120,7 @@ class ChainReader:
             )
         return response.result.get("account_objects", [])
 
-    async def get_escrows(self, address: str) -> List[EscrowInfo]:
+    async def get_escrows(self, address: str) -> list[EscrowInfo]:
         """
         Get all escrow objects for an account.
 

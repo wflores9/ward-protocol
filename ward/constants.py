@@ -48,8 +48,8 @@ MAX_CREDENTIAL_URI_LEN: int = 256   # bytes, not hex chars
 # XLS-66 loan-state flags
 # ---------------------------------------------------------------------------
 
-LSF_LOAN_DEFAULT:  int = 0x00000001
-LSF_LOAN_IMPAIRED: int = 0x00000002
+LSF_LOAN_DEFAULT:  int = 0x00010000
+LSF_LOAN_IMPAIRED: int = 0x00020000
 
 # ---------------------------------------------------------------------------
 # XRPL on-chain constants
@@ -136,13 +136,6 @@ TIER_MULTIPLIERS: dict = {
     "elevated": 1.50,
     "high":     2.00,
 }
-
-# ---------------------------------------------------------------------------
-# Module-level aliases for backward compatibility
-# (TIER_MINT_GATES lives inside LicenseTier class but modules may import it directly)
-# ---------------------------------------------------------------------------
-
-TIER_MINT_GATES = LicenseTier.TIER_MINT_GATES
 
 # ---------------------------------------------------------------------------
 # Monitor endpoint whitelist  (attack vector 2.7 — monitor spoofing)

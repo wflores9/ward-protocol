@@ -258,6 +258,14 @@ class VaultMonitor:
         collateral  = int(meta.get("AffectedNodes", [{}])[0].get("FinalFields", {}).get("CollateralAmount", 0))
         ratio       = collateral / outstanding if outstanding > 0 else float("inf")
 
+        if vault_address:
+            self._recent_signals[vault_address].append((time.time(), ratio))
+            if self._detect_anomaly(vault_address):
+                await self._fire_callbacks(
+                    self._anomaly_callbacks,
+                    {"vault_address": vault_address, "ratio": ratio},
+                )
+
         ledger_index = int(message.get("ledger_index", 0))
 
         if loan_id in self._pending:
@@ -325,7 +333,7 @@ class VaultMonitor:
         window = 300.0  # 5-minute window
         signals = self._recent_signals[vault_address]
         # Prune expired entries
-        while signals and now - signals[0] > window:
+        while signals and now - signals[0][0] > window:
             signals.popleft()
         if len(signals) < ANOMALY_THRESHOLD:
             return False

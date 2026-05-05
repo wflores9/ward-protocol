@@ -630,6 +630,10 @@ class TestClaimValidatorAdversarial:
     The patch is stopped after each test via _validate() helper.
     """
 
+    def setup_method(self):
+        from ward.primitives import _rate_limit_windows
+        _rate_limit_windows.pop(VALID_NFT_ID, None)
+
     def _make_validator_with_mocks(
         self,
         *,
@@ -824,7 +828,7 @@ class TestVaultMonitor:
         monitor = VaultMonitor(vault_addresses=[VALID_ADDRESS])
         now = time.time()
         for _ in range(ANOMALY_THRESHOLD):
-            monitor._recent_signals[VALID_ADDRESS].append(now - 9999)
+            monitor._recent_signals[VALID_ADDRESS].append((now - 9999, 0.5))
         result = monitor._detect_anomaly(VALID_ADDRESS)
         assert not result, "Old signals should not count after window expires"
 
@@ -999,7 +1003,7 @@ class TestEscrowSettlement:
             escrow_sequence=42,
             condition_hex=condition_hex,
             tx_hash="E" * 64,
-            finish_after_ripple=100_000_000 - 1,    # already finishable
+            dispute_deadline_ripple=100_000_000 - 1,    # already finishable
             cancel_after_ripple=100_000_000 + 7200,  # not yet cancellable
         )
 
@@ -1032,7 +1036,7 @@ class TestEscrowSettlement:
             escrow_sequence=2,
             condition_hex=cond,
             tx_hash="G" * 64,
-            finish_after_ripple=50_000_000,
+            dispute_deadline_ripple=50_000_000,
             cancel_after_ripple=200_000_000,   # far future
         )
         pool_wallet = FakeWallet(classic_address=VALID_ADDRESS)
@@ -1445,7 +1449,7 @@ class TestEscrowSettlementAdvanced:
 
     @pytest.mark.asyncio
     async def test_settlement_finish_after_48h(self):
-        """EscrowRecord.finish_after_ripple = ledger_time + 48 × 3600."""
+        """EscrowRecord.dispute_deadline_ripple = ledger_time + 48 × 3600."""
         from ward.constants import ESCROW_DISPUTE_HOURS
 
         KNOWN_TIME = 100_000_000
@@ -1471,7 +1475,7 @@ class TestEscrowSettlementAdvanced:
                 except RuntimeError:
                     pass
 
-        assert record.finish_after_ripple == KNOWN_TIME + ESCROW_DISPUTE_HOURS * 3_600
+        assert record.dispute_deadline_ripple == KNOWN_TIME + ESCROW_DISPUTE_HOURS * 3_600
         assert not getattr(record, "ward_signed", False)  # ward_signed = False
 
     @pytest.mark.asyncio
@@ -1959,7 +1963,7 @@ class TestSignalManipulation:
         mock_resp = MagicMock()
         mock_resp.is_successful.return_value = True
         mock_resp.result = {
-            "node": {"Flags": 0x00000001, "PrincipalOutstanding": 5000000}
+            "node": {"Flags": 0x00010000, "PrincipalOutstanding": 5000000}
         }
         client = AsyncMock()
         client.request = AsyncMock(return_value=mock_resp)

@@ -18,6 +18,8 @@ from xrpl.models import (
 )
 from xrpl.utils import datetime_to_ripple_time, str_to_hex
 
+from ward.primitives import ripple_time_now
+
 
 @dataclass
 class EscrowParams:
@@ -128,7 +130,7 @@ class TxBuilder:
         Returns:
             EscrowCreate transaction
         """
-        now = datetime.utcnow()
+        now = datetime(2000, 1, 1) + timedelta(seconds=ripple_time_now())
         finish_after = now + timedelta(hours=dispute_window_hours)
         cancel_after = finish_after + timedelta(hours=cancel_buffer_hours)
         memos = [

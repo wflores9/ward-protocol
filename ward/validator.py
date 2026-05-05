@@ -20,6 +20,7 @@ from xrpl.models import AccountInfo, AccountNFTs, LedgerEntry
 
 from ward.constants import (
     DEFAULT_TESTNET_URL,
+    LSF_LOAN_DEFAULT,
     MIN_COVERAGE_RATIO,
     WARD_POLICY_TAXON,
     XRPL_BASE_RESERVE_DROPS,
@@ -133,7 +134,9 @@ class ClaimValidator:
             breach_err, breached = await self._step6_check_coverage_breach(
                 client, pool_address, defaulted_vault
             )
-            if breach_err and not breached:
+            if breached:
+                return self._reject(6, breach_err or "Pool coverage breach detected")
+            if breach_err:
                 return self._reject(6, breach_err)
             logger.info("Step 6 passed")
 
@@ -256,16 +259,15 @@ class ClaimValidator:
             if not resp.is_successful():
                 return False, 0
             node = resp.result.get("node", {})
-            # Use TotalValueOutstanding as the vault loss amount.
-            # Falls back to PrincipalOutstanding if available.
+            flags = int(node.get("Flags", 0))
+            if not (flags & LSF_LOAN_DEFAULT):
+                return False, 0
             vault_loss = int(
                 node.get("TotalValueOutstanding")
                 or node.get("PrincipalOutstanding")
                 or node.get("Amount")
                 or 0
             )
-            # The presence of the defaulted loan entry (success response)
-            # is treated as proof of default.
             return True, vault_loss
         except Exception as exc:
             logger.error("step4 error: %s", exc)
