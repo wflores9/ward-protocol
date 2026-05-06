@@ -25,6 +25,7 @@ export default function Footer() {
             <li><Link href="/spec">Specification</Link></li>
             <li><Link href="/docs">Documentation</Link></li>
             <li><Link href="/demo">Demo</Link></li>
+            <li><Link href="/certified">Ward Certified</Link></li>
             <li><a href="https://github.com/XRPLF/XRPL-Standards/discussions/474" target="_blank" rel="noopener noreferrer">XRPLF #474</a></li>
           </ul>
         </div>
