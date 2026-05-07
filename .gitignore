@@ -65,3 +65,13 @@ testnet_wallets.json
 
 # Local Netlify folder
 .netlify
+
+# Next.js build output
+.next/
+
+# Node dependencies
+node_modules/
+
+# Rust build artifacts
+target/
+ward/target/
