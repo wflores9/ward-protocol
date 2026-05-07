@@ -65,6 +65,8 @@ from ward.vault_monitor import VaultMonitor
 from ward.validator import ClaimValidator, ValidationResult
 from ward.settlement import EscrowRecord, EscrowSettlement
 from ward.pool import PoolHealth, PoolHealthMonitor
+from ward.tx_builder import TxBuilder
+from xrpl.models import EscrowFinish
 
 # ---------------------------------------------------------------------------
 # Backward-compat aliases (old test constants mapped to new names)
@@ -1008,11 +1010,13 @@ class TestEscrowSettlement:
         settlement = self._make_settlement()
         preimage, cond, fulf = generate_claim_condition()
         record = self._make_record(cond)
-        pool_wallet = FakeWallet(classic_address=VALID_ADDRESS)
+        pool_wallet     = FakeWallet(classic_address=VALID_ADDRESS)
+        claimant_wallet = FakeWallet(classic_address=VALID_ADDRESS2)
         try:
             with pytest.raises(ValidationError, match="dispute window"):
                 await settlement.finish_escrow(
                     pool_wallet=pool_wallet,
+                    claimant_wallet=claimant_wallet,
                     escrow_record=record,
                     fulfillment_hex=fulf,
                 )
@@ -2450,3 +2454,204 @@ class TestSilentNetworkFailure:
         assert connect_count == 2, (
             f"Expected 2 connect attempts after heartbeat timeout; got {connect_count}"
         )
+
+
+# ===========================================================================
+# Tests: Critical Bug Fixes (Code4rena pre-audit)
+# ===========================================================================
+
+
+class TestCriticalBugFixes:
+    """
+    FIX 1: NFTokenBurn must use claimant_wallet (pool wallet gets tecNO_PERMISSION).
+    FIX 2: Steps 7 and 8 must perform real ledger queries, not logger stubs.
+    FIX 3: TxBuilder.escrow_finish must accept condition/fulfillment parameters.
+    """
+
+    # ── FIX 1: NFTokenBurn permission ────────────────────────────────────────
+
+    @pytest.mark.asyncio
+    async def test_finish_escrow_burn_uses_claimant_wallet(self):
+        """FIX 1: NFTokenBurn account must be claimant_wallet, not pool_wallet."""
+        from xrpl.wallet import Wallet as _Wallet
+        from xrpl.models import NFTokenBurn as _NFTokenBurn
+
+        burn_wallet_addresses: List[str] = []
+        fake_resp = MagicMock()
+        fake_resp.result = {"hash": "A" * 64}
+
+        async def noop_request(req):
+            return _make_success_response({})
+
+        async def track_burn(tx, client, wallet):
+            if isinstance(tx, _NFTokenBurn):
+                burn_wallet_addresses.append(wallet.classic_address)
+            return fake_resp
+
+        pool_wallet     = _Wallet.create()
+        claimant_wallet = _Wallet.create()
+
+        record = EscrowRecord(
+            claim_id="fix1-test",
+            nft_token_id=VALID_NFT_ID,
+            pool_address=pool_wallet.classic_address,
+            claimant_address=claimant_wallet.classic_address,
+            payout_drops=500_000,
+            escrow_sequence=1,
+            condition_hex="A" * 78,
+            tx_hash="B" * 64,
+            finish_after_ripple=200_000_000,
+            cancel_after_ripple=300_000_000,
+        )
+
+        settlement = EscrowSettlement()
+        with patch("ward.settlement.AsyncJsonRpcClient",
+                   _async_client_factory(noop_request)):
+            with patch("ward.settlement.get_ledger_close_time",
+                       AsyncMock(return_value=100_000_000)):
+                with patch("ward.settlement.submit_with_retry",
+                           AsyncMock(side_effect=track_burn)):
+                    with patch("ward.settlement.autofill",
+                               AsyncMock(side_effect=lambda tx, c: tx)):
+                        await settlement.finish_escrow(
+                            pool_wallet=pool_wallet,
+                            claimant_wallet=claimant_wallet,
+                            escrow_record=record,
+                            fulfillment_hex="F" * 78,
+                        )
+
+        assert len(burn_wallet_addresses) == 1, "NFTokenBurn must be submitted once"
+        assert burn_wallet_addresses[0] == claimant_wallet.classic_address, (
+            f"NFTokenBurn must use claimant_wallet; "
+            f"got {burn_wallet_addresses[0]!r}"
+        )
+        assert burn_wallet_addresses[0] != pool_wallet.classic_address, (
+            "NFTokenBurn must NOT use pool_wallet — that causes tecNO_PERMISSION"
+        )
+
+    def test_finish_escrow_signature_has_claimant_wallet(self):
+        """FIX 1: finish_escrow must declare claimant_wallet parameter."""
+        import inspect
+        sig = inspect.signature(EscrowSettlement().finish_escrow)
+        assert "claimant_wallet" in sig.parameters, (
+            "finish_escrow must accept claimant_wallet parameter"
+        )
+
+    # ── FIX 2: Steps 7 and 8 real ledger queries ─────────────────────────────
+
+    @pytest.mark.asyncio
+    async def test_step7_rejects_burned_nft(self):
+        """FIX 2: Step 7 rejects claim when NFT has been burned since step 1."""
+        validator = ClaimValidator()
+        client = MagicMock()
+        with patch.object(
+            validator, "_step1_verify_nft_exists", AsyncMock(return_value=None)
+        ):
+            err = await validator._step7_verify_nft_live(
+                client, VALID_ADDRESS, VALID_NFT_ID
+            )
+        assert err is not None, "Step 7 must return an error when NFT is burned"
+        assert any(
+            kw in err.lower() for kw in ("burned", "not found", "replay")
+        ), f"Error should mention burned/not found/replay: {err!r}"
+
+    @pytest.mark.asyncio
+    async def test_step8_rejects_transferred_nft(self):
+        """FIX 2: Step 8 rejects claim when claimant no longer holds NFT."""
+        validator = ClaimValidator()
+        client = MagicMock()
+        with patch.object(
+            validator, "_step1_verify_nft_exists", AsyncMock(return_value=None)
+        ):
+            err = await validator._step8_verify_claimant_holds_nft(
+                client, VALID_ADDRESS, VALID_NFT_ID
+            )
+        assert err is not None, "Step 8 must return an error when NFT not held"
+        assert any(
+            kw in err.lower() for kw in ("claimant", "hold", "does not")
+        ), f"Error should mention claimant/hold: {err!r}"
+
+    @pytest.mark.asyncio
+    async def test_step7_passes_when_nft_live(self):
+        """FIX 2: Step 7 passes when NFT still exists on ledger."""
+        validator = ClaimValidator()
+        client = MagicMock()
+        nft_data = {"NFTokenID": VALID_NFT_ID, "NFTokenTaxon": WARD_POLICY_TAXON}
+        with patch.object(
+            validator, "_step1_verify_nft_exists", AsyncMock(return_value=nft_data)
+        ):
+            err = await validator._step7_verify_nft_live(
+                client, VALID_ADDRESS, VALID_NFT_ID
+            )
+        assert err is None, f"Step 7 must pass when NFT is live; got: {err!r}"
+
+    @pytest.mark.asyncio
+    async def test_step8_passes_when_claimant_holds_nft(self):
+        """FIX 2: Step 8 passes when claimant holds the NFT."""
+        validator = ClaimValidator()
+        client = MagicMock()
+        nft_data = {"NFTokenID": VALID_NFT_ID, "NFTokenTaxon": WARD_POLICY_TAXON}
+        with patch.object(
+            validator, "_step1_verify_nft_exists", AsyncMock(return_value=nft_data)
+        ):
+            err = await validator._step8_verify_claimant_holds_nft(
+                client, VALID_ADDRESS, VALID_NFT_ID
+            )
+        assert err is None, f"Step 8 must pass when claimant holds NFT; got: {err!r}"
+
+    @pytest.mark.asyncio
+    async def test_step7_and_8_are_not_log_only_stubs(self):
+        """FIX 2: Steps 7 and 8 must be real async methods, not logger stubs."""
+        import inspect
+        validator = ClaimValidator()
+        assert hasattr(validator, "_step7_verify_nft_live"), (
+            "ClaimValidator must have _step7_verify_nft_live method"
+        )
+        assert hasattr(validator, "_step8_verify_claimant_holds_nft"), (
+            "ClaimValidator must have _step8_verify_claimant_holds_nft method"
+        )
+        assert inspect.iscoroutinefunction(validator._step7_verify_nft_live), (
+            "_step7_verify_nft_live must be async"
+        )
+        assert inspect.iscoroutinefunction(validator._step8_verify_claimant_holds_nft), (
+            "_step8_verify_claimant_holds_nft must be async"
+        )
+
+    # ── FIX 3: TxBuilder.escrow_finish condition/fulfillment ─────────────────
+
+    def test_escrow_finish_includes_condition_and_fulfillment(self):
+        """FIX 3: escrow_finish must pass condition and fulfillment to EscrowFinish."""
+        cond = "A02580020" + "B" * 64 + "0102000000"
+        fulf = "A0228020" + "C" * 64
+
+        tx = TxBuilder.escrow_finish(
+            account=VALID_ADDRESS,
+            owner=VALID_ADDRESS2,
+            offer_sequence=99,
+            condition=cond,
+            fulfillment=fulf,
+        )
+
+        assert isinstance(tx, EscrowFinish)
+        assert tx.condition == cond, f"condition not set: {tx.condition!r}"
+        assert tx.fulfillment == fulf, f"fulfillment not set: {tx.fulfillment!r}"
+
+    def test_escrow_finish_works_without_condition_fulfillment(self):
+        """FIX 3: escrow_finish with no condition/fulfillment still builds correctly."""
+        tx = TxBuilder.escrow_finish(
+            account=VALID_ADDRESS,
+            owner=VALID_ADDRESS2,
+            offer_sequence=1,
+        )
+        assert isinstance(tx, EscrowFinish)
+        assert tx.account == VALID_ADDRESS
+        assert tx.owner == VALID_ADDRESS2
+        assert tx.offer_sequence == 1
+
+    def test_escrow_finish_signature_accepts_condition_fulfillment(self):
+        """FIX 3: escrow_finish signature must declare condition and fulfillment."""
+        import inspect
+        sig = inspect.signature(TxBuilder.escrow_finish)
+        params = sig.parameters
+        assert "condition" in params, "escrow_finish must accept condition kwarg"
+        assert "fulfillment" in params, "escrow_finish must accept fulfillment kwarg"

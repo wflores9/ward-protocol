@@ -149,13 +149,25 @@ class TxBuilder:
         )
 
     @staticmethod
-    def escrow_finish(account: str, owner: str, offer_sequence: int) -> EscrowFinish:
+    def escrow_finish(
+        account: str,
+        owner: str,
+        offer_sequence: int,
+        *,
+        condition: Optional[str] = None,
+        fulfillment: Optional[str] = None,
+    ) -> EscrowFinish:
         """Build EscrowFinish to release escrowed funds."""
-        return EscrowFinish(
-            account=account,
-            owner=owner,
-            offer_sequence=offer_sequence,
-        )
+        params: Dict[str, Any] = {
+            "account": account,
+            "owner": owner,
+            "offer_sequence": offer_sequence,
+        }
+        if condition is not None:
+            params["condition"] = condition
+        if fulfillment is not None:
+            params["fulfillment"] = fulfillment
+        return EscrowFinish(**params)
 
     @staticmethod
     def escrow_cancel(account: str, owner: str, offer_sequence: int) -> EscrowCancel:

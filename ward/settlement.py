@@ -151,18 +151,20 @@ class EscrowSettlement:
     async def finish_escrow(
         self,
         pool_wallet:     Wallet,
+        claimant_wallet: Wallet,
         escrow_record:   EscrowRecord,
         fulfillment_hex: str,
     ) -> Dict[str, str]:
         """
         Finish the escrow (release payout) before the dispute window opens.
 
-        The pool must call this BEFORE finish_after_ripple.
-        After finish_after_ripple the dispute window opens and
-        finishing is no longer allowed.
+        The pool submits EscrowFinish before finish_after_ripple; the claimant
+        burns their own NFT afterward. Only the NFT holder can burn it —
+        the pool cannot (tecNO_PERMISSION).
 
         Args:
-            pool_wallet:     Pool operator wallet.
+            pool_wallet:     Pool operator wallet (submits EscrowFinish).
+            claimant_wallet: Claimant wallet (burns their own policy NFT).
             escrow_record:   Record from create_claim_escrow.
             fulfillment_hex: Preimage fulfillment hex from the claimant.
 
@@ -181,7 +183,8 @@ class EscrowSettlement:
                     f"(ledger time {current_time})"
                 )
 
-            pool_wallet = validate_wallet(pool_wallet, "pool_wallet")
+            pool_wallet     = validate_wallet(pool_wallet,     "pool_wallet")
+            claimant_wallet = validate_wallet(claimant_wallet, "claimant_wallet")
 
             finish_tx = EscrowFinish(
                 account=pool_wallet.classic_address,
@@ -199,7 +202,7 @@ class EscrowSettlement:
             )
 
             burn_tx = NFTokenBurn(
-                account=pool_wallet.classic_address,
+                account=claimant_wallet.classic_address,
                 nftoken_id=escrow_record.nft_token_id,
                 memos=[
                     Memo(
@@ -215,7 +218,7 @@ class EscrowSettlement:
                 ],
             )
             burn_tx   = await autofill(burn_tx, client)
-            burn_resp = await submit_with_retry(burn_tx, client, pool_wallet)
+            burn_resp = await submit_with_retry(burn_tx, client, claimant_wallet)
             burn_hash = burn_resp.result.get("hash", "")
             logger.info(
                 "NFTokenBurn: %s  claim=%s",

@@ -137,8 +137,19 @@ class ClaimValidator:
                 return self._reject(6, breach_err)
             logger.info("Step 6 passed")
 
-            logger.info("Step 7 passed: replay protection OK (NFT live)")
-            logger.info("Step 8 passed: claimant holds NFT")
+            step7_err = await self._step7_verify_nft_live(
+                client, claimant_address, nft_token_id
+            )
+            if step7_err:
+                return self._reject(7, step7_err)
+            logger.info("Step 7 passed")
+
+            step8_err = await self._step8_verify_claimant_holds_nft(
+                client, claimant_address, nft_token_id
+            )
+            if step8_err:
+                return self._reject(8, step8_err)
+            logger.info("Step 8 passed")
 
             policy_coverage = int(
                 metadata.get("coverage_drops") or metadata.get("c") or 0
@@ -292,6 +303,29 @@ class ClaimValidator:
         except Exception as exc:
             logger.error("step6 error: %s", exc)
             return f"Coverage breach check failed: {exc}", False
+
+    async def _step7_verify_nft_live(
+        self, client, claimant_address: str, nft_token_id: str
+    ) -> Optional[str]:
+        """Step 7: Replay protection — verify NFT still exists (not burned)."""
+        nft = await self._step1_verify_nft_exists(client, claimant_address, nft_token_id)
+        if nft is None:
+            return f"Replay protection failed: NFT {nft_token_id[:16]}... has been burned"
+        if nft is _WRONG_TAXON:
+            return "Replay protection failed: NFT taxon mismatch"
+        return None
+
+    async def _step8_verify_claimant_holds_nft(
+        self, client, claimant_address: str, nft_token_id: str
+    ) -> Optional[str]:
+        """Step 8: Verify claimant currently holds the NFT (not transferred)."""
+        nft = await self._step1_verify_nft_exists(client, claimant_address, nft_token_id)
+        if nft is None or nft is _WRONG_TAXON:
+            return (
+                f"Claimant {claimant_address[:8]}... does not currently hold "
+                f"NFT {nft_token_id[:16]}..."
+            )
+        return None
 
     def _step9_check_pool_solvency(
         self, pool_info, payout: int
