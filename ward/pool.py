@@ -6,20 +6,19 @@ On-chain solvency and dynamic premium monitoring for insurance pools.
 Fixes applied:
     #1  Extracted from ward_client.py monolith into own module.
     #3  AsyncJsonRpcClient used as async context manager.
-    #7  active_coverage_drops derived on-chain from AccountNFTs (trust boundary fix).
     #7  Owner reserve calculated correctly: base + (OwnerCount x 2 XRP).
     #3  License tier enforcement integrated (Starter/Standard/Enterprise).
+    #5  Coverage tracking moved to in-memory registry; pool NFT scan removed.
 """
 
 from __future__ import annotations
 
-import json
 import logging
 from dataclasses import dataclass
 from typing import Dict
 
 from xrpl.asyncio.clients import AsyncJsonRpcClient
-from xrpl.models import AccountInfo, AccountNFTs
+from xrpl.models import AccountInfo
 
 from ward.constants import (
     DEFAULT_TESTNET_URL,
@@ -28,7 +27,6 @@ from ward.constants import (
     TIER_BASE_RATES,
     TIER_MINT_GATES,
     TIER_MULTIPLIERS,
-    WARD_POLICY_TAXON,
     XRPL_BASE_RESERVE_DROPS,
     XRPL_OWNER_RESERVE_DROPS,
 )
@@ -67,10 +65,12 @@ class PoolHealthMonitor:
     """
     Monitor solvency and compute dynamic premiums for a Ward insurance pool.
 
-    Reads on-chain state only - no caller-supplied balance or coverage inputs.
+    Coverage tracking uses an in-memory registry populated by register_policy()
+    after each policy mint and depleted by deregister_policy() after settlement.
+    Call register_policy() from WardClient after a successful NFTokenMint.
 
     Trust boundary:
-        active_coverage_drops is always derived from on-chain AccountNFTs.
+        active_coverage_drops is always derived from the internal registry.
         It is NEVER accepted as a caller-supplied parameter.
     """
 
@@ -82,6 +82,15 @@ class PoolHealthMonitor:
         validate_xrpl_address(pool_address, "pool_address")
         self._pool_address = pool_address
         self._url = url
+        self._coverage_registry: Dict[str, int] = {}
+
+    def register_policy(self, nft_token_id: str, coverage_drops: int) -> None:
+        """Register a newly minted policy NFT in the coverage tracking registry."""
+        self._coverage_registry[nft_token_id] = coverage_drops
+
+    def deregister_policy(self, nft_token_id: str) -> None:
+        """Remove a policy NFT from the registry (call after NFT burn on settlement)."""
+        self._coverage_registry.pop(nft_token_id, None)
 
     async def get_health(self) -> PoolHealth:
         """
@@ -108,8 +117,8 @@ class PoolHealthMonitor:
             )
             usable_drops = max(0, balance_drops - reserve_drops)
 
-            # Step 3: Sum active coverage from on-chain NFTs
-            active_coverage_drops = await self._sum_active_coverage(client)
+        # Step 3: Sum active coverage from in-memory registry
+        active_coverage_drops = self._sum_active_coverage()
 
         # Step 4: Compute ratios and tier
         if active_coverage_drops == 0:
@@ -175,54 +184,18 @@ class PoolHealthMonitor:
         )
         return {"premium_drops": max(1, premium_drops)}
 
-    async def _sum_active_coverage(self, client: AsyncJsonRpcClient) -> int:
+    def _sum_active_coverage(self) -> int:
         """
-        Sum the coverage amounts of all active Ward policy NFTs held by the pool.
+        Sum active coverage from the in-memory policy registry.
 
-        Reads AccountNFTs, filters by WARD_POLICY_TAXON, decodes URI metadata,
-        and sums the "c" (coverage_drops) field.
+        The registry is populated by register_policy() after each policy mint
+        and depleted by deregister_policy() after settlement completes.
+
+        NOTE: This is an in-memory store — it resets on process restart.
+        For production deployments, use a persistent store (Redis, database,
+        or an on-chain registry) to maintain coverage state across restarts.
         """
-        total = 0
-        marker = None
-
-        while True:
-            kwargs: Dict = {
-                "account": self._pool_address,
-                "limit":   200,
-            }
-            if marker:
-                kwargs["marker"] = marker
-
-            resp = await client.request(AccountNFTs(**kwargs))
-            if not resp.is_successful():
-                logger.warning(
-                    "AccountNFTs failed for %s: %s",
-                    self._pool_address, resp.result,
-                )
-                break
-
-            for nft in resp.result.get("account_nfts", []):
-                if nft.get("NFTokenTaxon") != WARD_POLICY_TAXON:
-                    continue
-                uri_hex = nft.get("URI", "")
-                if not uri_hex:
-                    continue
-                try:
-                    metadata = json.loads(bytes.fromhex(uri_hex).decode("utf-8"))
-                    coverage = int(
-                        metadata.get("coverage_drops")
-                        or metadata.get("c")
-                        or 0
-                    )
-                    total += coverage
-                except Exception as exc:
-                    logger.debug("Skipping NFT with unparseable URI: %s", exc)
-
-            marker = resp.result.get("marker")
-            if not marker:
-                break
-
-        return total
+        return sum(self._coverage_registry.values())
 
     @staticmethod
     def _classify_tier(coverage_ratio: float) -> str:

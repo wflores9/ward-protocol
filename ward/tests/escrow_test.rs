@@ -28,6 +28,8 @@ fn valid_config() -> EscrowConfig {
         amount_drops:        5_000_000, // 5 XRP
         condition_hex,
         current_ledger_time: 800_000_000u32,
+        claim_id:            "claim-001".to_string(),
+        nft_token_id:        "000800008E7F370FC37E30C4D7A2AEA86D5942F8000000000000000000000000".to_string(),
     }
 }
 
@@ -253,4 +255,34 @@ fn test_escrow_claimant_is_destination() {
     let claimant = config.claimant_address.clone();
     let tx = EscrowBuilder::build(config).unwrap();
     assert_eq!(tx.tx_json["Destination"].as_str().unwrap(), claimant);
+}
+
+// ---------------------------------------------------------------------------
+// FIX #13 — audit memos present in EscrowCreate
+// ---------------------------------------------------------------------------
+
+#[test]
+fn test_escrow_tx_has_audit_memo() {
+    let config = valid_config();
+    let claim_id = config.claim_id.clone();
+    let nft_id   = config.nft_token_id.clone();
+    let tx = EscrowBuilder::build(config).unwrap();
+
+    let memos = tx.tx_json["Memos"].as_array().expect("Memos must be present");
+    assert_eq!(memos.len(), 1, "EscrowCreate must contain exactly one memo");
+
+    let memo = &memos[0]["Memo"];
+    let memo_type_hex = memo["MemoType"].as_str().expect("MemoType must be present");
+    let memo_data_hex = memo["MemoData"].as_str().expect("MemoData must be present");
+
+    // Decode and verify MemoType
+    let memo_type_bytes = hex::decode(memo_type_hex).expect("MemoType must be valid hex");
+    let memo_type = std::str::from_utf8(&memo_type_bytes).expect("MemoType must be UTF-8");
+    assert_eq!(memo_type, "ward/claim-escrow");
+
+    // Decode and verify MemoData encodes claim_id and nft_token_id
+    let memo_data_bytes = hex::decode(memo_data_hex).expect("MemoData must be valid hex");
+    let memo_data = std::str::from_utf8(&memo_data_bytes).expect("MemoData must be UTF-8");
+    let expected = format!("ward/claim-escrow:{}:{}", claim_id, nft_id);
+    assert_eq!(memo_data, expected);
 }

@@ -122,6 +122,25 @@ def validate_drops(drops: int, label: str = "amount") -> None:
         )
 
 
+def validate_loan_id(loan_id: str) -> None:
+    """
+    Assert that loan_id is a valid 64-character hex string (XRPL ledger object ID).
+
+    Raises:
+        ValidationError: if loan_id is invalid.
+    """
+    if not isinstance(loan_id, str) or not loan_id:
+        raise ValidationError("loan_id must be a non-empty string")
+    if len(loan_id) != 64:
+        raise ValidationError(
+            f"loan_id must be exactly 64 hex chars, got {len(loan_id)}"
+        )
+    if not all(c in "0123456789abcdefABCDEF" for c in loan_id):
+        raise ValidationError(
+            f"loan_id must be hex (0-9, a-f, A-F), got invalid chars in {loan_id!r}"
+        )
+
+
 def validate_nft_id(nft_id: str, label: str = "NFT token ID") -> None:
     """
     Assert that nft_id is a 64-character uppercase hex string.
@@ -148,6 +167,9 @@ def validate_nft_id(nft_id: str, label: str = "NFT token ID") -> None:
 _rate_limit_lock: threading.Lock = threading.Lock()
 _rate_limit_windows: dict = {}   # nft_token_id -> deque[float]
 
+_MAX_RATE_LIMIT_ENTRIES: int = 10_000
+_RATE_LIMIT_EVICT_COUNT: int = 1_000
+
 
 def check_rate_limit(nft_token_id: str) -> bool:
     """
@@ -155,6 +177,11 @@ def check_rate_limit(nft_token_id: str) -> bool:
 
     Allows at most CLAIM_RATE_LIMIT_MAX attempts within any CLAIM_RATE_LIMIT_WINDOW_S
     second window for a given nft_token_id.
+
+    Memory management:
+        Empty windows (all timestamps expired) are removed from the dict on access.
+        If the dict exceeds _MAX_RATE_LIMIT_ENTRIES, the oldest _RATE_LIMIT_EVICT_COUNT
+        entries are evicted.
 
     Returns:
         True if within the limit.
@@ -170,12 +197,26 @@ def check_rate_limit(nft_token_id: str) -> bool:
         # Evict timestamps older than the window
         while window and now - window[0] >= CLAIM_RATE_LIMIT_WINDOW_S:
             window.popleft()
+        # Clean up empty entries (all timestamps expired) to prevent unbounded growth.
+        # Re-create the entry immediately so we can append the new timestamp below.
+        if not window:
+            del _rate_limit_windows[nft_token_id]
+            window = collections.deque()
+            _rate_limit_windows[nft_token_id] = window
         if len(window) >= CLAIM_RATE_LIMIT_MAX:
             raise ValidationError(
                 f"Rate limit exceeded for NFT {nft_token_id[:16]}...: "
                 f"max {CLAIM_RATE_LIMIT_MAX} attempts per {CLAIM_RATE_LIMIT_WINDOW_S}s"
             )
         window.append(now)
+        # Max-size guard: evict oldest entries when dict grows too large.
+        if len(_rate_limit_windows) > _MAX_RATE_LIMIT_ENTRIES:
+            logger.warning(
+                "Rate limit window dict exceeded %d entries — evicting %d oldest",
+                _MAX_RATE_LIMIT_ENTRIES, _RATE_LIMIT_EVICT_COUNT,
+            )
+            for key in list(_rate_limit_windows.keys())[:_RATE_LIMIT_EVICT_COUNT]:
+                del _rate_limit_windows[key]
     return True
 
 

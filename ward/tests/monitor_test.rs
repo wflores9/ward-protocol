@@ -161,3 +161,48 @@ fn test_reconnect_backoff_bounds() {
     assert_eq!(ward::monitor::RECONNECT_BASE_SECS, 1);
     assert_eq!(ward::monitor::RECONNECT_MAX_SECS, 60);
 }
+
+// ---------------------------------------------------------------------------
+// FIX #7 — pre-XLS-66 proxy removed; health ratio errors without XLS-66 data
+// ---------------------------------------------------------------------------
+
+#[test]
+fn test_health_ratio_errors_without_xls66_fields() {
+    // When account_data has no AssetsTotal/TotalValueOutstanding (pre-XLS-66 node),
+    // compute_health_ratio_from_data must return Err — never a fake "healthy" ratio.
+    let data = serde_json::json!({
+        "Account": "rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe",
+        "Balance": "50000000",
+        "OwnerCount": 3,
+    });
+    let err = ward::monitor::compute_health_ratio_from_data(&data).unwrap_err();
+    let msg = err.to_string();
+    assert!(
+        msg.contains("XLS-66") || msg.contains("AssetsTotal"),
+        "error must mention XLS-66 or AssetsTotal: {}",
+        msg
+    );
+}
+
+#[test]
+fn test_health_ratio_computes_correctly_with_xls66_fields() {
+    // With real XLS-66 fields, health ratio = AssetsTotal / TotalValueOutstanding.
+    let data = serde_json::json!({
+        "Account": "rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe",
+        "AssetsTotal": 3_000_000.0_f64,
+        "TotalValueOutstanding": 1_000_000.0_f64,
+    });
+    let ratio = ward::monitor::compute_health_ratio_from_data(&data).unwrap();
+    assert!((ratio - 3.0).abs() < 1e-9, "expected ratio 3.0, got {}", ratio);
+}
+
+#[test]
+fn test_health_ratio_infinity_when_no_outstanding() {
+    // Zero TotalValueOutstanding → health ratio is infinity (no debt).
+    let data = serde_json::json!({
+        "AssetsTotal": 5_000_000.0_f64,
+        "TotalValueOutstanding": 0.0_f64,
+    });
+    let ratio = ward::monitor::compute_health_ratio_from_data(&data).unwrap();
+    assert!(ratio.is_infinite(), "expected infinity for zero outstanding, got {}", ratio);
+}

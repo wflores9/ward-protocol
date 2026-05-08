@@ -40,6 +40,7 @@ from ward.constants import (
 )
 from ward.primitives import (
     ValidationError,
+    WardError,
     get_ledger_close_time,
     submit_with_retry,
     validate_drops_amount,
@@ -144,6 +145,11 @@ class WardClient:
             payment = await autofill(payment, client)
             premium_result = await submit_with_retry(payment, client, wallet)
             premium_tx = premium_result.result.get("tx_json", {}).get("hash", "")
+            if not premium_tx:
+                raise WardError(
+                    "Premium payment succeeded but transaction hash not found in result. "
+                    "Check submit_and_wait response structure."
+                )
 
             # Step 2: Determine expiry from ledger close time
             current_time = await get_ledger_close_time(client)

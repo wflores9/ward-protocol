@@ -582,6 +582,30 @@ class TestWardClientInputValidation:
         assert TF_BURNABLE == 0x00000001
         assert TF_BURNABLE != 0x00000008
 
+    @pytest.mark.asyncio
+    async def test_purchase_coverage_raises_if_premium_hash_missing(self):
+        """FIX #9: WardError raised when premium Payment tx hash is empty."""
+        from xrpl.wallet import Wallet as _Wallet
+        real_wallet = _Wallet.create()
+
+        fake_empty_hash_resp = MagicMock()
+        fake_empty_hash_resp.result = {"tx_json": {}}  # no "hash" key
+
+        with (
+            patch("ward.client.AsyncJsonRpcClient", _async_client_factory(AsyncMock())),
+            patch("ward.client.autofill", AsyncMock(side_effect=lambda tx, c: tx)),
+            patch("ward.client.submit_with_retry", AsyncMock(return_value=fake_empty_hash_resp)),
+            patch("ward.client.get_ledger_close_time", AsyncMock(return_value=800_000_000)),
+        ):
+            with pytest.raises(WardError, match="transaction hash not found"):
+                await self.client.purchase_coverage(
+                    wallet=real_wallet,
+                    vault_address=VALID_ADDRESS,
+                    coverage_drops=1_000_000,
+                    period_days=30,
+                    pool_address=VALID_ADDRESS2,
+                )
+
 
 # ===========================================================================
 # Tests: ClaimValidator — input sanitation
@@ -616,6 +640,33 @@ class TestClaimValidatorInputSanitation:
         assert not result.approved
         assert result.steps_passed == 0
 
+    @pytest.mark.asyncio
+    async def test_claim_rejects_short_loan_id(self):
+        """FIX #6: loan_id shorter than 64 chars must be rejected at input boundary."""
+        result = await self.validator.validate_claim(
+            claimant_address=VALID_ADDRESS,
+            nft_token_id=VALID_NFT_ID,
+            defaulted_vault=VALID_ADDRESS,
+            loan_id="AABBCC",  # too short
+            pool_address=VALID_ADDRESS2,
+        )
+        assert not result.approved
+        assert result.steps_passed == 0
+        assert "64 hex" in result.rejection_reason or "loan_id" in result.rejection_reason
+
+    @pytest.mark.asyncio
+    async def test_claim_rejects_non_hex_loan_id(self):
+        """FIX #6: loan_id with non-hex chars must be rejected at input boundary."""
+        result = await self.validator.validate_claim(
+            claimant_address=VALID_ADDRESS,
+            nft_token_id=VALID_NFT_ID,
+            defaulted_vault=VALID_ADDRESS,
+            loan_id="Z" * 64,  # 64 chars but not hex
+            pool_address=VALID_ADDRESS2,
+        )
+        assert not result.approved
+        assert result.steps_passed == 0
+        assert "hex" in result.rejection_reason.lower()
 
 
 # ===========================================================================
@@ -847,19 +898,17 @@ class TestPoolHealthMonitor:
         balance_drops: int = 10_000_000,
         coverage_drops: int = 0,
     ) -> PoolHealthMonitor:
-        pool_nfts = [_make_pool_nft_entry(coverage_drops)] if coverage_drops > 0 else []
-
         async def mock_request(req):
-            from xrpl.models import AccountInfo as _AI, AccountNFTs as _ANFTs
+            from xrpl.models import AccountInfo as _AI
             if isinstance(req, _AI):
                 return _make_success_response({
                     "account_data": {"Balance": str(balance_drops), "OwnerCount": 1}
                 })
-            elif isinstance(req, _ANFTs):
-                return _make_success_response({"account_nfts": pool_nfts})
             return _make_fail_response()
 
         monitor = PoolHealthMonitor(pool_address=VALID_ADDRESS)
+        if coverage_drops > 0:
+            monitor.register_policy(VALID_NFT_ID, coverage_drops)
         _patch = patch(
             "ward.pool.AsyncJsonRpcClient",
             _async_client_factory(mock_request),
@@ -1160,10 +1209,8 @@ class TestPoolHealthMonitorAdvanced:
 
     def _make_pool_monitor(self, balance_drops=30_000_000, coverage_drops=0,
                            owner_count=0):
-        pool_nfts = [_make_pool_nft_entry(coverage_drops)] if coverage_drops > 0 else []
-
         async def mock_request(req):
-            from xrpl.models import AccountInfo as _AI, AccountNFTs as _ANFTs
+            from xrpl.models import AccountInfo as _AI
             if isinstance(req, _AI):
                 return _make_success_response({
                     "account_data": {
@@ -1171,11 +1218,11 @@ class TestPoolHealthMonitorAdvanced:
                         "OwnerCount": owner_count,
                     }
                 })
-            elif isinstance(req, _ANFTs):
-                return _make_success_response({"account_nfts": pool_nfts})
             return _make_fail_response()
 
         monitor = PoolHealthMonitor(pool_address=VALID_ADDRESS)
+        if coverage_drops > 0:
+            monitor.register_policy(VALID_NFT_ID, coverage_drops)
         _patch = patch(
             "ward.pool.AsyncJsonRpcClient",
             _async_client_factory(mock_request),
@@ -1194,22 +1241,18 @@ class TestPoolHealthMonitorAdvanced:
 
     @pytest.mark.asyncio
     async def test_pool_active_coverage_on_chain(self):
-        """active_coverage_drops is read from on-chain AccountNFTs, not caller."""
-        nft1 = _make_pool_nft_entry(500_000)
-        nft2 = dict(_make_pool_nft_entry(300_000))
-        nft2["NFTokenID"] = "D" * 64
-
+        """active_coverage_drops is summed from the in-memory policy registry."""
         async def mock_request(req):
-            from xrpl.models import AccountInfo as _AI, AccountNFTs as _ANFTs
+            from xrpl.models import AccountInfo as _AI
             if isinstance(req, _AI):
                 return _make_success_response({
                     "account_data": {"Balance": "30000000", "OwnerCount": 0}
                 })
-            elif isinstance(req, _ANFTs):
-                return _make_success_response({"account_nfts": [nft1, nft2]})
             return _make_fail_response()
 
         monitor = PoolHealthMonitor(pool_address=VALID_ADDRESS)
+        monitor.register_policy("A" * 64, 500_000)
+        monitor.register_policy("D" * 64, 300_000)
         _patch = patch("ward.pool.AsyncJsonRpcClient",
                        _async_client_factory(mock_request))
         _patch.start()
@@ -2120,18 +2163,15 @@ class TestPoolDrainage:
 
         # 10 XRP usable, 100 XRP active coverage → ratio 0.1 → 'high'
         async def mock_request(req):
-            from xrpl.models import AccountInfo as _AI, AccountNFTs as _ANFTs
+            from xrpl.models import AccountInfo as _AI
             if isinstance(req, _AI):
                 return _make_success_response({
                     "account_data": {"Balance": "30000000", "OwnerCount": 1}
                 })
-            elif isinstance(req, _ANFTs):
-                # 100 XRP coverage NFT
-                nft = _make_pool_nft_entry(100_000_000)
-                return _make_success_response({"account_nfts": [nft]})
             return _make_fail_response()
 
         monitor = PoolHealthMonitor(pool_address=VALID_ADDRESS)
+        monitor.register_policy(VALID_NFT_ID, 100_000_000)  # 100 XRP coverage
         with patch("ward.pool.AsyncJsonRpcClient", _async_client_factory(mock_request)):
             health = await monitor.get_health()
 
@@ -2293,6 +2333,29 @@ class TestRateLimiting:
 
         # Exhausted for nft_a, but nft_b should still work
         assert check_rate_limit(nft_b) is True
+
+    def test_rate_limit_evicts_expired_entries_on_access(self):
+        """FIX #8: accessing an NFT with all-expired timestamps evicts stale entries."""
+        import collections
+        import time as _time
+        from ward.primitives import check_rate_limit, _rate_limit_windows
+        from ward.constants import CLAIM_RATE_LIMIT_WINDOW_S
+
+        nft_id = "2A" * 32
+        _rate_limit_windows.pop(nft_id, None)
+
+        # Seed two expired timestamps
+        old_ts = _time.monotonic() - CLAIM_RATE_LIMIT_WINDOW_S - 1
+        _rate_limit_windows[nft_id] = collections.deque([old_ts, old_ts])
+
+        # After calling check_rate_limit, expired entries must be gone
+        # and the window should contain only the just-added timestamp
+        check_rate_limit(nft_id)
+        window = _rate_limit_windows.get(nft_id)
+        assert window is not None, "window entry must still exist"
+        assert len(window) == 1, (
+            f"Expected 1 fresh timestamp after eviction, got {len(window)}"
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -2655,3 +2718,124 @@ class TestCriticalBugFixes:
         params = sig.parameters
         assert "condition" in params, "escrow_finish must accept condition kwarg"
         assert "fulfillment" in params, "escrow_finish must accept fulfillment kwarg"
+
+
+# ===========================================================================
+# Tests: Code Review Fixes #5, #14, #16
+# ===========================================================================
+
+
+class TestPolicyRegistryFixes:
+    """FIX #5: in-memory policy registry replaces on-chain AccountNFTs scan."""
+
+    def test_register_policy_increases_coverage(self):
+        """Registering a policy adds its drops to active coverage."""
+        monitor = PoolHealthMonitor(pool_address=VALID_ADDRESS)
+        assert monitor._coverage_registry == {}
+        monitor.register_policy(VALID_NFT_ID, 1_000_000)
+        assert monitor._coverage_registry[VALID_NFT_ID] == 1_000_000
+
+    def test_deregister_policy_removes_coverage(self):
+        """Deregistering a policy removes it from the registry."""
+        monitor = PoolHealthMonitor(pool_address=VALID_ADDRESS)
+        monitor.register_policy(VALID_NFT_ID, 500_000)
+        monitor.deregister_policy(VALID_NFT_ID)
+        assert VALID_NFT_ID not in monitor._coverage_registry
+
+    def test_deregister_nonexistent_policy_is_noop(self):
+        """Deregistering an unknown ID does not raise."""
+        monitor = PoolHealthMonitor(pool_address=VALID_ADDRESS)
+        monitor.deregister_policy("unknown-id")  # must not raise
+
+    @pytest.mark.asyncio
+    async def test_registry_coverage_reflected_in_get_health(self):
+        """Active coverage from registry is visible in PoolHealth output."""
+        async def mock_request(req):
+            from xrpl.models import AccountInfo as _AI
+            if isinstance(req, _AI):
+                return _make_success_response({
+                    "account_data": {"Balance": "50000000", "OwnerCount": 0}
+                })
+            return _make_fail_response()
+
+        monitor = PoolHealthMonitor(pool_address=VALID_ADDRESS)
+        monitor.register_policy(VALID_NFT_ID, 2_000_000)
+        with patch("ward.pool.AsyncJsonRpcClient", _async_client_factory(mock_request)):
+            health = await monitor.get_health()
+
+        assert health.active_coverage_drops == 2_000_000
+
+
+class TestValidateClaimErrorHandling:
+    """FIX #14: validate_claim always returns ValidationResult, never raises."""
+
+    @pytest.mark.asyncio
+    async def test_validate_claim_converts_ledger_error_to_result(self):
+        """LedgerError raised inside async body is caught and returned as ValidationResult."""
+        validator = ClaimValidator()
+
+        mock_class = MagicMock()
+        mock_class.return_value.__aenter__ = AsyncMock(
+            side_effect=LedgerError("mocked ledger failure")
+        )
+        mock_class.return_value.__aexit__ = AsyncMock(return_value=None)
+
+        with patch("ward.validator.AsyncJsonRpcClient", mock_class):
+            result = await validator.validate_claim(
+                claimant_address=VALID_ADDRESS,
+                nft_token_id=VALID_NFT_ID,
+                defaulted_vault=VALID_ADDRESS,
+                loan_id=VALID_LOAN_ID,
+                pool_address=VALID_ADDRESS2,
+            )
+
+        assert not result.approved
+        assert "ledger" in result.rejection_reason.lower()
+
+
+class TestPremiumVerificationGap:
+    """FIX #16: premium payment not verified on-chain (known High severity gap)."""
+
+    @pytest.mark.xfail(
+        reason=(
+            "TODO(HIGH): premium payment not verified on-chain. "
+            "A fake NFT minted without paying a premium passes all 9 validation steps. "
+            "This test documents the known gap — it passes once the fix is shipped."
+        )
+    )
+    @pytest.mark.asyncio
+    async def test_fake_nft_without_premium_is_rejected(self):
+        """
+        Known gap (High severity): an NFT minted without paying a premium
+        must be rejected. Currently all 9 steps pass with no premium check.
+        pool_balance_drops=100M ensures pool solvency so step 9 does not mask the gap.
+        Rate limit is reset so step 9 rate-limit path does not mask the gap either.
+        """
+        from ward.primitives import _rate_limit_windows
+
+        # Reset rate limit for VALID_NFT_ID so step 9 rate-limit path
+        # does not mask the premium-gap being documented by this xfail test.
+        _rate_limit_windows.pop(VALID_NFT_ID, None)
+
+        validator = _make_validator_with_mocks(pool_balance_drops=100_000_000)
+        p = getattr(validator, "_mock_patch", None)
+        try:
+            result = await validator.validate_claim(
+                claimant_address=VALID_ADDRESS,
+                nft_token_id=VALID_NFT_ID,
+                defaulted_vault=VALID_VAULT,
+                loan_id=VALID_LOAN_ID,
+                pool_address=VALID_ADDRESS2,
+            )
+        finally:
+            if p:
+                try:
+                    p.stop()
+                except RuntimeError:
+                    pass
+        # This claim should be rejected because no premium was paid.
+        # Currently it passes — this assertion will fail until the fix ships.
+        assert not result.approved, (
+            "Claim from fake NFT (no premium) must be rejected — "
+            "premium payment verification not yet implemented"
+        )
