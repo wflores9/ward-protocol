@@ -7,6 +7,24 @@ Ward Protocol SDK uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ---
 
+## [0.2.3] — 2026-05-10
+
+### Changed
+- Updated xrpl-py minimum dependency to v4.5.0 (from v4.0.0)
+- All six core import paths confirmed compatible with xrpl-py 4.5.0:
+  `AsyncJsonRpcClient`, `AsyncWebsocketClient`, `Wallet.create()`,
+  `NFTokenMint/EscrowCreate/EscrowFinish`, `AccountNFTs/LedgerEntry`,
+  `submit_and_wait`
+
+### Added
+- 11 code review fixes from Code4rena prep branch (#5–#9, #13, #14, #16):
+  `register_policy`/`deregister_policy` in-memory registry, `validate_loan_id`,
+  rate-limit eviction, empty premium hash guard, escrow audit memos,
+  unified `LedgerError` handling, premium-gap xfail test, security notes updated
+- 165/165 Python unit tests · 40/40 Rust tests · ruff clean
+
+---
+
 ## [0.2.2] — 2026-04-27
 
 ### Added
