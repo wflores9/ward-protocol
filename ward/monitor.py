@@ -7,7 +7,10 @@ and XLS-66 loan defaults.
 
 import asyncio
 import logging
+import warnings
 from typing import Callable, Dict, List, Optional
+
+from ward.primitives import SecurityError
 
 from .chain_reader import ChainReader
 
@@ -45,6 +48,16 @@ class WardMonitor:
             xrpl_url:               XRPL WebSocket endpoint.
             poll_interval_seconds:  Seconds between each polling cycle.
         """
+        warnings.warn(
+            "WardMonitor is deprecated; use ward.VaultMonitor for WebSocket-based "
+            "3-ledger default detection.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        if xrpl_url.startswith("ws://"):
+            raise SecurityError(
+                f"Plaintext ws:// endpoint rejected: {xrpl_url!r}. Use wss://."
+            )
         self._vault_addresses: List[str] = vault_addresses or []
         self._xrpl_url = xrpl_url
         self._poll_interval = poll_interval_seconds
@@ -126,7 +139,7 @@ class WardMonitor:
         from xrpl.models import AccountInfo
 
         async with AsyncJsonRpcClient(
-            self._xrpl_url.replace("wss://", "https://").replace("ws://", "http://")
+            self._xrpl_url.replace("wss://", "https://")
         ) as client:
             resp = await client.request(
                 AccountInfo(account=address, ledger_index="validated")

@@ -80,14 +80,18 @@ app = FastAPI(
 )
 
 # ── CORS — locked to wardprotocol.org only
+# localhost origins included only when DEV_CORS=1 is set in the environment.
+# Never set DEV_CORS in Railway production config.
+_CORS_ORIGINS = [
+    "https://wardprotocol.org",
+    "https://www.wardprotocol.org",
+]
+if os.getenv("DEV_CORS", "").lower() in ("1", "true", "yes"):
+    _CORS_ORIGINS += ["http://localhost:3000", "http://localhost:8000"]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "https://wardprotocol.org",
-        "https://www.wardprotocol.org",
-        "http://localhost:3000",
-        "http://localhost:8000",
-    ],
+    allow_origins=_CORS_ORIGINS,
     allow_credentials=False,
     allow_methods=["GET", "POST"],
     allow_headers=["Content-Type", "X-Institution-Key"],

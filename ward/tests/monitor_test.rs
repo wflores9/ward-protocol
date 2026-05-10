@@ -125,22 +125,20 @@ fn test_monitor_config_requires_tls_url() {
 
 #[test]
 fn test_verified_default_ward_signed_always_false() {
-    // The VerifiedDefault struct has ward_signed hardcoded to false.
-    // Deserializing a malicious JSON with ward_signed: true should still
-    // result in false after round-tripping through the type's constructor.
+    // ward_signed is a computed method — not a stored field.
+    // It is impossible to construct a VerifiedDefault with ward_signed = true.
     let event = VerifiedDefault {
         vault_address:      "rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe".to_string(),
         health_ratio:       1.2,
         first_ledger_index: 1000,
         confirmed_ledger:   1003,
         confirm_count:      3,
-        ward_signed:        false, // must always be false
     };
-    assert!(!event.ward_signed, "ward_signed must always be false");
+    assert!(!event.ward_signed(), "ward_signed() must always return false");
 
-    // Verify JSON serialization also has ward_signed: false
+    // ward_signed is not a stored field, so it does not appear in serialized JSON.
     let json_str = serde_json::to_string(&event).unwrap();
-    assert!(json_str.contains("\"ward_signed\":false"), "{}", json_str);
+    assert!(!json_str.contains("ward_signed"), "ward_signed must not be a stored field: {}", json_str);
 }
 
 // ---------------------------------------------------------------------------

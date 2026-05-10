@@ -25,10 +25,10 @@ from ward.constants import (
     MIN_COVERAGE_RATIO,
     RISK_TIER_THRESHOLDS,
     TIER_BASE_RATES,
-    TIER_MINT_GATES,
     TIER_MULTIPLIERS,
     XRPL_BASE_RESERVE_DROPS,
     XRPL_OWNER_RESERVE_DROPS,
+    LicenseTier,
 )
 from ward.primitives import (
     LedgerError,
@@ -151,7 +151,7 @@ class PoolHealthMonitor:
         """
         Return True if minting is allowed for this pool health and license tier.
         """
-        allowed = TIER_MINT_GATES.get(license_tier, set())
+        allowed = LicenseTier.TIER_MINT_GATES.get(license_tier, set())
         return health.risk_tier in allowed
 
     def calculate_premium(

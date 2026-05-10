@@ -88,8 +88,6 @@ pub struct VerifiedDefault {
     pub first_ledger_index: u32,
     pub confirmed_ledger:   u32,
     pub confirm_count:      u32,
-    /// ward_signed is structurally false — this module never touches transactions.
-    pub ward_signed:        bool,
 }
 
 impl VerifiedDefault {
@@ -106,8 +104,12 @@ impl VerifiedDefault {
             first_ledger_index,
             confirmed_ledger,
             confirm_count,
-            ward_signed: false, // hardcoded — cannot be true
         }
+    }
+
+    /// ward_signed is always false — this module never constructs or touches transactions.
+    pub fn ward_signed(&self) -> bool {
+        false
     }
 }
 

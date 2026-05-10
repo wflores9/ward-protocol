@@ -49,6 +49,6 @@ async fn main() {
             event.confirmed_ledger,
             event.confirm_count,
         );
-        println!("  ward_signed = {}", event.ward_signed); // always false
+        println!("  ward_signed = {}", event.ward_signed()); // always false
     }
 }

@@ -43,6 +43,10 @@ Thumbs.db
 # Compiled files
 *.pyc
 
+# Rust build artifacts
+ward/target/
+target/
+
 # Test coverage reports
 htmlcov/
 .coverage
