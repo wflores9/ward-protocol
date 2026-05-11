@@ -818,7 +818,7 @@ Ward Protocol operates entirely at the ecosystem layer using existing XRPL primi
 
 ## 6. Reference Implementation
 
-**Repository**: https://github.com/wflores9/ward-protocol
+**Website**: https://wardprotocol.org
 
 **Documentation**: 
 - Integration diagrams: `/docs/ward-integration-diagrams.md`

@@ -14,7 +14,7 @@ Core rule: Ward **never** signs or submits transactions. Every mutation returns 
 
 - **`ward_client.py`** — Reference integration SDK (full end-to-end convenience)
   - Async client implementing complete flows with `submit_and_wait`
-  - 75/75 tests passing, proven via real testnet transactions (see `testnet_proof.md`)
+  - 165/165 tests passing, proven via real testnet transactions (see `testnet_proof.md`)
   - Intended for: demos, rapid prototyping, reference implementation
   - Production usage: institutions should replace signing/submission with their own secure key management
 
@@ -23,7 +23,7 @@ Core rule: Ward **never** signs or submits transactions. Every mutation returns 
 - Protocol / spec changes → modify `ward/` and sync to XRPLF Discussion #474
 - SDK, demo, test, or documentation improvements → target `ward_client.py`, `demo/`, `tests/`, etc.
 - `ward/` must remain signing-free at all times
-- Always run `pytest` before pushing (keep 75/75 green)
+- Always run `pytest` before pushing (keep 165/165 green)
 - Use conventional commits (fix:, feat:, docs:, refactor:, etc.)
 
 ## Related

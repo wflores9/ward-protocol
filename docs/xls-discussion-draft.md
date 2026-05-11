@@ -2,8 +2,8 @@
 
 **Category:** Ecosystem  
 **Status:** Draft  
-**Repository:** https://github.com/wflores9/ward-protocol  
-**Specification:** [institutional-defi-insurance-specification.md](https://github.com/wflores9/ward-protocol/blob/main/docs/institutional-defi-insurance-specification.md)
+**Website:** https://wardprotocol.org  
+**Specification:** https://wardprotocol.org/spec
 
 ---
 
@@ -130,7 +130,7 @@ Where:
 
 ## Reference Implementation
 
-**Repository:** https://github.com/wflores9/ward-protocol
+**Website:** https://wardprotocol.org
 
 **Components:**
 - Python SDK for XLS-66/65 monitoring
@@ -186,9 +186,8 @@ We welcome feedback on:
 ---
 
 **Contact:**
-- GitHub: [@wflores9](https://github.com/wflores9)
-- Repository: https://github.com/wflores9/ward-protocol
 - Email: wflores@wardprotocol.org
+- Website: https://wardprotocol.org
 
 ---
 

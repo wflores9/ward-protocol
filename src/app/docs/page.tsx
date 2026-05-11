@@ -36,7 +36,7 @@ print(result.approved)            # True
 print(result.steps_passed)        # 9
 print(result.claim_payout_drops)  # min(vault_loss, policy_coverage)`
 
-const testCmd = `# Run test suite (146/146 passing)
+const testCmd = `# Run test suite (165/165 Python · 40/40 Rust)
 pip install -r requirements.txt
 python -m pytest test_ward.py -m "not integration" -v
 
@@ -55,7 +55,7 @@ export default function DocsPage() {
             SDK reference, module overview, and integration guides. All modules are independently auditable.
           </p>
           <div className="flex gap-3 mt-5">
-            <span className="text-[10px] bg-[#e8fff3] text-[#00994d] border border-green px-2.5 py-1 rounded font-mono font-bold">146/146 Tests</span>
+            <span className="text-[10px] bg-[#e8fff3] text-[#00994d] border border-green px-2.5 py-1 rounded font-mono font-bold">165/165 Tests</span>
             <span className="text-[10px] bg-panel border border-border text-sub px-2.5 py-1 rounded font-mono">Python 3.11+</span>
             <span className="text-[10px] bg-panel border border-border text-sub px-2.5 py-1 rounded font-mono">MIT License</span>
           </div>
@@ -96,7 +96,7 @@ export default function DocsPage() {
             {testCmd}
           </pre>
           <p className="text-[12px] text-sub mt-3">
-            146 tests covering all 9 claim validation steps, all 15 attack vectors, VaultMonitor,
+            165 Python + 40 Rust tests covering all 9 claim validation steps, all 15 attack vectors, VaultMonitor,
             EscrowSettlement, PoolHealthMonitor, and all primitives.
             Marked <code className="bg-p2 px-1 rounded text-[11px]">integration</code> tests require XRPL Mainnet access.
           </p>
@@ -107,11 +107,10 @@ export default function DocsPage() {
           <h2 className="font-condensed font-black text-3xl text-steel mb-4">Resources</h2>
           <div className="grid sm:grid-cols-2 gap-3">
             {[
-              { label: 'GitHub Repository',    href: 'https://github.com/wflores9/ward-protocol', ext: true },
               { label: 'PyPI Package',         href: 'https://pypi.org/project/ward-protocol/', ext: true },
               { label: 'Protocol Spec',        href: '/spec', ext: false },
               { label: 'Demo & Checklist',     href: '/demo', ext: false },
-              { label: 'Code4rena Scope',      href: 'https://github.com/wflores9/ward-protocol/blob/main/docs/code4rena-scope.md', ext: true },
+              { label: 'XRPLF Discussion #474', href: 'https://github.com/XRPLF/XRPL-Standards/discussions/474', ext: true },
               { label: 'XRPL Standards',       href: 'https://github.com/XRPLF/XRPL-Standards', ext: true },
             ].map(l => (
               <a

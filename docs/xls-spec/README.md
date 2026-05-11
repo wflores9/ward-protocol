@@ -166,7 +166,7 @@ All authenticated endpoints require API key via `X-API-Key` header with tiered r
 
 ## 5. Reference Implementation
 
-**Repository**: https://github.com/wflores9/ward-protocol
+**Website**: https://wardprotocol.org
 
 **Stack**:
 - Python 3.12 with xrpl-py SDK
@@ -204,7 +204,6 @@ Community feedback is requested on:
 ---
 
 **Contact:**
-- GitHub: [@wflores9](https://github.com/wflores9)
-- Repository: https://github.com/wflores9/ward-protocol
+- Website: https://wardprotocol.org
 - API: https://api.wardprotocol.org
 - Email: wflores@wardprotocol.org

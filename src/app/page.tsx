@@ -27,7 +27,7 @@ const quotes = [
 
 const statusRows: [string, React.ReactNode][] = [
   ['SDK Version', 'v0.2.2'],
-  ['Unit Tests', <span style={{ color: 'var(--green)' }}>146/146 passing</span>],
+  ['Unit Tests', <span style={{ color: 'var(--green)' }}>165/165 passing</span>],
   ['On-Chain Transactions', '5 confirmed (XRPL Altnet)'],
   ['External Dependencies', '0 — pure XRPL'],
   ['Ward Holds Keys', 'Never'],
@@ -83,7 +83,7 @@ export default function Home() {
             </ul>
             <div className="hero-stats">
               <div className="hero-stat">
-                <span className="hero-stat-val" style={{ color: '#4ade80' }}>146/146</span>
+                <span className="hero-stat-val" style={{ color: '#4ade80' }}>165/165</span>
                 <span className="hero-stat-lbl">Tests</span>
               </div>
               <div className="hero-stat">
@@ -109,7 +109,7 @@ export default function Home() {
         <div className="sp-divider" />
         <span className="sp-item">PyPI · ward-protocol</span>
         <div className="sp-divider" />
-        <span className="sp-item">146/146 Tests Passing</span>
+        <span className="sp-item">165/165 Tests Passing</span>
       </div>
 
       {/* THE QUESTION */}

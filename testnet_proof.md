@@ -80,7 +80,7 @@ Confirmed absent from `account_nfts` after burn — replay protection active.
 
 ## What Was Simulated (XLS-66 Not Yet on Altnet)
 
-ClaimValidator Steps 4–9 require XLS-66 ledger objects (`Loan`, `LoanBroker`, `Vault`) which are a draft standard not yet deployed on XRPL Altnet. These steps were tested with mock fixtures in the unit test suite (75/75 passing at time of this run — current suite is 146/146).
+ClaimValidator Steps 4–9 require XLS-66 ledger objects (`Loan`, `LoanBroker`, `Vault`) which are a draft standard not yet deployed on XRPL Altnet. These steps were tested with mock fixtures in the unit test suite (75/75 passing at time of this run — current suite is 165/165 Python · 40/40 Rust).
 
 When XLS-66 is live (custom devnet or mainnet), `LedgerEntry(index=loan_id)` will return the `Loan` object and all 9 validation steps will run end-to-end.
 
@@ -110,12 +110,11 @@ This is the only code change required to go from unit tests passing → testnet 
 ## Reproduce
 
 ```bash
-git clone https://github.com/wflores9/ward-protocol.git  # contributor access — public at mainnet
 cd ward-protocol
 pip install xrpl-py pytest pytest-asyncio
 
 # Unit tests (no network)
-pytest test_ward.py -v -m "not integration"  # 146/146 pass (75/75 at time of this testnet run; 20 tests added post-run)
+pytest test_ward.py -v -m "not integration"  # 165/165 Python pass (75/75 at time of this testnet run)
 
 # Testnet simulation (requires XRPL Altnet)
 python testnet_sim.py

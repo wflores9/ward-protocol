@@ -4,7 +4,7 @@ version     = "0.2.2"
 edition     = "2021"
 description = "Ward Protocol — default protection for XLS-66 lending vaults on XRPL"
 license     = "MIT"
-repository  = "https://github.com/wflores9/ward-protocol"
+repository  = "https://wardprotocol.org"
 keywords    = ["xrpl", "defi", "escrow", "default-protection", "xls-66"]
 
 # ward_signed = false — this crate constructs unsigned XRPL transactions.

@@ -124,7 +124,7 @@ export default function SpecPage() {
           </p>
           <div className="flex gap-3 mt-5">
             <span className="text-[10px] bg-[#e8fff3] text-[#00994d] border border-green px-2.5 py-1 rounded font-mono font-bold">
-              146/146 Tests
+              165/165 Tests
             </span>
             <span className="text-[10px] bg-panel border border-border text-sub px-2.5 py-1 rounded font-mono">
               SDK v0.2.2
@@ -172,7 +172,6 @@ export default function SpecPage() {
             <h2 className="font-condensed font-black text-2xl text-steel mb-3">8. Resources</h2>
             <div className="grid sm:grid-cols-2 gap-3">
               {[
-                ['GitHub Repository',      'https://github.com/wflores9/ward-protocol'],
                 ['Python SDK (PyPI)',       'https://pypi.org/project/ward-protocol/'],
                 ['XRPL XLS-66 Standard',   'https://github.com/XRPLF/XRPL-Standards'],
                 ['Code4rena Audit Scope',  '/docs'],

@@ -18,10 +18,6 @@ export default function PrivacyPage() {
             Ward Protocol is an open-source SDK and protocol specification. The wardprotocol.org website
             collects no personal information, sets no tracking cookies, and operates no user accounts.
           </p>
-          <p className="mt-2">
-            GitHub (github.com/wflores9/ward-protocol) may collect standard web server logs
-            in accordance with GitHub&apos;s own privacy policy.
-          </p>
         </section>
 
         <section>
@@ -56,9 +52,9 @@ export default function PrivacyPage() {
         <section>
           <h2 className="font-condensed font-black text-xl text-steel mb-2">5. Contact</h2>
           <p>
-            Questions about this policy: open an issue at{' '}
-            <a href="https://github.com/wflores9/ward-protocol" className="text-ice2 hover:text-steel transition-colors">
-              github.com/wflores9/ward-protocol
+            Questions about this policy:{' '}
+            <a href="mailto:wflores@wardprotocol.org" className="text-ice2 hover:text-steel transition-colors">
+              wflores@wardprotocol.org
             </a>.
           </p>
         </section>
