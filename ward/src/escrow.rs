@@ -98,6 +98,12 @@ pub struct EscrowConfig {
 
     /// Current XRPL ledger time (Ripple epoch seconds — seconds since 2000-01-01).
     pub current_ledger_time: u32,
+
+    /// Claim ID for on-chain audit trail (included in Memo).
+    pub claim_id: String,
+
+    /// Policy NFT token ID for on-chain audit trail (included in Memo).
+    pub nft_token_id: String,
 }
 
 // ---------------------------------------------------------------------------
@@ -134,6 +140,15 @@ impl EscrowBuilder {
         let finish_after = config.current_ledger_time + ESCROW_FINISH_AFTER_SECS;
         let cancel_after = config.current_ledger_time + ESCROW_CANCEL_AFTER_SECS;
 
+        // Build audit memo: MemoType = hex("ward/claim-escrow"),
+        // MemoData = hex("ward/claim-escrow:<claim_id>:<nft_token_id>")
+        let memo_type_hex = hex::encode("ward/claim-escrow").to_uppercase();
+        let memo_data_str = format!(
+            "ward/claim-escrow:{}:{}",
+            config.claim_id, config.nft_token_id
+        );
+        let memo_data_hex = hex::encode(memo_data_str.as_bytes()).to_uppercase();
+
         // Construct the unsigned EscrowCreate transaction JSON.
         // Amount is stored as a string (XRPL convention for drops).
         let tx_json = json!({
@@ -144,6 +159,12 @@ impl EscrowBuilder {
             "Condition":       config.condition_hex,
             "FinishAfter":     finish_after,
             "CancelAfter":     cancel_after,
+            "Memos": [{
+                "Memo": {
+                    "MemoType": memo_type_hex,
+                    "MemoData": memo_data_hex,
+                }
+            }]
         });
 
         Ok(EscrowTx::new(tx_json, config.condition_hex))
