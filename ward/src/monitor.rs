@@ -368,9 +368,6 @@ async fn process_ledger_close(
 async fn fetch_health_ratio(rpc_url: &str, vault_address: &str) -> Result<f64, WardError> {
     let client = reqwest::Client::new();
 
-    // Query the XLS-66 Vault ledger object for the vault's health ratio.
-    // On Altnet where XLS-66 is not yet live, fall back to account balance
-    // as a proxy. Callers must be aware of this fallback behavior.
     let req_body = json!({
         "method": "account_info",
         "params": [{
@@ -389,7 +386,6 @@ async fn fetch_health_ratio(rpc_url: &str, vault_address: &str) -> Result<f64, W
         .await?;
 
     // XLS-66 Vault object: health_ratio = AssetsTotal / TotalValueOutstanding
-    // Until XLS-66 lands on mainnet, read from account_data as a placeholder.
     let result = resp
         .get("result")
         .and_then(|r| r.get("account_data"));
@@ -402,14 +398,15 @@ async fn fetch_health_ratio(rpc_url: &str, vault_address: &str) -> Result<f64, W
         ) {
             if outstanding > 0.0 { assets / outstanding } else { f64::INFINITY }
         } else {
-            // Pre-XLS-66 fallback: balance / reserve as a proxy
-            let balance = data
-                .get("Balance")
-                .and_then(Value::as_str)
-                .and_then(|s| s.parse::<f64>().ok())
-                .unwrap_or(0.0);
-            // Assume 10 XRP outstanding for proxy purposes (not production)
-            if balance > 0.0 { balance / 10_000_000.0 } else { 0.0 }
+            // Pre-XLS-66 fallback proxy is not supported in production.
+            // A hardcoded "10 XRP outstanding" would always report healthy
+            // regardless of actual vault state.
+            return Err(WardError::LedgerError(
+                "XLS-66 vault object not found — cannot compute health ratio. \
+                 AssetsTotal and TotalValueOutstanding fields are required. \
+                 Ensure the target network has XLS-66 active."
+                    .to_string(),
+            ));
         }
     } else {
         return Err(WardError::LedgerError(
@@ -418,6 +415,23 @@ async fn fetch_health_ratio(rpc_url: &str, vault_address: &str) -> Result<f64, W
     };
 
     Ok(health_ratio)
+}
+
+/// Extract and compute health ratio from an account_data JSON value.
+/// Extracted for unit testing without a live network connection.
+pub fn compute_health_ratio_from_data(data: &Value) -> Result<f64, WardError> {
+    if let (Some(assets), Some(outstanding)) = (
+        data.get("AssetsTotal").and_then(Value::as_f64),
+        data.get("TotalValueOutstanding").and_then(Value::as_f64),
+    ) {
+        Ok(if outstanding > 0.0 { assets / outstanding } else { f64::INFINITY })
+    } else {
+        Err(WardError::LedgerError(
+            "XLS-66 vault object not found — cannot compute health ratio. \
+             AssetsTotal and TotalValueOutstanding fields are required."
+                .to_string(),
+        ))
+    }
 }
 
 // ---------------------------------------------------------------------------

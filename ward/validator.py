@@ -29,8 +29,10 @@ from ward.constants import (
 from ward.primitives import (
     LedgerError,
     ValidationError,
+    WardError,
     check_rate_limit,
     get_ledger_close_time,
+    validate_loan_id,
     validate_nft_id,
     validate_xrpl_address,
 )
@@ -87,6 +89,7 @@ class ClaimValidator:
             validate_xrpl_address(defaulted_vault,  "defaulted_vault")
             validate_xrpl_address(pool_address,     "pool_address")
             validate_nft_id(nft_token_id)
+            validate_loan_id(loan_id)
         except ValidationError as exc:
             return ValidationResult(
                 approved=False,
@@ -94,79 +97,109 @@ class ClaimValidator:
                 steps_passed=0,
             )
 
-        async with AsyncJsonRpcClient(self._url) as client:
-            # Steps 1, 4, pool-info run concurrently.
-            nft_data, (default_flag, vault_loss), pool_info = await asyncio.gather(
-                self._step1_verify_nft_exists(client, claimant_address, nft_token_id),
-                self._step4_verify_default_flag(client, loan_id),
-                self._fetch_pool_info(client, pool_address),
-            )
+        # FIX #14: wrap all ledger I/O so LedgerError/WardError always returns
+        # ValidationResult rather than propagating as an unhandled exception.
+        try:
+            async with AsyncJsonRpcClient(self._url) as client:
+                # Steps 1, 4, pool-info run concurrently.
+                nft_data, (default_flag, vault_loss), pool_info = await asyncio.gather(
+                    self._step1_verify_nft_exists(client, claimant_address, nft_token_id),
+                    self._step4_verify_default_flag(client, loan_id),
+                    self._fetch_pool_info(client, pool_address),
+                )
 
-            if nft_data is _WRONG_TAXON:
-                return self._reject(1, f"Wrong NFT taxon: policy taxon mismatch (expected {WARD_POLICY_TAXON})")
+                if nft_data is _WRONG_TAXON:
+                    return self._reject(1, f"Wrong NFT taxon: policy taxon mismatch (expected {WARD_POLICY_TAXON})")
 
-            if nft_data is None:
-                return self._reject(1, f"NFT {nft_token_id[:16]}... not found (burned/missing).")
-            logger.info("Step 1 passed")
+                if nft_data is None:
+                    return self._reject(1, f"NFT {nft_token_id[:16]}... not found (burned/missing).")
+                logger.info("Step 1 passed")
 
-            metadata, meta_err = self._parse_nft_metadata(nft_data)
-            if meta_err:
-                return self._reject(2, meta_err)
+                metadata, meta_err = self._parse_nft_metadata(nft_data)
+                if meta_err:
+                    return self._reject(2, meta_err)
 
-            expiry_err = await self._step2_check_expiry(client, metadata)
-            if expiry_err:
-                return self._reject(2, expiry_err)
-            logger.info("Step 2 passed")
+                expiry_err = await self._step2_check_expiry(client, metadata)
+                if expiry_err:
+                    return self._reject(2, expiry_err)
+                logger.info("Step 2 passed")
 
-            meta_vault = metadata.get("vault_address") or metadata.get("v", "")
-            if meta_vault != defaulted_vault:
-                return self._reject(3, f"Vault mismatch: {meta_vault!r} != {defaulted_vault!r}")
-            logger.info("Step 3 passed")
+                # TODO(HIGH): verify premium payment on-chain for this NFT's token ID.
+                # A fake NFT minted without paying a premium passes all 9 validation
+                # steps. Query account_tx for the pool address to confirm a matching
+                # Payment transaction exists before approving any claim.
 
-            if not default_flag:
-                return self._reject(4, "Loan default flag not set on-chain.")
-            logger.info("Step 4 passed")
+                meta_vault = metadata.get("vault_address") or metadata.get("v", "")
+                if meta_vault != defaulted_vault:
+                    return self._reject(3, f"Vault mismatch: {meta_vault!r} != {defaulted_vault!r}")
+                logger.info("Step 3 passed")
 
-            if vault_loss <= 0:
-                return self._reject(5, f"Vault loss not positive: {vault_loss}")
-            logger.info("Step 5 passed")
+                if not default_flag:
+                    return self._reject(4, "Loan default flag not set on-chain.")
+                logger.info("Step 4 passed")
 
-            breach_err, breached = await self._step6_check_coverage_breach(
-                client, pool_address, defaulted_vault
-            )
-            if breached:
-                return self._reject(6, breach_err or "Pool coverage breach detected")
-            if breach_err:
-                return self._reject(6, breach_err)
-            logger.info("Step 6 passed")
+                if vault_loss <= 0:
+                    return self._reject(5, f"Vault loss not positive: {vault_loss}")
+                logger.info("Step 5 passed")
 
-            logger.info("Step 7 passed: replay protection OK (NFT live)")
-            logger.info("Step 8 passed: claimant holds NFT")
+                breach_err, breached = await self._step6_check_coverage_breach(
+                    client, pool_address, defaulted_vault
+                )
+                if breach_err and not breached:
+                    return self._reject(6, breach_err)
+                logger.info("Step 6 passed")
 
-            policy_coverage = int(
-                metadata.get("coverage_drops") or metadata.get("c") or 0
-            )
-            payout = min(vault_loss, policy_coverage)
+                step7_err = await self._step7_verify_nft_live(
+                    client, claimant_address, nft_token_id
+                )
+                if step7_err:
+                    return self._reject(7, step7_err)
+                logger.info("Step 7 passed")
 
-            # Step 9: rate-limit per NFT token ID (2.12) then pool solvency.
-            # Rate-limit checked here so steps 1–8 (cheap chain reads) run first
-            # and the window is only consumed when the claim is otherwise valid.
-            try:
-                check_rate_limit(nft_token_id)
-            except ValidationError as exc:
-                return self._reject(9, str(exc))
+                step8_err = await self._step8_verify_claimant_holds_nft(
+                    client, claimant_address, nft_token_id
+                )
+                if step8_err:
+                    return self._reject(8, step8_err)
+                logger.info("Step 8 passed")
 
-            sol_err = self._step9_check_pool_solvency(pool_info, payout)
-            if sol_err:
-                return self._reject(9, sol_err)
-            logger.info("Step 9 passed")
+                policy_coverage = int(
+                    metadata.get("coverage_drops") or metadata.get("c") or 0
+                )
+                payout = min(vault_loss, policy_coverage)
 
+                # Step 9: rate-limit per NFT token ID (2.12) then pool solvency.
+                # Rate-limit checked here so steps 1–8 (cheap chain reads) run first
+                # and the window is only consumed when the claim is otherwise valid.
+                try:
+                    check_rate_limit(nft_token_id)
+                except ValidationError as exc:
+                    return self._reject(9, str(exc))
+
+                sol_err = self._step9_check_pool_solvency(pool_info, payout)
+                if sol_err:
+                    return self._reject(9, sol_err)
+                logger.info("Step 9 passed")
+
+                return ValidationResult(
+                    approved=True,
+                    claim_payout_drops=payout,
+                    vault_loss_drops=vault_loss,
+                    policy_coverage_drops=policy_coverage,
+                    steps_passed=9,
+                )
+
+        except LedgerError as exc:
+            logger.error("LedgerError during claim validation: %s", exc)
             return ValidationResult(
-                approved=True,
-                claim_payout_drops=payout,
-                vault_loss_drops=vault_loss,
-                policy_coverage_drops=policy_coverage,
-                steps_passed=9,
+                approved=False,
+                rejection_reason=f"Ledger error: {exc}",
+            )
+        except WardError as exc:
+            logger.error("WardError during claim validation: %s", exc)
+            return ValidationResult(
+                approved=False,
+                rejection_reason=f"Ward error: {exc}",
             )
 
     # ------------------------------------------------------------------ #
@@ -294,6 +327,29 @@ class ClaimValidator:
         except Exception as exc:
             logger.error("step6 error: %s", exc)
             return f"Coverage breach check failed: {exc}", False
+
+    async def _step7_verify_nft_live(
+        self, client, claimant_address: str, nft_token_id: str
+    ) -> Optional[str]:
+        """Step 7: Replay protection — verify NFT still exists (not burned)."""
+        nft = await self._step1_verify_nft_exists(client, claimant_address, nft_token_id)
+        if nft is None:
+            return f"Replay protection failed: NFT {nft_token_id[:16]}... has been burned"
+        if nft is _WRONG_TAXON:
+            return "Replay protection failed: NFT taxon mismatch"
+        return None
+
+    async def _step8_verify_claimant_holds_nft(
+        self, client, claimant_address: str, nft_token_id: str
+    ) -> Optional[str]:
+        """Step 8: Verify claimant currently holds the NFT (not transferred)."""
+        nft = await self._step1_verify_nft_exists(client, claimant_address, nft_token_id)
+        if nft is None or nft is _WRONG_TAXON:
+            return (
+                f"Claimant {claimant_address[:8]}... does not currently hold "
+                f"NFT {nft_token_id[:16]}..."
+            )
+        return None
 
     def _step9_check_pool_solvency(
         self, pool_info, payout: int
