@@ -26,13 +26,14 @@ const quotes = [
 ]
 
 const statusRows: [string, React.ReactNode][] = [
-  ['SDK Version', 'v0.2.2'],
-  ['Unit Tests', <span style={{ color: 'var(--green)' }}>165/165 passing</span>],
+  ['SDK Version', 'v0.2.3'],
+  ['Unit Tests', <span style={{ color: 'var(--green)' }}>165/165 Python · 40/40 Rust</span>],
+  ['Security Fixes', '11 critical fixes (Code4rena prep)'],
   ['On-Chain Transactions', '5 confirmed (XRPL Altnet)'],
   ['External Dependencies', '0 — pure XRPL'],
   ['Ward Holds Keys', 'Never'],
   ['Authoritative State', 'XRPL Ledger'],
-  ['Production Code', '2,148 lines'],
+  ['Production Code', '3,515 lines'],
   ['XRPLF Standards', 'XLS-66 · XLS-70 · XLS-80 · XLS-20'],
 ]
 
@@ -65,7 +66,7 @@ export default function Home() {
 
           <div className="hero-card">
             <div className="hero-card-header">
-              <span className="hero-card-label">WARD · v0.2.2 · ALTNET</span>
+              <span className="hero-card-label">WARD · v0.2.3 · ALTNET</span>
               <span className="live-badge"><span className="live-dot" />LIVE</span>
             </div>
             <div className="invariant-box">

@@ -3,7 +3,7 @@ import Link from 'next/link'
 
 export const metadata: Metadata = {
   title: 'Ward Protocol — Documentation',
-  description: 'SDK documentation, API reference, and integration guides for Ward Protocol v0.2.2.',
+  description: 'SDK documentation, API reference, and integration guides for Ward Protocol v0.2.3.',
 }
 
 const modules = [
@@ -17,7 +17,7 @@ const modules = [
 ]
 
 const quickstart = `# Install
-pip install ward-protocol==0.2.2
+pip install ward-protocol==0.2.3
 
 # Validate a claim (9 steps, all on-chain)
 from ward import ClaimValidator
@@ -49,7 +49,7 @@ export default function DocsPage() {
       {/* Header */}
       <div className="border-b border-p2 bg-white px-6 md:px-12 py-10">
         <div className="max-w-4xl mx-auto">
-          <div className="text-[10px] uppercase tracking-[.15em] text-ice2 mb-2 font-mono">Ward Protocol SDK — v0.2.2</div>
+          <div className="text-[10px] uppercase tracking-[.15em] text-ice2 mb-2 font-mono">Ward Protocol SDK — v0.2.3</div>
           <h1 className="font-condensed font-black text-5xl text-steel mb-3">Documentation</h1>
           <p className="text-[13px] text-sub max-w-2xl">
             SDK reference, module overview, and integration guides. All modules are independently auditable.
