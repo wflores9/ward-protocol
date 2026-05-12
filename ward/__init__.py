@@ -1,5 +1,5 @@
 """
-Ward Protocol SDK — Public Package API  v0.2.3
+Ward Protocol SDK — Public Package API  v0.2.2
 
     from ward import WardClient, VaultMonitor, ClaimValidator
     from ward import EscrowSettlement, PoolHealthMonitor
@@ -7,8 +7,6 @@ Ward Protocol SDK — Public Package API  v0.2.3
     from ward import PoolHealth, VerifiedDefault, ValidationResult
 
 Changelog:
-    v0.2.3  xrpl-py pinned to >=4.5.0; 11 code review fixes merged from
-            Code4rena prep branch; 165/165 Python + 40/40 Rust tests.
     v0.2.2  Add ripple_time_now, get_ledger_close_time exports;
             full __all__ with all constants; aligned with ward_client.py shim.
     v0.2.1  Add ClaimValidator, ValidationResult, EscrowSettlement, EscrowRecord.
