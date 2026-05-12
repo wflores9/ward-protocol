@@ -468,7 +468,7 @@ pub fn validate_xrpl_address(address: &str) -> Result<(), WardError> {
     }
     if address.len() < 25 || address.len() > 34 {
         return Err(WardError::AddressError(format!(
-            "XRPL classic address must be 25–34 chars: {} (len {})",
+            "XRPL classic address must be 25\u{2013}34 chars: {} (len {})",
             address,
             address.len()
         )));
