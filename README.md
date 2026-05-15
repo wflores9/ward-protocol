@@ -281,7 +281,16 @@ ruff check ward/
 
 See [CHANGELOG.md](CHANGELOG.md)
 
-Current: v0.2.3 — 165/165 Python tests · 40/40 Rust tests · ruff clean
+Current: v0.2.3 — 165/165 Python tests · 40/40 Rust tests · 45/45 TypeScript tests · ruff clean
+
+### TypeScript (sdk/typescript/)
+
+```bash
+cd sdk/typescript && npm install
+npm test
+```
+
+Full type-safe SDK with strict `ward_signed: false` type literals. All 6 Ward Protocol flows implemented.
 
 ---
 

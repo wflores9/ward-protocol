@@ -1,0 +1,23 @@
+{
+  "name": "ward-protocol",
+  "version": "0.2.3",
+  "description": "TypeScript SDK for Ward Protocol — deterministic default resolution for XLS-66 lending vaults on XRPL",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest",
+    "lint": "tsc --noEmit"
+  },
+  "keywords": ["ward-protocol", "xrpl", "xls-66", "defi", "default-resolution"],
+  "license": "MIT",
+  "dependencies": {
+    "xrpl": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.0.0",
+    "jest": "^29.0.0",
+    "ts-jest": "^29.0.0",
+    "typescript": "^5.0.0"
+  }
+}
