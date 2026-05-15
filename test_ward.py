@@ -2947,3 +2947,103 @@ class TestMultiVaultRegistry:
         assert entry["vault_address"] == self.vault_a
         assert entry["tier"] == "standard"
         assert entry["label"] == "Main Vault"
+
+
+# ===========================================================================
+# TestWebhookNotifications — Week 2 Session 2
+# ===========================================================================
+
+class TestWebhookNotifications:
+    """Unit tests for ward/webhooks.py threshold detection and registry."""
+
+    def setup_method(self):
+        from ward.webhooks import clear_webhooks
+        clear_webhooks()
+
+    # ----------------------------------------------------------------
+    # determine_event threshold logic
+    # ----------------------------------------------------------------
+
+    async def test_threshold_crossing_warning(self):
+        """Crossing below 2.0 from above fires HEALTH_WARNING."""
+        from ward.webhooks import determine_event, WebhookEvent
+        event = determine_event(1.9, 2.5)
+        assert event == WebhookEvent.HEALTH_WARNING
+
+    async def test_threshold_crossing_elevated(self):
+        """Crossing below 1.75 fires HEALTH_ELEVATED (not WARNING)."""
+        from ward.webhooks import determine_event, WebhookEvent
+        event = determine_event(1.7, 1.8)
+        assert event == WebhookEvent.HEALTH_ELEVATED
+
+    async def test_threshold_crossing_critical(self):
+        """Crossing below 1.5 fires HEALTH_CRITICAL."""
+        from ward.webhooks import determine_event, WebhookEvent
+        event = determine_event(1.4, 1.6)
+        assert event == WebhookEvent.HEALTH_CRITICAL
+
+    async def test_default_resolved(self):
+        """Recovery above 1.5 from below fires DEFAULT_RESOLVED."""
+        from ward.webhooks import determine_event, WebhookEvent
+        event = determine_event(1.6, 1.4)
+        assert event == WebhookEvent.DEFAULT_RESOLVED
+
+    async def test_stable_no_event(self):
+        """No threshold crossing returns None."""
+        from ward.webhooks import determine_event
+        event = determine_event(2.1, 2.3)
+        assert event is None
+
+    async def test_no_previous_no_event(self):
+        """First reading with no previous ratio returns None."""
+        from ward.webhooks import determine_event
+        event = determine_event(1.4, None)
+        assert event is None
+
+    # ----------------------------------------------------------------
+    # Payload invariant
+    # ----------------------------------------------------------------
+
+    async def test_payload_ward_signed_always_false(self):
+        """WebhookPayload.ward_signed is always False."""
+        from ward.webhooks import WebhookPayload, WebhookEvent
+        payload = WebhookPayload(
+            event=WebhookEvent.HEALTH_CRITICAL,
+            vault_address=VALID_ADDRESS,
+            health_ratio=1.4,
+            timestamp=int(time.time()),
+        )
+        assert payload.ward_signed is False
+
+    # ----------------------------------------------------------------
+    # Registry operations
+    # ----------------------------------------------------------------
+
+    async def test_register_and_retrieve_webhook(self):
+        """Registered webhook is retrievable by vault address."""
+        from ward.webhooks import WebhookConfig, register_webhook, get_webhooks
+        config = WebhookConfig(
+            url="https://example.com/hook",
+            vault_address=VALID_ADDRESS,
+            secret="s3cr3t",
+        )
+        await register_webhook(config)
+        hooks = await get_webhooks(VALID_ADDRESS)
+        assert len(hooks) == 1
+        assert hooks[0].url == "https://example.com/hook"
+
+    async def test_deregister_webhook(self):
+        """Deregistering a webhook removes it from the registry."""
+        from ward.webhooks import WebhookConfig, register_webhook, deregister_webhook, get_webhooks
+        await register_webhook(WebhookConfig(url="https://example.com/hook", vault_address=VALID_ADDRESS))
+        removed = await deregister_webhook(VALID_ADDRESS, "https://example.com/hook")
+        assert removed is True
+        hooks = await get_webhooks(VALID_ADDRESS)
+        assert len(hooks) == 0
+
+    async def test_http_url_rejected(self):
+        """Webhook URL must use https — plaintext http is rejected."""
+        from ward.webhooks import WebhookConfig, register_webhook
+        from ward.primitives import WardError
+        with pytest.raises(WardError, match="https://"):
+            await register_webhook(WebhookConfig(url="http://example.com/hook", vault_address=VALID_ADDRESS))

@@ -29,6 +29,12 @@ from ward.constants import (
     MONITOR_HEARTBEAT_TIMEOUT_S,
 )
 from ward.primitives import ValidationError, validate_xrpl_address
+from ward.webhooks import (
+    WebhookEvent,
+    WebhookPayload,
+    determine_event,
+    fire_webhook,
+)
 
 logger = logging.getLogger("ward.vault_monitor")
 
@@ -102,14 +108,15 @@ class VaultMonitor:
         self._ws_url        = websocket_url
         self._confirm_count = confirm_count
 
-        self._vault_addresses:  Set[str]         = set()
-        self._broker_addresses: Set[str]         = set()
-        self._broker_to_vault:  Dict[str, str]   = {}
-        self._pending:          Dict[str, DefaultSignal] = {}
-        self._health_history:   Dict[str, deque] = defaultdict(lambda: deque(maxlen=10))
-        self._recent_signals:   Dict[str, deque] = defaultdict(deque)
-        self._default_callbacks: List[Callable]  = []
-        self._anomaly_callbacks: List[Callable]  = []
+        self._vault_addresses:   Set[str]              = set()
+        self._broker_addresses:  Set[str]              = set()
+        self._broker_to_vault:   Dict[str, str]        = {}
+        self._pending:           Dict[str, DefaultSignal] = {}
+        self._health_history:    Dict[str, deque]      = defaultdict(lambda: deque(maxlen=10))
+        self._recent_signals:    Dict[str, deque]      = defaultdict(deque)
+        self._previous_ratios:   Dict[str, float]      = {}
+        self._default_callbacks: List[Callable]        = []
+        self._anomaly_callbacks: List[Callable]        = []
         self._stop_event = asyncio.Event()
         self._running    = False
 
@@ -259,6 +266,17 @@ class VaultMonitor:
         ratio       = collateral / outstanding if outstanding > 0 else float("inf")
 
         if vault_address:
+            prev_ratio = self._previous_ratios.get(vault_address)
+            self._previous_ratios[vault_address] = ratio
+            wh_event = determine_event(ratio, prev_ratio)
+            if wh_event:
+                asyncio.create_task(fire_webhook(WebhookPayload(
+                    event=wh_event,
+                    vault_address=vault_address,
+                    health_ratio=ratio,
+                    timestamp=int(time.time()),
+                )))
+
             self._recent_signals[vault_address].append((time.time(), ratio))
             if self._detect_anomaly(vault_address):
                 await self._fire_callbacks(
@@ -294,6 +312,13 @@ class VaultMonitor:
         for loan_id, event in confirmed:
             del self._pending[loan_id]
             await self._fire_callbacks(self._default_callbacks, event)
+            if event.vault_address:
+                asyncio.create_task(fire_webhook(WebhookPayload(
+                    event=WebhookEvent.DEFAULT_DETECTED,
+                    vault_address=event.vault_address,
+                    health_ratio=event.health_ratio,
+                    timestamp=int(time.time()),
+                )))
 
     async def _verify_default_on_chain(
         self,

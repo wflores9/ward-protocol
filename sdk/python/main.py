@@ -62,6 +62,17 @@ try:
 except ImportError:
     REGISTRY_AVAILABLE = False
 
+try:
+    from ward.webhooks import (
+        WebhookConfig as _WebhookConfig,
+        register_webhook as _register_webhook,
+        deregister_webhook as _deregister_webhook,
+        get_webhooks as _get_webhooks,
+    )
+    WEBHOOKS_AVAILABLE = True
+except ImportError:
+    WEBHOOKS_AVAILABLE = False
+
 # ── Logging
 logging.basicConfig(
     level=logging.INFO,
@@ -190,6 +201,12 @@ class VaultRegistryRequest(BaseModel):
     tier: str = Field(default="starter", description="starter / standard / enterprise")
     label: str = Field(default="", description="Human-readable vault name")
     ledger_time: int = Field(default=0, description="XRPL ledger time of registration")
+
+class WebhookRegisterRequest(BaseModel):
+    vault_address: str = Field(..., description="Vault XRPL address to monitor")
+    url: str = Field(..., description="Callback URL — must be https://")
+    secret: str = Field(default="", description="HMAC-SHA256 signing secret")
+    events: list[str] = Field(default_factory=list, description="Event filter — empty = all events")
 
 
 # ============================================================
@@ -334,6 +351,56 @@ async def registry_deregister_vault(
         "vault_address": vault_address,
         "ward_signed": False,
     }
+
+
+@app.post("/webhooks/register")
+async def webhook_register(
+    req: WebhookRegisterRequest,
+    x_institution_key: Optional[str] = Header(None),
+):
+    """Register a webhook URL to receive vault health threshold notifications."""
+    verify_institution_key(x_institution_key)
+    if not WEBHOOKS_AVAILABLE:
+        raise HTTPException(
+            status_code=503,
+            detail={"error": "WEBHOOKS_UNAVAILABLE", "ward_signed": False},
+        )
+    try:
+        config = _WebhookConfig(
+            url=req.url,
+            vault_address=req.vault_address,
+            secret=req.secret,
+            events=req.events,
+        )
+        await _register_webhook(config)
+        return {
+            "registered": True,
+            "vault_address": req.vault_address,
+            "url": req.url,
+            "ward_signed": False,
+        }
+    except Exception as exc:
+        raise HTTPException(
+            status_code=422,
+            detail={"error": "WEBHOOK_ERROR", "message": str(exc), "ward_signed": False},
+        )
+
+
+@app.delete("/webhooks/{vault_address}")
+async def webhook_deregister(
+    vault_address: str,
+    url: str,
+    x_institution_key: Optional[str] = Header(None),
+):
+    """Deregister a webhook for a vault address."""
+    verify_institution_key(x_institution_key)
+    if not WEBHOOKS_AVAILABLE:
+        raise HTTPException(
+            status_code=503,
+            detail={"error": "WEBHOOKS_UNAVAILABLE", "ward_signed": False},
+        )
+    removed = await _deregister_webhook(vault_address, url)
+    return {"removed": removed, "vault_address": vault_address, "ward_signed": False}
 
 
 @app.get("/vaults/{vault_id}")
