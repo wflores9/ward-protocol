@@ -3,7 +3,7 @@ import Link from 'next/link'
 
 export const metadata: Metadata = {
   title: 'Ward Protocol — Documentation',
-  description: 'SDK documentation, API reference, and integration guides for Ward Protocol v0.2.2.',
+  description: 'SDK documentation, API reference, and integration guides for Ward Protocol v0.2.3.',
 }
 
 const modules = [
@@ -17,7 +17,7 @@ const modules = [
 ]
 
 const quickstart = `# Install
-pip install ward-protocol==0.2.2
+pip install ward-protocol==0.2.3
 
 # Validate a claim (9 steps, all on-chain)
 from ward import ClaimValidator
@@ -36,7 +36,7 @@ print(result.approved)            # True
 print(result.steps_passed)        # 9
 print(result.claim_payout_drops)  # min(vault_loss, policy_coverage)`
 
-const testCmd = `# Run test suite (146/146 passing)
+const testCmd = `# Run test suite (165/165 passing)
 pip install -r requirements.txt
 python -m pytest test_ward.py -m "not integration" -v
 
@@ -49,13 +49,13 @@ export default function DocsPage() {
       {/* Header */}
       <div className="border-b border-p2 bg-white px-6 md:px-12 py-10">
         <div className="max-w-4xl mx-auto">
-          <div className="text-[10px] uppercase tracking-[.15em] text-ice2 mb-2 font-mono">Ward Protocol SDK — v0.2.2</div>
+          <div className="text-[10px] uppercase tracking-[.15em] text-ice2 mb-2 font-mono">Ward Protocol SDK — v0.2.3</div>
           <h1 className="font-condensed font-black text-5xl text-steel mb-3">Documentation</h1>
           <p className="text-[13px] text-sub max-w-2xl">
             SDK reference, module overview, and integration guides. All modules are independently auditable.
           </p>
           <div className="flex gap-3 mt-5">
-            <span className="text-[10px] bg-[#e8fff3] text-[#00994d] border border-green px-2.5 py-1 rounded font-mono font-bold">146/146 Tests</span>
+            <span className="text-[10px] bg-[#e8fff3] text-[#00994d] border border-green px-2.5 py-1 rounded font-mono font-bold">165/165 Tests</span>
             <span className="text-[10px] bg-panel border border-border text-sub px-2.5 py-1 rounded font-mono">Python 3.11+</span>
             <span className="text-[10px] bg-panel border border-border text-sub px-2.5 py-1 rounded font-mono">MIT License</span>
           </div>
@@ -96,10 +96,60 @@ export default function DocsPage() {
             {testCmd}
           </pre>
           <p className="text-[12px] text-sub mt-3">
-            146 tests covering all 9 claim validation steps, all 15 attack vectors, VaultMonitor,
+            165 Python tests + 40 Rust tests covering all 9 claim validation steps, all 15 attack vectors, VaultMonitor,
             EscrowSettlement, PoolHealthMonitor, and all primitives.
             Marked <code className="bg-p2 px-1 rounded text-[11px]">integration</code> tests require XRPL Mainnet access.
           </p>
+        </section>
+
+        {/* Changelog */}
+        <section>
+          <h2 className="font-condensed font-black text-3xl text-steel mb-4">Changelog</h2>
+          {[
+            {
+              version: 'v0.2.3',
+              date: 'May 2026',
+              changes: [
+                { type: 'Fixed', text: '11 code review findings — NFTokenBurn permission, Steps 7+8 real ledger queries, TxBuilder condition fields' },
+                { type: 'Fixed', text: 'Coverage tracking redesigned — _coverage_registry with register/deregister methods' },
+                { type: 'Fixed', text: 'loan_id 64-hex validation at validate_claim input boundary' },
+                { type: 'Fixed', text: 'Rust health ratio hardcoded proxy removed — returns error when XLS-66 fields absent' },
+                { type: 'Fixed', text: 'Rate limit dict eviction — empty entries cleaned up, 10K entry cap' },
+                { type: 'Fixed', text: 'WardError raised on empty premium tx hash' },
+                { type: 'Added', text: 'Rust EscrowBuilder audit memos — ward/claim-escrow format matching Python' },
+                { type: 'Changed', text: 'xrpl-py updated to 4.5.0' },
+                { type: 'Changed', text: 'Python tests: 146/146 → 165/165 · Rust tests: 15/15 → 40/40' },
+              ],
+            },
+            {
+              version: 'v0.2.2',
+              date: 'May 2026',
+              changes: [
+                { type: 'Added', text: 'Rust VaultMonitor and EscrowSettlement modules' },
+                { type: 'Added', text: '15 attack-vector mitigations (AV 2.1–2.15)' },
+                { type: 'Added', text: 'Code4rena audit scope documentation' },
+              ],
+            },
+          ].map(entry => (
+            <div key={entry.version} className="mb-8 border border-p2 bg-white rounded-md p-5">
+              <div className="flex items-center gap-3 mb-3">
+                <span className="font-condensed font-black text-xl text-steel">{entry.version}</span>
+                <span className="text-[11px] text-sub font-mono">{entry.date}</span>
+              </div>
+              <ul className="space-y-1.5">
+                {entry.changes.map((c, i) => (
+                  <li key={i} className="flex items-start gap-2 text-[12px]">
+                    <span className={`shrink-0 font-mono text-[10px] px-1.5 py-0.5 rounded ${
+                      c.type === 'Fixed' ? 'bg-[#fff3e0] text-[#b45309]' :
+                      c.type === 'Added' ? 'bg-[#e8fff3] text-[#00994d]' :
+                      'bg-panel text-sub'
+                    }`}>{c.type}</span>
+                    <span className="text-sub">{c.text}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </section>
 
         {/* Links */}
