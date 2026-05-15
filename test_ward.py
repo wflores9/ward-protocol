@@ -2843,3 +2843,107 @@ class TestPremiumVerificationGap:
             "Claim from fake NFT (no premium) must be rejected — "
             "premium payment verification not yet implemented"
         )
+
+
+# ===========================================================================
+# Tests: Multi-vault institution registry
+# ===========================================================================
+
+
+class TestMultiVaultRegistry:
+    """FIX: multi-vault support — one X-Institution-Key maps to multiple vaults."""
+
+    def setup_method(self):
+        from ward.registry import clear_registry
+        clear_registry()
+        # Generate valid XRPL addresses for registry tests
+        from xrpl.wallet import Wallet as _Wallet
+        self.vault_a = VALID_ADDRESS    # rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh
+        self.vault_b = VALID_ADDRESS2   # rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe
+        self.vault_c = _Wallet.create().classic_address  # fresh valid address
+
+    async def test_register_single_vault(self):
+        """Institution can register a vault."""
+        from ward.registry import register_vault, get_vaults
+        await register_vault("key_001", self.vault_a)
+        vaults = await get_vaults("key_001")
+        assert len(vaults) == 1
+        assert vaults[0]["vault_address"] == self.vault_a
+
+    async def test_register_multiple_vaults(self):
+        """Institution can register multiple vaults under one key."""
+        from ward.registry import register_vault, get_vaults
+        await register_vault("key_001", self.vault_a)
+        await register_vault("key_001", self.vault_b)
+        await register_vault("key_001", self.vault_c)
+        vaults = await get_vaults("key_001")
+        assert len(vaults) == 3
+
+    async def test_different_institutions_isolated(self):
+        """Two institution keys cannot see each other's vaults."""
+        from ward.registry import register_vault, get_vaults
+        await register_vault("key_A", self.vault_a)
+        await register_vault("key_B", self.vault_b)
+        vaults_a = await get_vaults("key_A")
+        vaults_b = await get_vaults("key_B")
+        assert len(vaults_a) == 1
+        assert len(vaults_b) == 1
+        assert vaults_a[0]["vault_address"] != vaults_b[0]["vault_address"]
+
+    async def test_duplicate_vault_rejected(self):
+        """Cannot register the same vault address twice under one key."""
+        from ward.registry import register_vault
+        await register_vault("key_001", self.vault_a)
+        with pytest.raises(WardError, match="already registered"):
+            await register_vault("key_001", self.vault_a)
+
+    async def test_deregister_vault(self):
+        """Institution can remove a vault from their registry."""
+        from ward.registry import register_vault, get_vaults, deregister_vault
+        await register_vault("key_001", self.vault_a)
+        await register_vault("key_001", self.vault_b)
+        await deregister_vault("key_001", self.vault_a)
+        vaults = await get_vaults("key_001")
+        assert len(vaults) == 1
+        assert vaults[0]["vault_address"] == self.vault_b
+
+    async def test_invalid_address_rejected(self):
+        """Invalid XRPL address format raises WardError or ValidationError."""
+        from ward.registry import register_vault
+        with pytest.raises((WardError, Exception)):
+            await register_vault("key_001", "not-a-valid-xrpl-address")
+
+    async def test_institution_key_hash_not_raw(self):
+        """Registry stores key hash — never the raw institution key."""
+        from ward.registry import register_vault
+        entry = await register_vault("key_001", self.vault_a)
+        assert entry["institution_key_hash"] != "key_001"
+        assert len(entry["institution_key_hash"]) == 64  # SHA-256 hex
+
+    async def test_invalid_tier_rejected(self):
+        """Only starter / standard / enterprise tiers are accepted."""
+        from ward.registry import register_vault
+        with pytest.raises(WardError, match="Invalid tier"):
+            await register_vault("key_001", self.vault_a, tier="premium")
+
+    async def test_deregister_returns_false_when_not_found(self):
+        """deregister_vault returns False if the address was never registered."""
+        from ward.registry import deregister_vault
+        removed = await deregister_vault("key_001", self.vault_a)
+        assert removed is False
+
+    async def test_get_vault_returns_none_when_missing(self):
+        """get_vault returns None when vault is not registered."""
+        from ward.registry import get_vault
+        result = await get_vault("key_001", self.vault_a)
+        assert result is None
+
+    async def test_get_vault_returns_entry_when_present(self):
+        """get_vault returns the correct registration entry."""
+        from ward.registry import register_vault, get_vault
+        await register_vault("key_001", self.vault_a, tier="standard", label="Main Vault")
+        entry = await get_vault("key_001", self.vault_a)
+        assert entry is not None
+        assert entry["vault_address"] == self.vault_a
+        assert entry["tier"] == "standard"
+        assert entry["label"] == "Main Vault"

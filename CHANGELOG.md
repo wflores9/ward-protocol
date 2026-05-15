@@ -7,6 +7,17 @@ Ward Protocol SDK uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ---
 
+## [0.2.3] — 2026-05-15 (Week 2, Session 1)
+
+### Added
+- Multi-vault institution registry (`ward/registry.py`)
+- One X-Institution-Key now maps to multiple XLS-66 vault addresses
+- New API endpoints: `POST /vaults/register`, `GET /vaults` (registry-backed), `DELETE /vaults/{address}`
+- `VaultRegistration` TypedDict in `ward/constants.py`
+- 11 new registry unit tests in `TestMultiVaultRegistry`
+
+---
+
 ## [0.2.3] — 2026-05-10
 
 ### Changed

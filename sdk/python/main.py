@@ -51,6 +51,17 @@ except ImportError as e:
     logging.warning(f"ward_client import failed: {e} — running in spec-only mode")
     WARD_CLIENT_AVAILABLE = False
 
+try:
+    from ward.registry import (
+        register_vault as _registry_register,
+        get_vaults as _registry_get_vaults,
+        deregister_vault as _registry_deregister,
+    )
+    from ward.primitives import WardError as _WardError
+    REGISTRY_AVAILABLE = True
+except ImportError:
+    REGISTRY_AVAILABLE = False
+
 # ── Logging
 logging.basicConfig(
     level=logging.INFO,
@@ -93,7 +104,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=_CORS_ORIGINS,
     allow_credentials=False,
-    allow_methods=["GET", "POST"],
+    allow_methods=["GET", "POST", "DELETE"],
     allow_headers=["Content-Type", "X-Institution-Key"],
 )
 
@@ -174,6 +185,12 @@ class EscrowCreateRequest(BaseModel):
     condition_hex: str = Field(..., description="SHA-256 condition — fulfillment held only by claimant")
     policy_nft_id: str
 
+class VaultRegistryRequest(BaseModel):
+    vault_address: str = Field(..., description="XLS-66 vault XRPL address (r...)")
+    tier: str = Field(default="starter", description="starter / standard / enterprise")
+    label: str = Field(default="", description="Human-readable vault name")
+    ledger_time: int = Field(default=0, description="XRPL ledger time of registration")
+
 
 # ============================================================
 # ROUTES — F·01 through F·06
@@ -247,14 +264,75 @@ async def register_vault(
         raise HTTPException(status_code=502, detail={"error": "LEDGER_ERROR", "message": str(e), "ward_signed": False})
 
 
+@app.post("/vaults/register")
+async def registry_register_vault(
+    req: VaultRegistryRequest,
+    x_institution_key: Optional[str] = Header(None),
+):
+    """Register an XLS-66 vault address under the institution key (multi-vault registry)."""
+    verify_institution_key(x_institution_key)
+    if not REGISTRY_AVAILABLE or not x_institution_key:
+        raise HTTPException(
+            status_code=503,
+            detail={"error": "REGISTRY_UNAVAILABLE", "ward_signed": False},
+        )
+    try:
+        entry = await _registry_register(
+            institution_key=x_institution_key,
+            vault_address=req.vault_address,
+            tier=req.tier,
+            label=req.label,
+            ledger_time=req.ledger_time,
+        )
+        return {
+            "vault_address": entry["vault_address"],
+            "tier": entry["tier"],
+            "label": entry["label"],
+            "registered_at": entry["registered_at"],
+            "ward_signed": False,
+        }
+    except _WardError as e:
+        raise HTTPException(
+            status_code=422,
+            detail={"error": "REGISTRY_ERROR", "message": str(e), "ward_signed": False},
+        )
+
+
 @app.get("/vaults")
 async def list_vaults(x_institution_key: Optional[str] = Header(None)):
     verify_institution_key(x_institution_key)
+    if REGISTRY_AVAILABLE and x_institution_key:
+        vaults = await _registry_get_vaults(x_institution_key)
+        return {
+            "ward_signed": False,
+            "vaults": vaults,
+            "count": len(vaults),
+        }
     return {
         "ward_signed": False,
-        "flow": "F·01",
         "vaults": [],
+        "count": 0,
         "source": "XRPL XLS-66 ledger objects",
+    }
+
+
+@app.delete("/vaults/{vault_address}")
+async def registry_deregister_vault(
+    vault_address: str,
+    x_institution_key: Optional[str] = Header(None),
+):
+    """Deregister a vault from the institution key's registry."""
+    verify_institution_key(x_institution_key)
+    if not REGISTRY_AVAILABLE or not x_institution_key:
+        raise HTTPException(
+            status_code=503,
+            detail={"error": "REGISTRY_UNAVAILABLE", "ward_signed": False},
+        )
+    removed = await _registry_deregister(x_institution_key, vault_address)
+    return {
+        "removed": removed,
+        "vault_address": vault_address,
+        "ward_signed": False,
     }
 
 

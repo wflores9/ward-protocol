@@ -20,6 +20,7 @@ __version__ = "0.2.3"
 from ward.client import WardClient
 from ward.constants import (
     ALLOWED_WS_URLS,
+    VaultRegistration,
     CLAIM_RATE_LIMIT_MAX,
     CLAIM_RATE_LIMIT_WINDOW_S,
     CREDENTIAL_NFT_TAXON,
@@ -61,11 +62,21 @@ from ward.primitives import (
     validate_wallet,
     validate_xrpl_address,
 )
+from ward.registry import (
+    deregister_vault,
+    get_vault,
+    get_vaults,
+    register_vault,
+)
 from ward.settlement import EscrowRecord, EscrowSettlement
 from ward.validator import ClaimValidator, ValidationResult
 from ward.vault_monitor import DefaultSignal, VaultMonitor, VerifiedDefault
 
 __all__ = [
+    # Registry
+    "register_vault", "get_vaults", "get_vault", "deregister_vault",
+    "VaultRegistration",
+
     # Core SDK classes
     "WardClient",
     "VaultMonitor", "VerifiedDefault", "DefaultSignal",

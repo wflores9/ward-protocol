@@ -10,6 +10,16 @@ Tier mapping (mirrors index.html licensing tiers):
     Enterprise — White-label, SLA, legal opinion.
 """
 
+from typing import TypedDict
+
+
+class VaultRegistration(TypedDict):
+    vault_address: str
+    institution_key_hash: str  # SHA-256 of X-Institution-Key — raw key never stored
+    registered_at: int          # XRPL ledger time
+    tier: str                   # starter / standard / enterprise
+    label: str                  # human-readable vault name
+
 # ---------------------------------------------------------------------------
 # Network endpoints
 # ---------------------------------------------------------------------------
