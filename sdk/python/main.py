@@ -73,6 +73,20 @@ try:
 except ImportError:
     WEBHOOKS_AVAILABLE = False
 
+try:
+    from ward.keys import (
+        generate_key as _generate_key,
+        register_key as _register_key,
+        verify_key as _verify_key,
+        revoke_key as _revoke_key,
+        rotate_key as _rotate_key,
+        _hash_key as _key_hash_fn,
+        _key_store as _key_store_ref,
+    )
+    KEYS_AVAILABLE = True
+except ImportError:
+    KEYS_AVAILABLE = False
+
 # ── Logging
 logging.basicConfig(
     level=logging.INFO,
@@ -124,17 +138,22 @@ app.add_middleware(
 # AUTH UTILITY
 # ============================================================
 
-def verify_institution_key(x_institution_key: Optional[str]) -> None:
+def verify_institution_key(x_institution_key: Optional[str]) -> Optional[str]:
     """
     Verify institution API key from X-Institution-Key header.
-    Key stored in Railway environment — never in code.
-    Raises HTTP 401 if missing or invalid.
+
+    Checks in order:
+      1. ward.keys store — for keys generated via POST /keys/generate
+      2. INSTITUTION_API_KEY env var — backward compat for hardcoded keys
+
+    Returns the raw key on success (for Depends() callers), None if auth bypassed.
+    Raises HTTP 401 if a key is required but invalid.
     """
-    expected = os.getenv("INSTITUTION_API_KEY")
-    if not expected:
-        logger.warning("INSTITUTION_API_KEY not set in environment — auth bypassed")
-        return
     if not x_institution_key:
+        expected = os.getenv("INSTITUTION_API_KEY")
+        if not expected:
+            logger.warning("INSTITUTION_API_KEY not set in environment — auth bypassed")
+            return None
         raise HTTPException(
             status_code=401,
             detail={
@@ -143,6 +162,23 @@ def verify_institution_key(x_institution_key: Optional[str]) -> None:
                 "ward_signed": False,
             }
         )
+
+    # Check ward.keys store first (async store — use sync hash lookup)
+    if KEYS_AVAILABLE:
+        import asyncio
+        key_hash = _key_hash_fn(x_institution_key)
+        record = _key_store_ref.get(key_hash)
+        if record is not None:
+            if not record.revoked and (record.expires_at is None or int(time.time()) <= record.expires_at):
+                return x_institution_key
+            # Key exists but revoked/expired — fall through to env check
+
+    # Backward compat — constant-time comparison against env var
+    expected = os.getenv("INSTITUTION_API_KEY")
+    if not expected:
+        logger.warning("INSTITUTION_API_KEY not set in environment — auth bypassed")
+        return x_institution_key
+
     # Constant-time comparison — prevents timing attacks
     provided = hashlib.sha256(x_institution_key.encode()).digest()
     expected_hash = hashlib.sha256(expected.encode()).digest()
@@ -155,6 +191,7 @@ def verify_institution_key(x_institution_key: Optional[str]) -> None:
                 "ward_signed": False,
             }
         )
+    return x_institution_key
 
 
 # ============================================================
@@ -207,6 +244,25 @@ class WebhookRegisterRequest(BaseModel):
     url: str = Field(..., description="Callback URL — must be https://")
     secret: str = Field(default="", description="HMAC-SHA256 signing secret")
     events: list[str] = Field(default_factory=list, description="Event filter — empty = all events")
+
+class KeyRequestModel(BaseModel):
+    tier: str = Field(default="starter", description="starter / standard / enterprise")
+    label: str = Field(default="", description="Institution name or identifier")
+    expires_in_days: Optional[int] = Field(default=None, description="Expiry in days — None = no expiry")
+
+class KeyRotateModel(BaseModel):
+    old_key: str = Field(..., description="Existing raw key to rotate from")
+
+
+def _institution_key_dep(x_institution_key: Optional[str] = Header(None)) -> str:
+    """FastAPI Depends wrapper — validates and returns the institution key string."""
+    result = verify_institution_key(x_institution_key)
+    if not x_institution_key:
+        raise HTTPException(
+            status_code=401,
+            detail={"error": "MISSING_AUTH", "message": "X-Institution-Key header required", "ward_signed": False},
+        )
+    return x_institution_key
 
 
 # ============================================================
@@ -401,6 +457,91 @@ async def webhook_deregister(
         )
     removed = await _deregister_webhook(vault_address, url)
     return {"removed": removed, "vault_address": vault_address, "ward_signed": False}
+
+
+@app.post("/keys/generate")
+async def generate_key_endpoint(request: KeyRequestModel):
+    """
+    Generate and register a new institution API key.
+    The raw key is returned ONCE — it cannot be retrieved again.
+    Store it securely immediately.
+    """
+    if not KEYS_AVAILABLE:
+        raise HTTPException(status_code=503, detail={"error": "KEYS_UNAVAILABLE", "ward_signed": False})
+    try:
+        expires_at = None
+        if request.expires_in_days:
+            expires_at = int(time.time()) + (request.expires_in_days * 86400)
+        raw_key = _generate_key(tier=request.tier, label=request.label)
+        record = await _register_key(raw_key, tier=request.tier, label=request.label, expires_at=expires_at)
+        return {
+            "key": raw_key,
+            "tier": record.tier,
+            "label": record.label,
+            "created_at": record.created_at,
+            "expires_at": record.expires_at,
+            "warning": "Store this key immediately — it cannot be retrieved again.",
+            "ward_signed": False,
+        }
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail={"error": "KEY_ERROR", "message": str(exc), "ward_signed": False})
+
+
+@app.post("/keys/verify")
+async def verify_key_endpoint(institution_key: Optional[str] = Depends(_institution_key_dep)):
+    """Verify that the provided key is valid and return its metadata."""
+    if not KEYS_AVAILABLE:
+        raise HTTPException(status_code=503, detail={"error": "KEYS_UNAVAILABLE", "ward_signed": False})
+    key_hash = _key_hash_fn(institution_key)
+    record = _key_store_ref.get(key_hash)
+    if not record:
+        raise HTTPException(status_code=401, detail={"error": "KEY_NOT_FOUND", "ward_signed": False})
+    return {
+        "valid": True,
+        "tier": record.tier,
+        "label": record.label,
+        "created_at": record.created_at,
+        "expires_at": record.expires_at,
+        "last_used_at": record.last_used_at,
+        "ward_signed": False,
+    }
+
+
+@app.post("/keys/revoke")
+async def revoke_key_endpoint(institution_key: Optional[str] = Depends(_institution_key_dep)):
+    """Revoke the current institution key immediately."""
+    if not KEYS_AVAILABLE:
+        raise HTTPException(status_code=503, detail={"error": "KEYS_UNAVAILABLE", "ward_signed": False})
+    revoked = await _revoke_key(institution_key)
+    return {
+        "revoked": revoked,
+        "warning": "This key is now invalid. Generate a new key if needed.",
+        "ward_signed": False,
+    }
+
+
+@app.post("/keys/rotate")
+async def rotate_key_endpoint(institution_key: Optional[str] = Depends(_institution_key_dep)):
+    """
+    Generate a new key with the same tier and label.
+    Old key remains valid until explicitly revoked.
+    New key is returned ONCE — store immediately.
+    """
+    if not KEYS_AVAILABLE:
+        raise HTTPException(status_code=503, detail={"error": "KEYS_UNAVAILABLE", "ward_signed": False})
+    try:
+        new_raw, new_record = await _rotate_key(institution_key)
+        return {
+            "new_key": new_raw,
+            "tier": new_record.tier,
+            "label": new_record.label,
+            "created_at": new_record.created_at,
+            "old_key_status": "still_valid — revoke explicitly when ready",
+            "warning": "Store this new key immediately — it cannot be retrieved again.",
+            "ward_signed": False,
+        }
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail={"error": "KEY_ERROR", "message": str(exc), "ward_signed": False})
 
 
 @app.get("/vaults/{vault_id}")

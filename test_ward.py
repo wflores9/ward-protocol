@@ -3047,3 +3047,87 @@ class TestWebhookNotifications:
         from ward.primitives import WardError
         with pytest.raises(WardError, match="https://"):
             await register_webhook(WebhookConfig(url="http://example.com/hook", vault_address=VALID_ADDRESS))
+
+
+# ===========================================================================
+# TestApiKeyManagement — Week 2 Session 4
+# ===========================================================================
+
+class TestApiKeyManagement:
+    """Tests for institution API key generation and management."""
+
+    def setup_method(self):
+        from ward.keys import clear_keys
+        clear_keys()
+
+    def test_generate_key_has_prefix(self):
+        from ward.keys import generate_key
+        key = generate_key("starter", "Test Institution")
+        assert key.startswith("ward_")
+
+    def test_generate_key_sufficient_entropy(self):
+        from ward.keys import generate_key
+        key1 = generate_key()
+        key2 = generate_key()
+        assert key1 != key2
+        assert len(key1) > 40
+
+    async def test_register_and_verify_key(self):
+        from ward.keys import generate_key, register_key, verify_key
+        raw = generate_key("standard", "Test")
+        await register_key(raw, "standard", "Test")
+        record = await verify_key(raw)
+        assert record is not None
+        assert record.tier == "standard"
+        assert record.label == "Test"
+
+    async def test_raw_key_not_stored(self):
+        from ward.keys import generate_key, register_key, _key_store
+        raw = generate_key()
+        await register_key(raw)
+        # Raw key must not appear anywhere in the store
+        for key_hash, record in _key_store.items():
+            assert raw not in key_hash
+            assert raw not in str(record)
+
+    async def test_revoked_key_rejected(self):
+        from ward.keys import generate_key, register_key, verify_key, revoke_key
+        raw = generate_key()
+        await register_key(raw)
+        await revoke_key(raw)
+        record = await verify_key(raw)
+        assert record is None
+
+    async def test_invalid_key_rejected(self):
+        from ward.keys import verify_key
+        record = await verify_key("ward_notarealkey")
+        assert record is None
+
+    async def test_rotate_key_generates_new(self):
+        from ward.keys import generate_key, register_key, rotate_key
+        raw = generate_key("enterprise", "BigBank")
+        await register_key(raw, "enterprise", "BigBank")
+        new_raw, new_record = await rotate_key(raw)
+        assert new_raw != raw
+        assert new_raw.startswith("ward_")
+        assert new_record.tier == "enterprise"
+        assert new_record.label == "BigBank"
+
+    async def test_expired_key_rejected(self):
+        from ward.keys import generate_key, register_key, verify_key
+        raw = generate_key()
+        await register_key(raw, expires_at=1)  # expired in 1970
+        record = await verify_key(raw)
+        assert record is None
+
+    def test_invalid_tier_rejected(self):
+        from ward.keys import generate_key
+        with pytest.raises(ValueError, match="Invalid tier"):
+            generate_key("platinum")
+
+    def test_ward_signed_false_implied(self):
+        from ward.keys import generate_key
+        raw = generate_key()
+        # Keys themselves don't carry ward_signed — it's in API responses
+        assert raw.startswith("ward_")
+        assert "signed" not in raw
