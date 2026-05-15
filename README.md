@@ -2,13 +2,13 @@
 
 [![Website](https://img.shields.io/badge/website-wardprotocol.org-blue)](https://wardprotocol.org)
 [![SDK](https://img.shields.io/badge/SDK-v0.2.3-green)](#sdk-changelog)
-[![Tests](https://img.shields.io/badge/tests-165%2F165-brightgreen)](#running-tests)
+[![Tests](https://img.shields.io/badge/tests-204%2F204-brightgreen)](#running-tests)
 [![XRPL](https://img.shields.io/badge/XRPL-XLS--66%20%C2%B7%20XLS--70%20%C2%B7%20XLS--20-orange)](https://github.com/XRPLF/XRPL-Standards)
 [![License](https://img.shields.io/badge/license-MIT-lightgrey)](LICENSE)
 
 ---
 
-**Deterministic Default Resolution for On-Chain Credit Systems**
+**Deterministic Default Resolution fohr On-Chain Credit Systems**
 
 ---
 
@@ -148,7 +148,7 @@ Output: `VALID / INVALID` + deterministic unsigned EscrowCreate
 
 ## Implementation Status
 
-- ✅ SDK built and tested — 165/165 tests passing
+- ✅ SDK built and tested — 204/204 tests passing
 - ✅ 40/40 Rust tests passing
 - ✅ v0.2.3 modular architecture — 8 Python modules + 2 Rust modules
 - ✅ Testnet simulation confirmed — 5 on-chain transactions (Altnet)
@@ -281,7 +281,7 @@ ruff check ward/
 
 See [CHANGELOG.md](CHANGELOG.md)
 
-Current: v0.2.3 — 165/165 Python tests · 40/40 Rust tests · 45/45 TypeScript tests · ruff clean
+Current: v0.2.3 — 204/204 Python tests · 40/40 Rust tests · 45/45 TypeScript tests · ruff clean
 
 ### TypeScript (sdk/typescript/)
 
