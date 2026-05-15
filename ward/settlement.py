@@ -44,16 +44,16 @@ _SECONDS_PER_HOUR = 3_600
 
 @dataclass
 class EscrowRecord:
-    claim_id:             str
-    nft_token_id:         str
-    pool_address:         str
-    claimant_address:     str
-    payout_drops:         int
-    escrow_sequence:      int
-    condition_hex:        str
-    tx_hash:              str
+    claim_id: str
+    nft_token_id: str
+    pool_address: str
+    claimant_address: str
+    payout_drops: int
+    escrow_sequence: int
+    condition_hex: str
+    tx_hash: str
     dispute_deadline_ripple: int = 0
-    cancel_after_ripple:  int = 0
+    cancel_after_ripple: int = 0
 
 
 class EscrowSettlement:
@@ -81,12 +81,12 @@ class EscrowSettlement:
 
     async def create_claim_escrow(
         self,
-        pool_wallet:      Wallet,
+        pool_wallet: Wallet,
         claimant_address: str,
-        payout_drops:     int,
-        condition_hex:    str,
-        nft_token_id:     str,
-        claim_id:         str,
+        payout_drops: int,
+        condition_hex: str,
+        nft_token_id: str,
+        claim_id: str,
     ) -> EscrowRecord:
         """
         Create a time-locked + crypto-conditioned EscrowCreate from the pool.
@@ -102,8 +102,12 @@ class EscrowSettlement:
 
         async with AsyncJsonRpcClient(self._url) as client:
             current_time = await get_ledger_close_time(client)
-            dispute_deadline_ripple = current_time + (ESCROW_DISPUTE_HOURS * _SECONDS_PER_HOUR)
-            cancel_after_ripple = current_time + (ESCROW_CANCEL_HOURS  * _SECONDS_PER_HOUR)
+            dispute_deadline_ripple = current_time + (
+                ESCROW_DISPUTE_HOURS * _SECONDS_PER_HOUR
+            )
+            cancel_after_ripple = current_time + (
+                ESCROW_CANCEL_HOURS * _SECONDS_PER_HOUR
+            )
 
             audit_memo = json.dumps(
                 {"claim_id": claim_id, "nft": nft_token_id},
@@ -124,16 +128,23 @@ class EscrowSettlement:
                 ],
             )
             escrow_tx = await autofill(escrow_tx, client)
-            response  = await submit_with_retry(escrow_tx, client, pool_wallet)
+            response = await submit_with_retry(escrow_tx, client, pool_wallet)
 
             tx_hash = response.result.get("hash", "")
-            seq     = response.result.get("tx_json", {}).get("Sequence") or escrow_tx.sequence or 0
+            seq = (
+                response.result.get("tx_json", {}).get("Sequence")
+                or escrow_tx.sequence
+                or 0
+            )
 
             logger.info(
                 "EscrowCreate: %s  claim=%s  payout=%d drops  "
                 "finish_after=%d  cancel_after=%d",
-                tx_hash[:16], claim_id, payout_drops,
-                dispute_deadline_ripple, cancel_after_ripple,
+                tx_hash[:16],
+                claim_id,
+                payout_drops,
+                dispute_deadline_ripple,
+                cancel_after_ripple,
             )
             return EscrowRecord(
                 claim_id=claim_id,
@@ -150,9 +161,9 @@ class EscrowSettlement:
 
     async def finish_escrow(
         self,
-        pool_wallet:     Wallet,
+        pool_wallet: Wallet,
         claimant_wallet: Wallet,
-        escrow_record:   EscrowRecord,
+        escrow_record: EscrowRecord,
         fulfillment_hex: str,
     ) -> Dict[str, str]:
         """
@@ -187,7 +198,7 @@ class EscrowSettlement:
                     f"(ledger time {current_time})"
                 )
 
-            pool_wallet     = validate_wallet(pool_wallet,     "pool_wallet")
+            pool_wallet = validate_wallet(pool_wallet, "pool_wallet")
             claimant_wallet = validate_wallet(claimant_wallet, "claimant_wallet")
 
             finish_tx = EscrowFinish(
@@ -197,12 +208,13 @@ class EscrowSettlement:
                 condition=escrow_record.condition_hex,
                 fulfillment=fulfillment_hex,
             )
-            finish_tx   = await autofill(finish_tx, client)
+            finish_tx = await autofill(finish_tx, client)
             finish_resp = await submit_with_retry(finish_tx, client, pool_wallet)
             finish_hash = finish_resp.result.get("hash", "")
             logger.info(
                 "EscrowFinish: %s  claim=%s",
-                finish_hash[:16], escrow_record.claim_id,
+                finish_hash[:16],
+                escrow_record.claim_id,
             )
 
             burn_tx = NFTokenBurn(
@@ -213,32 +225,35 @@ class EscrowSettlement:
                         memo_type=str_to_hex("ward/policy-burn"),
                         memo_data=str_to_hex(
                             json.dumps(
-                                {"claim_id": escrow_record.claim_id,
-                                 "finish_tx": finish_hash},
+                                {
+                                    "claim_id": escrow_record.claim_id,
+                                    "finish_tx": finish_hash,
+                                },
                                 separators=(",", ":"),
                             )
                         ),
                     )
                 ],
             )
-            burn_tx   = await autofill(burn_tx, client)
+            burn_tx = await autofill(burn_tx, client)
             burn_resp = await submit_with_retry(burn_tx, client, claimant_wallet)
             burn_hash = burn_resp.result.get("hash", "")
             logger.info(
                 "NFTokenBurn: %s  claim=%s",
-                burn_hash[:16], escrow_record.claim_id,
+                burn_hash[:16],
+                escrow_record.claim_id,
             )
 
         return {
             "finish_tx": finish_hash,
-            "burn_tx":   burn_hash,
+            "burn_tx": burn_hash,
         }
 
     async def cancel_escrow(
         self,
-        pool_wallet:   Wallet,
+        pool_wallet: Wallet,
         escrow_record: EscrowRecord,
-        reason:        str,
+        reason: str,
     ) -> str:
         """
         Cancel the escrow and return funds to the pool (after cancel window).
@@ -271,11 +286,13 @@ class EscrowSettlement:
                 ],
             )
             cancel_tx = await autofill(cancel_tx, client)
-            result    = await submit_with_retry(cancel_tx, client, pool_wallet)
-            tx_hash   = result.result.get("hash", "")
+            result = await submit_with_retry(cancel_tx, client, pool_wallet)
+            tx_hash = result.result.get("hash", "")
 
         logger.info(
             "EscrowCancel: %s  claim=%s  reason=%s",
-            tx_hash[:16], escrow_record.claim_id, reason,
+            tx_hash[:16],
+            escrow_record.claim_id,
+            reason,
         )
         return tx_hash

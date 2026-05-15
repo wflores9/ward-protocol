@@ -42,15 +42,15 @@ logger = logging.getLogger("ward.pool")
 
 @dataclass(frozen=True)
 class PoolHealth:
-    pool_address:           str
-    balance_drops:          int
-    usable_drops:           int
-    active_coverage_drops:  int
-    owner_count:            int
-    coverage_ratio:         float
-    is_solvent:             bool
-    dynamic_premium_rate:   float
-    risk_tier:              str
+    pool_address: str
+    balance_drops: int
+    usable_drops: int
+    active_coverage_drops: int
+    owner_count: int
+    coverage_ratio: float
+    is_solvent: bool
+    dynamic_premium_rate: float
+    risk_tier: str
 
     def balance_xrp(self) -> float:
         return self.balance_drops / 1_000_000
@@ -107,14 +107,13 @@ class PoolHealthMonitor:
                     f"AccountInfo failed for {self._pool_address}: {resp.result}"
                 )
 
-            account_data  = resp.result["account_data"]
+            account_data = resp.result["account_data"]
             balance_drops = int(account_data["Balance"])
-            owner_count   = int(account_data.get("OwnerCount", 0))
+            owner_count = int(account_data.get("OwnerCount", 0))
 
             # Step 2: Compute usable balance
-            reserve_drops = (
-                XRPL_BASE_RESERVE_DROPS
-                + (owner_count * XRPL_OWNER_RESERVE_DROPS)
+            reserve_drops = XRPL_BASE_RESERVE_DROPS + (
+                owner_count * XRPL_OWNER_RESERVE_DROPS
             )
             usable_drops = max(0, balance_drops - reserve_drops)
 
@@ -127,9 +126,9 @@ class PoolHealthMonitor:
         else:
             coverage_ratio = usable_drops / active_coverage_drops
 
-        risk_tier    = self._classify_tier(coverage_ratio)
-        base_rate    = TIER_BASE_RATES.get(risk_tier, 0.05)
-        multiplier   = TIER_MULTIPLIERS.get(risk_tier, 2.0)
+        risk_tier = self._classify_tier(coverage_ratio)
+        base_rate = TIER_BASE_RATES.get(risk_tier, 0.05)
+        multiplier = TIER_MULTIPLIERS.get(risk_tier, 2.0)
         premium_rate = base_rate * multiplier
 
         return PoolHealth(
@@ -196,9 +195,7 @@ class PoolHealthMonitor:
         """
         try:
             active_nft_ids = (
-                set(self._coverage_registry.keys())
-                if self._coverage_registry
-                else None
+                set(self._coverage_registry.keys()) if self._coverage_registry else None
             )
             return await get_active_coverage_drops(
                 pool_address=self._pool_address,

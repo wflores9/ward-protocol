@@ -115,9 +115,7 @@ class ChainReader:
         request = AccountObjects(**kwargs)
         response = await self.client.request(request)
         if not response.is_successful():
-            raise LedgerError(
-                f"AccountObjects failed for {address}: {response.result}"
-            )
+            raise LedgerError(f"AccountObjects failed for {address}: {response.result}")
         return response.result.get("account_objects", [])
 
     async def get_escrows(self, address: str) -> list[EscrowInfo]:
@@ -168,7 +166,5 @@ class ChainReader:
         request = AccountTx(account=address, limit=limit)
         response = await self.client.request(request)
         if not response.is_successful():
-            raise LedgerError(
-                f"AccountTx failed for {address}: {response.result}"
-            )
+            raise LedgerError(f"AccountTx failed for {address}: {response.result}")
         return response.result.get("transactions", [])

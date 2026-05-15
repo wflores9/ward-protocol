@@ -42,12 +42,12 @@ logger = logging.getLogger("ward.validator")
 
 @dataclass
 class ValidationResult:
-    approved:              bool
-    claim_payout_drops:    int = 0
-    vault_loss_drops:      int = 0
+    approved: bool
+    claim_payout_drops: int = 0
+    vault_loss_drops: int = 0
     policy_coverage_drops: int = 0
-    rejection_reason:      str = ""
-    steps_passed:          int = 0
+    rejection_reason: str = ""
+    steps_passed: int = 0
 
 
 # Sentinel returned by _step1_verify_nft_exists when NFT has wrong taxon.
@@ -72,10 +72,10 @@ class ClaimValidator:
         self,
         *,
         claimant_address: str,
-        nft_token_id:     str,
-        defaulted_vault:  str,
-        loan_id:          str,
-        pool_address:     str,
+        nft_token_id: str,
+        defaulted_vault: str,
+        loan_id: str,
+        pool_address: str,
     ) -> ValidationResult:
         """
         Run all 9 validation steps and return a ValidationResult.
@@ -86,8 +86,8 @@ class ClaimValidator:
         # -- Input validation at boundary (2.10 address injection) ----------
         try:
             validate_xrpl_address(claimant_address, "claimant_address")
-            validate_xrpl_address(defaulted_vault,  "defaulted_vault")
-            validate_xrpl_address(pool_address,     "pool_address")
+            validate_xrpl_address(defaulted_vault, "defaulted_vault")
+            validate_xrpl_address(pool_address, "pool_address")
             validate_nft_id(nft_token_id)
             validate_loan_id(loan_id)
         except ValidationError as exc:
@@ -103,16 +103,23 @@ class ClaimValidator:
             async with AsyncJsonRpcClient(self._url) as client:
                 # Steps 1, 4, pool-info run concurrently.
                 nft_data, (default_flag, vault_loss), pool_info = await asyncio.gather(
-                    self._step1_verify_nft_exists(client, claimant_address, nft_token_id),
+                    self._step1_verify_nft_exists(
+                        client, claimant_address, nft_token_id
+                    ),
                     self._step4_verify_default_flag(client, loan_id),
                     self._fetch_pool_info(client, pool_address),
                 )
 
                 if nft_data is _WRONG_TAXON:
-                    return self._reject(1, f"Wrong NFT taxon: policy taxon mismatch (expected {WARD_POLICY_TAXON})")
+                    return self._reject(
+                        1,
+                        f"Wrong NFT taxon: policy taxon mismatch (expected {WARD_POLICY_TAXON})",
+                    )
 
                 if nft_data is None:
-                    return self._reject(1, f"NFT {nft_token_id[:16]}... not found (burned/missing).")
+                    return self._reject(
+                        1, f"NFT {nft_token_id[:16]}... not found (burned/missing)."
+                    )
                 logger.info("Step 1 passed")
 
                 metadata, meta_err = self._parse_nft_metadata(nft_data)
@@ -131,7 +138,9 @@ class ClaimValidator:
 
                 meta_vault = metadata.get("vault_address") or metadata.get("v", "")
                 if meta_vault != defaulted_vault:
-                    return self._reject(3, f"Vault mismatch: {meta_vault!r} != {defaulted_vault!r}")
+                    return self._reject(
+                        3, f"Vault mismatch: {meta_vault!r} != {defaulted_vault!r}"
+                    )
                 logger.info("Step 3 passed")
 
                 if not default_flag:
@@ -206,9 +215,7 @@ class ClaimValidator:
     # Step helpers                                                         #
     # ------------------------------------------------------------------ #
 
-    async def _step1_verify_nft_exists(
-        self, client, claimant: str, nft_token_id: str
-    ):
+    async def _step1_verify_nft_exists(self, client, claimant: str, nft_token_id: str):
         """
         Scan claimant's NFTs for the given token ID.
 
@@ -317,9 +324,7 @@ class ClaimValidator:
             acct = resp.result.get("account_data", {})
             balance = int(acct.get("Balance", 0))
             owner_count = int(acct.get("OwnerCount", 0))
-            reserve = XRPL_BASE_RESERVE_DROPS + (
-                owner_count * XRPL_OWNER_RESERVE_DROPS
-            )
+            reserve = XRPL_BASE_RESERVE_DROPS + (owner_count * XRPL_OWNER_RESERVE_DROPS)
             usable = balance - reserve
             if usable < 0:
                 return f"Pool insolvent: usable={usable}", True
@@ -332,9 +337,13 @@ class ClaimValidator:
         self, client, claimant_address: str, nft_token_id: str
     ) -> Optional[str]:
         """Step 7: Replay protection — verify NFT still exists (not burned)."""
-        nft = await self._step1_verify_nft_exists(client, claimant_address, nft_token_id)
+        nft = await self._step1_verify_nft_exists(
+            client, claimant_address, nft_token_id
+        )
         if nft is None:
-            return f"Replay protection failed: NFT {nft_token_id[:16]}... has been burned"
+            return (
+                f"Replay protection failed: NFT {nft_token_id[:16]}... has been burned"
+            )
         if nft is _WRONG_TAXON:
             return "Replay protection failed: NFT taxon mismatch"
         return None
@@ -343,7 +352,9 @@ class ClaimValidator:
         self, client, claimant_address: str, nft_token_id: str
     ) -> Optional[str]:
         """Step 8: Verify claimant currently holds the NFT (not transferred)."""
-        nft = await self._step1_verify_nft_exists(client, claimant_address, nft_token_id)
+        nft = await self._step1_verify_nft_exists(
+            client, claimant_address, nft_token_id
+        )
         if nft is None or nft is _WRONG_TAXON:
             return (
                 f"Claimant {claimant_address[:8]}... does not currently hold "
@@ -351,24 +362,18 @@ class ClaimValidator:
             )
         return None
 
-    def _step9_check_pool_solvency(
-        self, pool_info, payout: int
-    ) -> Optional[str]:
+    def _step9_check_pool_solvency(self, pool_info, payout: int) -> Optional[str]:
         if pool_info is None:
             return "Pool info unavailable"
         balance = int(pool_info.get("Balance", 0))
         owner_count = int(pool_info.get("OwnerCount", 0))
-        reserve = XRPL_BASE_RESERVE_DROPS + (
-            owner_count * XRPL_OWNER_RESERVE_DROPS
-        )
+        reserve = XRPL_BASE_RESERVE_DROPS + (owner_count * XRPL_OWNER_RESERVE_DROPS)
         usable = balance - reserve
         if usable < payout:
             return f"Pool insolvent: usable={usable} < payout={payout}"
         ratio = usable / max(payout, 1)
         if ratio < MIN_COVERAGE_RATIO:
-            return (
-                f"Pool coverage ratio {ratio:.2f} < minimum {MIN_COVERAGE_RATIO}"
-            )
+            return f"Pool coverage ratio {ratio:.2f} < minimum {MIN_COVERAGE_RATIO}"
         return None
 
     async def _fetch_pool_info(self, client, pool_address: str) -> Optional[dict]:

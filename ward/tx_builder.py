@@ -76,7 +76,10 @@ class TxBuilder:
             params["invoice_id"] = invoice_id
         if memos:
             params["memos"] = [
-                Memo(memo_type=str_to_hex(m.get("type", "")), memo_data=str_to_hex(m.get("data", "")))
+                Memo(
+                    memo_type=str_to_hex(m.get("type", "")),
+                    memo_data=str_to_hex(m.get("data", "")),
+                )
                 for m in memos
             ]
         return Payment(**params)

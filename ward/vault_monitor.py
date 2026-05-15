@@ -52,9 +52,9 @@ class DefaultSignal:
     """Candidate default signal — detected on-chain but not yet confirmed."""
 
     vault_address: str
-    loan_id:       str
-    health_ratio:  float
-    ledger_index:  int
+    loan_id: str
+    health_ratio: float
+    ledger_index: int
     confirm_count: int = 0
 
 
@@ -62,14 +62,14 @@ class DefaultSignal:
 class VerifiedDefault:
     """A default confirmed across DEFAULT_CONFIRM_COUNT ledger closes."""
 
-    vault_address:      str
-    loan_id:            str
-    health_ratio:       float
+    vault_address: str
+    loan_id: str
+    health_ratio: float
     first_ledger_index: int
-    confirmed_ledger:   int
+    confirmed_ledger: int
     outstanding_amount: int = 0
-    collateral_amount:  int = 0
-    loan_flags:         int = 0
+    collateral_amount: int = 0
+    loan_flags: int = 0
 
 
 # ---------------------------------------------------------------------------
@@ -105,22 +105,22 @@ class VaultMonitor:
         # 2.7 — reject non-TLS and unknown endpoints at construction time.
         _validate_ws_url(websocket_url)
 
-        self._ws_url        = websocket_url
+        self._ws_url = websocket_url
         self._confirm_count = confirm_count
 
-        self._vault_addresses:   Set[str]              = set()
-        self._broker_addresses:  Set[str]              = set()
-        self._broker_to_vault:   Dict[str, str]        = {}
-        self._pending:           Dict[str, DefaultSignal] = {}
-        self._health_history:    Dict[str, deque]      = defaultdict(lambda: deque(maxlen=10))
-        self._recent_signals:    Dict[str, deque]      = defaultdict(deque)
-        self._previous_ratios:   Dict[str, float]      = {}
-        self._default_callbacks: List[Callable]        = []
-        self._anomaly_callbacks: List[Callable]        = []
+        self._vault_addresses: Set[str] = set()
+        self._broker_addresses: Set[str] = set()
+        self._broker_to_vault: Dict[str, str] = {}
+        self._pending: Dict[str, DefaultSignal] = {}
+        self._health_history: Dict[str, deque] = defaultdict(lambda: deque(maxlen=10))
+        self._recent_signals: Dict[str, deque] = defaultdict(deque)
+        self._previous_ratios: Dict[str, float] = {}
+        self._default_callbacks: List[Callable] = []
+        self._anomaly_callbacks: List[Callable] = []
         self._stop_event = asyncio.Event()
-        self._running    = False
+        self._running = False
 
-        for addr in (vault_addresses or []):
+        for addr in vault_addresses or []:
             self.add_vault(addr)
 
     # ------------------------------------------------------------------
@@ -178,7 +178,8 @@ class VaultMonitor:
                 if self._running:
                     logger.warning(
                         "VaultMonitor disconnected (%s). Reconnecting in %.0fs.",
-                        exc, delay,
+                        exc,
+                        delay,
                     )
                     await asyncio.sleep(delay)
                     delay = min(delay * 2, 60.0)
@@ -245,7 +246,7 @@ class VaultMonitor:
         client: AsyncWebsocketClient,
         message: dict,
     ) -> None:
-        tx   = message.get("transaction", {})
+        tx = message.get("transaction", {})
         meta = message.get("meta", {})
         acct = tx.get("Account", "")
 
@@ -253,29 +254,43 @@ class VaultMonitor:
             return
 
         vault_address = self._broker_to_vault.get(acct, "")
-        loan_id       = tx.get("LoanID", tx.get("Offer", ""))
+        loan_id = tx.get("LoanID", tx.get("Offer", ""))
         if not loan_id:
             return
 
-        flags = int(meta.get("AffectedNodes", [{}])[0].get("FinalFields", {}).get("Flags", 0))
+        flags = int(
+            meta.get("AffectedNodes", [{}])[0].get("FinalFields", {}).get("Flags", 0)
+        )
         if not (flags & LSF_LOAN_DEFAULT):
             return
 
-        outstanding = int(meta.get("AffectedNodes", [{}])[0].get("FinalFields", {}).get("PrincipalOutstanding", 0))
-        collateral  = int(meta.get("AffectedNodes", [{}])[0].get("FinalFields", {}).get("CollateralAmount", 0))
-        ratio       = collateral / outstanding if outstanding > 0 else float("inf")
+        outstanding = int(
+            meta.get("AffectedNodes", [{}])[0]
+            .get("FinalFields", {})
+            .get("PrincipalOutstanding", 0)
+        )
+        collateral = int(
+            meta.get("AffectedNodes", [{}])[0]
+            .get("FinalFields", {})
+            .get("CollateralAmount", 0)
+        )
+        ratio = collateral / outstanding if outstanding > 0 else float("inf")
 
         if vault_address:
             prev_ratio = self._previous_ratios.get(vault_address)
             self._previous_ratios[vault_address] = ratio
             wh_event = determine_event(ratio, prev_ratio)
             if wh_event:
-                asyncio.create_task(fire_webhook(WebhookPayload(
-                    event=wh_event,
-                    vault_address=vault_address,
-                    health_ratio=ratio,
-                    timestamp=int(time.time()),
-                )))
+                asyncio.create_task(
+                    fire_webhook(
+                        WebhookPayload(
+                            event=wh_event,
+                            vault_address=vault_address,
+                            health_ratio=ratio,
+                            timestamp=int(time.time()),
+                        )
+                    )
+                )
 
             self._recent_signals[vault_address].append((time.time(), ratio))
             if self._detect_anomaly(vault_address):
@@ -313,12 +328,16 @@ class VaultMonitor:
             del self._pending[loan_id]
             await self._fire_callbacks(self._default_callbacks, event)
             if event.vault_address:
-                asyncio.create_task(fire_webhook(WebhookPayload(
-                    event=WebhookEvent.DEFAULT_DETECTED,
-                    vault_address=event.vault_address,
-                    health_ratio=event.health_ratio,
-                    timestamp=int(time.time()),
-                )))
+                asyncio.create_task(
+                    fire_webhook(
+                        WebhookPayload(
+                            event=WebhookEvent.DEFAULT_DETECTED,
+                            vault_address=event.vault_address,
+                            health_ratio=event.health_ratio,
+                            timestamp=int(time.time()),
+                        )
+                    )
+                )
 
     async def _verify_default_on_chain(
         self,
@@ -326,9 +345,7 @@ class VaultMonitor:
         signal: DefaultSignal,
     ) -> Optional[VerifiedDefault]:
         try:
-            resp = await client.request(
-                LedgerEntry(index=signal.loan_id)
-            )
+            resp = await client.request(LedgerEntry(index=signal.loan_id))
             if not resp.is_successful():
                 return None
             node = resp.result.get("node", {})
@@ -354,7 +371,7 @@ class VaultMonitor:
     # ------------------------------------------------------------------
 
     def _detect_anomaly(self, vault_address: str) -> bool:
-        now    = time.time()
+        now = time.time()
         window = 300.0  # 5-minute window
         signals = self._recent_signals[vault_address]
         # Prune expired entries

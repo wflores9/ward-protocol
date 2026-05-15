@@ -28,7 +28,7 @@ logger = logging.getLogger("ward.webhooks")
 # Thresholds
 # ---------------------------------------------------------------------------
 
-THRESHOLD_WARNING  = 2.0
+THRESHOLD_WARNING = 2.0
 THRESHOLD_ELEVATED = 1.75
 THRESHOLD_CRITICAL = 1.5
 
@@ -41,13 +41,13 @@ MAX_RETRIES = 3
 
 
 class WebhookEvent(str, Enum):
-    HEALTH_WARNING   = "health.warning"
-    HEALTH_ELEVATED  = "health.elevated"
-    HEALTH_CRITICAL  = "health.critical"
+    HEALTH_WARNING = "health.warning"
+    HEALTH_ELEVATED = "health.elevated"
+    HEALTH_CRITICAL = "health.critical"
     DEFAULT_DETECTED = "default.detected"
     DEFAULT_RESOLVED = "default.resolved"
-    CLAIM_FILED      = "claim.filed"
-    CLAIM_SETTLED    = "claim.settled"
+    CLAIM_FILED = "claim.filed"
+    CLAIM_SETTLED = "claim.settled"
 
 
 @dataclass
@@ -167,14 +167,16 @@ async def fire_webhook(payload: WebhookPayload) -> None:
 
 async def _post_webhook(config: WebhookConfig, payload: WebhookPayload) -> None:
     """POST payload to config.url with retries and exponential backoff."""
-    body = json.dumps({
-        "event": payload.event.value,
-        "vault_address": payload.vault_address,
-        "health_ratio": payload.health_ratio,
-        "timestamp": payload.timestamp,
-        "ward_signed": False,
-        "data": payload.data,
-    }).encode()
+    body = json.dumps(
+        {
+            "event": payload.event.value,
+            "vault_address": payload.vault_address,
+            "health_ratio": payload.health_ratio,
+            "timestamp": payload.timestamp,
+            "ward_signed": False,
+            "data": payload.data,
+        }
+    ).encode()
 
     headers: Dict[str, str] = {"Content-Type": "application/json"}
     if config.secret:
@@ -189,15 +191,20 @@ async def _post_webhook(config: WebhookConfig, payload: WebhookPayload) -> None:
             logger.info("Webhook delivered: %s → %s", payload.event.value, config.url)
             return
         except Exception as exc:
-            wait = 2 ** attempt
+            wait = 2**attempt
             logger.warning(
                 "Webhook delivery failed (attempt %d/%d): %s — retrying in %ds",
-                attempt + 1, MAX_RETRIES, exc, wait,
+                attempt + 1,
+                MAX_RETRIES,
+                exc,
+                wait,
             )
             if attempt < MAX_RETRIES - 1:
                 await asyncio.sleep(wait)
 
-    logger.error("Webhook delivery gave up after %d attempts: %s", MAX_RETRIES, config.url)
+    logger.error(
+        "Webhook delivery gave up after %d attempts: %s", MAX_RETRIES, config.url
+    )
 
 
 def _validate_webhook_url(url: str) -> None:

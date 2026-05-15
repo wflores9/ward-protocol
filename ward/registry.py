@@ -43,7 +43,9 @@ async def register_vault(
     """
     validate_xrpl_address(vault_address)
     if tier not in _VALID_TIERS:
-        raise WardError(f"Invalid tier: {tier!r}. Must be one of {sorted(_VALID_TIERS)}")
+        raise WardError(
+            f"Invalid tier: {tier!r}. Must be one of {sorted(_VALID_TIERS)}"
+        )
 
     key_hash = _hash_key(institution_key)
 
@@ -65,7 +67,9 @@ async def register_vault(
         _registry[key_hash].append(entry)
         logger.info(
             "Vault registered: %s (tier=%s, institution=%s...)",
-            vault_address, tier, key_hash[:8],
+            vault_address,
+            tier,
+            key_hash[:8],
         )
         return entry
 
@@ -98,8 +102,7 @@ async def deregister_vault(
     async with _registry_lock:
         before = len(_registry[key_hash])
         _registry[key_hash] = [
-            v for v in _registry[key_hash]
-            if v["vault_address"] != vault_address
+            v for v in _registry[key_hash] if v["vault_address"] != vault_address
         ]
         removed = len(_registry[key_hash]) < before
         if removed:

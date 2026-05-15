@@ -109,15 +109,13 @@ class WardClient:
         """
         # -- Input validation (addresses/amounts first; wallet last) --------
         validate_xrpl_address(vault_address, "vault_address")
-        validate_xrpl_address(pool_address,  "pool_address")
+        validate_xrpl_address(pool_address, "pool_address")
         validate_drops_amount(coverage_drops, "coverage_drops")
 
         if period_days <= 0:
             raise ValidationError(f"period_days must be > 0, got {period_days}")
         if not (0 < premium_rate <= 1.0):
-            raise ValidationError(
-                f"premium_rate must be in (0, 1], got {premium_rate}"
-            )
+            raise ValidationError(f"premium_rate must be in (0, 1], got {premium_rate}")
 
         wallet = validate_wallet(wallet)
 
@@ -143,19 +141,17 @@ class WardClient:
 
             # Step 2: Assemble compact URI metadata
             metadata = {
-                "w":  "ward-v1",
-                "v":  vault_address,
-                "c":  str(coverage_drops),
-                "e":  expiry,
-                "t":  license_tier,
+                "w": "ward-v1",
+                "v": vault_address,
+                "c": str(coverage_drops),
+                "e": expiry,
+                "t": license_tier,
                 "pa": pool_address,
             }
             uri_json = json.dumps(metadata, separators=(",", ":"))
-            uri_hex  = str_to_hex(uri_json).upper()
+            uri_hex = str_to_hex(uri_json).upper()
             if len(uri_hex) > 512:
-                raise ValidationError(
-                    f"URI hex exceeds 512 chars: {len(uri_hex)}"
-                )
+                raise ValidationError(f"URI hex exceeds 512 chars: {len(uri_hex)}")
 
             # Step 3: Mint NFT policy certificate (before payment — NFT ID needed for memo)
             nft_memo = Memo(
@@ -171,7 +167,7 @@ class WardClient:
                 memos=[nft_memo],
             )
             mint_tx = await autofill(mint_tx, client)
-            mint_result  = await submit_with_retry(mint_tx, client, wallet)
+            mint_result = await submit_with_retry(mint_tx, client, wallet)
             nft_token_id = mint_result.result.get("meta", {}).get("nftoken_id", "")
             if not nft_token_id:
                 raise WardError(
@@ -198,13 +194,16 @@ class WardClient:
 
             logger.info(
                 "Policy purchased: vault=%s cov=%d tier=%s nft=%s",
-                vault_address, coverage_drops, license_tier, nft_token_id,
+                vault_address,
+                coverage_drops,
+                license_tier,
+                nft_token_id,
             )
 
         return {
-            "nft_token_id":   nft_token_id,
-            "premium_tx":     premium_tx,
-            "mint_tx":        mint_tx_hash,
+            "nft_token_id": nft_token_id,
+            "premium_tx": premium_tx,
+            "mint_tx": mint_tx_hash,
             "coverage_drops": coverage_drops,
-            "expiry_ledger":  expiry,
+            "expiry_ledger": expiry,
         }

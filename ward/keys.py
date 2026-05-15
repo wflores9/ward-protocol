@@ -26,10 +26,10 @@ _VALID_TIERS = frozenset({"starter", "standard", "enterprise"})
 
 @dataclass
 class KeyRecord:
-    key_hash: str           # SHA-256 of raw key — never store raw
-    tier: str               # starter / standard / enterprise
-    label: str              # institution name or identifier
-    created_at: int         # Unix timestamp
+    key_hash: str  # SHA-256 of raw key — never store raw
+    tier: str  # starter / standard / enterprise
+    label: str  # institution name or identifier
+    created_at: int  # Unix timestamp
     expires_at: Optional[int] = None  # None = no expiry
     revoked: bool = False
     last_used_at: Optional[int] = None
@@ -87,7 +87,9 @@ async def register_key(
         _key_store[key_hash] = record
         logger.info(
             "Key registered: tier=%s label=%r hash=%s...",
-            tier, label, key_hash[:8],
+            tier,
+            label,
+            key_hash[:8],
         )
         return record
 
@@ -126,7 +128,9 @@ async def revoke_key(raw_key: str) -> bool:
         return True
 
 
-async def rotate_key(old_raw_key: str, tier: Optional[str] = None) -> tuple[str, KeyRecord]:
+async def rotate_key(
+    old_raw_key: str, tier: Optional[str] = None
+) -> tuple[str, KeyRecord]:
     """
     Generate a new key, register it with same tier/label as old key.
     Old key is NOT automatically revoked — caller must revoke it.

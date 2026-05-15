@@ -115,7 +115,8 @@ async def get_active_coverage_drops(
 
     logger.debug(
         "On-chain coverage for %s: %d drops across active policies",
-        pool_address, total,
+        pool_address,
+        total,
     )
     return total
 

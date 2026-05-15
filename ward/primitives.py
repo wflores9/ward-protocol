@@ -155,9 +155,7 @@ def validate_nft_id(nft_id: str, label: str = "NFT token ID") -> None:
             f"{label} must be exactly 64 hex chars, got {len(nft_id)}"
         )
     if not all(c in "0123456789ABCDEF" for c in nft_id):
-        raise ValidationError(
-            f"{label} must be uppercase hex (0-9, A-F)"
-        )
+        raise ValidationError(f"{label} must be uppercase hex (0-9, A-F)")
 
 
 # ---------------------------------------------------------------------------
@@ -165,7 +163,7 @@ def validate_nft_id(nft_id: str, label: str = "NFT token ID") -> None:
 # ---------------------------------------------------------------------------
 
 _rate_limit_lock: threading.Lock = threading.Lock()
-_rate_limit_windows: dict = {}   # nft_token_id -> deque[float]
+_rate_limit_windows: dict = {}  # nft_token_id -> deque[float]
 
 _MAX_RATE_LIMIT_ENTRIES: int = 10_000
 _RATE_LIMIT_EVICT_COUNT: int = 1_000
@@ -213,7 +211,8 @@ def check_rate_limit(nft_token_id: str) -> bool:
         if len(_rate_limit_windows) > _MAX_RATE_LIMIT_ENTRIES:
             logger.warning(
                 "Rate limit window dict exceeded %d entries — evicting %d oldest",
-                _MAX_RATE_LIMIT_ENTRIES, _RATE_LIMIT_EVICT_COUNT,
+                _MAX_RATE_LIMIT_ENTRIES,
+                _RATE_LIMIT_EVICT_COUNT,
             )
             for key in list(_rate_limit_windows.keys())[:_RATE_LIMIT_EVICT_COUNT]:
                 del _rate_limit_windows[key]
@@ -311,7 +310,9 @@ def make_preimage_condition(preimage: bytes) -> Tuple[str, str]:
 
     digest = hashlib.sha256(preimage).digest()
     # PREIMAGE-SHA-256 ASN.1 encoding
-    condition_bytes = bytes([0xA0, 0x25, 0x80, 0x20]) + digest + bytes([0x81, 0x01, 0x20])
+    condition_bytes = (
+        bytes([0xA0, 0x25, 0x80, 0x20]) + digest + bytes([0x81, 0x01, 0x20])
+    )
     fulfillment_bytes = bytes([0xA0, 0x22, 0x80, 0x20]) + preimage
     return condition_bytes.hex().upper(), fulfillment_bytes.hex().upper()
 
@@ -365,10 +366,9 @@ async def submit_with_retry(
                 delay *= 2
             continue
 
-        engine_result = (
-            response.result.get("meta", {}).get("TransactionResult", "")
-            or response.result.get("engine_result", "")
-        )
+        engine_result = response.result.get("meta", {}).get(
+            "TransactionResult", ""
+        ) or response.result.get("engine_result", "")
 
         if response.is_successful():
             return response
@@ -376,7 +376,9 @@ async def submit_with_retry(
         if engine_result in RETRYABLE_ENGINE_RESULTS:
             logger.warning(
                 "Retryable XRPL result %s on attempt %d/%d",
-                engine_result, attempt, max_attempts,
+                engine_result,
+                attempt,
+                max_attempts,
             )
             if attempt < max_attempts:
                 await asyncio.sleep(delay)
@@ -384,11 +386,9 @@ async def submit_with_retry(
             continue
 
         raise LedgerError(
-            f"XRPL transaction failed with result '{engine_result}': "
-            f"{response.result}"
+            f"XRPL transaction failed with result '{engine_result}': {response.result}"
         )
 
     raise LedgerError(
-        f"Transaction failed after {max_attempts} attempts. "
-        f"Last error: {last_exc}"
+        f"Transaction failed after {max_attempts} attempts. Last error: {last_exc}"
     )

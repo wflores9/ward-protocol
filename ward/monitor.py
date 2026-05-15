@@ -90,7 +90,8 @@ class WardMonitor:
         self._running = True
         logger.info(
             "WardMonitor starting: monitoring %d vaults every %.1fs",
-            len(self._vault_addresses), self._poll_interval,
+            len(self._vault_addresses),
+            self._poll_interval,
         )
         try:
             await self._poll_loop()
@@ -114,7 +115,9 @@ class WardMonitor:
                     if prev is not None and balance != prev:
                         logger.info(
                             "Balance change for %s: %d -> %d drops",
-                            address, prev, balance,
+                            address,
+                            prev,
+                            balance,
                         )
                         for cb in self._callbacks:
                             try:
@@ -122,14 +125,10 @@ class WardMonitor:
                                 if asyncio.iscoroutine(result):
                                     await result
                             except Exception as exc:
-                                logger.error(
-                                    "Callback error for %s: %s", address, exc
-                                )
+                                logger.error("Callback error for %s: %s", address, exc)
                     prev_balances[address] = balance
                 except Exception as exc:
-                    logger.warning(
-                        "Failed to fetch balance for %s: %s", address, exc
-                    )
+                    logger.warning("Failed to fetch balance for %s: %s", address, exc)
 
             await asyncio.sleep(self._poll_interval)
 
@@ -145,7 +144,5 @@ class WardMonitor:
                 AccountInfo(account=address, ledger_index="validated")
             )
             if not resp.is_successful():
-                raise RuntimeError(
-                    f"AccountInfo failed for {address}: {resp.result}"
-                )
+                raise RuntimeError(f"AccountInfo failed for {address}: {resp.result}")
             return int(resp.result["account_data"]["Balance"])
