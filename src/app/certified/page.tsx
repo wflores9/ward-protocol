@@ -225,10 +225,10 @@ export default function CertifiedPage() {
         >
           Apply for Certification →
         </a>
-        <p className="text-[13px] text-white/30 mt-6 max-w-lg mx-auto">
+        <p className="text-[13px] text-white/50 mt-6 max-w-lg mx-auto">
           Ward Certified is a technical conformance designation — not a financial guarantee.
           See{' '}
-          <Link href="/terms" className="text-white/40 hover:text-white/60 underline">
+          <Link href="/terms" className="text-white/60 hover:text-white/80 underline">
             Terms & Conditions
           </Link>
           .
