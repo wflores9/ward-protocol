@@ -8,7 +8,7 @@
 
 ---
 
-**Deterministic Default Resolution fohr On-Chain Credit Systems**
+**Deterministic Default Resolution for On-Chain Credit Systems**
 
 ---
 
@@ -148,8 +148,9 @@ Output: `VALID / INVALID` + deterministic unsigned EscrowCreate
 
 ## Implementation Status
 
-- ✅ SDK built and tested — 204/204 tests passing
+- ✅ SDK built and tested — 204/204 Python tests passing
 - ✅ 40/40 Rust tests passing
+- ✅ 45/45 TypeScript tests passing (sdk/typescript/)
 - ✅ v0.2.3 modular architecture — 8 Python modules + 2 Rust modules
 - ✅ Testnet simulation confirmed — 5 on-chain transactions (Altnet)
 - ✅ XRPLF Discussion #474 — active
