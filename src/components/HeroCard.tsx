@@ -3,8 +3,8 @@
 import { useState } from 'react'
 
 const stats = [
-  { val: '165/165', label: 'Tests Passing', green: true },
-  { val: 'v0.2.3',  label: 'SDK Version',   green: false },
+  { val: '204/204', label: 'Tests Passing', green: true },
+  { val: 'v0.2.4',  label: 'SDK Version',   green: false },
   { val: '15',      label: 'Attack Vectors Mitigated', green: false },
   { val: '9',       label: 'Validation Steps', green: false },
 ]
@@ -13,7 +13,7 @@ export default function HeroCard() {
   const [copied, setCopied] = useState(false)
 
   const copy = () => {
-    navigator.clipboard.writeText('pip install ward-protocol==0.2.3')
+    navigator.clipboard.writeText('pip install ward-protocol==0.2.4')
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
@@ -24,7 +24,7 @@ export default function HeroCard() {
       <div className="bg-steel rounded-md p-5 font-mono text-sm">
         <div className="text-dim text-[10px] uppercase tracking-widest mb-3">Install</div>
         <div className="flex items-center justify-between gap-3">
-          <code className="text-ice text-[13px]">pip install ward-protocol==0.2.3</code>
+          <code className="text-ice text-[13px]">pip install ward-protocol==0.2.4</code>
           <button
             onClick={copy}
             className="text-[10px] text-dim hover:text-ice transition-colors shrink-0 border border-border rounded px-2 py-1"

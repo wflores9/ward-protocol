@@ -28,7 +28,7 @@ export default function DemoPage() {
       {/* Flow examples */}
       <div className="border-t border-p2 bg-white">
         <div className="max-w-6xl mx-auto px-6 md:px-12 py-12">
-          <div className="text-[10px] uppercase tracking-[.15em] text-ice2 mb-2 font-mono">Python SDK — v0.2.3</div>
+          <div className="text-[10px] uppercase tracking-[.15em] text-ice2 mb-2 font-mono">Python SDK — v0.2.4</div>
           <h2 className="font-condensed font-black text-3xl text-steel mb-2">Integration Flow Examples</h2>
           <p className="text-[13px] text-sub mb-6">
             Five flows from vault registration to escrow settlement.{' '}

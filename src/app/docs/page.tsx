@@ -3,7 +3,7 @@ import Link from 'next/link'
 
 export const metadata: Metadata = {
   title: 'Ward Protocol — Documentation',
-  description: 'SDK documentation, API reference, and integration guides for Ward Protocol v0.2.3.',
+  description: 'SDK documentation, API reference, and integration guides for Ward Protocol v0.2.4.',
 }
 
 const modules = [
@@ -17,7 +17,7 @@ const modules = [
 ]
 
 const quickstart = `# Install
-pip install ward-protocol==0.2.3
+pip install ward-protocol==0.2.4
 
 # Validate a claim (9 steps, all on-chain)
 from ward import ClaimValidator
@@ -36,7 +36,7 @@ print(result.approved)            # True
 print(result.steps_passed)        # 9
 print(result.claim_payout_drops)  # min(vault_loss, policy_coverage)`
 
-const testCmd = `# Run test suite (165/165 passing)
+const testCmd = `# Run test suite (204/204 passing)
 pip install -r requirements.txt
 python -m pytest test_ward.py -m "not integration" -v
 
@@ -49,13 +49,13 @@ export default function DocsPage() {
       {/* Header */}
       <div className="border-b border-p2 bg-white px-6 md:px-12 py-10">
         <div className="max-w-4xl mx-auto">
-          <div className="text-[10px] uppercase tracking-[.15em] text-ice2 mb-2 font-mono">Ward Protocol SDK — v0.2.3</div>
+          <div className="text-[10px] uppercase tracking-[.15em] text-ice2 mb-2 font-mono">Ward Protocol SDK — v0.2.4</div>
           <h1 className="font-condensed font-black text-5xl text-steel mb-3">Documentation</h1>
           <p className="text-[13px] text-sub max-w-2xl">
             SDK reference, module overview, and integration guides. All modules are independently auditable.
           </p>
           <div className="flex gap-3 mt-5">
-            <span className="text-[10px] bg-[#e8fff3] text-[#00994d] border border-green px-2.5 py-1 rounded font-mono font-bold">165/165 Tests</span>
+            <span className="text-[10px] bg-[#e8fff3] text-[#00994d] border border-green px-2.5 py-1 rounded font-mono font-bold">204/204 Tests</span>
             <span className="text-[10px] bg-panel border border-border text-sub px-2.5 py-1 rounded font-mono">Python 3.11+</span>
             <span className="text-[10px] bg-panel border border-border text-sub px-2.5 py-1 rounded font-mono">MIT License</span>
           </div>
@@ -75,7 +75,7 @@ export default function DocsPage() {
         {/* Module reference */}
         <section>
           <h2 className="font-condensed font-black text-3xl text-steel mb-2">Module Reference</h2>
-          <p className="text-[12px] text-sub mb-5">Total nSLOC: ~1,565 Python + ~583 Rust</p>
+          <p className="text-[12px] text-sub mb-5">Total nSLOC: ~2,148 Python + ~583 Rust</p>
           <div className="space-y-3">
             {modules.map(m => (
               <div key={m.name} className="bg-white border border-p2 rounded-md p-4 flex items-start gap-4">
@@ -96,7 +96,7 @@ export default function DocsPage() {
             {testCmd}
           </pre>
           <p className="text-[12px] text-sub mt-3">
-            165 Python tests + 40 Rust tests covering all 9 claim validation steps, all 15 attack vectors, VaultMonitor,
+            204 Python tests + 40 Rust tests + 45 TypeScript tests covering all 9 claim validation steps, all 15 attack vectors, VaultMonitor,
             EscrowSettlement, PoolHealthMonitor, and all primitives.
             Marked <code className="bg-p2 px-1 rounded text-[11px]">integration</code> tests require XRPL Mainnet access.
           </p>
@@ -106,6 +106,14 @@ export default function DocsPage() {
         <section>
           <h2 className="font-condensed font-black text-3xl text-steel mb-4">Changelog</h2>
           {[
+            {
+              version: 'v0.2.4',
+              date: 'May 2026',
+              changes: [
+                { type: 'Changed', text: 'Test counts corrected — 204/204 Python · 40/40 Rust · 45/45 TypeScript' },
+                { type: 'Fixed', text: 'Headline typo corrected in README and PyPI description' },
+              ],
+            },
             {
               version: 'v0.2.3',
               date: 'May 2026',
@@ -118,7 +126,7 @@ export default function DocsPage() {
                 { type: 'Fixed', text: 'WardError raised on empty premium tx hash' },
                 { type: 'Added', text: 'Rust EscrowBuilder audit memos — ward/claim-escrow format matching Python' },
                 { type: 'Changed', text: 'xrpl-py updated to 4.5.0' },
-                { type: 'Changed', text: 'Python tests: 146/146 → 165/165 · Rust tests: 15/15 → 40/40' },
+                { type: 'Changed', text: 'Python tests: 165/165 → 204/204 · Rust tests: 15/15 → 40/40' },
               ],
             },
             {
