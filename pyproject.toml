@@ -9,7 +9,7 @@ version = "0.2.3"
 description = "Open specification for XLS-66 vault default protection on the XRP Ledger"
 readme = "README.md"
 requires-python = ">=3.10"
-license = "MIT"
+license = {text = "MIT"}
 authors = [
   {name = "Ward Protocol", email = "team@wardprotocol.org"}
 ]
