@@ -1,7 +1,7 @@
 # Ward Protocol
 
 [![Website](https://img.shields.io/badge/website-wardprotocol.org-blue)](https://wardprotocol.org)
-[![SDK](https://img.shields.io/badge/SDK-v0.2.3-green)](#sdk-changelog)
+[![SDK](https://img.shields.io/badge/SDK-v0.2.4-green)](#sdk-changelog)
 [![Tests](https://img.shields.io/badge/tests-204%2F204-brightgreen)](#running-tests)
 [![XRPL](https://img.shields.io/badge/XRPL-XLS--66%20%C2%B7%20XLS--70%20%C2%B7%20XLS--20-orange)](https://github.com/XRPLF/XRPL-Standards)
 [![License](https://img.shields.io/badge/license-MIT-lightgrey)](LICENSE)
@@ -151,7 +151,7 @@ Output: `VALID / INVALID` + deterministic unsigned EscrowCreate
 - ✅ SDK built and tested — 204/204 Python tests passing
 - ✅ 40/40 Rust tests passing
 - ✅ 45/45 TypeScript tests passing (sdk/typescript/)
-- ✅ v0.2.3 modular architecture — 8 Python modules + 2 Rust modules
+- ✅ v0.2.4 modular architecture — 8 Python modules + 2 Rust modules
 - ✅ Testnet simulation confirmed — 5 on-chain transactions (Altnet)
 - ✅ XRPLF Discussion #474 — active
 - ✅ Security review complete — all findings resolved
@@ -282,7 +282,7 @@ ruff check ward/
 
 See [CHANGELOG.md](CHANGELOG.md)
 
-Current: v0.2.3 — 204/204 Python tests · 40/40 Rust tests · 45/45 TypeScript tests · ruff clean
+Current: v0.2.4 — 204/204 Python tests · 40/40 Rust tests · 45/45 TypeScript tests · ruff clean
 
 ### TypeScript (sdk/typescript/)
 
