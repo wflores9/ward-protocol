@@ -19,6 +19,7 @@ export default function Nav() {
         <li><Link href="/docs">Documentation</Link></li>
         <li><Link href="/demo">Demo</Link></li>
         <li><Link href="/certified">Certified</Link></li>
+        <li><Link href="/dashboard">Dashboard</Link></li>
         <li><a href="mailto:wflores@wardprotocol.org" className="nav-cta">Contact Us</a></li>
       </ul>
     </nav>

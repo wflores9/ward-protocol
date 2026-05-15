@@ -7,5 +7,10 @@
   to = "/certified"
   status = 200
 
+[[redirects]]
+  from = "/dashboard"
+  to = "/dashboard"
+  status = 200
+
 [[plugins]]
   package = "@netlify/plugin-nextjs"
