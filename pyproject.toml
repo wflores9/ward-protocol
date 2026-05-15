@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "ward-protocol"
 version = "0.2.4"
-description = "Open specification for XLS-66 vault default protection on the XRP Ledger"
+description = "Deterministic default resolution for XLS-66 lending vaults on the XRP Ledger"
 readme = "README.md"
 requires-python = ">=3.10"
 license = {text = "MIT"}

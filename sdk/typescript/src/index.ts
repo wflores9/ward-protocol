@@ -5,7 +5,7 @@
  * Core invariant: ward_signed = false — always.
  * Ward constructs unsigned transactions. Institutions sign. XRPL settles.
  *
- * @version 0.2.3
+ * @version 0.2.4
  */
 
 export { WardClient } from './client'

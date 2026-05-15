@@ -56,7 +56,7 @@ _WRONG_TAXON = object()
 
 class ClaimValidator:
     """
-    Validate Ward Protocol insurance claims against on-chain state.
+    Validate Ward Protocol claims against on-chain state.
 
     All 9 steps read directly from the XRPL ledger.
     No off-chain data is trusted.

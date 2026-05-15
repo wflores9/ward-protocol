@@ -1,6 +1,6 @@
 [package]
 name        = "ward-protocol"
-version     = "0.2.2"
+version     = "0.2.4"
 edition     = "2021"
 description = "Ward Protocol — default protection for XLS-66 lending vaults on XRPL"
 license     = "MIT"

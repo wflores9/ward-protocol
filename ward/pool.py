@@ -1,7 +1,7 @@
 """
 Ward Protocol - Module 5: PoolHealthMonitor
 
-On-chain solvency and dynamic premium monitoring for insurance pools.
+On-chain solvency and dynamic premium monitoring for coverage pools.
 
 Fixes applied:
     #1  Extracted from ward_client.py monolith into own module.
@@ -64,7 +64,7 @@ class PoolHealth:
 
 class PoolHealthMonitor:
     """
-    Monitor solvency and compute dynamic premiums for a Ward insurance pool.
+    Monitor solvency and compute dynamic premiums for a Ward coverage pool.
 
     Coverage tracking uses an in-memory registry populated by register_policy()
     after each policy mint and depleted by deregister_policy() after settlement.

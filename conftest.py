@@ -6,7 +6,7 @@ Provides:
   - Common fixtures: valid_address, valid_address2, valid_nft_id, valid_loan_id
   - Marker registration (mirrors pytest.ini and pyproject.toml)
 
-Ward SDK v0.2.2
+Ward SDK v0.2.4
 """
 
 import pytest

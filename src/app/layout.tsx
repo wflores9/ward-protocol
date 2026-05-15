@@ -5,11 +5,11 @@ import Footer from '@/components/Footer'
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://wardprotocol.org'),
-  title: 'Ward Protocol — Default Protection for Institutional Lending on XRPL',
+  title: 'Ward Protocol — Deterministic Default Resolution for XLS-66 Lending Vaults',
   description:
-    'Ward Protocol is the open specification for default protection on XLS-66 lending vaults on the XRP Ledger. Nine on-ledger checks. No oracle. No Ward signature — ever.',
+    'Deterministic default resolution for XLS-66 lending vaults on the XRP Ledger. ward_signed = False — always.',
   openGraph: {
-    title: 'Ward Protocol — Default Protection for Institutional Lending on XRPL',
+    title: 'Ward Protocol — Deterministic Default Resolution for XLS-66 Lending Vaults',
     description: 'Nine on-ledger checks. No oracle. No Ward signature — ever.',
     url: 'https://wardprotocol.org',
     siteName: 'Ward Protocol',
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Ward Protocol — Default Protection for Institutional Lending on XRPL',
+    title: 'Ward Protocol — Deterministic Default Resolution for XLS-66 Lending Vaults',
     description: 'Nine on-ledger checks. No oracle. No Ward signature — ever.',
   },
   icons: { icon: '/favicon.svg' },

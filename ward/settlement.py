@@ -58,7 +58,7 @@ class EscrowRecord:
 
 class EscrowSettlement:
     """
-    Manage XRPL escrow lifecycle for Ward Protocol insurance payouts.
+    Manage XRPL escrow lifecycle for Ward Protocol claim payouts.
 
     Module 4 - Crypto-conditioned claim settlement.
 

@@ -54,7 +54,7 @@ logger = logging.getLogger("ward.client")
 
 class WardClient:
     """
-    High-level Ward Protocol client for purchasing insurance policies.
+    High-level Ward Protocol client for purchasing default-protection coverage.
 
     Usage::
 
@@ -95,7 +95,7 @@ class WardClient:
             vault_address:  XRPL address of the vault being protected.
             coverage_drops: Coverage amount in drops (must be > 0).
             period_days:    Coverage period in days (must be > 0).
-            pool_address:   Insurance pool XRPL address.
+            pool_address:   Coverage pool XRPL address.
             premium_rate:   Annual premium rate as a fraction (0.0 < rate <= 1.0).
             license_tier:   One of "starter", "standard", "enterprise".
 

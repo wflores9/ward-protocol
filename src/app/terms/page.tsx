@@ -41,7 +41,7 @@ export default function TermsPage() {
         <section>
           <h2 className="font-condensed font-black text-xl text-steel mb-2">4. Financial Risk Disclosure</h2>
           <p>
-            Ward Protocol provides infrastructure for on-chain insurance mechanisms on the XRP Ledger.
+            Ward Protocol provides infrastructure for on-chain default protection mechanisms on the XRP Ledger.
             Use of this protocol involves interaction with blockchain networks and smart contracts,
             which carry inherent technical and financial risks. Users are solely responsible for
             assessing these risks and should seek independent professional advice before deploying

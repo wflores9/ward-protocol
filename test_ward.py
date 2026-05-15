@@ -1,5 +1,5 @@
 """
-Ward Protocol SDK — pytest test suite  (v0.2.1)
+Ward Protocol SDK — pytest test suite  (v0.2.4)
 ======================================
 
 Unit tests:       No XRPL network required (all XRPL calls are mocked).

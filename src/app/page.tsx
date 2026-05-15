@@ -53,7 +53,7 @@ export default function Home() {
         <div className="hero">
           <div className="hero-content">
             <p className="hero-eyebrow">XLS-66 · XRPL Ledger · Default Protection</p>
-            <h1>The default protection layer for <em>institutional lending</em> on XRPL.</h1>
+            <h1>Deterministic default resolution for <em>XLS-66 lending vaults</em> on the XRP Ledger.</h1>
             <p className="hero-body">
               When a borrower defaults on an XLS-66 vault, Ward Protocol defines exactly what happens.
               Nine on-ledger checks. No oracle. No human judgment. No Ward signature — ever.

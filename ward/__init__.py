@@ -1,5 +1,5 @@
 """
-Ward Protocol SDK — Public Package API  v0.2.2
+Ward Protocol SDK — Public Package API  v0.2.4
 
     from ward import WardClient, VaultMonitor, ClaimValidator
     from ward import EscrowSettlement, PoolHealthMonitor
@@ -7,13 +7,14 @@ Ward Protocol SDK — Public Package API  v0.2.2
     from ward import PoolHealth, VerifiedDefault, ValidationResult
 
 Changelog:
-    v0.2.2  Add ripple_time_now, get_ledger_close_time exports;
-            full __all__ with all constants; aligned with ward_client.py shim.
+    v0.2.4  README/stats corrected; CI workflows overhauled; ruff.toml added.
+    v0.2.3  On-chain coverage registry; webhook notifications; TypeScript SDK.
+    v0.2.2  Add ripple_time_now, get_ledger_close_time exports; full __all__.
     v0.2.1  Add ClaimValidator, ValidationResult, EscrowSettlement, EscrowRecord.
     v0.2.0  Initial modular split from ward_client monolith.
 """
 
-__version__ = "0.2.3"
+__version__ = "0.2.4"
 
 
 from ward.client import WardClient
