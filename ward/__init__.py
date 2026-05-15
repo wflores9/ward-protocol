@@ -20,7 +20,6 @@ __version__ = "0.2.3"
 from ward.client import WardClient
 from ward.constants import (
     ALLOWED_WS_URLS,
-    VaultRegistration,
     CLAIM_RATE_LIMIT_MAX,
     CLAIM_RATE_LIMIT_WINDOW_S,
     CREDENTIAL_NFT_TAXON,
@@ -43,6 +42,7 @@ from ward.constants import (
     XRPL_BASE_RESERVE_DROPS,
     XRPL_OWNER_RESERVE_DROPS,
     LicenseTier,
+    VaultRegistration,
 )
 from ward.pool import PoolHealth, PoolHealthMonitor
 from ward.primitives import (

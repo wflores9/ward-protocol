@@ -30,12 +30,12 @@ from ward.constants import (
     XRPL_OWNER_RESERVE_DROPS,
     LicenseTier,
 )
+from ward.coverage import get_active_coverage_drops
 from ward.primitives import (
     LedgerError,
     ValidationError,
     validate_xrpl_address,
 )
-from ward.coverage import get_active_coverage_drops
 
 logger = logging.getLogger("ward.pool")
 

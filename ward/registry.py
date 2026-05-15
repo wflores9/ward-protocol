@@ -13,8 +13,8 @@ import logging
 from collections import defaultdict
 from typing import Optional
 
-from ward.primitives import WardError, validate_xrpl_address
 from ward.constants import VaultRegistration
+from ward.primitives import WardError, validate_xrpl_address
 
 logger = logging.getLogger(__name__)
 

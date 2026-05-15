@@ -17,7 +17,8 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Dict, List, Optional
 from urllib.parse import urlparse
-from urllib.request import Request as _URLRequest, urlopen
+from urllib.request import Request as _URLRequest
+from urllib.request import urlopen
 
 from ward.primitives import WardError, validate_xrpl_address
 
