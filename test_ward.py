@@ -583,21 +583,23 @@ class TestWardClientInputValidation:
         assert TF_BURNABLE != 0x00000008
 
     @pytest.mark.asyncio
-    async def test_purchase_coverage_raises_if_premium_hash_missing(self):
-        """FIX #9: WardError raised when premium Payment tx hash is empty."""
+    async def test_purchase_coverage_raises_if_nft_id_missing(self):
+        """FIX #9: WardError raised when NFTokenMint response has no nftoken_id.
+        NFT is minted first (so nft_token_id is available for the payment memo)."""
         from xrpl.wallet import Wallet as _Wallet
         real_wallet = _Wallet.create()
 
-        fake_empty_hash_resp = MagicMock()
-        fake_empty_hash_resp.result = {"tx_json": {}}  # no "hash" key
+        # NFT mint returns response with no nftoken_id in meta
+        fake_empty_nft_resp = MagicMock()
+        fake_empty_nft_resp.result = {"tx_json": {"hash": "abc123"}, "meta": {}}
 
         with (
             patch("ward.client.AsyncJsonRpcClient", _async_client_factory(AsyncMock())),
             patch("ward.client.autofill", AsyncMock(side_effect=lambda tx, c: tx)),
-            patch("ward.client.submit_with_retry", AsyncMock(return_value=fake_empty_hash_resp)),
+            patch("ward.client.submit_with_retry", AsyncMock(return_value=fake_empty_nft_resp)),
             patch("ward.client.get_ledger_close_time", AsyncMock(return_value=800_000_000)),
         ):
-            with pytest.raises(WardError, match="transaction hash not found"):
+            with pytest.raises(WardError, match="nftoken_id is empty"):
                 await self.client.purchase_coverage(
                     wallet=real_wallet,
                     vault_address=VALID_ADDRESS,
@@ -904,10 +906,18 @@ class TestPoolHealthMonitor:
     ) -> PoolHealthMonitor:
         async def mock_request(req):
             from xrpl.models import AccountInfo as _AI
+            from xrpl.models.requests import AccountTx as _ATx
             if isinstance(req, _AI):
                 return _make_success_response({
                     "account_data": {"Balance": str(balance_drops), "OwnerCount": 1}
                 })
+            if isinstance(req, _ATx):
+                txs = []
+                if coverage_drops > 0:
+                    from ward.coverage import build_premium_memo
+                    memo = build_premium_memo(VALID_NFT_ID, coverage_drops)
+                    txs.append({"tx_json": {"TransactionType": "Payment", "Memos": [memo]}})
+                return _make_success_response({"transactions": txs})
             return _make_fail_response()
 
         monitor = PoolHealthMonitor(pool_address=VALID_ADDRESS)
@@ -1215,6 +1225,7 @@ class TestPoolHealthMonitorAdvanced:
                            owner_count=0):
         async def mock_request(req):
             from xrpl.models import AccountInfo as _AI
+            from xrpl.models.requests import AccountTx as _ATx
             if isinstance(req, _AI):
                 return _make_success_response({
                     "account_data": {
@@ -1222,6 +1233,13 @@ class TestPoolHealthMonitorAdvanced:
                         "OwnerCount": owner_count,
                     }
                 })
+            if isinstance(req, _ATx):
+                txs = []
+                if coverage_drops > 0:
+                    from ward.coverage import build_premium_memo
+                    memo = build_premium_memo(VALID_NFT_ID, coverage_drops)
+                    txs.append({"tx_json": {"TransactionType": "Payment", "Memos": [memo]}})
+                return _make_success_response({"transactions": txs})
             return _make_fail_response()
 
         monitor = PoolHealthMonitor(pool_address=VALID_ADDRESS)
@@ -1245,13 +1263,21 @@ class TestPoolHealthMonitorAdvanced:
 
     @pytest.mark.asyncio
     async def test_pool_active_coverage_on_chain(self):
-        """active_coverage_drops is summed from the in-memory policy registry."""
+        """active_coverage_drops is summed from on-chain premium payment memos."""
         async def mock_request(req):
             from xrpl.models import AccountInfo as _AI
+            from xrpl.models.requests import AccountTx as _ATx
+            from ward.coverage import build_premium_memo
             if isinstance(req, _AI):
                 return _make_success_response({
                     "account_data": {"Balance": "30000000", "OwnerCount": 0}
                 })
+            if isinstance(req, _ATx):
+                txs = [
+                    {"tx_json": {"TransactionType": "Payment", "Memos": [build_premium_memo("A" * 64, 500_000)]}},
+                    {"tx_json": {"TransactionType": "Payment", "Memos": [build_premium_memo("D" * 64, 300_000)]}},
+                ]
+                return _make_success_response({"transactions": txs})
             return _make_fail_response()
 
         monitor = PoolHealthMonitor(pool_address=VALID_ADDRESS)
@@ -2168,10 +2194,17 @@ class TestPoolDrainage:
         # 10 XRP usable, 100 XRP active coverage → ratio 0.1 → 'high'
         async def mock_request(req):
             from xrpl.models import AccountInfo as _AI
+            from xrpl.models.requests import AccountTx as _ATx
+            from ward.coverage import build_premium_memo
             if isinstance(req, _AI):
                 return _make_success_response({
                     "account_data": {"Balance": "30000000", "OwnerCount": 1}
                 })
+            if isinstance(req, _ATx):
+                memo = build_premium_memo(VALID_NFT_ID, 100_000_000)
+                return _make_success_response({"transactions": [
+                    {"tx_json": {"TransactionType": "Payment", "Memos": [memo]}}
+                ]})
             return _make_fail_response()
 
         monitor = PoolHealthMonitor(pool_address=VALID_ADDRESS)
@@ -2753,13 +2786,20 @@ class TestPolicyRegistryFixes:
 
     @pytest.mark.asyncio
     async def test_registry_coverage_reflected_in_get_health(self):
-        """Active coverage from registry is visible in PoolHealth output."""
+        """Active coverage from on-chain premium memos is visible in PoolHealth output."""
         async def mock_request(req):
             from xrpl.models import AccountInfo as _AI
+            from xrpl.models.requests import AccountTx as _ATx
+            from ward.coverage import build_premium_memo
             if isinstance(req, _AI):
                 return _make_success_response({
                     "account_data": {"Balance": "50000000", "OwnerCount": 0}
                 })
+            if isinstance(req, _ATx):
+                memo = build_premium_memo(VALID_NFT_ID, 2_000_000)
+                return _make_success_response({"transactions": [
+                    {"tx_json": {"TransactionType": "Payment", "Memos": [memo]}}
+                ]})
             return _make_fail_response()
 
         monitor = PoolHealthMonitor(pool_address=VALID_ADDRESS)
@@ -3131,3 +3171,87 @@ class TestApiKeyManagement:
         # Keys themselves don't carry ward_signed — it's in API responses
         assert raw.startswith("ward_")
         assert "signed" not in raw
+
+
+# ===========================================================================
+# TestOnChainCoverageRegistry — Week 2 Session 6
+# ===========================================================================
+
+class TestOnChainCoverageRegistry:
+    """Tests for on-chain coverage registry via memo-encoded payments."""
+
+    def test_build_premium_memo_structure(self):
+        from ward.coverage import build_premium_memo
+        nft_id = "A" * 64
+        memo = build_premium_memo(nft_id, 1_000_000)
+        assert "Memo" in memo
+        assert "MemoType" in memo["Memo"]
+        assert "MemoData" in memo["Memo"]
+        # MemoType must be hex of ward/policy-premium
+        import codecs
+        decoded_type = codecs.decode(memo["Memo"]["MemoType"], "hex").decode()
+        assert decoded_type == "ward/policy-premium"
+
+    def test_build_premium_memo_data_format(self):
+        from ward.coverage import build_premium_memo
+        nft_id = "B" * 64
+        memo = build_premium_memo(nft_id, 5_000_000)
+        import codecs
+        decoded_data = codecs.decode(memo["Memo"]["MemoData"], "hex").decode()
+        assert ":" in decoded_data
+        parts = decoded_data.split(":", 1)
+        assert parts[0] == nft_id
+        assert parts[1] == "5000000"
+
+    def test_extract_coverage_from_valid_tx(self):
+        from ward.coverage import _extract_coverage_from_tx, build_premium_memo
+        nft_id = "C" * 64
+        memo = build_premium_memo(nft_id, 2_000_000)
+        tx = {
+            "TransactionType": "Payment",
+            "Memos": [memo],
+        }
+        result = _extract_coverage_from_tx(tx)
+        assert result is not None
+        assert result[0] == nft_id
+        assert result[1] == 2_000_000
+
+    def test_extract_ignores_non_payment(self):
+        from ward.coverage import _extract_coverage_from_tx
+        tx = {"TransactionType": "NFTokenMint", "Memos": []}
+        result = _extract_coverage_from_tx(tx)
+        assert result is None
+
+    def test_extract_ignores_wrong_memo_type(self):
+        from ward.coverage import _extract_coverage_from_tx
+        memo = {
+            "Memo": {
+                "MemoType": "736f6d657468696e67656c7365",  # "somethingelse"
+                "MemoData": "61626364",
+            }
+        }
+        tx = {"TransactionType": "Payment", "Memos": [memo]}
+        result = _extract_coverage_from_tx(tx)
+        assert result is None
+
+    def test_extract_ignores_malformed_memo_data(self):
+        from ward.coverage import _extract_coverage_from_tx, WARD_PREMIUM_MEMO_TYPE_HEX
+        memo = {
+            "Memo": {
+                "MemoType": WARD_PREMIUM_MEMO_TYPE_HEX,
+                "MemoData": "6e6f636f6c6f6e",  # "nocolon"
+            }
+        }
+        tx = {"TransactionType": "Payment", "Memos": [memo]}
+        result = _extract_coverage_from_tx(tx)
+        assert result is None
+
+    def test_decode_memo_field_handles_empty(self):
+        from ward.coverage import _decode_memo_field
+        assert _decode_memo_field("") == ""
+        assert _decode_memo_field(None) == ""
+
+    def test_decode_memo_field_valid_hex(self):
+        from ward.coverage import _decode_memo_field
+        hex_val = "ward/policy-premium".encode().hex()
+        assert _decode_memo_field(hex_val) == "ward/policy-premium"

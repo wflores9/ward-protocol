@@ -273,7 +273,7 @@ This document catalogues every attack vector identified during design and implem
 | In-memory rate limiter not distributed | Low | Single-process only. Multi-process deployments need shared state. |
 | LoanManage transaction type not in xrpl-py standard | Low | XLS-66 is a draft standard. `LedgerEntry(loan=...)` may not be available in all xrpl-py versions. Test on target network before production. |
 | Anomaly detection threshold is static | Low | Fixed 5/5min threshold may miss slow-drip attacks. Consider adaptive thresholds. |
-| In-memory coverage registry resets on restart | Low | `PoolHealthMonitor._coverage_registry` is in-process only. Process restart clears coverage state, causing pool solvency checks to use 0 active coverage until policies are re-registered. Production deployments must use a persistent store (Redis, database) or query on-chain NFTs at startup. |
+| Coverage tracking — RESOLVED in v0.2.3 | — | Active coverage is now derived from on-chain Payment transactions with `ward/policy-premium` memos via `ward/coverage.py`. Reading directly from XRPL ledger state — restart-safe and fully auditable. The in-memory `_coverage_registry` cache remains for session performance (NFT ID filter for burned/settled policies) but is no longer the authoritative source. |
 
 ---
 

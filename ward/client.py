@@ -38,6 +38,7 @@ from ward.constants import (
     WARD_POLICY_TAXON,
     LicenseTier,
 )
+from ward.coverage import build_premium_memo
 from ward.primitives import (
     ValidationError,
     WardError,
@@ -136,26 +137,11 @@ class WardClient:
             premium_drops = 1
 
         async with AsyncJsonRpcClient(self._url) as client:
-            # Step 1: Premium Payment
-            payment = Payment(
-                account=wallet.classic_address,
-                destination=pool_address,
-                amount=str(premium_drops),
-            )
-            payment = await autofill(payment, client)
-            premium_result = await submit_with_retry(payment, client, wallet)
-            premium_tx = premium_result.result.get("tx_json", {}).get("hash", "")
-            if not premium_tx:
-                raise WardError(
-                    "Premium payment succeeded but transaction hash not found in result. "
-                    "Check submit_and_wait response structure."
-                )
-
-            # Step 2: Determine expiry from ledger close time
+            # Step 1: Determine expiry from ledger close time
             current_time = await get_ledger_close_time(client)
             expiry = current_time + (period_days * 86_400)
 
-            # Step 3: Assemble compact URI metadata
+            # Step 2: Assemble compact URI metadata
             metadata = {
                 "w":  "ward-v1",
                 "v":  vault_address,
@@ -171,8 +157,8 @@ class WardClient:
                     f"URI hex exceeds 512 chars: {len(uri_hex)}"
                 )
 
-            # Step 4: Mint NFT policy certificate
-            memo = Memo(
+            # Step 3: Mint NFT policy certificate (before payment — NFT ID needed for memo)
+            nft_memo = Memo(
                 memo_data=str_to_hex(
                     f"ward-policy|{license_tier}|cov={coverage_drops}"
                 ).upper()
@@ -182,17 +168,32 @@ class WardClient:
                 nftoken_taxon=WARD_POLICY_TAXON,
                 flags=TF_BURNABLE,
                 uri=uri_hex,
-                memos=[memo],
+                memos=[nft_memo],
             )
             mint_tx = await autofill(mint_tx, client)
             mint_result  = await submit_with_retry(mint_tx, client, wallet)
-            mint_tx_hash = mint_result.result.get("tx_json", {}).get("hash", "")
-            nft_token_id = mint_result.result.get(
-                "meta", {}
-            ).get("nftoken_id", "")
+            nft_token_id = mint_result.result.get("meta", {}).get("nftoken_id", "")
             if not nft_token_id:
                 raise WardError(
                     "NFT mint succeeded but nftoken_id is empty in response metadata"
+                )
+            mint_tx_hash = mint_result.result.get("tx_json", {}).get("hash", "")
+
+            # Step 4: Premium Payment with ward/policy-premium memo (on-chain registry)
+            premium_memo = build_premium_memo(nft_token_id, coverage_drops)
+            payment = Payment(
+                account=wallet.classic_address,
+                destination=pool_address,
+                amount=str(premium_drops),
+                memos=[premium_memo],
+            )
+            payment = await autofill(payment, client)
+            premium_result = await submit_with_retry(payment, client, wallet)
+            premium_tx = premium_result.result.get("tx_json", {}).get("hash", "")
+            if not premium_tx:
+                raise WardError(
+                    "Premium payment succeeded but transaction hash not found in result. "
+                    "Check submit_and_wait response structure."
                 )
 
             logger.info(

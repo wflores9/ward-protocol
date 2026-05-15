@@ -35,6 +35,7 @@ from ward.primitives import (
     ValidationError,
     validate_xrpl_address,
 )
+from ward.coverage import get_active_coverage_drops
 
 logger = logging.getLogger("ward.pool")
 
@@ -117,8 +118,8 @@ class PoolHealthMonitor:
             )
             usable_drops = max(0, balance_drops - reserve_drops)
 
-        # Step 3: Sum active coverage from in-memory registry
-        active_coverage_drops = self._sum_active_coverage()
+            # Step 3: Sum active coverage from on-chain premium payment memos
+            active_coverage_drops = await self._sum_active_coverage(client)
 
         # Step 4: Compute ratios and tier
         if active_coverage_drops == 0:
@@ -184,18 +185,29 @@ class PoolHealthMonitor:
         )
         return {"premium_drops": max(1, premium_drops)}
 
-    def _sum_active_coverage(self) -> int:
+    async def _sum_active_coverage(self, client: AsyncJsonRpcClient) -> int:
         """
-        Sum active coverage from the in-memory policy registry.
+        Sum active coverage drops from on-chain premium payment memos.
+        Restart-safe — reads directly from XRPL ledger state.
+        Falls back to 0 on any ledger error (safe default — restricts minting).
 
-        The registry is populated by register_policy() after each policy mint
-        and depleted by deregister_policy() after settlement completes.
-
-        NOTE: This is an in-memory store — it resets on process restart.
-        For production deployments, use a persistent store (Redis, database,
-        or an on-chain registry) to maintain coverage state across restarts.
+        The in-memory _coverage_registry provides the active NFT ID filter
+        so burned/settled policies are excluded from the on-chain sum.
         """
-        return sum(self._coverage_registry.values())
+        try:
+            active_nft_ids = (
+                set(self._coverage_registry.keys())
+                if self._coverage_registry
+                else None
+            )
+            return await get_active_coverage_drops(
+                pool_address=self._pool_address,
+                client=client,
+                active_nft_ids=active_nft_ids,
+            )
+        except Exception as e:
+            logger.error("_sum_active_coverage failed: %s — defaulting to 0", e)
+            return 0
 
     @staticmethod
     def _classify_tier(coverage_ratio: float) -> str:
