@@ -465,7 +465,7 @@ body {
   width: 36px;
   height: 36px;
   background: var(--navy);
-  color: var(--white);
+  color: var(--gold);
   border-radius: 8px;
   font-size: 14px;
   font-weight: 700;
@@ -502,7 +502,7 @@ body {
 
 .code-block {
   background: rgba(0,0,0,0.4);
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid rgba(200,169,74,0.3);
   border-radius: 10px;
   padding: 32px;
   font-family: 'DM Mono', monospace;
@@ -585,12 +585,12 @@ body {
 .price-amount {
   font-size: 36px;
   font-weight: 700;
-  color: var(--gray-900);
+  color: var(--gold);
   margin-bottom: 8px;
   letter-spacing: -0.02em;
 }
 
-.price-card.dark .price-amount { color: var(--white); }
+.price-card.dark .price-amount { color: var(--gold); }
 
 .price-sub {
   font-size: 14px;
@@ -730,7 +730,7 @@ body {
   background: var(--gray-50);
   font-size: 12px;
   font-weight: 600;
-  color: var(--gray-300);
+  color: var(--gold);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   padding: 14px 24px;

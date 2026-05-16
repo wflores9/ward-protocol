@@ -49,9 +49,9 @@ export default function DocsPage() {
       {/* Header */}
       <div className="border-b border-gold/20 bg-white px-6 md:px-12 py-10">
         <div className="max-w-4xl mx-auto">
-          <div className="text-[10px] uppercase tracking-[.15em] text-ice2 mb-2 font-mono">Ward Protocol SDK — v0.2.4</div>
+          <div className="text-xs uppercase tracking-[.15em] text-ice2 mb-2 font-mono">Ward Protocol SDK — v0.2.4</div>
           <h1 className="font-condensed font-black text-5xl text-steel mb-3">Documentation</h1>
-          <p className="text-[13px] text-sub max-w-2xl">
+          <p className="text-sm text-sub max-w-2xl">
             SDK reference, module overview, and integration guides. All modules are independently auditable.
           </p>
           <div className="flex gap-3 mt-5">
@@ -66,7 +66,7 @@ export default function DocsPage() {
 
         {/* Quickstart */}
         <section>
-          <h2 className="font-condensed font-black text-3xl text-steel mb-4">Quickstart</h2>
+          <h2 className="font-condensed font-black text-3xl text-[#c8a94a] mb-4">Quickstart</h2>
           <pre className="bg-steel text-ice text-[12px] leading-relaxed rounded-md p-5 overflow-x-auto font-mono whitespace-pre">
             {quickstart}
           </pre>
@@ -74,15 +74,15 @@ export default function DocsPage() {
 
         {/* Module reference */}
         <section>
-          <h2 className="font-condensed font-black text-3xl text-steel mb-2">Module Reference</h2>
-          <p className="text-[12px] text-sub mb-5">Total nSLOC: ~2,148 Python + ~583 Rust</p>
+          <h2 className="font-condensed font-black text-3xl text-[#c8a94a] mb-2">Module Reference</h2>
+          <p className="text-sm text-sub mb-5">Total nSLOC: ~2,148 Python + ~583 Rust</p>
           <div className="space-y-3">
             {modules.map(m => (
               <div key={m.name} className="bg-white border border-p2 rounded-md p-4 flex items-start gap-4">
-                <code className="text-[13px] font-bold text-steel shrink-0 w-44">{m.name}</code>
+                <code className="text-sm font-bold text-steel shrink-0 w-44 border-l-2 border-[#c8a94a] pl-2">{m.name}</code>
                 <div className="flex-1 min-w-0">
-                  <div className="text-[11px] text-ice2 font-mono mb-1">{m.file} · {m.nsloc} nSLOC</div>
-                  <div className="text-[12px] text-sub">{m.desc}</div>
+                  <div className="text-xs text-ice2 font-mono mb-1">{m.file} · {m.nsloc} nSLOC</div>
+                  <div className="text-sm text-sub">{m.desc}</div>
                 </div>
               </div>
             ))}
@@ -91,20 +91,20 @@ export default function DocsPage() {
 
         {/* Testing */}
         <section>
-          <h2 className="font-condensed font-black text-3xl text-steel mb-4">Testing</h2>
+          <h2 className="font-condensed font-black text-3xl text-[#c8a94a] mb-4">Testing</h2>
           <pre className="bg-steel text-ice text-[12px] leading-relaxed rounded-md p-5 overflow-x-auto font-mono whitespace-pre">
             {testCmd}
           </pre>
-          <p className="text-[12px] text-sub mt-3">
+          <p className="text-sm text-sub mt-3">
             204 Python tests + 40 Rust tests + 45 TypeScript tests covering all 9 claim validation steps, all 15 attack vectors, VaultMonitor,
             EscrowSettlement, PoolHealthMonitor, and all primitives.
-            Marked <code className="bg-p2 px-1 rounded text-[11px]">integration</code> tests require XRPL Mainnet access.
+            Marked <code className="bg-p2 px-1 rounded text-xs">integration</code> tests require XRPL Mainnet access.
           </p>
         </section>
 
         {/* Changelog */}
         <section>
-          <h2 className="font-condensed font-black text-3xl text-steel mb-4">Changelog</h2>
+          <h2 className="font-condensed font-black text-3xl text-[#c8a94a] mb-4">Changelog</h2>
           {[
             {
               version: 'v0.2.4',
@@ -141,13 +141,13 @@ export default function DocsPage() {
           ].map(entry => (
             <div key={entry.version} className="mb-8 border border-p2 bg-white rounded-md p-5">
               <div className="flex items-center gap-3 mb-3">
-                <span className="font-condensed font-black text-xl text-steel">{entry.version}</span>
-                <span className="text-[11px] text-sub font-mono">{entry.date}</span>
+                <span className="font-condensed font-black text-xl text-[#c8a94a]">{entry.version}</span>
+                <span className="text-xs text-sub font-mono">{entry.date}</span>
               </div>
               <ul className="space-y-1.5">
                 {entry.changes.map((c, i) => (
-                  <li key={i} className="flex items-start gap-2 text-[12px]">
-                    <span className={`shrink-0 font-mono text-[10px] px-1.5 py-0.5 rounded ${
+                  <li key={i} className="flex items-start gap-2 text-sm">
+                    <span className={`shrink-0 font-mono text-xs px-1.5 py-0.5 rounded ${
                       c.type === 'Fixed' ? 'bg-[#fff3e0] text-[#b45309]' :
                       c.type === 'Added' ? 'bg-[#e8fff3] text-[#00994d]' :
                       'bg-panel text-sub'
@@ -162,7 +162,7 @@ export default function DocsPage() {
 
         {/* Links */}
         <section>
-          <h2 className="font-condensed font-black text-3xl text-steel mb-4">Resources</h2>
+          <h2 className="font-condensed font-black text-3xl text-[#c8a94a] mb-4">Resources</h2>
           <div className="grid sm:grid-cols-2 gap-3">
             {[
               { label: 'GitHub Repository',    href: 'https://github.com/wflores9/ward-protocol', ext: true },
@@ -177,7 +177,7 @@ export default function DocsPage() {
                 href={l.href}
                 target={l.ext ? '_blank' : undefined}
                 rel={l.ext ? 'noopener noreferrer' : undefined}
-                className="flex items-center gap-2 text-[12px] text-sub hover:text-steel border border-p2 bg-white rounded-md px-4 py-3 transition-colors no-underline"
+                className="flex items-center gap-2 text-sm text-sub hover:text-steel border border-p2 bg-white rounded-md px-4 py-3 transition-colors no-underline"
               >
                 <span className="text-ice2">↗</span> {l.label}
               </a>

@@ -13,9 +13,9 @@ export default function DemoPage() {
       {/* Header */}
       <div className="border-b border-gold/20 bg-white px-6 md:px-12 py-10">
         <div className="max-w-4xl mx-auto">
-          <div className="text-[10px] uppercase tracking-[.15em] text-ice2 mb-2 font-mono">Ward Protocol — Interactive</div>
+          <div className="text-xs uppercase tracking-[.15em] text-[#c8a94a] mb-2 font-mono">Ward Protocol — Interactive</div>
           <h1 className="font-condensed font-black text-5xl text-steel mb-3">Demo & Checklist</h1>
-          <p className="text-[13px] text-sub max-w-2xl">
+          <p className="text-sm text-sub max-w-2xl">
             Verify your integration satisfies all 9 Ward Protocol claim validation steps.
             All state must be sourced from the XRPL ledger — no off-chain inputs trusted.
           </p>
@@ -28,7 +28,7 @@ export default function DemoPage() {
       {/* Flow examples */}
       <div className="border-t border-gold/20 bg-white">
         <div className="max-w-6xl mx-auto px-6 md:px-12 py-12">
-          <div className="text-[10px] uppercase tracking-[.15em] text-ice2 mb-2 font-mono">Python SDK — v0.2.4</div>
+          <div className="text-xs uppercase tracking-[.15em] text-[#c8a94a] mb-2 font-mono">Python SDK — v0.2.4</div>
           <h2 className="font-condensed font-black text-3xl text-steel mb-2">Integration Flow Examples</h2>
           <p className="text-[13px] text-sub mb-6">
             Five flows from vault registration to escrow settlement.{' '}

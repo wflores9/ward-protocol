@@ -122,8 +122,8 @@ export default function FlowRunner() {
           <button
             key={f.id}
             onClick={() => setActive(i)}
-            className={`px-4 py-3 text-[11px] font-mono whitespace-nowrap border-r border-p2 transition-colors ${
-              i === active ? 'bg-white text-steel font-bold border-b-2 border-b-steel -mb-px' : 'text-sub hover:text-steel'
+            className={`px-4 py-3 text-xs font-mono whitespace-nowrap border-r border-p2 transition-colors ${
+              i === active ? 'bg-white text-[#c8a94a] font-bold border-b-2 border-b-[#c8a94a] -mb-px' : 'text-sub hover:text-[#c8a94a]'
             }`}
           >
             {f.id}
@@ -134,7 +134,7 @@ export default function FlowRunner() {
       {/* Content */}
       <div className="p-5">
         <h3 className="font-condensed font-black text-xl text-steel mb-1">{flow.title}</h3>
-        <p className="text-[12px] text-sub mb-4">{flow.desc}</p>
+        <p className="text-sm text-sub mb-4">{flow.desc}</p>
         <pre className="bg-steel rounded-md p-4 text-[11px] text-ice leading-relaxed overflow-x-auto font-mono whitespace-pre">
           {flow.code}
         </pre>

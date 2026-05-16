@@ -116,7 +116,7 @@ export default function Home() {
       {/* THE QUESTION */}
       <section className="page-section question-section">
         <div className="section-inner">
-          <p className="eyebrow">The problem</p>
+          <p className="eyebrow border-l-2 border-[#c8a94a] pl-3">The problem</p>
           <h2>What happens when the borrower doesn&apos;t pay?</h2>
           <p>Every institution deploying capital into XLS-66 lending vaults will eventually ask this question. Today, there is no standard answer. Every protocol builds their own — or ignores the risk entirely.</p>
           <p>Ward Protocol is the answer. The open specification that defines exactly what happens on default. Deterministic. Auditable. On-chain.</p>
@@ -186,7 +186,7 @@ export default function Home() {
           <div className="pricing-grid">
             <div className="price-card">
               <div className="price-tier">Starter</div>
-              <div className="price-amount" style={{ fontSize: 26 }}>Coming Soon</div>
+              <div className="price-amount border border-[#c8a94a]/40 rounded-md" style={{ fontSize: 26, color: '#c8a94a' }}>Coming Soon</div>
               <div className="price-sub">For builders and developers</div>
               <div className="price-divider" />
               <ul className="price-features">
@@ -201,7 +201,7 @@ export default function Home() {
             <div className="price-card featured">
               <div className="price-badge">Most Popular</div>
               <div className="price-tier">Standard</div>
-              <div className="price-amount" style={{ fontSize: 26 }}>Coming Soon</div>
+              <div className="price-amount border border-[#c8a94a]/40 rounded-md" style={{ fontSize: 26, color: '#c8a94a' }}>Coming Soon</div>
               <div className="price-sub">For institutional integrations</div>
               <div className="price-divider" />
               <ul className="price-features">
@@ -215,7 +215,7 @@ export default function Home() {
             </div>
             <div className="price-card dark">
               <div className="price-tier">Enterprise</div>
-              <div className="price-amount" style={{ color: 'var(--white)', fontSize: 26 }}>Coming Soon</div>
+              <div className="price-amount border border-[#c8a94a]/40 rounded-md" style={{ fontSize: 26, color: '#c8a94a' }}>Coming Soon</div>
               <div className="price-sub" style={{ color: 'rgba(255,255,255,0.45)' }}>For regulated institutions</div>
               <div className="price-divider" />
               <ul className="price-features">
@@ -234,7 +234,7 @@ export default function Home() {
       {/* QUOTES */}
       <section className="page-section quotes-section">
         <div className="section-inner">
-          <p className="eyebrow">Community signal</p>
+          <p className="eyebrow" style={{ color: '#c8a94a' }}>Community signal</p>
           <h2>What the ecosystem is saying</h2>
           <p className="section-sub">Unprompted commentary from builders and observers in the XRPL ecosystem.</p>
           <div className="quotes-grid">

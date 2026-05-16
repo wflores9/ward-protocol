@@ -6,7 +6,34 @@ export const metadata: Metadata = {
   description: 'Technical specification for Ward Protocol: 9-step claim validation, VaultMonitor, EscrowSettlement, and all 15 attack-vector mitigations.',
 }
 
-const sections = [
+const CLAIM_STEPS = [
+  { n: 1, text: 'NFT existence & taxon (WARD_POLICY_TAXON = 281)' },
+  { n: 2, text: 'Policy expiry — XRPL ledger close_time, never server clock' },
+  { n: 3, text: 'Vault address binding — metadata vault == defaulted_vault' },
+  { n: 4, text: 'LSF_LOAN_DEFAULT flag on LedgerEntry(index=loan_id)' },
+  { n: 5, text: 'Vault loss > 0 drops' },
+  { n: 6, text: 'Pool coverage breach — usable = balance − XRPL reserve ≥ 0' },
+  { n: 7, text: 'Replay protection — NFT still live (burn-on-settlement)' },
+  { n: 8, text: 'Claimant holds NFT — AccountNFTs(account=claimant_address)' },
+  { n: 9, text: 'Pool solvency + rate limit (≤ 3/NFT/300 s, ratio ≥ 1.5×)' },
+]
+
+const CONSTANTS = [
+  { name: 'WARD_POLICY_TAXON',           value: ' = 281',          comment: '      # XLS-20 NFT taxon for policy NFTs' },
+  { name: 'WARD_CREDENTIAL_TAXON',       value: ' = 282',          comment: '      # XLS-70 credential NFT taxon' },
+  { name: 'TF_BURNABLE',                 value: ' = 0x00000001',   comment: '' },
+  { name: 'TF_TRANSFERABLE',             value: ' = 0x00000008',   comment: '  # deliberately ABSENT from policy NFTs' },
+  { name: 'LSF_LOAN_DEFAULT',            value: ' = 0x00010000',   comment: '' },
+  { name: 'MIN_COVERAGE_RATIO',          value: ' = 1.5',          comment: '' },
+  { name: 'CLAIM_RATE_LIMIT_MAX',        value: ' = 3',            comment: '' },
+  { name: 'CLAIM_RATE_LIMIT_WINDOW_S',   value: ' = 300',          comment: '' },
+  { name: 'MONITOR_HEARTBEAT_TIMEOUT_S', value: ' = 60',           comment: '' },
+  { name: 'XRPL_BASE_RESERVE_DROPS',    value: ' = 2_000_000',    comment: '' },
+  { name: 'XRPL_OWNER_RESERVE_DROPS',   value: ' = 200_000',      comment: '' },
+  { name: 'RIPPLE_EPOCH_OFFSET',         value: ' = 946_684_800',  comment: '' },
+]
+
+const sections: Array<{ id: string; title: string; gold?: boolean; content: string | null }> = [
   {
     id: 'overview',
     title: '1. Overview',
@@ -20,6 +47,7 @@ Ward never holds, touches, or stores private keys.`,
   {
     id: 'architecture',
     title: '2. Architecture',
+    gold: true,
     content: `Five modules:
 
   Module 1 — WardClient         High-level SDK entrypoint
@@ -33,15 +61,8 @@ Shared: ward/primitives.py, ward/constants.py, ward/tx_builder.py`,
   {
     id: 'claim-validation',
     title: '3. 9-Step Claim Validation',
-    content: `Step 1   NFT existence & taxon (WARD_POLICY_TAXON = 281)
-Step 2   Policy expiry — XRPL ledger close_time, never server clock
-Step 3   Vault address binding — metadata vault == defaulted_vault
-Step 4   LSF_LOAN_DEFAULT flag on LedgerEntry(index=loan_id)
-Step 5   Vault loss > 0 drops
-Step 6   Pool coverage breach — usable = balance − XRPL reserve ≥ 0
-Step 7   Replay protection — NFT still live (burn-on-settlement)
-Step 8   Claimant holds NFT — AccountNFTs(account=claimant_address)
-Step 9   Pool solvency + rate limit (≤ 3/NFT/300 s, ratio ≥ 1.5×)`,
+    gold: true,
+    content: null,
   },
   {
     id: 'vault-monitor',
@@ -76,6 +97,7 @@ ward_signed = False at every step`,
   {
     id: 'attack-vectors',
     title: '6. Attack Vector Mitigations',
+    gold: true,
     content: `AV 2.1   Policy Forgery         — NFTokenTaxon == 281 enforced at step 1
 AV 2.2   Replay / Double-Spend  — NFT burned on settlement; step 1 re-checks
 AV 2.3   Policy Transfer        — TF_TRANSFERABLE (0x8) absent; TF_BURNABLE only
@@ -95,18 +117,8 @@ AV 2.15  Silent Network Failure  — asyncio.wait_for heartbeat; 60 s timeout`,
   {
     id: 'constants',
     title: '7. Protocol Constants',
-    content: `WARD_POLICY_TAXON       = 281      # XLS-20 NFT taxon for policy NFTs
-WARD_CREDENTIAL_TAXON  = 282      # XLS-70 credential NFT taxon
-TF_BURNABLE             = 0x00000001
-TF_TRANSFERABLE         = 0x00000008  # deliberately ABSENT from policy NFTs
-LSF_LOAN_DEFAULT        = 0x00010000
-MIN_COVERAGE_RATIO      = 1.5
-CLAIM_RATE_LIMIT_MAX    = 3
-CLAIM_RATE_LIMIT_WINDOW_S = 300
-MONITOR_HEARTBEAT_TIMEOUT_S = 60
-XRPL_BASE_RESERVE_DROPS = 2_000_000
-XRPL_OWNER_RESERVE_DROPS = 200_000
-RIPPLE_EPOCH_OFFSET     = 946_684_800`,
+    gold: true,
+    content: null,
   },
 ]
 
@@ -116,20 +128,20 @@ export default function SpecPage() {
       {/* Header */}
       <div className="border-b border-gold/20 bg-white px-6 md:px-12 py-10">
         <div className="max-w-4xl mx-auto">
-          <div className="text-[10px] uppercase tracking-[.15em] text-ice2 mb-2 font-mono">Ward Protocol v0.2.4</div>
+          <div className="text-xs uppercase tracking-[.15em] text-ice2 mb-2 font-mono">Ward Protocol v0.2.4</div>
           <h1 className="font-condensed font-black text-5xl text-steel mb-3">Protocol Specification</h1>
-          <p className="text-[13px] text-sub max-w-2xl">
+          <p className="text-sm text-sub max-w-2xl">
             Technical reference for Ward Protocol: architecture, 9-step claim validation,
             VaultMonitor, escrow settlement, and all 15 attack-vector mitigations.
           </p>
           <div className="flex gap-3 mt-5">
-            <span className="text-[10px] bg-[#fdf8ed] text-[#c8a94a] border border-gold/30 px-2.5 py-1 rounded font-mono font-bold">
+            <span className="text-xs bg-[#fdf8ed] text-[#c8a94a] border border-gold/30 px-2.5 py-1 rounded font-mono font-bold">
               204/204 Python · 40/40 Rust · 45/45 TypeScript
             </span>
-            <span className="text-[10px] bg-panel border border-border text-sub px-2.5 py-1 rounded font-mono">
+            <span className="text-xs bg-panel border border-border text-sub px-2.5 py-1 rounded font-mono">
               SDK v0.2.4
             </span>
-            <span className="text-[10px] bg-panel border border-border text-sub px-2.5 py-1 rounded font-mono">
+            <span className="text-xs bg-[#fdf8ed] text-[#c8a94a] border border-gold/30 px-2.5 py-1 rounded font-mono">
               15 AVs Mitigated
             </span>
           </div>
@@ -140,18 +152,18 @@ export default function SpecPage() {
       <div className="max-w-4xl mx-auto px-6 md:px-12 py-12 grid md:grid-cols-[200px_1fr] gap-10 items-start">
         {/* TOC */}
         <nav className="sticky top-20 hidden md:block">
-          <div className="text-[10px] uppercase tracking-widest text-sub mb-3">Contents</div>
+          <div className="text-xs uppercase tracking-widest text-sub mb-3">Contents</div>
           <ul className="space-y-1.5">
             {sections.map(s => (
               <li key={s.id}>
-                <a href={`#${s.id}`} className="text-[11px] text-sub hover:text-steel transition-colors no-underline block">
+                <a href={`#${s.id}`} className="text-xs text-sub hover:text-steel transition-colors no-underline block">
                   {s.title}
                 </a>
               </li>
             ))}
           </ul>
           <div className="mt-6 pt-6 border-t border-p2">
-            <Link href="/demo" className="text-[11px] text-ice2 hover:text-steel transition-colors no-underline">
+            <Link href="/demo" className="text-xs text-ice2 hover:text-steel transition-colors no-underline">
               → Try Checklist
             </Link>
           </div>
@@ -161,10 +173,33 @@ export default function SpecPage() {
         <div className="space-y-10">
           {sections.map(s => (
             <section key={s.id} id={s.id}>
-              <h2 className="font-condensed font-black text-2xl text-steel mb-3">{s.title}</h2>
-              <pre className="bg-steel text-ice text-[12px] leading-relaxed rounded-md p-5 overflow-x-auto font-mono whitespace-pre-wrap">
-                {s.content}
-              </pre>
+              <h2 className={`font-condensed font-black text-2xl mb-3 ${s.gold ? 'text-[#c8a94a]' : 'text-steel'}`}>
+                {s.title}
+              </h2>
+              {s.id === 'claim-validation' ? (
+                <div className="bg-steel rounded-md p-5 overflow-x-auto font-mono text-xs leading-relaxed">
+                  {CLAIM_STEPS.map(step => (
+                    <div key={step.n} className="flex gap-2 mb-1">
+                      <span className="text-[#c8a94a] shrink-0 w-14">Step {step.n}</span>
+                      <span className="text-ice">{step.text}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : s.id === 'constants' ? (
+                <div className="bg-steel rounded-md p-5 overflow-x-auto font-mono text-xs leading-relaxed">
+                  {CONSTANTS.map(c => (
+                    <div key={c.name} className="flex mb-0.5">
+                      <span className="text-[#c8a94a] shrink-0 min-w-[28ch]">{c.name}</span>
+                      <span className="text-ice">{c.value}</span>
+                      {c.comment && <span className="text-dim">{c.comment}</span>}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <pre className="bg-steel text-ice text-xs leading-relaxed rounded-md p-5 overflow-x-auto font-mono whitespace-pre-wrap">
+                  {s.content}
+                </pre>
+              )}
             </section>
           ))}
 
@@ -182,7 +217,7 @@ export default function SpecPage() {
                   href={href}
                   target={href.startsWith('http') ? '_blank' : undefined}
                   rel={href.startsWith('http') ? 'noopener noreferrer' : undefined}
-                  className="flex items-center gap-2 text-[12px] text-sub hover:text-steel border border-p2 bg-white rounded-md px-4 py-3 transition-colors no-underline"
+                  className="flex items-center gap-2 text-sm text-sub hover:text-steel border border-p2 bg-white rounded-md px-4 py-3 transition-colors no-underline"
                 >
                   <span className="text-ice2">↗</span> {label}
                 </a>

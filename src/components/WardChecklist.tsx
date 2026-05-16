@@ -36,7 +36,7 @@ export default function WardChecklist() {
       {/* Steps */}
       <div>
         <h2 className="font-condensed font-black text-2xl text-steel mb-1">9-Step Claim Validation</h2>
-        <p className="text-[11px] text-sub mb-6">All state sourced from XRPL ledger — no off-chain inputs trusted.</p>
+        <p className="text-sm text-sub mb-6">All state sourced from XRPL ledger — no off-chain inputs trusted.</p>
 
         {STEPS.map(s => {
           const isChecked = checked.has(s.n)
@@ -53,11 +53,11 @@ export default function WardChecklist() {
                 onClick={() => toggleOpen(s.n)}
               >
                 <div className={`w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 transition-colors ${
-                  isChecked ? 'bg-green text-white' : 'bg-p2 text-sub'
+                  isChecked ? 'bg-green text-white' : 'bg-p2 text-[#c8a94a]'
                 }`}>{s.n}</div>
                 <div className="flex-1 min-w-0">
-                  <div className="text-[13px] font-bold text-steel">{s.name}</div>
-                  <div className="text-[11px] text-sub truncate">{s.desc}</div>
+                  <div className="text-sm font-bold text-steel">{s.name}</div>
+                  <div className="text-xs text-sub truncate">{s.desc}</div>
                 </div>
                 <svg
                   className={`w-4 h-4 text-dim shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`}
@@ -79,7 +79,7 @@ export default function WardChecklist() {
                 </div>
               </div>
               {isOpen && (
-                <div className={`px-4 pb-4 text-[11px] text-sub leading-relaxed border-l-2 ml-4 pl-3 ${isChecked ? 'border-green' : 'border-p2'}`}>
+                <div className={`px-4 pb-4 text-sm text-sub leading-relaxed border-l-2 ml-4 pl-3 ${isChecked ? 'border-green' : 'border-p2'}`}>
                   {s.desc}
                 </div>
               )}
@@ -130,8 +130,8 @@ export default function WardChecklist() {
         </div>
 
         <div className="bg-white border border-p2 rounded-md p-5">
-          <h3 className="text-[11px] uppercase tracking-widest text-sub mb-3">Core Invariants</h3>
-          <ul className="space-y-2 text-[11px] text-sub">
+          <h3 className="text-xs uppercase tracking-widest text-sub mb-3">Core Invariants</h3>
+          <ul className="space-y-2 text-sm text-sub">
             {[
               ['ward_signed = False', 'Ward never holds signing keys'],
               ['Events are hints', 'Ledger is always truth'],
@@ -149,7 +149,7 @@ export default function WardChecklist() {
 
         <button
           onClick={() => setChecked(new Set())}
-          className="w-full py-2 text-[11px] uppercase tracking-widest text-sub bg-panel border border-border rounded-md hover:bg-p2 transition-colors"
+          className="w-full py-2 text-xs uppercase tracking-widest text-sub bg-panel border border-border rounded-md hover:bg-p2 transition-colors"
         >
           ↺ Reset
         </button>

@@ -34,7 +34,7 @@ export default function CertifiedPage() {
     <>
       {/* HERO */}
       <div className="bg-navy px-12 py-24 text-center">
-        <p className="text-[13px] text-white/40 mb-5">
+        <p className="text-sm text-white/40 mb-5">
           <Link href="/" className="text-white/40 no-underline hover:text-white/70">
             Home
           </Link>
@@ -72,7 +72,7 @@ export default function CertifiedPage() {
             },
           ].map((item) => (
             <div key={item.title} className="bg-white border border-slate-100 rounded-xl p-7">
-              <div className="text-3xl mb-4">{item.icon}</div>
+              <div className="text-3xl mb-4 w-fit border border-[#c8a94a]/20 rounded-lg p-1">{item.icon}</div>
               <div className="text-[17px] font-bold text-slate-900 mb-2">{item.title}</div>
               <div className="text-[15px] text-slate-500 leading-relaxed">{item.desc}</div>
             </div>
@@ -83,7 +83,7 @@ export default function CertifiedPage() {
       {/* REGISTRY */}
       <section className="bg-white px-12 py-20">
         <div className="max-w-5xl mx-auto">
-          <span className="eyebrow">Public Registry</span>
+          <span className="eyebrow" style={{ color: '#c8a94a' }}>Public Registry</span>
           <h2 className="text-[40px] font-bold text-slate-900 tracking-tight leading-tight mb-4">
             Certified Vaults
           </h2>
@@ -107,7 +107,7 @@ export default function CertifiedPage() {
                   ].map((h) => (
                     <th
                       key={h}
-                      className="text-left px-5 py-3.5 text-[11px] font-semibold text-slate-400 uppercase tracking-wider whitespace-nowrap"
+                      className="text-left px-5 py-3.5 text-xs font-semibold text-slate-400 uppercase tracking-wider whitespace-nowrap"
                     >
                       {h}
                     </th>
@@ -119,10 +119,10 @@ export default function CertifiedPage() {
                   const s = statusStyles[v.status]
                   return (
                     <tr key={v.id} className="border-t border-slate-100">
-                      <td className="px-5 py-4 font-mono text-[13px] text-slate-700 whitespace-nowrap">
+                      <td className="px-5 py-4 font-mono text-sm text-[#c8a94a] whitespace-nowrap">
                         {v.id}
                       </td>
-                      <td className="px-5 py-4 font-mono text-[12px] text-blue-600 whitespace-nowrap">
+                      <td className="px-5 py-4 font-mono text-sm text-blue-600 whitespace-nowrap">
                         {v.address}
                       </td>
                       <td className="px-5 py-4 text-[14px] text-slate-700 whitespace-nowrap">
@@ -139,7 +139,7 @@ export default function CertifiedPage() {
                       <td className="px-5 py-4 text-[14px] text-slate-500 whitespace-nowrap">
                         {v.validUntil}
                       </td>
-                      <td className="px-5 py-4 font-mono text-[12px] text-slate-400 whitespace-nowrap">
+                      <td className="px-5 py-4 font-mono text-xs text-slate-400 whitespace-nowrap">
                         {v.specVersion}
                       </td>
                       <td className="px-5 py-4 whitespace-nowrap">

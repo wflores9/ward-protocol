@@ -10,7 +10,7 @@ export default function DashboardPage() {
     <>
       {/* HERO */}
       <div className="bg-navy px-12 py-16 text-center">
-        <p className="text-[13px] text-white/40 mb-5">
+        <p className="text-sm text-white/40 mb-5">
           <a href="/" className="text-white/40 no-underline hover:text-white/70">Home</a>
           {' / Dashboard'}
         </p>
@@ -30,7 +30,7 @@ export default function DashboardPage() {
       {/* CONNECT SECTION */}
       <section className="bg-slate-50 px-12 py-16">
         <div className="max-w-4xl mx-auto">
-          <span className="eyebrow">Access</span>
+          <span className="eyebrow" style={{ color: '#c8a94a' }}>Access</span>
           <h2 className="text-[36px] font-bold text-slate-900 tracking-tight mb-4">
             Ward Certified institutions only
           </h2>
@@ -48,7 +48,7 @@ export default function DashboardPage() {
       {/* WHAT THE DASHBOARD SHOWS */}
       <section className="bg-white px-12 py-16">
         <div className="max-w-4xl mx-auto">
-          <span className="eyebrow">Features</span>
+          <span className="eyebrow" style={{ color: '#c8a94a' }}>Features</span>
           <h2 className="text-[36px] font-bold text-slate-900 tracking-tight mb-10">
             What you can monitor
           </h2>
@@ -86,7 +86,7 @@ export default function DashboardPage() {
               },
             ].map((item) => (
               <div key={item.title} className="bg-slate-50 rounded-xl p-6">
-                <div className="text-3xl mb-3">{item.icon}</div>
+                <div className="text-3xl mb-3 w-fit border border-[#c8a94a]/20 rounded-lg p-1">{item.icon}</div>
                 <div className="text-[16px] font-bold text-slate-900 mb-2">{item.title}</div>
                 <div className="text-[14px] text-slate-500 leading-relaxed">{item.desc}</div>
               </div>
@@ -120,7 +120,7 @@ function DashboardConnector() {
   return (
     <div className="bg-white border border-slate-200 rounded-xl p-8">
       <div className="max-w-lg">
-        <label className="block text-[13px] font-semibold text-slate-500 uppercase tracking-wider mb-3">
+        <label className="block text-sm font-semibold text-slate-500 uppercase tracking-wider mb-3">
           Institution Key
         </label>
         <div className="flex gap-3">
@@ -137,7 +137,7 @@ function DashboardConnector() {
             Connect
           </button>
         </div>
-        <p className="text-[12px] text-slate-400 mt-3 font-mono">
+        <p className="text-sm text-slate-400 mt-3 font-mono">
           Live dashboard available for Ward Certified institutions.
           Contact wflores@wardprotocol.org to enable access.
         </p>
