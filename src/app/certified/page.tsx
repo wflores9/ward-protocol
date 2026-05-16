@@ -211,24 +211,24 @@ export default function CertifiedPage() {
       </section>
 
       {/* APPLY CTA */}
-      <section className="bg-navy px-12 py-24 text-center">
-        <h2 className="text-[40px] font-bold text-white tracking-tight leading-tight mb-5">
+      <section className="bg-white border-t border-gold/20 px-12 py-24 text-center">
+        <h2 className="text-[40px] font-bold text-navy tracking-tight leading-tight mb-5">
           Apply for Ward Certified
         </h2>
-        <p className="text-[18px] text-white/65 max-w-xl mx-auto mb-10 leading-relaxed">
+        <p className="text-[18px] text-navy/65 max-w-xl mx-auto mb-10 leading-relaxed">
           Ward Certified is available for institutions integrating Ward Protocol into XLS-66
           lending vaults. Each vault is certified individually.
         </p>
         <a
           href="mailto:wflores@wardprotocol.org?subject=Ward%20Certified%20Application"
-          className="inline-block bg-white text-navy px-10 py-4 rounded-lg font-semibold text-base hover:bg-slate-50 transition-colors no-underline"
+          className="inline-block bg-navy text-white px-10 py-4 rounded-lg font-semibold text-base hover:bg-[#162d47] transition-colors no-underline"
         >
           Apply for Certification →
         </a>
-        <p className="text-[13px] text-white/50 mt-6 max-w-lg mx-auto">
+        <p className="text-[13px] text-navy/50 mt-6 max-w-lg mx-auto">
           Ward Certified is a technical conformance designation — not a financial guarantee.
           See{' '}
-          <Link href="/terms" className="text-white/60 hover:text-white/80 underline">
+          <Link href="/terms" className="text-navy/60 hover:text-navy/80 underline">
             Terms & Conditions
           </Link>
           .

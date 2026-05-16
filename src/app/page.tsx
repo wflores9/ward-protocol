@@ -84,7 +84,7 @@ export default function Home() {
             </ul>
             <div className="hero-stats">
               <div className="hero-stat">
-                <span className="hero-stat-val" style={{ color: '#4ade80' }}>204/204</span>
+                <span className="hero-stat-val" style={{ color: '#c8a94a' }}>204/204</span>
                 <span className="hero-stat-lbl">Tests</span>
               </div>
               <div className="hero-stat">
@@ -92,7 +92,7 @@ export default function Home() {
                 <span className="hero-stat-lbl">ward_signed</span>
               </div>
               <div className="hero-stat">
-                <span className="hero-stat-val" style={{ color: '#a8c5e8' }}>5</span>
+                <span className="hero-stat-val" style={{ color: '#c8a94a' }}>5</span>
                 <span className="hero-stat-lbl">Altnet Txns</span>
               </div>
             </div>

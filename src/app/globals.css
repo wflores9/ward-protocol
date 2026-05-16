@@ -105,7 +105,7 @@ body {
   transition: color 0.2s;
 }
 
-.nav-links a:hover { color: var(--navy); }
+.nav-links a:hover { color: var(--navy); text-decoration: underline; text-decoration-color: var(--gold); text-underline-offset: 4px; }
 
 .nav-cta {
   background: var(--navy);
@@ -441,7 +441,7 @@ body {
 }
 
 /* HOW IT WORKS */
-.how-section { background: var(--off-white); }
+.how-section { background: var(--off-white); border-top: 1px solid rgba(200,169,74,0.2); }
 
 .steps-grid {
   display: grid;
@@ -678,7 +678,7 @@ body {
 .btn-white:hover { background: var(--off-white); }
 
 /* QUOTES */
-.quotes-section { background: var(--off-white); }
+.quotes-section { background: var(--off-white); border-top: 1px solid rgba(200,169,74,0.2); }
 
 .quotes-grid {
   display: grid;
@@ -714,7 +714,7 @@ body {
 }
 
 /* STATUS TABLE */
-.status-section { background: var(--white); }
+.status-section { background: var(--white); border-top: 1px solid rgba(200,169,74,0.2); }
 
 .status-table {
   width: 100%;
@@ -794,6 +794,7 @@ body {
 /* FINAL CTA */
 .cta-section {
   background: var(--navy);
+  border-top: 1px solid rgba(200,169,74,0.2);
   text-align: center;
 }
 

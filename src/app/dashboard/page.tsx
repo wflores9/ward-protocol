@@ -21,7 +21,7 @@ export default function DashboardPage() {
           Read-only compliance view for Ward Certified vaults.
           All data sourced directly from XRPL ledger state.
         </p>
-        <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded-lg px-4 py-2">
+        <div className="inline-flex items-center gap-2 bg-white/5 border border-gold rounded-lg px-4 py-2">
           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
           <span className="text-[13px] font-mono text-white/50">ward_signed = False — always</span>
         </div>
@@ -96,17 +96,17 @@ export default function DashboardPage() {
       </section>
 
       {/* ACCESS CTA */}
-      <section className="bg-navy px-12 py-20 text-center">
-        <h2 className="text-[36px] font-bold text-white tracking-tight mb-5">
+      <section className="bg-white border-t border-gold/20 px-12 py-20 text-center">
+        <h2 className="text-[36px] font-bold text-navy tracking-tight mb-5">
           Not yet Ward Certified?
         </h2>
-        <p className="text-[17px] text-white/65 max-w-xl mx-auto mb-10 leading-relaxed">
+        <p className="text-[17px] text-navy/65 max-w-xl mx-auto mb-10 leading-relaxed">
           The dashboard is available to Ward Certified vaults only.
           Apply for certification to gain access.
         </p>
         <a
           href="mailto:wflores@wardprotocol.org?subject=Ward%20Certified%20Application"
-          className="inline-block bg-white text-navy px-10 py-4 rounded-lg font-semibold text-base hover:bg-slate-50 transition-colors no-underline"
+          className="inline-block bg-navy text-white px-10 py-4 rounded-lg font-semibold text-base hover:bg-[#162d47] transition-colors no-underline"
         >
           Apply for Ward Certified →
         </a>

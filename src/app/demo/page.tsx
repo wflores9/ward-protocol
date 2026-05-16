@@ -11,7 +11,7 @@ export default function DemoPage() {
   return (
     <>
       {/* Header */}
-      <div className="border-b border-p2 bg-white px-6 md:px-12 py-10">
+      <div className="border-b border-gold/20 bg-white px-6 md:px-12 py-10">
         <div className="max-w-4xl mx-auto">
           <div className="text-[10px] uppercase tracking-[.15em] text-ice2 mb-2 font-mono">Ward Protocol — Interactive</div>
           <h1 className="font-condensed font-black text-5xl text-steel mb-3">Demo & Checklist</h1>
@@ -26,7 +26,7 @@ export default function DemoPage() {
       <WardChecklist />
 
       {/* Flow examples */}
-      <div className="border-t border-p2 bg-white">
+      <div className="border-t border-gold/20 bg-white">
         <div className="max-w-6xl mx-auto px-6 md:px-12 py-12">
           <div className="text-[10px] uppercase tracking-[.15em] text-ice2 mb-2 font-mono">Python SDK — v0.2.4</div>
           <h2 className="font-condensed font-black text-3xl text-steel mb-2">Integration Flow Examples</h2>

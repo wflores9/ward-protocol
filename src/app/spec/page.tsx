@@ -114,7 +114,7 @@ export default function SpecPage() {
   return (
     <>
       {/* Header */}
-      <div className="border-b border-p2 bg-white px-6 md:px-12 py-10">
+      <div className="border-b border-gold/20 bg-white px-6 md:px-12 py-10">
         <div className="max-w-4xl mx-auto">
           <div className="text-[10px] uppercase tracking-[.15em] text-ice2 mb-2 font-mono">Ward Protocol v0.2.4</div>
           <h1 className="font-condensed font-black text-5xl text-steel mb-3">Protocol Specification</h1>
@@ -123,7 +123,7 @@ export default function SpecPage() {
             VaultMonitor, escrow settlement, and all 15 attack-vector mitigations.
           </p>
           <div className="flex gap-3 mt-5">
-            <span className="text-[10px] bg-[#e8fff3] text-[#00994d] border border-green px-2.5 py-1 rounded font-mono font-bold">
+            <span className="text-[10px] bg-[#fdf8ed] text-[#c8a94a] border border-gold/30 px-2.5 py-1 rounded font-mono font-bold">
               204/204 Python · 40/40 Rust · 45/45 TypeScript
             </span>
             <span className="text-[10px] bg-panel border border-border text-sub px-2.5 py-1 rounded font-mono">
