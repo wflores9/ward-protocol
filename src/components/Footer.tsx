@@ -37,6 +37,7 @@ export default function Footer() {
             <li><Link href="/docs">API Reference</Link></li>
             <li><a href="https://pypi.org/project/ward-protocol/" target="_blank" rel="noopener noreferrer">PyPI</a></li>
             <li><a href="https://github.com/wflores9/ward-protocol" target="_blank" rel="noopener noreferrer">GitHub</a></li>
+            <li><a href="https://discord.gg/9BZY4MrU3t" target="_blank" rel="noopener noreferrer">Discord</a></li>
           </ul>
         </div>
         <div>

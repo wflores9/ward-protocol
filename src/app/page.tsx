@@ -110,6 +110,8 @@ export default function Home() {
         <div className="sp-divider" />
         <span className="sp-item">PyPI · ward-protocol</span>
         <div className="sp-divider" />
+        <span className="sp-item">Discord Community</span>
+        <div className="sp-divider" />
         <span className="sp-item">204/204 Tests Passing</span>
       </div>
 
