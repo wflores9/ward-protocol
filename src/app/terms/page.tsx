@@ -82,8 +82,8 @@ export default function TermsPage() {
           <h2 className="font-condensed font-black text-xl text-steel mb-2">8. Contact</h2>
           <p>
             Questions:{' '}
-            <a href="https://github.com/wflores9/ward-protocol" className="text-ice2 hover:text-steel transition-colors">
-              github.com/wflores9/ward-protocol
+            <a href="mailto:wflores@wardprotocol.org" className="text-ice2 hover:text-steel transition-colors">
+              wflores@wardprotocol.org
             </a>
           </p>
         </section>

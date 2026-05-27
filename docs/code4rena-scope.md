@@ -223,7 +223,6 @@ cd ward && cargo test
 ## Sponsor Information
 
 **Protocol:** Ward Protocol  
-**GitHub:** [wflores9/ward-protocol](https://github.com/wflores9/ward-protocol)  
-**Contact:** @wflores9 on GitHub  
+**Contact:** wflores@wardprotocol.org  
 **Docs:** [ward-protocol.xyz](https://ward-protocol.xyz)  
 **Spec:** `docs/institutional-defi-insurance-specification.md`

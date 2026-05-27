@@ -106,7 +106,7 @@ Ward Protocol SDK uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 ## [0.1.1] — 2026-03-15
 
 ### Added
-- 95 unit tests passing
+- 95 unit tests passing at release (current: 165/165 Python · 40/40 Rust)
 - 5 on-chain transactions confirmed on XRPL Altnet
 - XRPLF Discussion #474 — open community engagement
 
