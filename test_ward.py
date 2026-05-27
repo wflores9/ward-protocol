@@ -2843,3 +2843,1149 @@ class TestPremiumVerificationGap:
             "Claim from fake NFT (no premium) must be rejected — "
             "premium payment verification not yet implemented"
         )
+
+
+# ===========================================================================
+# Tests: ChainReader  (ward/chain_reader.py)
+# ===========================================================================
+
+from ward.chain_reader import AccountBalance, ChainReader, EscrowInfo
+
+
+def _make_ws_client(request_fn):
+    """Fake AsyncWebsocketClient that routes .request() calls."""
+    mock = AsyncMock()
+    mock.request = AsyncMock(side_effect=request_fn)
+    return mock
+
+
+class TestChainReaderGetAccountBalance:
+    async def test_returns_account_balance(self):
+        resp = _make_success_response({
+            "account_data": {"Balance": "5000000", "Sequence": 7}
+        })
+        client = _make_ws_client(AsyncMock(return_value=resp))
+        reader = ChainReader(client)
+        bal = await reader.get_account_balance(VALID_ADDRESS)
+        assert isinstance(bal, AccountBalance)
+        assert bal.balance_drops == 5_000_000
+        assert bal.sequence == 7
+        assert bal.address == VALID_ADDRESS
+
+    async def test_balance_xrp_property(self):
+        resp = _make_success_response({
+            "account_data": {"Balance": "2000000", "Sequence": 1}
+        })
+        client = _make_ws_client(AsyncMock(return_value=resp))
+        reader = ChainReader(client)
+        bal = await reader.get_account_balance(VALID_ADDRESS)
+        assert bal.balance_xrp == pytest.approx(2.0)
+
+    async def test_missing_sequence_defaults_to_zero(self):
+        resp = _make_success_response({
+            "account_data": {"Balance": "1000000"}
+        })
+        client = _make_ws_client(AsyncMock(return_value=resp))
+        reader = ChainReader(client)
+        bal = await reader.get_account_balance(VALID_ADDRESS)
+        assert bal.sequence == 0
+
+    async def test_raises_ledger_error_on_failure(self):
+        resp = _make_fail_response("actNOT_FOUND")
+        client = _make_ws_client(AsyncMock(return_value=resp))
+        reader = ChainReader(client)
+        with pytest.raises(LedgerError, match="AccountInfo failed"):
+            await reader.get_account_balance(VALID_ADDRESS)
+
+
+class TestChainReaderVerifyAccountExists:
+    async def test_returns_true_for_funded_account(self):
+        resp = _make_success_response({
+            "account_data": {"Balance": "10000000", "Sequence": 1}
+        })
+        client = _make_ws_client(AsyncMock(return_value=resp))
+        reader = ChainReader(client)
+        assert await reader.verify_account_exists(VALID_ADDRESS) is True
+
+    async def test_returns_false_for_unfunded_account(self):
+        resp = _make_fail_response("actNOT_FOUND")
+        client = _make_ws_client(AsyncMock(return_value=resp))
+        reader = ChainReader(client)
+        assert await reader.verify_account_exists(VALID_ADDRESS) is False
+
+
+class TestChainReaderGetAccountObjects:
+    async def test_returns_objects_list(self):
+        objects = [{"LedgerEntryType": "NFTokenPage"}, {"LedgerEntryType": "Offer"}]
+        resp = _make_success_response({"account_objects": objects})
+        client = _make_ws_client(AsyncMock(return_value=resp))
+        reader = ChainReader(client)
+        result = await reader.get_account_objects(VALID_ADDRESS)
+        assert result == objects
+
+    async def test_returns_empty_list_when_no_objects(self):
+        resp = _make_success_response({"account_objects": []})
+        client = _make_ws_client(AsyncMock(return_value=resp))
+        reader = ChainReader(client)
+        result = await reader.get_account_objects(VALID_ADDRESS)
+        assert result == []
+
+    async def test_passes_type_filter(self):
+        captured = {}
+
+        async def _req(req):
+            captured["type"] = getattr(req, "type", None)
+            return _make_success_response({"account_objects": []})
+
+        client = _make_ws_client(_req)
+        reader = ChainReader(client)
+        await reader.get_account_objects(VALID_ADDRESS, obj_type="escrow")
+        assert captured["type"] == "escrow"
+
+    async def test_no_type_filter_sends_no_type(self):
+        captured = {}
+
+        async def _req(req):
+            captured["type"] = getattr(req, "type", None)
+            return _make_success_response({"account_objects": []})
+
+        client = _make_ws_client(_req)
+        reader = ChainReader(client)
+        await reader.get_account_objects(VALID_ADDRESS)
+        assert captured["type"] is None
+
+    async def test_raises_ledger_error_on_failure(self):
+        resp = _make_fail_response("actNOT_FOUND")
+        client = _make_ws_client(AsyncMock(return_value=resp))
+        reader = ChainReader(client)
+        with pytest.raises(LedgerError, match="AccountObjects failed"):
+            await reader.get_account_objects(VALID_ADDRESS)
+
+
+class TestChainReaderGetEscrows:
+    async def test_returns_escrow_info_objects(self):
+        raw = [
+            {
+                "LedgerEntryType": "Escrow",
+                "Sequence":    10,
+                "Amount":      "500000",
+                "Destination": VALID_ADDRESS2,
+                "FinishAfter": 12345,
+                "CancelAfter": 99999,
+                "Account":     VALID_ADDRESS,
+            }
+        ]
+        resp = _make_success_response({"account_objects": raw})
+        client = _make_ws_client(AsyncMock(return_value=resp))
+        reader = ChainReader(client)
+        escrows = await reader.get_escrows(VALID_ADDRESS)
+        assert len(escrows) == 1
+        e = escrows[0]
+        assert isinstance(e, EscrowInfo)
+        assert e.sequence == 10
+        assert e.amount_drops == 500_000
+        assert e.destination == VALID_ADDRESS2
+        assert e.owner == VALID_ADDRESS
+
+    async def test_skips_non_escrow_objects(self):
+        raw = [
+            {"LedgerEntryType": "NFTokenPage"},
+            {
+                "LedgerEntryType": "Escrow",
+                "Sequence":    1,
+                "Amount":      "1000",
+                "Destination": VALID_ADDRESS2,
+                "Account":     VALID_ADDRESS,
+            },
+        ]
+        resp = _make_success_response({"account_objects": raw})
+        client = _make_ws_client(AsyncMock(return_value=resp))
+        reader = ChainReader(client)
+        escrows = await reader.get_escrows(VALID_ADDRESS)
+        assert len(escrows) == 1
+
+    async def test_returns_empty_list_when_no_escrows(self):
+        resp = _make_success_response({"account_objects": []})
+        client = _make_ws_client(AsyncMock(return_value=resp))
+        reader = ChainReader(client)
+        escrows = await reader.get_escrows(VALID_ADDRESS)
+        assert escrows == []
+
+    async def test_escrow_defaults_when_fields_missing(self):
+        raw = [{"LedgerEntryType": "Escrow"}]
+        resp = _make_success_response({"account_objects": raw})
+        client = _make_ws_client(AsyncMock(return_value=resp))
+        reader = ChainReader(client)
+        escrows = await reader.get_escrows(VALID_ADDRESS)
+        assert len(escrows) == 1
+        e = escrows[0]
+        assert e.sequence == 0
+        assert e.amount_drops == 0
+        assert e.owner == VALID_ADDRESS  # falls back to address arg
+
+
+class TestChainReaderGetAccountTransactions:
+    async def test_returns_transactions_list(self):
+        txs = [{"hash": "A" * 64}, {"hash": "B" * 64}]
+        resp = _make_success_response({"transactions": txs})
+        client = _make_ws_client(AsyncMock(return_value=resp))
+        reader = ChainReader(client)
+        result = await reader.get_account_transactions(VALID_ADDRESS)
+        assert result == txs
+
+    async def test_returns_empty_list_when_no_txs(self):
+        resp = _make_success_response({"transactions": []})
+        client = _make_ws_client(AsyncMock(return_value=resp))
+        reader = ChainReader(client)
+        result = await reader.get_account_transactions(VALID_ADDRESS)
+        assert result == []
+
+    async def test_raises_ledger_error_on_failure(self):
+        resp = _make_fail_response("lgrNOT_FOUND")
+        client = _make_ws_client(AsyncMock(return_value=resp))
+        reader = ChainReader(client)
+        with pytest.raises(LedgerError, match="AccountTx failed"):
+            await reader.get_account_transactions(VALID_ADDRESS)
+
+    async def test_custom_limit_passed_through(self):
+        captured = {}
+
+        async def _req(req):
+            captured["limit"] = getattr(req, "limit", None)
+            return _make_success_response({"transactions": []})
+
+        client = _make_ws_client(_req)
+        reader = ChainReader(client)
+        await reader.get_account_transactions(VALID_ADDRESS, limit=50)
+        assert captured["limit"] == 50
+
+
+# ===========================================================================
+# Tests: WardMonitor  (ward/monitor.py)
+# ===========================================================================
+
+import warnings as _warnings_module
+from ward.monitor import WardMonitor
+
+
+class TestWardMonitorConstruction:
+    def test_requires_wss_url(self):
+        from ward.primitives import SecurityError
+        with pytest.raises(SecurityError, match="ws://"):
+            with _warnings_module.catch_warnings():
+                _warnings_module.simplefilter("ignore", DeprecationWarning)
+                WardMonitor(xrpl_url="ws://plaintext.example.com")
+
+    def test_emits_deprecation_warning(self):
+        with pytest.warns(DeprecationWarning, match="deprecated"):
+            WardMonitor(xrpl_url="wss://xrplcluster.com")
+
+    def test_default_vault_list_is_empty(self):
+        with _warnings_module.catch_warnings():
+            _warnings_module.simplefilter("ignore", DeprecationWarning)
+            m = WardMonitor(xrpl_url="wss://xrplcluster.com")
+        assert m._vault_addresses == []
+
+    def test_vault_addresses_passed_in(self):
+        with _warnings_module.catch_warnings():
+            _warnings_module.simplefilter("ignore", DeprecationWarning)
+            m = WardMonitor(
+                vault_addresses=[VALID_ADDRESS],
+                xrpl_url="wss://xrplcluster.com",
+            )
+        assert VALID_ADDRESS in m._vault_addresses
+
+
+class TestWardMonitorAddRemoveVault:
+    def _make(self):
+        with _warnings_module.catch_warnings():
+            _warnings_module.simplefilter("ignore", DeprecationWarning)
+            return WardMonitor(xrpl_url="wss://xrplcluster.com")
+
+    def test_add_vault(self):
+        m = self._make()
+        m.add_vault(VALID_ADDRESS)
+        assert VALID_ADDRESS in m._vault_addresses
+
+    def test_add_vault_idempotent(self):
+        m = self._make()
+        m.add_vault(VALID_ADDRESS)
+        m.add_vault(VALID_ADDRESS)
+        assert m._vault_addresses.count(VALID_ADDRESS) == 1
+
+    def test_remove_vault(self):
+        m = self._make()
+        m.add_vault(VALID_ADDRESS)
+        m.remove_vault(VALID_ADDRESS)
+        assert VALID_ADDRESS not in m._vault_addresses
+
+    def test_remove_nonexistent_vault_is_noop(self):
+        m = self._make()
+        m.remove_vault(VALID_ADDRESS)  # should not raise
+
+    def test_on_balance_change_registers_callback(self):
+        m = self._make()
+        cb = MagicMock()
+        m.on_balance_change(cb)
+        assert cb in m._callbacks
+
+
+class TestWardMonitorStop:
+    def test_stop_sets_running_false(self):
+        with _warnings_module.catch_warnings():
+            _warnings_module.simplefilter("ignore", DeprecationWarning)
+            m = WardMonitor(xrpl_url="wss://xrplcluster.com")
+        m._running = True
+        m.stop()
+        assert m._running is False
+
+
+class TestWardMonitorPollLoop:
+    def _make(self, poll_interval=0.001):
+        with _warnings_module.catch_warnings():
+            _warnings_module.simplefilter("ignore", DeprecationWarning)
+            return WardMonitor(
+                vault_addresses=[VALID_ADDRESS],
+                xrpl_url="wss://xrplcluster.com",
+                poll_interval_seconds=poll_interval,
+            )
+
+    async def test_start_calls_poll_loop_and_stops(self):
+        m = self._make()
+        call_count = 0
+
+        async def fake_fetch(addr):
+            nonlocal call_count
+            call_count += 1
+            m.stop()   # stop after first fetch
+            return 1_000_000
+
+        m._fetch_balance = fake_fetch
+        await m.start()
+        assert call_count >= 1
+        assert m._running is False
+
+    async def test_start_is_noop_when_already_running(self):
+        m = self._make()
+        m._running = True
+        # Should return immediately without entering the loop
+        fetched = []
+
+        async def fake_fetch(addr):
+            fetched.append(addr)
+            return 1_000_000
+
+        m._fetch_balance = fake_fetch
+        await m.start()  # _running=True → early return
+        assert fetched == []
+
+    async def test_balance_change_fires_sync_callback(self):
+        m = self._make()
+        events = []
+        m.on_balance_change(lambda addr, bal: events.append((addr, bal)))
+
+        call_count = 0
+
+        async def fake_fetch(addr):
+            nonlocal call_count
+            call_count += 1
+            if call_count == 1:
+                return 1_000_000
+            m.stop()
+            return 2_000_000  # changed balance
+
+        m._fetch_balance = fake_fetch
+        await m.start()
+        assert len(events) == 1
+        assert events[0] == (VALID_ADDRESS, 2_000_000)
+
+    async def test_balance_change_fires_async_callback(self):
+        m = self._make()
+        events = []
+
+        async def async_cb(addr, bal):
+            events.append((addr, bal))
+
+        m.on_balance_change(async_cb)
+
+        call_count = 0
+
+        async def fake_fetch(addr):
+            nonlocal call_count
+            call_count += 1
+            if call_count == 1:
+                return 1_000_000
+            m.stop()
+            return 3_000_000
+
+        m._fetch_balance = fake_fetch
+        await m.start()
+        assert len(events) == 1
+
+    async def test_no_callback_fired_when_balance_unchanged(self):
+        m = self._make()
+        events = []
+        m.on_balance_change(lambda addr, bal: events.append(bal))
+
+        call_count = 0
+
+        async def fake_fetch(addr):
+            nonlocal call_count
+            call_count += 1
+            if call_count >= 2:
+                m.stop()
+            return 1_000_000  # same every time
+
+        m._fetch_balance = fake_fetch
+        await m.start()
+        assert events == []
+
+    async def test_fetch_error_does_not_crash_loop(self):
+        m = self._make()
+        call_count = 0
+
+        async def fake_fetch(addr):
+            nonlocal call_count
+            call_count += 1
+            if call_count >= 2:
+                m.stop()
+                return 0
+            raise RuntimeError("timeout")
+
+        m._fetch_balance = fake_fetch
+        await m.start()  # must not raise
+        assert call_count >= 2
+
+    async def test_callback_exception_does_not_crash_loop(self):
+        m = self._make()
+
+        def bad_cb(addr, bal):
+            raise ValueError("bad callback")
+
+        m.on_balance_change(bad_cb)
+
+        call_count = 0
+
+        async def fake_fetch(addr):
+            nonlocal call_count
+            call_count += 1
+            if call_count == 1:
+                return 1_000_000
+            m.stop()
+            return 2_000_000
+
+        m._fetch_balance = fake_fetch
+        await m.start()  # must not raise despite bad callback
+
+
+class TestWardMonitorFetchBalance:
+    async def test_fetch_balance_uses_rpc_client(self):
+        with _warnings_module.catch_warnings():
+            _warnings_module.simplefilter("ignore", DeprecationWarning)
+            m = WardMonitor(
+                vault_addresses=[VALID_ADDRESS],
+                xrpl_url="wss://xrplcluster.com",
+            )
+
+        mock_resp = _make_success_response(
+            {"account_data": {"Balance": "7000000"}}
+        )
+        mock_client = AsyncMock()
+        mock_client.request = AsyncMock(return_value=mock_resp)
+
+        with patch("xrpl.asyncio.clients.AsyncJsonRpcClient") as MockRpc:
+            MockRpc.return_value.__aenter__ = AsyncMock(return_value=mock_client)
+            MockRpc.return_value.__aexit__ = AsyncMock(return_value=False)
+            bal = await m._fetch_balance(VALID_ADDRESS)
+
+        assert bal == 7_000_000
+
+    async def test_fetch_balance_raises_on_rpc_failure(self):
+        with _warnings_module.catch_warnings():
+            _warnings_module.simplefilter("ignore", DeprecationWarning)
+            m = WardMonitor(
+                vault_addresses=[VALID_ADDRESS],
+                xrpl_url="wss://xrplcluster.com",
+            )
+
+        mock_resp = _make_fail_response("actNOT_FOUND")
+        mock_client = AsyncMock()
+        mock_client.request = AsyncMock(return_value=mock_resp)
+
+        with patch("xrpl.asyncio.clients.AsyncJsonRpcClient") as MockRpc:
+            MockRpc.return_value.__aenter__ = AsyncMock(return_value=mock_client)
+            MockRpc.return_value.__aexit__ = AsyncMock(return_value=False)
+            with pytest.raises(RuntimeError, match="AccountInfo failed"):
+                await m._fetch_balance(VALID_ADDRESS)
+
+
+# ===========================================================================
+# Tests: TxBuilder  (ward/tx_builder.py)
+# ===========================================================================
+
+from ward.tx_builder import EscrowParams, TxBuilder
+from xrpl.models import EscrowCancel, EscrowCreate, Payment
+from datetime import datetime, timedelta, timezone
+
+
+class TestTxBuilderPayment:
+    def test_basic_payment(self):
+        tx = TxBuilder.payment(VALID_ADDRESS, VALID_ADDRESS2, 1_000_000)
+        assert isinstance(tx, Payment)
+        assert tx.account == VALID_ADDRESS
+        assert tx.destination == VALID_ADDRESS2
+        assert tx.amount == "1000000"
+
+    def test_payment_with_destination_tag(self):
+        tx = TxBuilder.payment(VALID_ADDRESS, VALID_ADDRESS2, 500_000, destination_tag=42)
+        assert tx.destination_tag == 42
+
+    def test_payment_without_destination_tag(self):
+        tx = TxBuilder.payment(VALID_ADDRESS, VALID_ADDRESS2, 500_000)
+        assert tx.destination_tag is None
+
+    def test_payment_with_invoice_id(self):
+        inv = "A" * 64
+        tx = TxBuilder.payment(VALID_ADDRESS, VALID_ADDRESS2, 100, invoice_id=inv)
+        assert tx.invoice_id == inv
+
+    def test_payment_without_invoice_id(self):
+        tx = TxBuilder.payment(VALID_ADDRESS, VALID_ADDRESS2, 100)
+        assert tx.invoice_id is None
+
+    def test_payment_with_memos(self):
+        memos = [{"type": "ward/test", "data": "hello"}]
+        tx = TxBuilder.payment(VALID_ADDRESS, VALID_ADDRESS2, 100, memos=memos)
+        assert tx.memos is not None
+        assert len(tx.memos) == 1
+
+    def test_payment_without_memos(self):
+        tx = TxBuilder.payment(VALID_ADDRESS, VALID_ADDRESS2, 100)
+        assert not tx.memos
+
+    def test_payment_amount_is_string(self):
+        tx = TxBuilder.payment(VALID_ADDRESS, VALID_ADDRESS2, 999)
+        assert tx.amount == "999"
+
+
+class TestTxBuilderEscrowCreate:
+    def _params(self, **kwargs):
+        now = datetime.now(timezone.utc).replace(tzinfo=None)
+        defaults = dict(
+            account=VALID_ADDRESS,
+            destination=VALID_ADDRESS2,
+            amount=2_000_000,
+            finish_after=now + timedelta(hours=48),
+        )
+        defaults.update(kwargs)
+        return EscrowParams(**defaults)
+
+    def test_basic_escrow_create(self):
+        tx = TxBuilder.escrow_create(self._params())
+        assert isinstance(tx, EscrowCreate)
+        assert tx.account == VALID_ADDRESS
+        assert tx.destination == VALID_ADDRESS2
+        assert tx.amount == "2000000"
+
+    def test_cancel_after_defaults_to_finish_plus_72h(self):
+        now = datetime.now(timezone.utc).replace(tzinfo=None)
+        finish = now + timedelta(hours=48)
+        tx = TxBuilder.escrow_create(self._params(finish_after=finish))
+        from xrpl.utils import datetime_to_ripple_time
+        expected_cancel = datetime_to_ripple_time(finish + timedelta(hours=72))
+        assert tx.cancel_after == expected_cancel
+
+    def test_explicit_cancel_after_is_used(self):
+        now = datetime.now(timezone.utc).replace(tzinfo=None)
+        finish = now + timedelta(hours=48)
+        cancel = now + timedelta(hours=200)
+        tx = TxBuilder.escrow_create(self._params(finish_after=finish, cancel_after=cancel))
+        from xrpl.utils import datetime_to_ripple_time
+        assert tx.cancel_after == datetime_to_ripple_time(cancel)
+
+    def test_memos_included_when_provided(self):
+        from xrpl.models import Memo
+        from xrpl.utils import str_to_hex
+        memos = [Memo(memo_type=str_to_hex("ward/test"), memo_data=str_to_hex("data"))]
+        tx = TxBuilder.escrow_create(self._params(memos=memos))
+        assert tx.memos is not None
+        assert len(tx.memos) == 1
+
+    def test_no_memos_when_not_provided(self):
+        tx = TxBuilder.escrow_create(self._params())
+        assert not tx.memos
+
+
+class TestTxBuilderClaimEscrow:
+    def test_returns_escrow_create(self):
+        tx = TxBuilder.claim_escrow(
+            VALID_ADDRESS, VALID_ADDRESS2, 1_000_000, claim_id="CLAIM-001"
+        )
+        assert isinstance(tx, EscrowCreate)
+
+    def test_amount_is_string(self):
+        tx = TxBuilder.claim_escrow(
+            VALID_ADDRESS, VALID_ADDRESS2, 500_000, claim_id="CLAIM-002"
+        )
+        assert tx.amount == "500000"
+
+    def test_has_ward_memo(self):
+        tx = TxBuilder.claim_escrow(
+            VALID_ADDRESS, VALID_ADDRESS2, 100_000, claim_id="CLAIM-003"
+        )
+        assert tx.memos is not None
+        assert len(tx.memos) == 1
+
+    def test_custom_dispute_window(self):
+        tx1 = TxBuilder.claim_escrow(
+            VALID_ADDRESS, VALID_ADDRESS2, 100, claim_id="C1",
+            dispute_window_hours=24,
+        )
+        tx2 = TxBuilder.claim_escrow(
+            VALID_ADDRESS, VALID_ADDRESS2, 100, claim_id="C2",
+            dispute_window_hours=48,
+        )
+        assert tx1.finish_after < tx2.finish_after
+
+    def test_custom_cancel_buffer(self):
+        tx1 = TxBuilder.claim_escrow(
+            VALID_ADDRESS, VALID_ADDRESS2, 100, claim_id="C3",
+            cancel_buffer_hours=24,
+        )
+        tx2 = TxBuilder.claim_escrow(
+            VALID_ADDRESS, VALID_ADDRESS2, 100, claim_id="C4",
+            cancel_buffer_hours=96,
+        )
+        assert tx1.cancel_after < tx2.cancel_after
+
+
+class TestTxBuilderEscrowCancel:
+    def test_returns_escrow_cancel(self):
+        tx = TxBuilder.escrow_cancel(VALID_ADDRESS, VALID_ADDRESS2, offer_sequence=5)
+        assert isinstance(tx, EscrowCancel)
+        assert tx.account == VALID_ADDRESS
+        assert tx.owner == VALID_ADDRESS2
+        assert tx.offer_sequence == 5
+
+
+# ===========================================================================
+# Tests: VaultMonitor gaps  (ward/vault_monitor.py)
+# ===========================================================================
+
+from ward.vault_monitor import (
+    DefaultSignal,
+    VerifiedDefault,
+    VaultMonitor,
+    _validate_ws_url,
+)
+from ward.constants import DEFAULT_TESTNET_WS, LSF_LOAN_DEFAULT
+
+ALLOWED_WS = DEFAULT_TESTNET_WS   # "wss://s.altnet.rippletest.net:51233/"
+
+
+def _make_vault_monitor(**kwargs):
+    defaults = dict(websocket_url=ALLOWED_WS)
+    defaults.update(kwargs)
+    return VaultMonitor(**defaults)
+
+
+class TestVaultMonitorDecorators:
+    def test_on_verified_default_returns_callback(self):
+        m = _make_vault_monitor()
+        cb = AsyncMock()
+        result = m.on_verified_default(cb)
+        assert result is cb
+        assert cb in m._default_callbacks
+
+    def test_on_anomaly_returns_callback(self):
+        m = _make_vault_monitor()
+        cb = AsyncMock()
+        result = m.on_anomaly(cb)
+        assert result is cb
+        assert cb in m._anomaly_callbacks
+
+    def test_multiple_callbacks_registered(self):
+        m = _make_vault_monitor()
+        cb1, cb2 = AsyncMock(), AsyncMock()
+        m.on_verified_default(cb1)
+        m.on_verified_default(cb2)
+        assert len(m._default_callbacks) == 2
+
+
+class TestVaultMonitorAddLoanBroker:
+    def test_add_broker_without_vault(self):
+        m = _make_vault_monitor()
+        m.add_loan_broker(VALID_ADDRESS)
+        assert VALID_ADDRESS in m._broker_addresses
+        assert VALID_ADDRESS not in m._broker_to_vault
+
+    def test_add_broker_with_vault_address(self):
+        m = _make_vault_monitor()
+        m.add_loan_broker(VALID_ADDRESS, vault_address=VALID_ADDRESS2)
+        assert VALID_ADDRESS in m._broker_addresses
+        assert m._broker_to_vault[VALID_ADDRESS] == VALID_ADDRESS2
+
+    def test_add_broker_invalid_address_raises(self):
+        m = _make_vault_monitor()
+        with pytest.raises(ValidationError):
+            m.add_loan_broker("not-a-valid-address")
+
+    def test_add_broker_invalid_vault_raises(self):
+        m = _make_vault_monitor()
+        with pytest.raises(ValidationError):
+            m.add_loan_broker(VALID_ADDRESS, vault_address="bad-addr")
+
+
+class TestVaultMonitorStop:
+    async def test_stop_sets_stop_event_and_running_false(self):
+        m = _make_vault_monitor()
+        m._running = True
+        await m.stop()
+        assert m._running is False
+        assert m._stop_event.is_set()
+
+
+class TestVaultMonitorHandleMessage:
+    async def test_dispatches_transaction_message(self):
+        m = _make_vault_monitor()
+        handled = []
+
+        async def fake_handle_tx(client, msg):
+            handled.append(msg)
+
+        m._handle_transaction = fake_handle_tx
+        client = AsyncMock()
+        msg = {"transaction": {"TransactionType": "Payment"}, "ledger_index": 100}
+        await m._handle_message(client, msg)
+        assert len(handled) == 1
+
+    async def test_dispatches_ledger_closed_message(self):
+        m = _make_vault_monitor()
+        processed = []
+
+        async def fake_process(client, ledger_index):
+            processed.append(ledger_index)
+
+        m._process_pending_confirmations = fake_process
+        client = AsyncMock()
+        msg = {"ledger_index": 12345678}
+        await m._handle_message(client, msg)
+        assert processed == [12345678]
+
+    async def test_ignores_messages_without_tx_or_ledger(self):
+        m = _make_vault_monitor()
+        handled = []
+        m._handle_transaction = AsyncMock(side_effect=lambda c, m: handled.append(m))
+        processed = []
+        m._process_pending_confirmations = AsyncMock(side_effect=lambda c, l: processed.append(l))
+        client = AsyncMock()
+        await m._handle_message(client, {"type": "response"})
+        assert handled == []
+        assert processed == []
+
+
+class TestVaultMonitorHandleTransaction:
+    def _make_default_tx_msg(
+        self,
+        broker_addr: str,
+        loan_id: str = "L" * 64,
+        flags: int = LSF_LOAN_DEFAULT,
+        outstanding: int = 1_000_000,
+        collateral: int = 500_000,
+        ledger_index: int = 99,
+    ) -> dict:
+        return {
+            "transaction": {
+                "TransactionType": "Payment",
+                "Account": broker_addr,
+                "LoanID": loan_id,
+            },
+            "meta": {
+                "AffectedNodes": [
+                    {
+                        "FinalFields": {
+                            "Flags": flags,
+                            "PrincipalOutstanding": outstanding,
+                            "CollateralAmount": collateral,
+                        }
+                    }
+                ]
+            },
+            "ledger_index": ledger_index,
+        }
+
+    async def test_ignores_non_broker_accounts(self):
+        m = _make_vault_monitor()
+        client = AsyncMock()
+        msg = self._make_default_tx_msg(broker_addr=VALID_ADDRESS)
+        # VALID_ADDRESS is NOT registered as a broker
+        await m._handle_transaction(client, msg)
+        assert m._pending == {}
+
+    async def test_ignores_tx_without_default_flag(self):
+        m = _make_vault_monitor()
+        m.add_loan_broker(VALID_ADDRESS, vault_address=VALID_ADDRESS2)
+        client = AsyncMock()
+        msg = self._make_default_tx_msg(broker_addr=VALID_ADDRESS, flags=0)
+        await m._handle_transaction(client, msg)
+        assert m._pending == {}
+
+    async def test_ignores_tx_without_loan_id(self):
+        m = _make_vault_monitor()
+        m.add_loan_broker(VALID_ADDRESS, vault_address=VALID_ADDRESS2)
+        client = AsyncMock()
+        msg = {
+            "transaction": {"TransactionType": "Payment", "Account": VALID_ADDRESS},
+            "meta": {"AffectedNodes": [{"FinalFields": {"Flags": LSF_LOAN_DEFAULT}}]},
+            "ledger_index": 1,
+        }
+        await m._handle_transaction(client, msg)
+        assert m._pending == {}
+
+    async def test_creates_pending_signal_on_default(self):
+        m = _make_vault_monitor()
+        m.add_loan_broker(VALID_ADDRESS, vault_address=VALID_ADDRESS2)
+        client = AsyncMock()
+        loan_id = "L" * 64
+        msg = self._make_default_tx_msg(broker_addr=VALID_ADDRESS, loan_id=loan_id)
+        await m._handle_transaction(client, msg)
+        assert loan_id in m._pending
+        sig = m._pending[loan_id]
+        assert sig.vault_address == VALID_ADDRESS2
+        assert sig.loan_id == loan_id
+
+    async def test_increments_confirm_count_on_repeat(self):
+        m = _make_vault_monitor()
+        m.add_loan_broker(VALID_ADDRESS, vault_address=VALID_ADDRESS2)
+        client = AsyncMock()
+        loan_id = "L" * 64
+        msg = self._make_default_tx_msg(broker_addr=VALID_ADDRESS, loan_id=loan_id)
+        await m._handle_transaction(client, msg)
+        await m._handle_transaction(client, msg)
+        assert m._pending[loan_id].confirm_count == 1
+
+    async def test_fires_anomaly_callback_after_threshold(self):
+        m = _make_vault_monitor(vault_addresses=[VALID_ADDRESS2])
+        m.add_loan_broker(VALID_ADDRESS, vault_address=VALID_ADDRESS2)
+
+        anomalies = []
+
+        async def anomaly_cb(event):
+            anomalies.append(event)
+
+        m.on_anomaly(anomaly_cb)
+        client = AsyncMock()
+        loan_id_base = "L" * 63
+        for i in range(3):
+            msg = self._make_default_tx_msg(
+                broker_addr=VALID_ADDRESS,
+                loan_id=loan_id_base + str(i),
+            )
+            await m._handle_transaction(client, msg)
+
+        assert len(anomalies) >= 1
+
+    async def test_ratio_infinity_when_outstanding_zero(self):
+        m = _make_vault_monitor()
+        m.add_loan_broker(VALID_ADDRESS, vault_address=VALID_ADDRESS2)
+        client = AsyncMock()
+        msg = self._make_default_tx_msg(
+            broker_addr=VALID_ADDRESS, outstanding=0, collateral=500_000
+        )
+        await m._handle_transaction(client, msg)
+        loan_id = "L" * 64
+        if loan_id in m._pending:
+            assert m._pending[loan_id].health_ratio == float("inf")
+
+
+class TestVaultMonitorProcessPendingConfirmations:
+    async def test_fires_callback_when_confirm_count_reached(self):
+        m = _make_vault_monitor(vault_addresses=[VALID_ADDRESS2])
+        m.add_loan_broker(VALID_ADDRESS, vault_address=VALID_ADDRESS2)
+
+        defaults_seen = []
+
+        async def default_cb(event):
+            defaults_seen.append(event)
+
+        m.on_verified_default(default_cb)
+
+        loan_id = "D" * 64
+        signal = DefaultSignal(
+            vault_address=VALID_ADDRESS2,
+            loan_id=loan_id,
+            health_ratio=0.5,
+            ledger_index=100,
+            confirm_count=2,  # one more will reach DEFAULT_CONFIRM_COUNT=3
+        )
+        m._pending[loan_id] = signal
+
+        verified_node = {
+            "Flags": LSF_LOAN_DEFAULT,
+            "PrincipalOutstanding": 500_000,
+            "CollateralAmount": 250_000,
+        }
+        resp = _make_success_response({"node": verified_node})
+        client = AsyncMock()
+        client.request = AsyncMock(return_value=resp)
+
+        await m._process_pending_confirmations(client, current_ledger=103)
+
+        assert loan_id not in m._pending
+        assert len(defaults_seen) == 1
+        v = defaults_seen[0]
+        assert isinstance(v, VerifiedDefault)
+        assert v.vault_address == VALID_ADDRESS2
+
+    async def test_does_not_fire_before_confirm_count(self):
+        m = _make_vault_monitor()
+        defaults_seen = []
+        m.on_verified_default(AsyncMock(side_effect=lambda e: defaults_seen.append(e)))
+
+        loan_id = "E" * 64
+        m._pending[loan_id] = DefaultSignal(
+            vault_address=VALID_ADDRESS2,
+            loan_id=loan_id,
+            health_ratio=0.5,
+            ledger_index=100,
+            confirm_count=0,  # needs 3 total
+        )
+        client = AsyncMock()
+        await m._process_pending_confirmations(client, current_ledger=101)
+        assert loan_id in m._pending
+        assert defaults_seen == []
+
+
+class TestVaultMonitorVerifyDefaultOnChain:
+    async def test_returns_none_on_failed_response(self):
+        m = _make_vault_monitor()
+        signal = DefaultSignal(
+            vault_address=VALID_ADDRESS,
+            loan_id="F" * 64,
+            health_ratio=0.5,
+            ledger_index=100,
+        )
+        resp = _make_fail_response("entryNotFound")
+        client = AsyncMock()
+        client.request = AsyncMock(return_value=resp)
+        result = await m._verify_default_on_chain(client, signal)
+        assert result is None
+
+    async def test_returns_none_when_flag_not_set(self):
+        m = _make_vault_monitor()
+        signal = DefaultSignal(
+            vault_address=VALID_ADDRESS,
+            loan_id="G" * 64,
+            health_ratio=0.5,
+            ledger_index=100,
+        )
+        resp = _make_success_response({"node": {"Flags": 0}})
+        client = AsyncMock()
+        client.request = AsyncMock(return_value=resp)
+        result = await m._verify_default_on_chain(client, signal)
+        assert result is None
+
+    async def test_returns_verified_default_when_flag_set(self):
+        m = _make_vault_monitor()
+        signal = DefaultSignal(
+            vault_address=VALID_ADDRESS2,
+            loan_id="H" * 64,
+            health_ratio=0.8,
+            ledger_index=200,
+            confirm_count=3,
+        )
+        resp = _make_success_response({
+            "node": {
+                "Flags": LSF_LOAN_DEFAULT,
+                "PrincipalOutstanding": 800_000,
+                "CollateralAmount": 640_000,
+            }
+        })
+        client = AsyncMock()
+        client.request = AsyncMock(return_value=resp)
+        result = await m._verify_default_on_chain(client, signal)
+        assert isinstance(result, VerifiedDefault)
+        assert result.vault_address == VALID_ADDRESS2
+        assert result.outstanding_amount == 800_000
+        assert result.collateral_amount == 640_000
+        assert result.loan_flags == LSF_LOAN_DEFAULT
+
+    async def test_returns_none_on_exception(self):
+        m = _make_vault_monitor()
+        signal = DefaultSignal(
+            vault_address=VALID_ADDRESS,
+            loan_id="I" * 64,
+            health_ratio=0.5,
+            ledger_index=100,
+        )
+        client = AsyncMock()
+        client.request = AsyncMock(side_effect=RuntimeError("network error"))
+        result = await m._verify_default_on_chain(client, signal)
+        assert result is None
+
+
+class TestVaultMonitorDetectAnomaly:
+    def test_returns_false_below_threshold(self):
+        m = _make_vault_monitor()
+        # Add 2 signals (threshold is 3)
+        m._recent_signals[VALID_ADDRESS].append((time.time(), 0.5))
+        m._recent_signals[VALID_ADDRESS].append((time.time(), 0.4))
+        assert m._detect_anomaly(VALID_ADDRESS) is False
+
+    def test_returns_true_at_threshold(self):
+        m = _make_vault_monitor()
+        now = time.time()
+        for _ in range(3):
+            m._recent_signals[VALID_ADDRESS].append((now, 0.3))
+        assert m._detect_anomaly(VALID_ADDRESS) is True
+
+    def test_prunes_expired_signals(self):
+        m = _make_vault_monitor()
+        old_ts = time.time() - 400  # older than 300s window
+        for _ in range(5):
+            m._recent_signals[VALID_ADDRESS].append((old_ts, 0.3))
+        assert m._detect_anomaly(VALID_ADDRESS) is False
+
+    def test_returns_false_for_unknown_address(self):
+        m = _make_vault_monitor()
+        assert m._detect_anomaly("rNewAddress123456789012345678901234") is False
+
+
+class TestVaultMonitorFireCallbacks:
+    async def test_fires_all_callbacks(self):
+        results = []
+        cb1 = AsyncMock(side_effect=lambda e: results.append(("cb1", e)))
+        cb2 = AsyncMock(side_effect=lambda e: results.append(("cb2", e)))
+        await VaultMonitor._fire_callbacks([cb1, cb2], "test_event")
+        assert ("cb1", "test_event") in results
+        assert ("cb2", "test_event") in results
+
+    async def test_exception_in_callback_does_not_stop_others(self):
+        results = []
+        cb_bad = AsyncMock(side_effect=RuntimeError("boom"))
+        cb_good = AsyncMock(side_effect=lambda e: results.append(e))
+        await VaultMonitor._fire_callbacks([cb_bad, cb_good], "event")
+        assert "event" in results
+
+    async def test_empty_callback_list_is_noop(self):
+        await VaultMonitor._fire_callbacks([], "event")  # must not raise
+
+
+class TestVaultMonitorRunWithHeartbeat:
+    """Tests for the _run_with_heartbeat inner loop (lines 201-203)."""
+
+    def _make_ws_client_from_messages(self, messages):
+        """Return a mock WS client whose __aiter__ yields messages then stops."""
+        async def _gen():
+            for msg in messages:
+                yield msg
+
+        client = MagicMock()
+        client.__aiter__ = MagicMock(return_value=_gen().__aiter__())
+        return client
+
+    async def test_processes_messages_until_exhausted(self):
+        m = _make_vault_monitor()
+        handled = []
+
+        async def fake_handle(client, msg):
+            handled.append(msg)
+
+        m._handle_message = fake_handle
+        client = self._make_ws_client_from_messages([
+            {"ledger_index": 100},
+            {"ledger_index": 101},
+        ])
+        await m._run_with_heartbeat(client)
+        assert len(handled) == 2
+
+    async def test_stops_when_stop_event_set(self):
+        m = _make_vault_monitor()
+        handled = []
+
+        async def fake_handle(client, msg):
+            handled.append(msg)
+            m._stop_event.set()  # signal stop after first message
+
+        m._handle_message = fake_handle
+
+        async def _infinite():
+            i = 0
+            while True:
+                yield {"ledger_index": i * 100}
+                i += 1
+
+        client = MagicMock()
+        client.__aiter__ = MagicMock(return_value=_infinite().__aiter__())
+        await m._run_with_heartbeat(client)
+        assert len(handled) == 1  # stopped after first message
+
+
+class TestVaultMonitorHandleTransactionNoVaultAddress:
+    """Cover the vault_address falsy branch in _handle_transaction (261->269)."""
+
+    async def test_broker_without_vault_address_still_creates_pending(self):
+        m = _make_vault_monitor()
+        # Register broker WITHOUT a vault address
+        m.add_loan_broker(VALID_ADDRESS)
+        assert VALID_ADDRESS not in m._broker_to_vault
+
+        client = AsyncMock()
+        loan_id = "K" * 64
+        msg = {
+            "transaction": {
+                "TransactionType": "Payment",
+                "Account": VALID_ADDRESS,
+                "LoanID": loan_id,
+            },
+            "meta": {
+                "AffectedNodes": [
+                    {
+                        "FinalFields": {
+                            "Flags": LSF_LOAN_DEFAULT,
+                            "PrincipalOutstanding": 100_000,
+                            "CollateralAmount": 50_000,
+                        }
+                    }
+                ]
+            },
+            "ledger_index": 50,
+        }
+        await m._handle_transaction(client, msg)
+        # Signal created with empty vault_address
+        assert loan_id in m._pending
+        assert m._pending[loan_id].vault_address == ""
+
+
+class TestVaultMonitorRunReconnect:
+    """Cover the reconnect backoff path in run() (line 169)."""
+
+    async def test_run_reconnects_on_exception_then_stops(self):
+        m = _make_vault_monitor()
+
+        connect_count = 0
+
+        async def fake_subscribe(client):
+            pass
+
+        async def fake_heartbeat(client):
+            nonlocal connect_count
+            connect_count += 1
+            if connect_count == 1:
+                raise ConnectionError("simulated disconnect")
+            # On second connect, stop the monitor cleanly
+            m._stop_event.set()
+            m._running = False
+
+        m._subscribe = fake_subscribe
+        m._run_with_heartbeat = fake_heartbeat
+
+        with patch("ward.vault_monitor.AsyncWebsocketClient") as MockWS:
+            mock_ws = AsyncMock()
+            MockWS.return_value.__aenter__ = AsyncMock(return_value=mock_ws)
+            MockWS.return_value.__aexit__ = AsyncMock(return_value=False)
+
+            with patch("asyncio.sleep", new_callable=AsyncMock):
+                await m.run()
+
+        assert connect_count == 2
