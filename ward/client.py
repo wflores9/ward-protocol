@@ -134,71 +134,75 @@ class WardClient:
         if premium_drops < 1:
             premium_drops = 1
 
-        async with AsyncJsonRpcClient(self._url) as client:
-            # Step 1: Determine expiry from ledger close time
-            current_time = await get_ledger_close_time(client)
-            expiry = current_time + (period_days * 86_400)
+        client = AsyncJsonRpcClient(self._url)
+        # Step 1: Determine expiry from ledger close time
+        current_time = await get_ledger_close_time(client)
+        expiry = current_time + (period_days * 86_400)
 
-            # Step 2: Assemble compact URI metadata
-            metadata = {
-                "w": "ward-v1",
-                "v": vault_address,
-                "c": str(coverage_drops),
-                "e": expiry,
-                "t": license_tier,
-                "pa": pool_address,
-            }
-            uri_json = json.dumps(metadata, separators=(",", ":"))
-            uri_hex = str_to_hex(uri_json).upper()
-            if len(uri_hex) > 512:
-                raise ValidationError(f"URI hex exceeds 512 chars: {len(uri_hex)}")
+        # Step 2: Assemble compact URI metadata
+        metadata = {
+            "w": "ward-v1",
+            "v": vault_address,
+            "c": str(coverage_drops),
+            "e": expiry,
+            "t": license_tier,
+            "pa": pool_address,
+        }
+        uri_json = json.dumps(metadata, separators=(",", ":"))
+        uri_hex = str_to_hex(uri_json).upper()
+        if len(uri_hex) > 512:
+            raise ValidationError(f"URI hex exceeds 512 chars: {len(uri_hex)}")
 
-            # Step 3: Mint NFT policy certificate (before payment — NFT ID needed for memo)
-            nft_memo = Memo(
-                memo_data=str_to_hex(
-                    f"ward-policy|{license_tier}|cov={coverage_drops}"
-                ).upper()
+        # Step 3: Mint NFT policy certificate (before payment — NFT ID needed for memo)
+        nft_memo = Memo(
+            memo_data=str_to_hex(
+                f"ward-policy|{license_tier}|cov={coverage_drops}"
+            ).upper()
+        )
+        mint_tx = NFTokenMint(
+            account=wallet.classic_address,
+            nftoken_taxon=WARD_POLICY_TAXON,
+            flags=TF_BURNABLE,
+            uri=uri_hex,
+            memos=[nft_memo],
+        )
+        mint_tx = await autofill(mint_tx, client)
+        mint_result = await submit_with_retry(mint_tx, client, wallet)
+        nft_token_id = mint_result.result.get("meta", {}).get("nftoken_id", "")
+        if not nft_token_id:
+            raise WardError(
+                "NFT mint succeeded but nftoken_id is empty in response metadata"
             )
-            mint_tx = NFTokenMint(
-                account=wallet.classic_address,
-                nftoken_taxon=WARD_POLICY_TAXON,
-                flags=TF_BURNABLE,
-                uri=uri_hex,
-                memos=[nft_memo],
-            )
-            mint_tx = await autofill(mint_tx, client)
-            mint_result = await submit_with_retry(mint_tx, client, wallet)
-            nft_token_id = mint_result.result.get("meta", {}).get("nftoken_id", "")
-            if not nft_token_id:
-                raise WardError(
-                    "NFT mint succeeded but nftoken_id is empty in response metadata"
-                )
-            mint_tx_hash = mint_result.result.get("tx_json", {}).get("hash", "")
+        mint_tx_hash = mint_result.result.get("hash", "") or mint_result.result.get("tx_json", {}).get("hash", "")
 
-            # Step 4: Premium Payment with ward/policy-premium memo (on-chain registry)
-            premium_memo = build_premium_memo(nft_token_id, coverage_drops)
-            payment = Payment(
-                account=wallet.classic_address,
-                destination=pool_address,
-                amount=str(premium_drops),
-                memos=[premium_memo],
+        # Step 4: Premium Payment with ward/policy-premium memo (on-chain registry)
+        _pm = build_premium_memo(nft_token_id, coverage_drops)
+        premium_memo = Memo(
+            memo_type=_pm["Memo"].get("MemoType"),
+            memo_data=_pm["Memo"].get("MemoData"),
+        )
+        payment = Payment(
+            account=wallet.classic_address,
+            destination=pool_address,
+            amount=str(premium_drops),
+            memos=[premium_memo],
+        )
+        payment = await autofill(payment, client)
+        premium_result = await submit_with_retry(payment, client, wallet)
+        premium_tx = premium_result.result.get("hash", "") or premium_result.result.get("tx_json", {}).get("hash", "")
+        if not premium_tx:
+            raise WardError(
+                "Premium payment succeeded but transaction hash not found in result. "
+                "Check submit_and_wait response structure."
             )
-            payment = await autofill(payment, client)
-            premium_result = await submit_with_retry(payment, client, wallet)
-            premium_tx = premium_result.result.get("tx_json", {}).get("hash", "")
-            if not premium_tx:
-                raise WardError(
-                    "Premium payment succeeded but transaction hash not found in result. "
-                    "Check submit_and_wait response structure."
-                )
 
-            logger.info(
-                "Policy purchased: vault=%s cov=%d tier=%s nft=%s",
-                vault_address,
-                coverage_drops,
-                license_tier,
-                nft_token_id,
-            )
+        logger.info(
+            "Policy purchased: vault=%s cov=%d tier=%s nft=%s",
+            vault_address,
+            coverage_drops,
+            license_tier,
+            nft_token_id,
+        )
 
         return {
             "nft_token_id": nft_token_id,
