@@ -6,7 +6,7 @@ Core rule: Ward **never** signs or submits transactions. Every mutation returns 
 
 ## Architectural Layers
 
-- **`ward/`** — Protocol SDK (15 modules, 204/204 tests)
+- **`ward/`** — Protocol SDK (15 modules, 257 Python · 40 Rust · 45 TypeScript tests)
   - `WardClient`: Purchases default-protection coverage (unsigned NFTokenMint + Payment)
   - `ClaimValidator`: 9-step on-chain claim validation — all state from XRPL
   - `EscrowSettlement`: PREIMAGE-SHA-256 conditioned escrow lifecycle
@@ -25,7 +25,7 @@ Core rule: Ward **never** signs or submits transactions. Every mutation returns 
 - Protocol / spec changes → modify `ward/` and sync to XRPLF Discussion #474
 - SDK, demo, test, or documentation improvements → target `ward/`, `sdk/`, `tests/`
 - `ward/` must remain signing-free at all times
-- Always run `pytest` before pushing (keep 204/204 green)
+- Always run `pytest` before pushing (keep 257/257 green)
 - Run `ruff check ward/ --select=E,F,W,I --ignore=E501` and `ruff format ward/ --check`
 - Use conventional commits (fix:, feat:, docs:, refactor:, etc.)
 

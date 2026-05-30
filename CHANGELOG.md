@@ -10,7 +10,7 @@ Ward Protocol SDK uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 ## [0.2.4] — 2026-05-15
 
 ### Changed
-- README: corrected test counts to 204/204 Python · 40/40 Rust · 45/45 TypeScript
+- README: corrected test counts to 257/257 Python · 40/40 Rust · 45/45 TypeScript
 - Dynamic CI badge replaces static test badge
 
 ---

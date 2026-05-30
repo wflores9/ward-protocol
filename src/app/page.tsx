@@ -27,8 +27,8 @@ const quotes = [
 
 const statusRows: [string, React.ReactNode][] = [
   ['SDK Version', 'v0.2.4'],
-  ['Unit Tests', <span style={{ color: 'var(--green)' }}>204/204 passing</span>],
-  ['TypeScript Tests', <span style={{ color: 'var(--green)' }}>45/45 passing</span>],
+  ['Unit Tests', <span style={{ color: 'var(--green)' }}>257 Python · 40 Rust · 45 TypeScript</span>],
+  ['Coverage', 'chain_reader 100% · monitor 100% · tx_builder 100% · vault_monitor 99%'],
   ['On-Chain Transactions', '5 confirmed (XRPL Altnet)'],
   ['External Dependencies', '0 — pure XRPL'],
   ['Ward Holds Keys', 'Never'],
@@ -84,7 +84,7 @@ export default function Home() {
             </ul>
             <div className="hero-stats">
               <div className="hero-stat">
-                <span className="hero-stat-val" style={{ color: '#c8a94a' }}>204/204</span>
+                <span className="hero-stat-val" style={{ color: '#c8a94a' }}>257+85</span>
                 <span className="hero-stat-lbl">Tests</span>
               </div>
               <div className="hero-stat">
@@ -112,7 +112,7 @@ export default function Home() {
         <div className="sp-divider" />
         <span className="sp-item">Discord Community</span>
         <div className="sp-divider" />
-        <span className="sp-item">204/204 Tests Passing</span>
+        <span className="sp-item">257 Python · 40 Rust · 45 TypeScript</span>
       </div>
 
       {/* THE QUESTION */}

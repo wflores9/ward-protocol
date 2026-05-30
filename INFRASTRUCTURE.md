@@ -39,7 +39,7 @@ curl https://api.wardprotocol.org/health
 
 ```bash
 # Unit tests — no network required
-pytest test_ward.py -v -m "not integration"  # 204/204 pass
+pytest test_ward.py -v -m "not integration"  # 257/257 pass
 
 # Full testnet simulation — XRPL Altnet required
 python testnet_sim.py

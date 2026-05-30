@@ -184,7 +184,7 @@ The ecosystem grant component directly funds XRPL developer adoption:
 ## Current Status
 
 - **SDK version:** v0.2.2 (modular, security-hardened)
-- **Test suite:** 165/165 Python · 40/40 Rust passing
+- **Test suite:** 257/257 Python · 40/40 Rust · 45/45 TypeScript passing
 - **Languages:** Python (production), Rust (secondary), TypeScript, Java (starters)
 - **Testnet:** Live demos on XRPL Altnet
 - **Website:** [ward-protocol.xyz](https://ward-protocol.xyz)

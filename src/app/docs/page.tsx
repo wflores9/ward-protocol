@@ -36,7 +36,7 @@ print(result.approved)            # True
 print(result.steps_passed)        # 9
 print(result.claim_payout_drops)  # min(vault_loss, policy_coverage)`
 
-const testCmd = `# Run test suite (204/204 passing)
+const testCmd = `# Run test suite (257/257 Python passing)
 pip install -r requirements.txt
 python -m pytest test_ward.py -m "not integration" -v
 
@@ -55,7 +55,7 @@ export default function DocsPage() {
             SDK reference, module overview, and integration guides. All modules are independently auditable.
           </p>
           <div className="flex gap-3 mt-5">
-            <span className="text-[10px] bg-[#fdf8ed] text-[#c8a94a] border border-gold/30 px-2.5 py-1 rounded font-mono font-bold">204/204 Tests</span>
+            <span className="text-[10px] bg-[#fdf8ed] text-[#c8a94a] border border-gold/30 px-2.5 py-1 rounded font-mono font-bold">257/257 Python Tests</span>
             <span className="text-[10px] bg-panel border border-border text-sub px-2.5 py-1 rounded font-mono">Python 3.11+</span>
             <span className="text-[10px] bg-panel border border-border text-sub px-2.5 py-1 rounded font-mono">MIT License</span>
           </div>
@@ -96,7 +96,7 @@ export default function DocsPage() {
             {testCmd}
           </pre>
           <p className="text-sm text-sub mt-3">
-            204 Python tests + 40 Rust tests + 45 TypeScript tests covering all 9 claim validation steps, all 15 attack vectors, VaultMonitor,
+            257 Python tests + 40 Rust tests + 45 TypeScript tests covering all 9 claim validation steps, all 15 attack vectors, VaultMonitor,
             EscrowSettlement, PoolHealthMonitor, and all primitives.
             Marked <code className="bg-p2 px-1 rounded text-xs">integration</code> tests require XRPL Mainnet access.
           </p>
@@ -111,6 +111,8 @@ export default function DocsPage() {
               date: 'May 2026',
               changes: [
                 { type: 'Changed', text: 'Test counts corrected — 204/204 Python · 40/40 Rust · 45/45 TypeScript' },
+                { type: 'Added', text: 'Coverage sprint — chain_reader 100%, monitor 100%, tx_builder 100%, vault_monitor 99%' },
+                { type: 'Changed', text: 'Python tests: 204/204 → 257/257 (92 new coverage tests)' },
                 { type: 'Fixed', text: 'Headline typo corrected in README and PyPI description' },
               ],
             },
@@ -126,7 +128,7 @@ export default function DocsPage() {
                 { type: 'Fixed', text: 'WardError raised on empty premium tx hash' },
                 { type: 'Added', text: 'Rust EscrowBuilder audit memos — ward/claim-escrow format matching Python' },
                 { type: 'Changed', text: 'xrpl-py updated to 4.5.0' },
-                { type: 'Changed', text: 'Python tests: 165/165 → 204/204 · Rust tests: 15/15 → 40/40' },
+                { type: 'Changed', text: 'Python tests: 165/165 → 204/204 → 257/257 · Rust tests: 40/40' },
               ],
             },
             {
