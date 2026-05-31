@@ -378,3 +378,50 @@ class WardClient:
         )
 
         return results
+
+    def register_pool_member(
+        self,
+        pool_address: str,
+        member_address: str,
+        contribution_drops: int,
+    ) -> Dict[str, Any]:
+        """
+        Build an unsigned AccountSet transaction for pool member registration.
+
+        The institution signs and submits the returned transaction themselves.
+        ward_signed = False — Ward never holds or touches signing keys.
+
+        Args:
+            pool_address:       XRPL address of the target coverage pool.
+            member_address:     Institution address joining the pool.
+            contribution_drops: Capital contribution in drops (must be > 0).
+
+        Returns:
+            Unsigned transaction dict ready for institution signing and submission.
+        """
+        validate_xrpl_address(pool_address, "pool_address")
+        validate_xrpl_address(member_address, "member_address")
+        validate_drops_amount(contribution_drops, "contribution_drops")
+
+        memo_data = json.dumps(
+            {
+                "pool": pool_address,
+                "contribution_drops": contribution_drops,
+                "ward_signed": False,
+            },
+            separators=(",", ":"),
+        )
+        return {
+            "TransactionType": "AccountSet",
+            "Account": member_address,
+            "Domain": str_to_hex(f"ward-pool:{pool_address}").upper(),
+            "Memos": [
+                {
+                    "Memo": {
+                        "MemoType": str_to_hex("ward/pool-join").upper(),
+                        "MemoData": str_to_hex(memo_data).upper(),
+                    }
+                }
+            ],
+            "ward_signed": False,
+        }

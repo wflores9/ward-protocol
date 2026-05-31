@@ -150,7 +150,7 @@ class ClaimValidator:
                 logger.info("Step 5 passed")
 
                 breach_err, breached = await self._step6_check_coverage_breach(
-                    client, pool_address, defaulted_vault
+                    client, pool_address, defaulted_vault, min_balance=vault_loss
                 )
                 if breach_err and not breached:
                     return self._reject(6, breach_err)
@@ -312,9 +312,17 @@ class ClaimValidator:
             return False, 0
 
     async def _step6_check_coverage_breach(
-        self, client, pool_address: str, defaulted_vault: str
+        self,
+        client,
+        pool_address: str,
+        defaulted_vault: str,
+        min_balance: int = 0,
     ) -> Tuple[Optional[str], bool]:
-        """Return (error_str, breached_bool)."""
+        """Return (error_str, breached_bool).
+
+        When min_balance > 0, also reject if usable drops are insufficient to
+        cover the claimed amount even if the pool is technically solvent.
+        """
         try:
             resp = await client.request(AccountInfo(account=pool_address))
             if not resp.is_successful():
@@ -326,6 +334,12 @@ class ClaimValidator:
             usable = balance - reserve
             if usable < 0:
                 return f"Pool insolvent: usable={usable}", True
+            if min_balance > 0 and usable < min_balance:
+                return (
+                    f"Pool has insufficient balance: usable={usable} drops "
+                    f"< required={min_balance} drops",
+                    False,
+                )
             return None, False
         except Exception as exc:
             logger.error("step6 error: %s", exc)

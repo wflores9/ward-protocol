@@ -4765,3 +4765,129 @@ class TestMultiVaultPolicies:
         # Deregister vault_b — depositor entry cleaned up entirely
         monitor.deregister_policy("B" * 64, depositor_address=depositor, vault_address=vault_b)
         assert depositor not in monitor._vault_coverage
+
+
+# ===========================================================================
+# Tests: MultiInstitutionPool
+# ===========================================================================
+
+
+class TestMultiInstitutionPool:
+    """
+    Shared-capital pool — member registration, pro-rata loss distribution,
+    capacity enforcement, admin access control, and ward_signed=False.
+    """
+
+    def setup_method(self):
+        from ward.pool import MultiInstitutionPool
+
+        self.MultiInstitutionPool = MultiInstitutionPool
+        self.pool = MultiInstitutionPool(pool_address=VALID_ADDRESS)
+
+    def test_pool_creation(self):
+        """Pool initialises with zero capacity and ward_signed=False."""
+        pool = self.MultiInstitutionPool(pool_address=VALID_ADDRESS)
+        assert pool.total_capacity == 0
+        assert pool.used_capacity == 0
+        assert pool.available_capacity == 0
+        assert pool.member_count == 0
+        assert pool.ward_signed is False
+        assert pool.pool_address == VALID_ADDRESS
+
+    def test_member_registration(self):
+        """First registrant becomes admin; contributions accumulate correctly."""
+        self.pool.register_member(VALID_ADDRESS, 5_000_000)
+        assert VALID_ADDRESS in self.pool.member_addresses()
+        assert self.pool.total_capacity == 5_000_000
+        assert self.pool.available_capacity == 5_000_000
+        assert self.pool.member_count == 1
+
+        self.pool.register_member(VALID_ADDRESS2, 3_000_000)
+        assert self.pool.member_count == 2
+        assert self.pool.total_capacity == 8_000_000
+
+        # Invalid address rejected
+        with pytest.raises(ValidationError):
+            self.pool.register_member("not-an-address", 1_000_000)
+
+        # Zero contribution rejected
+        with pytest.raises(ValidationError):
+            self.pool.register_member(VALID_ADDRESS, 0)
+
+    def test_pro_rata_loss_distribution(self):
+        """Loss is distributed in proportion to each member's contribution."""
+        self.pool.register_member(VALID_ADDRESS, 6_000_000)   # 60 %
+        self.pool.register_member(VALID_ADDRESS2, 4_000_000)  # 40 %
+        claim = 1_000_000
+        losses = self.pool.distribute_loss(claim)
+
+        # Must sum exactly to claim
+        assert sum(losses.values()) == claim
+        assert losses[VALID_ADDRESS] == 600_000
+        assert losses[VALID_ADDRESS2] == 400_000
+
+        # used_capacity updated; available_capacity reduced
+        assert self.pool.used_capacity == claim
+        assert self.pool.available_capacity == self.pool.total_capacity - claim
+
+    def test_pool_capacity_enforced(self):
+        """distribute_loss raises ValidationError when claim exceeds capacity."""
+        self.pool.register_member(VALID_ADDRESS, 1_000_000)
+        with pytest.raises(ValidationError, match="insufficient capacity"):
+            self.pool.distribute_loss(2_000_000)
+
+        # Empty pool also raises
+        empty = self.MultiInstitutionPool(pool_address=VALID_ADDRESS)
+        with pytest.raises(ValidationError, match="no members"):
+            empty.distribute_loss(1)
+
+    def test_admin_can_remove_member(self):
+        """Admin (first registrant) removes members; non-admin is rejected."""
+        self.pool.register_member(VALID_ADDRESS, 5_000_000)   # becomes admin
+        self.pool.register_member(VALID_ADDRESS2, 3_000_000)
+
+        # Non-admin attempt raises
+        with pytest.raises(ValidationError, match="admin"):
+            self.pool.remove_member(VALID_ADDRESS2, VALID_ADDRESS)
+
+        # Admin removes non-admin successfully
+        self.pool.remove_member(VALID_ADDRESS, VALID_ADDRESS2)
+        assert VALID_ADDRESS2 not in self.pool.member_addresses()
+        assert self.pool.total_capacity == 5_000_000
+
+        # Removing unknown member raises
+        with pytest.raises(ValidationError, match="not found"):
+            self.pool.remove_member(VALID_ADDRESS, VALID_ADDRESS2)
+
+    def test_ward_signed_false_in_pool_transactions(self):
+        """register_pool_member returns ward_signed=False and no signing key."""
+        client = WardClient()
+        tx = client.register_pool_member(
+            pool_address=VALID_ADDRESS2,
+            member_address=VALID_ADDRESS,
+            contribution_drops=5_000_000,
+        )
+        assert tx["ward_signed"] is False
+        assert tx["TransactionType"] == "AccountSet"
+        assert tx["Account"] == VALID_ADDRESS
+        # Pool address encoded in domain — not stored as a signing key
+        assert "SigningKey" not in tx
+        assert "seed" not in tx
+        # Memo payload confirms ward_signed=False
+        memo_hex = tx["Memos"][0]["Memo"]["MemoData"]
+        payload = json.loads(bytes.fromhex(memo_hex).decode())
+        assert payload["ward_signed"] is False
+        assert payload["pool"] == VALID_ADDRESS2
+        assert payload["contribution_drops"] == 5_000_000
+
+        # Invalid inputs rejected before building tx
+        with pytest.raises(ValidationError):
+            client.register_pool_member(
+                pool_address="bad", member_address=VALID_ADDRESS, contribution_drops=1
+            )
+        with pytest.raises(ValidationError):
+            client.register_pool_member(
+                pool_address=VALID_ADDRESS2,
+                member_address=VALID_ADDRESS,
+                contribution_drops=0,
+            )

@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from typing import Dict
+from typing import Dict, List, Optional
 
 from xrpl.asyncio.clients import AsyncJsonRpcClient
 from xrpl.models import AccountInfo
@@ -34,6 +34,7 @@ from ward.coverage import get_active_coverage_drops
 from ward.primitives import (
     LedgerError,
     ValidationError,
+    validate_drops_amount,
     validate_xrpl_address,
 )
 
@@ -255,3 +256,120 @@ class PoolHealthMonitor:
             if coverage_ratio >= threshold:
                 return tier_name
         return "high"
+
+
+@dataclass
+class PoolMember:
+    """One institution's stake in a MultiInstitutionPool."""
+
+    address: str
+    contribution_drops: int
+
+
+class MultiInstitutionPool:
+    """
+    Shared-capital coverage pool for multiple institutions.
+
+    Members contribute drops; losses from approved claims are allocated
+    pro-rata by contribution.  The first registrant becomes pool admin
+    and may add or remove subsequent members.
+
+    ward_signed = False — pool never holds or touches signing keys.
+    """
+
+    def __init__(self, pool_address: str) -> None:
+        validate_xrpl_address(pool_address, "pool_address")
+        self._pool_address = pool_address
+        self._members: Dict[str, int] = {}  # address → contribution_drops
+        self._admin: Optional[str] = None
+        self._used_capacity: int = 0
+        self.ward_signed: bool = False
+
+    @property
+    def pool_address(self) -> str:
+        return self._pool_address
+
+    @property
+    def total_capacity(self) -> int:
+        return sum(self._members.values())
+
+    @property
+    def used_capacity(self) -> int:
+        return self._used_capacity
+
+    @property
+    def available_capacity(self) -> int:
+        return max(0, self.total_capacity - self._used_capacity)
+
+    @property
+    def member_count(self) -> int:
+        return len(self._members)
+
+    def register_member(self, member_address: str, contribution_drops: int) -> None:
+        """
+        Add a member (or top up an existing member) to the pool.
+
+        The first caller automatically becomes pool admin.
+        """
+        validate_xrpl_address(member_address, "member_address")
+        validate_drops_amount(contribution_drops, "contribution_drops")
+        if self._admin is None:
+            self._admin = member_address
+        self._members[member_address] = (
+            self._members.get(member_address, 0) + contribution_drops
+        )
+
+    def remove_member(self, caller_address: str, member_address: str) -> None:
+        """
+        Remove a member from the pool.  Only the admin may call this.
+        """
+        validate_xrpl_address(caller_address, "caller_address")
+        validate_xrpl_address(member_address, "member_address")
+        if self._admin is None:
+            raise ValidationError("Pool has no admin (no members registered yet)")
+        if caller_address != self._admin:
+            raise ValidationError(f"Only pool admin {self._admin!r} can remove members")
+        if member_address not in self._members:
+            raise ValidationError(f"Member {member_address!r} not found in pool")
+        del self._members[member_address]
+
+    def has_capacity(self, claim_drops: int) -> bool:
+        """Return True if available_capacity >= claim_drops."""
+        return self.available_capacity >= claim_drops
+
+    def distribute_loss(self, claim_drops: int) -> Dict[str, int]:
+        """
+        Allocate claim_drops pro-rata across members by contribution.
+
+        ward_signed = False — no signing keys are accessed.
+
+        Returns:
+            Mapping of member_address → loss_drops allocated for this claim.
+
+        Raises:
+            ValidationError: if pool has no members or insufficient capacity.
+        """
+        if not self._members:
+            raise ValidationError("Pool has no members — cannot distribute loss")
+        if not self.has_capacity(claim_drops):
+            raise ValidationError(
+                f"Pool insufficient capacity: available={self.available_capacity} "
+                f"drops < claim={claim_drops} drops"
+            )
+        total = self.total_capacity
+        losses: Dict[str, int] = {}
+        allocated = 0
+        members_list = list(self._members.items())
+        for i, (addr, contribution) in enumerate(members_list):
+            if i == len(members_list) - 1:
+                losses[addr] = claim_drops - allocated
+            else:
+                share = int(claim_drops * contribution / total)
+                losses[addr] = share
+                allocated += share
+        self._used_capacity += claim_drops
+        return losses
+
+    def member_addresses(self) -> List[str]:
+        """Return list of currently registered member addresses."""
+        return list(self._members.keys())
