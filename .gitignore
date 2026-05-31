@@ -73,6 +73,9 @@ testnet_wallets.json
 # Next.js build output
 .next/
 
+# TypeScript incremental build cache
+*.tsbuildinfo
+
 # Node dependencies
 node_modules/
 
