@@ -4401,3 +4401,158 @@ class TestVaultMonitorRunReconnect:
                 await m.run()
 
         assert connect_count == 2
+
+
+# ===========================================================================
+# Tests: Multi-Vault Policies
+# ===========================================================================
+
+
+class TestMultiVaultPolicies:
+    """
+    Multi-vault policy purchase, cross-vault claim rejection,
+    and per-vault coverage tracking (PoolHealthMonitor._vault_coverage).
+    """
+
+    def setup_method(self):
+        self.client = WardClient()
+
+    @pytest.mark.asyncio
+    async def test_multi_vault_purchase_returns_one_nft_per_vault(self):
+        """purchase_multi_vault_coverage mints one NFT per vault and shares one premium_tx."""
+        from xrpl.wallet import Wallet as _Wallet
+
+        wallet = _Wallet.create()
+        vault_a = VALID_ADDRESS
+        vault_b = VALID_ADDRESS2
+        pool_addr = _Wallet.create().classic_address
+
+        nft_id_a = "A" * 64
+        nft_id_b = "B" * 64
+        premium_hash = "C" * 64
+
+        def _mint_resp(nft_id, mint_hash):
+            r = MagicMock()
+            r.is_successful.return_value = True
+            r.result = {"meta": {"nftoken_id": nft_id}, "hash": mint_hash}
+            return r
+
+        payment_resp = MagicMock()
+        payment_resp.is_successful.return_value = True
+        payment_resp.result = {"hash": premium_hash}
+
+        with (
+            patch("ward.client.AsyncJsonRpcClient", MagicMock()),
+            patch("ward.client.autofill", AsyncMock(side_effect=lambda tx, c: tx)),
+            patch(
+                "ward.client.submit_with_retry",
+                AsyncMock(
+                    side_effect=[
+                        _mint_resp(nft_id_a, "MINT_A" + "0" * 58),
+                        _mint_resp(nft_id_b, "MINT_B" + "0" * 58),
+                        payment_resp,
+                    ]
+                ),
+            ),
+            patch("ward.client.get_ledger_close_time", AsyncMock(return_value=800_000_000)),
+        ):
+            results = await self.client.purchase_multi_vault_coverage(
+                wallet=wallet,
+                vault_addresses=[vault_a, vault_b],
+                coverage_drops=1_000_000,
+                period_days=30,
+                pool_address=pool_addr,
+            )
+
+        assert len(results) == 2
+        assert results[0]["vault_address"] == vault_a
+        assert results[0]["nft_token_id"] == nft_id_a
+        assert results[1]["vault_address"] == vault_b
+        assert results[1]["nft_token_id"] == nft_id_b
+        # All vaults share one premium transaction
+        assert results[0]["premium_tx"] == premium_hash
+        assert results[1]["premium_tx"] == premium_hash
+        # Each vault gets its own NFT
+        assert results[0]["nft_token_id"] != results[1]["nft_token_id"]
+        # ward_signed = False: no wallet stored on client
+        assert not hasattr(self.client, "_wallet")
+
+    @pytest.mark.asyncio
+    async def test_multi_vault_rejects_duplicates(self):
+        """purchase_multi_vault_coverage raises ValidationError on duplicate vault addresses."""
+        with pytest.raises(ValidationError, match="duplicate"):
+            await self.client.purchase_multi_vault_coverage(
+                wallet=FakeWallet(),
+                vault_addresses=[VALID_ADDRESS, VALID_ADDRESS],
+                coverage_drops=1_000_000,
+                period_days=30,
+                pool_address=VALID_ADDRESS2,
+            )
+
+    @pytest.mark.asyncio
+    async def test_multi_vault_max_10_vaults_enforced(self):
+        """purchase_multi_vault_coverage rejects a list of more than 10 vault addresses."""
+        from xrpl.wallet import Wallet as _Wallet
+
+        vaults = [_Wallet.create().classic_address for _ in range(11)]
+        with pytest.raises(ValidationError, match="10"):
+            await self.client.purchase_multi_vault_coverage(
+                wallet=FakeWallet(),
+                vault_addresses=vaults,
+                coverage_drops=1_000_000,
+                period_days=30,
+                pool_address=VALID_ADDRESS2,
+            )
+
+    @pytest.mark.asyncio
+    async def test_cross_vault_claim_rejected(self):
+        """ClaimValidator rejects an NFT covering vault A when claiming against vault B."""
+        validator = _make_validator_with_mocks(
+            policy_vault=VALID_ADDRESS,
+        )
+        try:
+            result = await validator.validate_claim(
+                claimant_address=VALID_ADDRESS,
+                nft_token_id=VALID_NFT_ID,
+                defaulted_vault=VALID_ADDRESS2,  # different from NFT's vault
+                loan_id=VALID_LOAN_ID,
+                pool_address=VALID_ADDRESS2,
+            )
+        finally:
+            p = getattr(validator, "_mock_patch", None)
+            if p:
+                try:
+                    p.stop()
+                except RuntimeError:
+                    pass
+
+        assert not result.approved
+        assert result.steps_passed == 2  # passes steps 1-2, rejected at step 3
+        assert "vault" in result.rejection_reason.lower() or "mismatch" in result.rejection_reason.lower()
+
+    def test_multi_vault_coverage_tracked_per_vault(self):
+        """PoolHealthMonitor._vault_coverage tracks coverage per depositor+vault pair."""
+        from xrpl.wallet import Wallet as _Wallet
+
+        monitor = PoolHealthMonitor(pool_address=VALID_ADDRESS)
+        depositor = VALID_ADDRESS2
+        vault_a = VALID_ADDRESS
+        vault_b = _Wallet.create().classic_address
+
+        monitor.register_policy("A" * 64, 1_000_000, depositor_address=depositor, vault_address=vault_a)
+        monitor.register_policy("B" * 64, 2_000_000, depositor_address=depositor, vault_address=vault_b)
+
+        assert monitor._vault_coverage[depositor][vault_a] == 1_000_000
+        assert monitor._vault_coverage[depositor][vault_b] == 2_000_000
+        # Legacy registry still tracks by nft_token_id
+        assert monitor._coverage_registry["A" * 64] == 1_000_000
+        assert monitor._coverage_registry["B" * 64] == 2_000_000
+
+        # Deregister vault_a — vault_b entry must survive
+        monitor.deregister_policy("A" * 64, depositor_address=depositor, vault_address=vault_a)
+        assert vault_a not in monitor._vault_coverage.get(depositor, {})
+        assert monitor._vault_coverage[depositor][vault_b] == 2_000_000
+
+        # Deregister vault_b — depositor entry cleaned up entirely
+        monitor.deregister_policy("B" * 64, depositor_address=depositor, vault_address=vault_b)
+        assert depositor not in monitor._vault_coverage

@@ -136,11 +136,9 @@ class ClaimValidator:
                 # steps. Query account_tx for the pool address to confirm a matching
                 # Payment transaction exists before approving any claim.
 
-                meta_vault = metadata.get("vault_address") or metadata.get("v", "")
-                if meta_vault != defaulted_vault:
-                    return self._reject(
-                        3, f"Vault mismatch: {meta_vault!r} != {defaulted_vault!r}"
-                    )
+                vault_err = self._step3_verify_vault_binding(metadata, defaulted_vault)
+                if vault_err:
+                    return self._reject(3, vault_err)
                 logger.info("Step 3 passed")
 
                 if not default_flag:
@@ -359,6 +357,24 @@ class ClaimValidator:
             return (
                 f"Claimant {claimant_address[:8]}... does not currently hold "
                 f"NFT {nft_token_id[:16]}..."
+            )
+        return None
+
+    @staticmethod
+    def _step3_verify_vault_binding(
+        metadata: dict, defaulted_vault: str
+    ) -> Optional[str]:
+        """
+        Step 3: Verify the NFT covers the specific vault being claimed against.
+
+        Cross-vault claims are rejected: an NFT minted for vault A cannot be
+        used to claim against vault B, even within a multi-vault batch.
+        """
+        meta_vault = metadata.get("vault_address") or metadata.get("v", "")
+        if meta_vault != defaulted_vault:
+            return (
+                f"Cross-vault claim rejected: NFT covers {meta_vault!r}, "
+                f"claim is against {defaulted_vault!r}"
             )
         return None
 

@@ -84,14 +84,45 @@ class PoolHealthMonitor:
         self._pool_address = pool_address
         self._url = url
         self._coverage_registry: Dict[str, int] = {}
+        # Per-depositor, per-vault coverage tracking for multi-vault policies.
+        # Shape: depositor_address -> vault_address -> coverage_drops
+        self._vault_coverage: Dict[str, Dict[str, int]] = {}
 
-    def register_policy(self, nft_token_id: str, coverage_drops: int) -> None:
-        """Register a newly minted policy NFT in the coverage tracking registry."""
+    def register_policy(
+        self,
+        nft_token_id: str,
+        coverage_drops: int,
+        depositor_address: str = "",
+        vault_address: str = "",
+    ) -> None:
+        """Register a newly minted policy NFT in the coverage tracking registry.
+
+        Pass depositor_address and vault_address to also record per-vault coverage,
+        enabling multi-vault queries via _vault_coverage.
+        """
         self._coverage_registry[nft_token_id] = coverage_drops
+        if depositor_address and vault_address:
+            if depositor_address not in self._vault_coverage:
+                self._vault_coverage[depositor_address] = {}
+            self._vault_coverage[depositor_address][vault_address] = (
+                self._vault_coverage[depositor_address].get(vault_address, 0)
+                + coverage_drops
+            )
 
-    def deregister_policy(self, nft_token_id: str) -> None:
+    def deregister_policy(
+        self,
+        nft_token_id: str,
+        depositor_address: str = "",
+        vault_address: str = "",
+    ) -> None:
         """Remove a policy NFT from the registry (call after NFT burn on settlement)."""
         self._coverage_registry.pop(nft_token_id, None)
+        if depositor_address and vault_address:
+            vault_map = self._vault_coverage.get(depositor_address)
+            if vault_map:
+                vault_map.pop(vault_address, None)
+                if not vault_map:
+                    del self._vault_coverage[depositor_address]
 
     async def get_health(self) -> PoolHealth:
         """

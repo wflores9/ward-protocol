@@ -24,7 +24,7 @@ from __future__ import annotations
 
 import json
 import logging
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 from xrpl.asyncio.clients import AsyncJsonRpcClient
 from xrpl.asyncio.transaction import autofill
@@ -215,3 +215,166 @@ class WardClient:
             "coverage_drops": coverage_drops,
             "expiry_ledger": expiry,
         }
+
+    async def purchase_multi_vault_coverage(
+        self,
+        wallet: Wallet,
+        vault_addresses: List[str],
+        coverage_drops: int,
+        period_days: int,
+        pool_address: str,
+        premium_rate: float = 0.01,
+        license_tier: str = "starter",
+    ) -> List[Dict[str, Any]]:
+        """
+        Purchase default-protection policies for multiple vaults in one operation.
+
+        Mints one non-transferable NFT per vault (taxon 281, TF_BURNABLE only).
+        Collects a single premium payment covering all vaults combined.
+        ward_signed = False throughout — no Ward key touches any transaction.
+
+        Args:
+            wallet:          Depositor's Wallet (used in memory only, never stored).
+            vault_addresses: XRPL addresses of vaults to protect (1–10, no duplicates).
+            coverage_drops:  Per-vault coverage in drops (must be > 0).
+            period_days:     Coverage period in days (must be > 0).
+            pool_address:    Coverage pool XRPL address.
+            premium_rate:    Annual premium rate as a fraction (0.0 < rate <= 1.0).
+            license_tier:    One of "starter", "standard", "enterprise".
+
+        Returns:
+            List of dicts (one per vault), each with:
+                vault_address   - the vault this NFT covers
+                nft_token_id    - the minted NFTokenID (hex)
+                premium_tx      - hash of the single premium Payment transaction
+                mint_tx         - hash of this vault's NFTokenMint transaction
+                coverage_drops  - per-vault coverage amount in drops
+                expiry_ledger   - ledger close time at which policy expires
+        """
+        # -- Structural validation (fast-fail before any network I/O) ----------
+        if not vault_addresses:
+            raise ValidationError("vault_addresses must not be empty")
+        if len(vault_addresses) > 10:
+            raise ValidationError(
+                f"At most 10 vaults per multi-vault policy, got {len(vault_addresses)}"
+            )
+        for i, addr in enumerate(vault_addresses):
+            validate_xrpl_address(addr, f"vault_addresses[{i}]")
+        if len(set(vault_addresses)) != len(vault_addresses):
+            raise ValidationError("vault_addresses contains duplicate entries")
+
+        validate_xrpl_address(pool_address, "pool_address")
+        validate_drops_amount(coverage_drops, "coverage_drops")
+
+        if period_days <= 0:
+            raise ValidationError(f"period_days must be > 0, got {period_days}")
+        if not (0 < premium_rate <= 1.0):
+            raise ValidationError(f"premium_rate must be in (0, 1], got {premium_rate}")
+
+        wallet = validate_wallet(wallet)
+
+        allowed = LicenseTier.TIER_MINT_GATES.get(license_tier)
+        if allowed is None:
+            raise ValidationError(
+                f"Unknown license tier: {license_tier!r}. "
+                "Must be one of: starter, standard, enterprise."
+            )
+
+        # -- Premium covers combined coverage of all vaults --------------------
+        total_coverage_drops = coverage_drops * len(vault_addresses)
+        premium_drops = int(total_coverage_drops * premium_rate * period_days / 365)
+        if premium_drops < 1:
+            premium_drops = 1
+
+        client = AsyncJsonRpcClient(self._url)
+        current_time = await get_ledger_close_time(client)
+        expiry = current_time + (period_days * 86_400)
+
+        results: List[Dict[str, Any]] = []
+        nft_token_ids: List[str] = []
+
+        # -- Mint one NFT per vault --------------------------------------------
+        for vault_address in vault_addresses:
+            metadata = {
+                "w": "ward-v1",
+                "v": vault_address,
+                "c": str(coverage_drops),
+                "e": expiry,
+                "t": license_tier,
+                "pa": pool_address,
+            }
+            uri_json = json.dumps(metadata, separators=(",", ":"))
+            uri_hex = str_to_hex(uri_json).upper()
+            if len(uri_hex) > 512:
+                raise ValidationError(f"URI hex exceeds 512 chars: {len(uri_hex)}")
+
+            nft_memo = Memo(
+                memo_data=str_to_hex(
+                    f"ward-policy|{license_tier}|cov={coverage_drops}"
+                ).upper()
+            )
+            mint_tx = NFTokenMint(
+                account=wallet.classic_address,
+                nftoken_taxon=WARD_POLICY_TAXON,
+                flags=TF_BURNABLE,
+                uri=uri_hex,
+                memos=[nft_memo],
+            )
+            mint_tx = await autofill(mint_tx, client)
+            mint_result = await submit_with_retry(mint_tx, client, wallet)
+            nft_token_id = mint_result.result.get("meta", {}).get("nftoken_id", "")
+            if not nft_token_id:
+                raise WardError(
+                    f"NFT mint succeeded for vault {vault_address} but "
+                    "nftoken_id is empty in response metadata"
+                )
+            mint_tx_hash = mint_result.result.get("hash", "") or mint_result.result.get(
+                "tx_json", {}
+            ).get("hash", "")
+
+            nft_token_ids.append(nft_token_id)
+            results.append(
+                {
+                    "vault_address": vault_address,
+                    "nft_token_id": nft_token_id,
+                    "mint_tx": mint_tx_hash,
+                    "coverage_drops": coverage_drops,
+                    "expiry_ledger": expiry,
+                }
+            )
+
+        # -- Single premium payment covering all vaults -----------------------
+        _pm = build_premium_memo(nft_token_ids[0], total_coverage_drops)
+        premium_memo = Memo(
+            memo_type=_pm["Memo"].get("MemoType"),
+            memo_data=_pm["Memo"].get("MemoData"),
+        )
+        payment = Payment(
+            account=wallet.classic_address,
+            destination=pool_address,
+            amount=str(premium_drops),
+            memos=[premium_memo],
+        )
+        payment = await autofill(payment, client)
+        premium_result = await submit_with_retry(payment, client, wallet)
+        premium_tx = premium_result.result.get("hash", "") or premium_result.result.get(
+            "tx_json", {}
+        ).get("hash", "")
+        if not premium_tx:
+            raise WardError(
+                "Multi-vault premium payment succeeded but transaction hash "
+                "not found in result."
+            )
+
+        for r in results:
+            r["premium_tx"] = premium_tx
+
+        logger.info(
+            "Multi-vault policy purchased: vaults=%d cov_each=%d tier=%s premium_tx=%s",
+            len(vault_addresses),
+            coverage_drops,
+            license_tier,
+            premium_tx,
+        )
+
+        return results
