@@ -3088,6 +3088,215 @@ class TestWebhookNotifications:
         with pytest.raises(WardError, match="https://"):
             await register_webhook(WebhookConfig(url="http://example.com/hook", vault_address=VALID_ADDRESS))
 
+    # ----------------------------------------------------------------
+    # Registration / deregistration edge cases (branch coverage)
+    # ----------------------------------------------------------------
+
+    async def test_webhook_registration(self):
+        """Second webhook for the same vault appends without re-initialising the list."""
+        from ward.webhooks import WebhookConfig, register_webhook, get_webhooks
+        cfg1 = WebhookConfig(url="https://hook1.example.com/a", vault_address=VALID_ADDRESS)
+        cfg2 = WebhookConfig(url="https://hook2.example.com/b", vault_address=VALID_ADDRESS)
+        await register_webhook(cfg1)
+        await register_webhook(cfg2)  # hits the 84->86 branch (vault already in registry)
+        hooks = await get_webhooks(VALID_ADDRESS)
+        assert len(hooks) == 2
+        assert {h.url for h in hooks} == {cfg1.url, cfg2.url}
+
+    async def test_webhook_deregistration(self):
+        """deregister_webhook returns False when vault has no registered webhooks."""
+        from ward.webhooks import deregister_webhook
+        removed = await deregister_webhook(VALID_ADDRESS, "https://example.com/hook")
+        assert removed is False  # hits line 94 — early return
+
+    # ----------------------------------------------------------------
+    # fire_webhook — event filter and delivery dispatch
+    # ----------------------------------------------------------------
+
+    async def test_fire_webhook_filters_events(self):
+        """fire_webhook skips configs whose event filter does not match the fired event."""
+        from ward.webhooks import (
+            WebhookConfig, WebhookEvent, WebhookPayload, register_webhook, fire_webhook,
+        )
+        cfg = WebhookConfig(
+            url="https://example.com/hook",
+            vault_address=VALID_ADDRESS,
+            events=[WebhookEvent.HEALTH_CRITICAL],
+        )
+        await register_webhook(cfg)
+        payload = WebhookPayload(
+            event=WebhookEvent.HEALTH_WARNING,  # non-matching
+            vault_address=VALID_ADDRESS,
+            health_ratio=1.9,
+            timestamp=1_000_000,
+        )
+        with patch("ward.webhooks._post_webhook", new_callable=AsyncMock) as mock_post:
+            await fire_webhook(payload)
+            await asyncio.sleep(0)
+        mock_post.assert_not_called()
+
+    async def test_fire_webhook_delivers_matching_event(self):
+        """fire_webhook schedules _post_webhook when event matches the filter."""
+        from ward.webhooks import (
+            WebhookConfig, WebhookEvent, WebhookPayload, register_webhook, fire_webhook,
+        )
+        cfg = WebhookConfig(
+            url="https://example.com/hook",
+            vault_address=VALID_ADDRESS,
+            events=[WebhookEvent.HEALTH_CRITICAL],
+        )
+        await register_webhook(cfg)
+        payload = WebhookPayload(
+            event=WebhookEvent.HEALTH_CRITICAL,  # matching
+            vault_address=VALID_ADDRESS,
+            health_ratio=1.4,
+            timestamp=1_000_000,
+        )
+        with patch("ward.webhooks._post_webhook", new_callable=AsyncMock) as mock_post:
+            await fire_webhook(payload)
+            await asyncio.sleep(0)  # let the task run
+        mock_post.assert_called_once_with(cfg, payload)
+
+    # ----------------------------------------------------------------
+    # _post_webhook — HTTP delivery, HMAC, retry, give-up
+    # ----------------------------------------------------------------
+
+    async def test_webhook_delivery_success(self):
+        """_post_webhook delivers the payload on the first attempt."""
+        from ward.webhooks import WebhookConfig, WebhookEvent, WebhookPayload, _post_webhook
+        config = WebhookConfig(url="https://example.com/hook", vault_address=VALID_ADDRESS)
+        payload = WebhookPayload(
+            event=WebhookEvent.HEALTH_CRITICAL,
+            vault_address=VALID_ADDRESS,
+            health_ratio=1.4,
+            timestamp=1_000_000,
+        )
+        mock_urlopen = MagicMock()
+        with patch("ward.webhooks.urlopen", mock_urlopen):
+            await _post_webhook(config, payload)
+        mock_urlopen.assert_called_once()
+        # ward_signed = False in body
+        call_args = mock_urlopen.call_args[0][0]  # urllib Request object
+        import json as _json
+        body = _json.loads(call_args.data)
+        assert body["ward_signed"] is False
+
+    async def test_webhook_delivery_retry_on_failure(self):
+        """_post_webhook retries on transient failures and succeeds on third attempt."""
+        from ward.webhooks import WebhookConfig, WebhookEvent, WebhookPayload, _post_webhook
+        config = WebhookConfig(url="https://example.com/hook", vault_address=VALID_ADDRESS)
+        payload = WebhookPayload(
+            event=WebhookEvent.HEALTH_CRITICAL,
+            vault_address=VALID_ADDRESS,
+            health_ratio=1.4,
+            timestamp=1_000_000,
+        )
+        calls: List[int] = []
+        def flaky_urlopen(req, timeout=None):
+            calls.append(1)
+            if len(calls) < 3:
+                raise OSError("connection refused")
+        with (
+            patch("ward.webhooks.urlopen", flaky_urlopen),
+            patch("asyncio.sleep", new_callable=AsyncMock),
+        ):
+            await _post_webhook(config, payload)
+        assert len(calls) == 3
+
+    async def test_webhook_delivery_gives_up_after_max_retries(self):
+        """_post_webhook gives up silently after MAX_RETRIES failures — never raises."""
+        from ward.webhooks import WebhookConfig, WebhookEvent, WebhookPayload, _post_webhook, MAX_RETRIES
+        config = WebhookConfig(url="https://example.com/hook", vault_address=VALID_ADDRESS)
+        payload = WebhookPayload(
+            event=WebhookEvent.HEALTH_WARNING,
+            vault_address=VALID_ADDRESS,
+            health_ratio=1.9,
+            timestamp=1_000_000,
+        )
+        calls: List[int] = []
+        def always_fail(req, timeout=None):
+            calls.append(1)
+            raise OSError("timeout")
+        with (
+            patch("ward.webhooks.urlopen", always_fail),
+            patch("asyncio.sleep", new_callable=AsyncMock),
+        ):
+            await _post_webhook(config, payload)  # must not raise
+        assert len(calls) == MAX_RETRIES
+
+    async def test_hmac_signature_correct(self):
+        """_post_webhook sets X-Ward-Signature header matching HMAC-SHA256 of body."""
+        import hmac as _hmac
+        import hashlib as _hashlib
+        import json as _json
+        from ward.webhooks import WebhookConfig, WebhookEvent, WebhookPayload, _post_webhook
+        secret = "ward-test-secret"
+        config = WebhookConfig(
+            url="https://example.com/hook",
+            vault_address=VALID_ADDRESS,
+            secret=secret,
+        )
+        payload = WebhookPayload(
+            event=WebhookEvent.HEALTH_CRITICAL,
+            vault_address=VALID_ADDRESS,
+            health_ratio=1.4,
+            timestamp=1_000_000,
+        )
+        captured: dict = {}
+        def capture_urlopen(req, timeout=None):
+            captured["req"] = req
+        with patch("ward.webhooks.urlopen", capture_urlopen):
+            await _post_webhook(config, payload)
+        req = captured["req"]
+        sig_header = req.get_header("X-ward-signature")
+        assert sig_header is not None
+        # Recompute expected signature
+        body = _json.dumps({
+            "event": payload.event.value,
+            "vault_address": payload.vault_address,
+            "health_ratio": payload.health_ratio,
+            "timestamp": payload.timestamp,
+            "ward_signed": False,
+            "data": payload.data,
+        }).encode()
+        expected = f"sha256={_hmac.new(secret.encode(), body, _hashlib.sha256).hexdigest()}"
+        assert sig_header == expected
+        # Invariant: ward_signed hardcoded False in body — never from payload attribute
+        assert _json.loads(body)["ward_signed"] is False
+
+    def test_hmac_signature_rejects_tampered_payload(self):
+        """HMAC signature of tampered body does not match signature of original body."""
+        import hmac as _hmac
+        import hashlib as _hashlib
+        secret = "ward-test-secret"
+        body = b'{"event":"health.critical","ward_signed":false}'
+        tampered = body[:-1] + bytes([body[-1] ^ 0xFF])
+        sig_orig = _hmac.new(secret.encode(), body, _hashlib.sha256).hexdigest()
+        sig_tampered = _hmac.new(secret.encode(), tampered, _hashlib.sha256).hexdigest()
+        assert sig_orig != sig_tampered
+        assert not _hmac.compare_digest(sig_orig, sig_tampered)
+
+    def test_all_event_types_have_payloads(self):
+        """Every WebhookEvent value can be serialised in a payload with ward_signed=False."""
+        import json as _json
+        from ward.webhooks import WebhookEvent, WebhookPayload
+        for event in WebhookEvent:
+            payload = WebhookPayload(
+                event=event,
+                vault_address=VALID_ADDRESS,
+                health_ratio=1.5,
+                timestamp=1_000_000,
+            )
+            assert payload.ward_signed is False
+            body = _json.dumps({
+                "event": payload.event.value,
+                "ward_signed": payload.ward_signed,
+                "data": payload.data,
+            })
+            parsed = _json.loads(body)
+            assert parsed["ward_signed"] is False
+            assert parsed["event"] == event.value
+
 
 # ===========================================================================
 # TestApiKeyManagement — Week 2 Session 4
