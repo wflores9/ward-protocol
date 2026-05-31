@@ -136,7 +136,7 @@ export default function SpecPage() {
           </p>
           <div className="flex gap-3 mt-5">
             <span className="text-xs bg-[#fdf8ed] text-[#c8a94a] border border-gold/30 px-2.5 py-1 rounded font-mono font-bold">
-              257/257 Python · 40/40 Rust · 45/45 TypeScript
+              296/296 Python · 40/40 Rust · 45/45 TypeScript
             </span>
             <span className="text-xs bg-panel border border-border text-sub px-2.5 py-1 rounded font-mono">
               SDK v0.2.4

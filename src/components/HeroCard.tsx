@@ -3,7 +3,7 @@
 import { useState } from 'react'
 
 const stats = [
-  { val: '257+85',  label: 'Tests Passing', green: true },
+  { val: '296+85',  label: 'Tests Passing', green: true },
   { val: 'v0.2.4',  label: 'SDK Version',   green: false },
   { val: '15',      label: 'Attack Vectors Mitigated', green: false },
   { val: '9',       label: 'Validation Steps', green: false },

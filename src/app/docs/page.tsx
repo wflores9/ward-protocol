@@ -36,7 +36,7 @@ print(result.approved)            # True
 print(result.steps_passed)        # 9
 print(result.claim_payout_drops)  # min(vault_loss, policy_coverage)`
 
-const testCmd = `# Run test suite (257/257 Python passing)
+const testCmd = `# Run test suite (296/296 Python passing)
 pip install -r requirements.txt
 python -m pytest test_ward.py -m "not integration" -v
 
@@ -55,7 +55,7 @@ export default function DocsPage() {
             SDK reference, module overview, and integration guides. All modules are independently auditable.
           </p>
           <div className="flex gap-3 mt-5">
-            <span className="text-[10px] bg-[#fdf8ed] text-[#c8a94a] border border-gold/30 px-2.5 py-1 rounded font-mono font-bold">257/257 Python Tests</span>
+            <span className="text-[10px] bg-[#fdf8ed] text-[#c8a94a] border border-gold/30 px-2.5 py-1 rounded font-mono font-bold">296/296 Python Tests</span>
             <span className="text-[10px] bg-panel border border-border text-sub px-2.5 py-1 rounded font-mono">Python 3.11+</span>
             <span className="text-[10px] bg-panel border border-border text-sub px-2.5 py-1 rounded font-mono">MIT License</span>
           </div>
@@ -96,7 +96,7 @@ export default function DocsPage() {
             {testCmd}
           </pre>
           <p className="text-sm text-sub mt-3">
-            257 Python tests + 40 Rust tests + 45 TypeScript tests covering all 9 claim validation steps, all 15 attack vectors, VaultMonitor,
+            296 Python tests + 40 Rust tests + 45 TypeScript tests covering all 9 claim validation steps, all 15 attack vectors, VaultMonitor,
             EscrowSettlement, PoolHealthMonitor, and all primitives.
             Marked <code className="bg-p2 px-1 rounded text-xs">integration</code> tests require XRPL Mainnet access.
           </p>

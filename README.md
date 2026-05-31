@@ -148,7 +148,7 @@ Output: `VALID / INVALID` + deterministic unsigned EscrowCreate
 
 ## Implementation Status
 
-- ✅ SDK built and tested — 257/257 Python tests passing
+- ✅ SDK built and tested — 296/296 Python tests passing
 - ✅ 40/40 Rust tests passing
 - ✅ 45/45 TypeScript tests passing (sdk/typescript/)
 - ✅ v0.2.4 modular architecture — 8 Python modules + 2 Rust modules
@@ -282,7 +282,7 @@ ruff check ward/
 
 See [CHANGELOG.md](CHANGELOG.md)
 
-Current: v0.2.4 — 257/257 Python tests · 40/40 Rust tests · 45/45 TypeScript tests · ruff clean
+Current: v0.2.4 — 296/296 Python tests · 40/40 Rust tests · 45/45 TypeScript tests · ruff clean
 
 ### TypeScript (sdk/typescript/)
 
