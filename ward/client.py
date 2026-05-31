@@ -173,7 +173,9 @@ class WardClient:
             raise WardError(
                 "NFT mint succeeded but nftoken_id is empty in response metadata"
             )
-        mint_tx_hash = mint_result.result.get("hash", "") or mint_result.result.get("tx_json", {}).get("hash", "")
+        mint_tx_hash = mint_result.result.get("hash", "") or mint_result.result.get(
+            "tx_json", {}
+        ).get("hash", "")
 
         # Step 4: Premium Payment with ward/policy-premium memo (on-chain registry)
         _pm = build_premium_memo(nft_token_id, coverage_drops)
@@ -189,7 +191,9 @@ class WardClient:
         )
         payment = await autofill(payment, client)
         premium_result = await submit_with_retry(payment, client, wallet)
-        premium_tx = premium_result.result.get("hash", "") or premium_result.result.get("tx_json", {}).get("hash", "")
+        premium_tx = premium_result.result.get("hash", "") or premium_result.result.get(
+            "tx_json", {}
+        ).get("hash", "")
         if not premium_tx:
             raise WardError(
                 "Premium payment succeeded but transaction hash not found in result. "
