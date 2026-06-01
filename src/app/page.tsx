@@ -26,8 +26,8 @@ const quotes = [
 ]
 
 const statusRows: [string, React.ReactNode][] = [
-  ['SDK Version', 'v0.2.4'],
-  ['Unit Tests', <span style={{ color: 'var(--green)' }}>296 Python · 40 Rust · 45 TypeScript</span>],
+  ['SDK Version', 'v0.2.5'],
+  ['Unit Tests', <span style={{ color: 'var(--green)' }}>317 Python · 40 Rust · 45 TypeScript</span>],
   ['Coverage', 'chain_reader 100% · monitor 100% · tx_builder 100% · vault_monitor 99%'],
   ['On-Chain Transactions', '5 confirmed (XRPL Altnet)'],
   ['External Dependencies', '0 — pure XRPL'],
@@ -66,7 +66,7 @@ export default function Home() {
 
           <div className="hero-card">
             <div className="hero-card-header">
-              <span className="hero-card-label">WARD · v0.2.4 · ALTNET</span>
+              <span className="hero-card-label">WARD · v0.2.5 · ALTNET</span>
               <span className="live-badge"><span className="live-dot" />LIVE</span>
             </div>
             <div className="invariant-box">
@@ -84,7 +84,7 @@ export default function Home() {
             </ul>
             <div className="hero-stats">
               <div className="hero-stat">
-                <span className="hero-stat-val" style={{ color: '#c8a94a' }}>296+85</span>
+                <span className="hero-stat-val" style={{ color: '#c8a94a' }}>317/317</span>
                 <span className="hero-stat-lbl">Tests</span>
               </div>
               <div className="hero-stat">
@@ -112,7 +112,7 @@ export default function Home() {
         <div className="sp-divider" />
         <span className="sp-item">Discord Community</span>
         <div className="sp-divider" />
-        <span className="sp-item">296 Python · 40 Rust · 45 TypeScript</span>
+        <span className="sp-item">317 Tests Passing</span>
       </div>
 
       {/* THE QUESTION */}

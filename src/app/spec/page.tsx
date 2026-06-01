@@ -128,7 +128,7 @@ export default function SpecPage() {
       {/* Header */}
       <div className="border-b border-gold/20 bg-white px-6 md:px-12 py-10">
         <div className="max-w-4xl mx-auto">
-          <div className="text-xs uppercase tracking-[.15em] text-ice2 mb-2 font-mono">Ward Protocol v0.2.4</div>
+          <div className="text-xs uppercase tracking-[.15em] text-ice2 mb-2 font-mono">Ward Protocol v0.2.5</div>
           <h1 className="font-condensed font-black text-5xl text-steel mb-3">Protocol Specification</h1>
           <p className="text-sm text-sub max-w-2xl">
             Technical reference for Ward Protocol: architecture, 9-step claim validation,
@@ -136,10 +136,10 @@ export default function SpecPage() {
           </p>
           <div className="flex gap-3 mt-5">
             <span className="text-xs bg-[#fdf8ed] text-[#c8a94a] border border-gold/30 px-2.5 py-1 rounded font-mono font-bold">
-              296/296 Python · 40/40 Rust · 45/45 TypeScript
+              317/317 Python · 40/40 Rust · 45/45 TypeScript
             </span>
             <span className="text-xs bg-panel border border-border text-sub px-2.5 py-1 rounded font-mono">
-              SDK v0.2.4
+              SDK v0.2.5
             </span>
             <span className="text-xs bg-[#fdf8ed] text-[#c8a94a] border border-gold/30 px-2.5 py-1 rounded font-mono">
               15 AVs Mitigated
