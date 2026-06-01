@@ -534,8 +534,8 @@ body {
 /* LICENSING */
 .pricing-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 24px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
   align-items: start;
 }
 
@@ -543,7 +543,12 @@ body {
   background: var(--white);
   border: 1px solid var(--gray-100);
   border-radius: 14px;
-  padding: 40px;
+  padding: 32px 28px;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+.price-card:hover {
+  box-shadow: 0 8px 32px rgba(13,31,53,0.10);
+  transform: translateY(-2px);
 }
 
 .price-card.featured {
@@ -923,7 +928,7 @@ body {
   .page-section { padding: 72px 24px; }
   .page-section h2 { font-size: 32px; }
   .steps-grid { grid-template-columns: 1fr; }
-  .pricing-grid { grid-template-columns: 1fr; }
+  .pricing-grid { grid-template-columns: 1fr 1fr; }
   .quotes-grid { grid-template-columns: 1fr; }
   .footer-inner { grid-template-columns: 1fr 1fr; gap: 36px; }
   .footer-bottom { flex-direction: column; gap: 12px; text-align: center; }
