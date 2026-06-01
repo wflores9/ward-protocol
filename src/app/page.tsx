@@ -29,7 +29,7 @@ const statusRows: [string, React.ReactNode][] = [
   ['SDK Version', 'v0.2.5'],
   ['Unit Tests', <span style={{ color: 'var(--green)' }}>317 Python · 40 Rust · 45 TypeScript</span>],
   ['Coverage', 'chain_reader 100% · monitor 100% · tx_builder 100% · vault_monitor 99%'],
-  ['On-Chain Transactions', '5 confirmed (XRPL Altnet)'],
+  ['On-Chain Transactions', '2 confirmed (XRPL Altnet) · F·03–F·05 pending XLS-66 mainnet'],
   ['External Dependencies', '0 — pure XRPL'],
   ['Ward Holds Keys', 'Never'],
   ['Authoritative State', 'XRPL Ledger'],
@@ -38,11 +38,11 @@ const statusRows: [string, React.ReactNode][] = [
 ]
 
 const txns = [
-  { step: '1 — Premium Payment',  type: 'Payment',       proves: 'Premium to pool',                hash: 'D541B6A2...783169' },
-  { step: '2 — Policy NFT Mint',  type: 'NFTokenMint',   proves: 'Coverage issued (taxon 281)',    hash: 'B323815A...148CDF' },
-  { step: '3 — Escrow Create',    type: 'EscrowCreate',  proves: 'Funds locked PREIMAGE-SHA-256',  hash: '9BB570DB...B0A3' },
-  { step: '4 — Escrow Finish',    type: 'EscrowFinish',  proves: 'Payout released with preimage',  hash: 'E65C35A5...A3088' },
-  { step: '5 — Policy NFT Burn',  type: 'NFTokenBurn',   proves: 'Replay protection confirmed',    hash: 'A5A0652C...464D8' },
+  { step: '1 — Premium Payment',  type: 'Payment',       proves: 'Premium to pool',                hash: 'B756484C...3B8D7E' },
+  { step: '2 — Policy NFT Mint',  type: 'NFTokenMint',   proves: 'Coverage issued (taxon 281)',    hash: '2800219A...E79E2CB' },
+  { step: '3 — Escrow Create',    type: 'EscrowCreate',  proves: 'Funds locked PREIMAGE-SHA-256',  hash: 'Pending F·05' },
+  { step: '4 — Escrow Finish',    type: 'EscrowFinish',  proves: 'Payout released with preimage',  hash: 'Pending F·05' },
+  { step: '5 — Policy NFT Burn',  type: 'NFTokenBurn',   proves: 'Replay protection confirmed',    hash: 'Pending F·05' },
 ]
 
 export default function Home() {
