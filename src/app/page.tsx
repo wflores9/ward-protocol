@@ -188,7 +188,6 @@ export default function Home() {
           <div className="pricing-grid">
             <div className="price-card">
               <div className="price-tier">Starter</div>
-              <div className="price-amount border border-[#c8a94a]/40 rounded-md" style={{ fontSize: 26, color: '#c8a94a' }}>Coming Soon</div>
               <div className="price-sub">For builders and developers</div>
               <div className="price-divider" />
               <ul className="price-features">
@@ -203,7 +202,6 @@ export default function Home() {
             <div className="price-card featured">
               <div className="price-badge">Most Popular</div>
               <div className="price-tier">Standard</div>
-              <div className="price-amount border border-[#c8a94a]/40 rounded-md" style={{ fontSize: 26, color: '#c8a94a' }}>Coming Soon</div>
               <div className="price-sub">For institutional integrations</div>
               <div className="price-divider" />
               <ul className="price-features">
@@ -217,7 +215,6 @@ export default function Home() {
             </div>
             <div className="price-card dark">
               <div className="price-tier">Enterprise</div>
-              <div className="price-amount border border-[#c8a94a]/40 rounded-md" style={{ fontSize: 26, color: '#c8a94a' }}>Coming Soon</div>
               <div className="price-sub" style={{ color: 'rgba(255,255,255,0.45)' }}>For regulated institutions</div>
               <div className="price-divider" />
               <ul className="price-features">
