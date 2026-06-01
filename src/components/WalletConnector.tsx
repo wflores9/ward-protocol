@@ -48,7 +48,7 @@ export default function WalletConnector() {
           resolve()
         })
         manager.on('error', (e: any) => reject(e))
-        manager.connect().catch(reject)
+        manager.connect({ adapterId }).catch(reject)
       })
     } catch (e: any) {
       setError(e?.message || 'Connection failed')

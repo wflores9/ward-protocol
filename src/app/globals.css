@@ -935,3 +935,11 @@ body {
   .social-proof { padding: 20px 24px; }
   .cta-section h2 { font-size: 36px; }
 }
+
+/* Condensed black readability */
+.font-condensed {
+  letter-spacing: 0.01em;
+}
+.font-condensed.font-black, .font-condensed.text-lg, .font-condensed.text-xl, .font-condensed.text-2xl {
+  letter-spacing: 0.02em;
+}
