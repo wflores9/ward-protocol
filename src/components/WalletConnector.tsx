@@ -1,40 +1,45 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useState } from 'react'
 import { useWallet } from '../context/WalletContext'
-import { useWalletManager } from '../hooks/useWalletManager'
-
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      'xrpl-wallet-connector': React.DetailedHTMLProps<
-        React.HTMLAttributes<HTMLElement> & {
-          'primary-wallet'?: string
-          ref?: React.Ref<any>
-        },
-        HTMLElement
-      >
-    }
-  }
-}
 
 export default function WalletConnector() {
-  const { isConnected, accountInfo, walletManager } = useWallet()
-  const connectorRef = useRef<HTMLElement>(null)
-  useWalletManager()
+  const { isConnected, accountInfo, setIsConnected, setAccountInfo } = useWallet()
+  const [loading, setLoading] = useState(false)
 
-  useEffect(() => {
-    import('xrpl-connect').catch(() => {})
-  }, [])
+  const handleConnect = async () => {
+    setLoading(true)
+    try {
+      const { WalletManager, XamanAdapter, CrossmarkAdapter, GemWalletAdapter } = await import('xrpl-connect')
+      const manager = new WalletManager({
+        adapters: [
+          new XamanAdapter({ apiKey: process.env.NEXT_PUBLIC_XAMAN_API_KEY || '' }),
+          new CrossmarkAdapter(),
+          new GemWalletAdapter(),
+        ],
+        network: 'testnet',
+      })
 
-  useEffect(() => {
-    const el = connectorRef.current
-    if (!el || !walletManager) return
-    ;(el as any).walletManager = walletManager
-  }, [walletManager])
+      manager.on('connect', (account: any) => {
+        setIsConnected(true)
+        setAccountInfo({
+          address: account.address,
+          network: account.network || 'testnet',
+          walletName: account.walletName || 'Wallet',
+        })
+        setLoading(false)
+      })
+
+      manager.on('error', () => setLoading(false))
+      await manager.connect()
+    } catch (e) {
+      setLoading(false)
+    }
+  }
 
   const handleDisconnect = () => {
-    walletManager?.disconnect()
+    setIsConnected(false)
+    setAccountInfo(null)
   }
 
   if (isConnected && accountInfo) {
@@ -60,15 +65,19 @@ export default function WalletConnector() {
   }
 
   return (
-    <xrpl-wallet-connector
-      ref={connectorRef}
-      primary-wallet="xaman"
-      style={{
-        '--xrpl-connect-primary': '#c8a94a',
-        '--xrpl-connect-background': '#0d1f35',
-        '--xrpl-connect-text': '#a8c5e8',
-        '--xrpl-connect-border-radius': '6px',
-      } as React.CSSProperties}
-    />
+    <button
+      onClick={handleConnect}
+      disabled={loading}
+      className="inline-flex items-center gap-2 bg-steel text-ice px-5 py-2.5 rounded-md text-sm font-mono hover:bg-[#122030] transition-colors disabled:opacity-50"
+    >
+      {loading ? (
+        <>
+          <span className="w-3 h-3 border border-ice border-t-transparent rounded-full animate-spin" />
+          Connecting...
+        </>
+      ) : (
+        'Connect Wallet'
+      )}
+    </button>
   )
 }
