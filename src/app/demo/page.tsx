@@ -1,7 +1,8 @@
 import type { Metadata } from 'next'
 import FlowRunner from '@/components/FlowRunner'
 import WardChecklist from '@/components/WardChecklist'
-import WalletConnector from '@/components/WalletConnector'
+import dynamic from 'next/dynamic'
+const WalletConnector = dynamic(() => import('@/components/WalletConnector'), { ssr: false })
 
 export const metadata: Metadata = {
   title: 'Ward Protocol — Demo & Conformance Checklist',
