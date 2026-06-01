@@ -1,11 +1,11 @@
 # Ward Protocol — Altnet E2E Test Results
 
-Institution: `r3cQTjnW1yZv6goFEDNUtbmQ2mJVGSpgNK`
+Institution: `rsJgWZd8DNedfPCeViEwyGWoLtFZvaQyog`
 
-Depositor: `rpFvtba9ps2orRN25ynnuS29JMa6Xg5Kpt`
+Depositor: `rE43j9LAUicHzvRcgJMQryfJBjsQk5vjYs`
 
-Borrower: `r4D3yKBXBPoWTh5biPr1Tp3Zgjp19LYbda`
+Borrower: `rJEriryY7h4ymmF9GMxKP6LxaRZPfY3isG`
 
-- **F03**: PASS — nft=000100001408A91F... premium_tx=C9F0E71D899ED46C...
+- **F03**: PASS — nft=000100009D90F22E... premium_tx=21FD019E26ACE575...
 
 **WARD E2E TEST — PASS**
