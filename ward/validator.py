@@ -16,6 +16,8 @@ from dataclasses import dataclass
 from typing import Optional, Tuple
 
 from xrpl.asyncio.clients import AsyncJsonRpcClient
+
+
 from xrpl.models import AccountInfo, AccountNFTs, LedgerEntry
 
 from ward.constants import (
@@ -100,7 +102,11 @@ class ClaimValidator:
         # FIX #14: wrap all ledger I/O so LedgerError/WardError always returns
         # ValidationResult rather than propagating as an unhandled exception.
         try:
-            async with AsyncJsonRpcClient(self._url) as client:
+            _raw_client = AsyncJsonRpcClient(self._url)
+            if not hasattr(_raw_client, '__aenter__'):
+                _raw_client.__aenter__ = lambda: _raw_client
+                _raw_client.__aexit__ = lambda *a: None
+            async with _raw_client as client:
                 # Steps 1, 4, pool-info run concurrently.
                 nft_data, (default_flag, vault_loss), pool_info = await asyncio.gather(
                     self._step1_verify_nft_exists(
