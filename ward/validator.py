@@ -107,8 +107,16 @@ class ClaimValidator:
         # FIX #14: wrap all ledger I/O so LedgerError/WardError always returns
         # ValidationResult rather than propagating as an unhandled exception.
         try:
-            client = AsyncJsonRpcClient(self._url)
-            if True:
+            _raw_client = AsyncJsonRpcClient(self._url)
+            if not hasattr(_raw_client.__class__, '__aenter__'):
+                async def _aenter(self): return self
+                async def _aexit(self, *a): pass
+                _raw_client.__class__ = type(
+                    '_CompatClient',
+                    (_raw_client.__class__,),
+                    {'__aenter__': _aenter, '__aexit__': _aexit}
+                )
+            async with _raw_client as client:
                 # Steps 1, 4, pool-info run concurrently.
                 nft_data, (default_flag, vault_loss), pool_info = await asyncio.gather(
                     self._step1_verify_nft_exists(
