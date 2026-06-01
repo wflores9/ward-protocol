@@ -197,7 +197,7 @@ export default function Home() {
                 <li>XRPLF Discussion #474</li>
                 <li>Email support</li>
               </ul>
-              <a href="mailto:wflores@wardprotocol.org" className="btn-outline-navy">Express Interest →</a>
+              <a href="https://tally.so/r/VLDbBE" target="_blank" rel="noopener noreferrer" className="btn-outline-navy">Get in Touch →</a>
             </div>
             <div className="price-card">
               <div className="price-tier">Standard</div>
@@ -210,7 +210,7 @@ export default function Home() {
                 <li>Ward-Conformant certification path</li>
                 <li>99.9% uptime SLA</li>
               </ul>
-              <a href="mailto:wflores@wardprotocol.org" className="btn-navy">Express Interest →</a>
+              <a href="https://cal.com/wardprotocol/30min" target="_blank" rel="noopener noreferrer" className="btn-navy">Book a Call →</a>
             </div>
             <div className="price-card dark">
               <div className="price-tier">Enterprise</div>
@@ -223,7 +223,7 @@ export default function Home() {
                 <li>Direct integration engineering</li>
                 <li>Priority audit coordination</li>
               </ul>
-              <a href="mailto:wflores@wardprotocol.org" className="btn-white">Express Interest →</a>
+              <a href="https://cal.com/wardprotocol/30min" target="_blank" rel="noopener noreferrer" className="btn-white">Book a Call →</a>
             </div>
           </div>
         </div>
