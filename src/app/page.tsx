@@ -187,8 +187,21 @@ export default function Home() {
           </div>
           <div className="pricing-grid">
             <div className="price-card">
+              <div className="price-tier">Developer</div>
+              <div className="price-sub">For builders on XRPL</div>
+              <div className="price-divider" />
+              <ul className="price-features">
+                <li>Ward Protocol SDK (Python + TypeScript)</li>
+                <li>Altnet sandbox access</li>
+                <li>Starter repo + full documentation</li>
+                <li>XRPLF Discussion #474</li>
+                <li>Community Discord support</li>
+              </ul>
+              <a href="https://pypi.org/project/ward-protocol/" target="_blank" rel="noopener noreferrer" className="btn-outline-navy">Get Started →</a>
+            </div>
+            <div className="price-card">
               <div className="price-tier">Starter</div>
-              <div className="price-sub">For builders and developers</div>
+              <div className="price-sub">For teams deploying to mainnet</div>
               <div className="price-divider" />
               <ul className="price-features">
                 <li>Ward Protocol SDK access</li>
