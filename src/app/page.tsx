@@ -199,8 +199,7 @@ export default function Home() {
               </ul>
               <a href="mailto:wflores@wardprotocol.org" className="btn-outline-navy">Express Interest →</a>
             </div>
-            <div className="price-card featured">
-              <div className="price-badge">Most Popular</div>
+            <div className="price-card">
               <div className="price-tier">Standard</div>
               <div className="price-sub">For institutional integrations</div>
               <div className="price-divider" />
