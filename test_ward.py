@@ -1883,7 +1883,7 @@ class TestPolicyForgery:
             r = await validator._step1_verify_nft_exists(client, VALID_ADDRESS, "A" * 64)
             return r
 
-        result = asyncio.get_event_loop().run_until_complete(_run())
+        result = asyncio.run(_run())
         from ward.validator import _WRONG_TAXON as _WT
         assert result is _WT, "NFT with wrong taxon must return _WRONG_TAXON sentinel"
 
