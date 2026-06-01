@@ -3,6 +3,7 @@ import FlowRunner from '@/components/FlowRunner'
 import WardChecklist from '@/components/WardChecklist'
 import dynamic from 'next/dynamic'
 const WalletConnector = dynamic(() => import('@/components/WalletConnector'), { ssr: false })
+const LiveValidator = dynamic(() => import('@/components/LiveValidator'), { ssr: false })
 
 export const metadata: Metadata = {
   title: 'Ward Protocol — Demo & Conformance Checklist',
@@ -24,6 +25,7 @@ export default function DemoPage() {
           <WalletConnector />
         </div>
       </div>
+      <LiveValidator />
       {/* Checklist */}
       <WardChecklist />
       {/* Flow examples */}
