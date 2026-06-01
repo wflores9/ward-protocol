@@ -109,7 +109,7 @@ app = FastAPI(
         "ward_signed = False — Ward constructs unsigned transactions. "
         "The institution signs. XRPL settles."
     ),
-    version="1.0.0",
+    version="0.2.5",
     docs_url=None,
     redoc_url=None,
     openapi_url=None,
@@ -274,10 +274,10 @@ def _institution_key_dep(x_institution_key: Optional[str] = Header(None)) -> str
 async def root():
     return {
         "protocol": "Ward Protocol",
-        "version": "1.0.0",
+        "version": "0.2.5",
         "spec": "https://github.com/XRPLF/XRPL-Standards/discussions/474",
         "website": "https://wardprotocol.org",
-        "pypi": "ward-protocol==0.2.3",
+        "pypi": "ward-protocol==0.2.5",
         "ward_signed": False,
         "invariant": "Ward constructs unsigned XRPL transactions. The institution signs. XRPL settles.",
         "status": "operational",
@@ -291,7 +291,7 @@ async def health():
         "status": "healthy",
         "timestamp": datetime.utcnow().isoformat() + "Z",
         "uptime_seconds": round(time.time() - _START_TIME),
-        "version": "1.0.0",
+        "version": "0.2.5",
         "xrpl_url": XRPL_URL,
         "ward_client_available": WARD_CLIENT_AVAILABLE,
         "ward_signed": False,
