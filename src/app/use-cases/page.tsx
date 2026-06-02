@@ -43,6 +43,18 @@ const scenarios = [
     attr: '24/7 Wall St',
     role: 'XRPL Lending Protocol Coverage · February 2026',
   },
+  {
+    id: '04',
+    bg: 'bg-[#f8fafc]',
+    title: 'The regulator asks what happens on default.',
+    subtitle: 'What is your answer?',
+    category: 'Compliance & Audit',
+    without: 'The answer is: it depends. It depends on who runs the vault, what their internal policy is, whether they follow it, and whether anyone is watching. There is no standard answer. There is no audit trail. There is no on-chain proof. Regulators hate this answer.',
+    with: 'The answer is: here is the transaction hash. Nine checks ran against live blockchain state at this ledger index. Steps 1 through 9 passed. The escrow released at this timestamp. Every step is verifiable by any third party, at any time, without asking Ward. The audit trail is the blockchain itself. Ward never held a key. Ward never made a judgment. The ledger decided.',
+    quote: 'The protocol is ahead of the compliance tooling.',
+    attr: 'XRPL Zone Paris Working Group',
+    role: 'April 14, 2026',
+  },
 ]
 
 const signals = [
@@ -69,6 +81,70 @@ export default function UseCasesPage() {
           </p>
         </div>
       </div>
+
+      {/* Plain English */}
+      <section className="bg-[#f8fafc] px-6 md:px-12 py-16 border-b border-gray-100">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-xs font-mono text-[#c8a94a] uppercase tracking-widest mb-3">Ward Protocol — Plain English</div>
+          <h2 className="font-condensed font-black text-4xl text-steel mb-2">No jargon. Just the problem and the answer.</h2>
+          <p className="text-sm text-sub mb-10 max-w-2xl">
+            You don&apos;t need to know what XLS-66 is. You just need to know what happens when something goes wrong.
+          </p>
+
+          <div className="grid md:grid-cols-3 gap-5 mb-12">
+            {[
+              {
+                icon: '⚠️',
+                title: 'Billions in loans. No standard for what happens when they go wrong.',
+                body: 'Digital lending is moving on-chain. Institutions are deploying real capital into blockchain-based loan vaults. But nobody has defined what happens when a borrower defaults. Every platform handles it differently — or not at all.',
+              },
+              {
+                icon: '🔄',
+                title: 'Manual decisions. Slow resolution. Human error.',
+                body: 'Today, when a digital loan defaults, someone has to decide what happens. That means delays, disputes, and inconsistency. It means counterparty risk. It means institutional capital sitting in limbo while humans argue.',
+              },
+              {
+                icon: '🛡️',
+                title: 'Nine checks. Automatic resolution. No one in the middle.',
+                body: 'Ward Protocol defines exactly what happens on default — before it happens. Nine conditions are checked automatically against the blockchain. If they pass, funds are released. If they don\'t, the claim is rejected. No delays. No disputes. No Ward signature — ever.',
+              },
+            ].map(card => (
+              <div key={card.icon} className="bg-white border border-gray-100 rounded-md p-6 shadow-sm">
+                <div className="text-3xl mb-4">{card.icon}</div>
+                <div className="font-condensed font-black text-base text-steel mb-3 leading-snug">{card.title}</div>
+                <p className="text-sm text-sub leading-relaxed">{card.body}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Comparison table */}
+          <div className="overflow-x-auto rounded-md border border-gray-200">
+            <table className="w-full text-sm border-collapse">
+              <thead>
+                <tr>
+                  <th className="bg-steel text-ice font-mono text-xs font-semibold px-5 py-3 text-left">Without Ward</th>
+                  <th className="bg-steel text-ice font-mono text-xs font-semibold px-5 py-3 text-left">With Ward</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  ['Manual decision by vault operator',  'Automatic 9-step on-chain validation'],
+                  ['Outcome varies by platform',         'Same outcome every time, every institution'],
+                  ['Disputes require arbitration',       'Disputes eliminated by design'],
+                  ['Off-chain legal fallback',           'Fully on-chain resolution'],
+                  ['No audit trail',                     'Every check verifiable on the ledger'],
+                  ['Counterparty risk',                  'ward_signed = False — no Ward keys'],
+                ].map(([without, with_], i) => (
+                  <tr key={i} className={i % 2 === 0 ? 'bg-white' : 'bg-[#f8fafc]'}>
+                    <td className="px-5 py-3 text-sub border-t border-gray-100">{without}</td>
+                    <td className="px-5 py-3 border-t border-gray-100 font-medium" style={{ color: '#00cc66' }}>{with_}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
 
       {/* Scenarios */}
       {scenarios.map(s => (
