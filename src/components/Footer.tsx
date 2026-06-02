@@ -22,18 +22,17 @@ export default function Footer() {
         <div>
           <div className="footer-col-label">Product</div>
           <ul className="footer-links">
-            <li><Link href="/spec">Specification</Link></li>
-            <li><Link href="/docs">Documentation</Link></li>
+            <li><Link href="/spec">Protocol</Link></li>
+            <li><Link href="/use-cases">Use Cases</Link></li>
+            <li><Link href="/build">Build</Link></li>
             <li><Link href="/demo">Demo</Link></li>
-            <li><Link href="/certified">Ward Certified</Link></li>
-            <li><Link href="/dashboard">Dashboard</Link></li>
-            <li><a href="https://github.com/XRPLF/XRPL-Standards/discussions/474" target="_blank" rel="noopener noreferrer">XRPLF #474</a></li>
+            <li><a href="https://tally.so/r/VLDbBE" target="_blank" rel="noopener noreferrer">Get Started</a></li>
           </ul>
         </div>
         <div>
           <div className="footer-col-label">Resources</div>
           <ul className="footer-links">
-            <li><Link href="/spec">Whitepaper</Link></li>
+            <li><Link href="/spec">Specification</Link></li>
             <li><Link href="/docs">API Reference</Link></li>
             <li><a href="https://pypi.org/project/ward-protocol/" target="_blank" rel="noopener noreferrer">PyPI</a></li>
             <li><a href="https://github.com/wflores9/ward-protocol" target="_blank" rel="noopener noreferrer">GitHub</a></li>
