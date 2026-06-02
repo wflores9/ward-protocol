@@ -64,6 +64,16 @@ export default function DocsPage() {
 
       <div className="max-w-4xl mx-auto px-6 md:px-12 py-12 space-y-12">
 
+        {/* Use Cases callout */}
+        <div className="bg-[#eff6ff] border border-blue-200 rounded-md p-4 mb-8 flex items-center justify-between gap-4">
+          <p className="text-sm text-blue-800 m-0">
+            New to Ward Protocol? Start with the Use Cases — plain English scenarios showing Ward in action.
+          </p>
+          <Link href="/use-cases" className="text-sm text-blue-700 font-semibold hover:text-blue-900 transition-colors whitespace-nowrap no-underline">
+            View Use Cases →
+          </Link>
+        </div>
+
         {/* Quickstart */}
         <section>
           <h2 className="font-condensed font-black text-3xl text-[#c8a94a] mb-4">Quickstart</h2>

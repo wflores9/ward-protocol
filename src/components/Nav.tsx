@@ -15,12 +15,11 @@ export default function Nav() {
         </div>
       </Link>
       <ul className="nav-links">
-        <li><Link href="/spec">Specification</Link></li>
-        <li><Link href="/docs">Documentation</Link></li>
+        <li><Link href="/spec">Protocol</Link></li>
+        <li><Link href="/use-cases">Use Cases</Link></li>
+        <li><Link href="/build">Build</Link></li>
         <li><Link href="/demo">Demo</Link></li>
-        <li><Link href="/certified">Certified</Link></li>
-        <li><Link href="/dashboard">Dashboard</Link></li>
-        <li><a href="mailto:wflores@wardprotocol.org" className="nav-cta">Contact Us</a></li>
+        <li><a href="https://tally.so/r/VLDbBE" target="_blank" rel="noopener noreferrer" className="nav-cta">Get Started</a></li>
       </ul>
     </nav>
   )
