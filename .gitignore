@@ -50,6 +50,7 @@ target/
 # Test coverage reports
 htmlcov/
 .coverage
+coverage.xml
 *.pyc
 __pycache__/
 sdk/python/.venv/
