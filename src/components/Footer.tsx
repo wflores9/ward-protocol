@@ -16,27 +16,27 @@ export default function Footer() {
               <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Protocol</span>
             </div>
           </Link>
-          <p className="footer-tagline">Deterministic default resolution for XLS-66 lending vaults on the XRP Ledger.</p>
+          <p className="footer-tagline">The default protection layer for institutional lending on the XRP Ledger.</p>
           <p className="footer-invariant">ward_signed = False — always.</p>
         </div>
         <div>
           <div className="footer-col-label">Product</div>
           <ul className="footer-links">
-            <li><Link href="/spec">Protocol</Link></li>
-            <li><Link href="/use-cases">Use Cases</Link></li>
-            <li><Link href="/build">Build</Link></li>
+            <li><Link href="/spec">Specification</Link></li>
+            <li><Link href="/docs">Documentation</Link></li>
             <li><Link href="/demo">Demo</Link></li>
-            <li><a href="https://tally.so/r/VLDbBE" target="_blank" rel="noopener noreferrer">Get Started</a></li>
+            <li><Link href="/certified">Ward Certified</Link></li>
+            <li><a href="https://github.com/XRPLF/XRPL-Standards/discussions/474" target="_blank" rel="noopener noreferrer">XRPLF #474</a></li>
           </ul>
         </div>
         <div>
           <div className="footer-col-label">Resources</div>
           <ul className="footer-links">
-            <li><Link href="/spec">Specification</Link></li>
+            <li><Link href="/spec">Whitepaper</Link></li>
             <li><Link href="/docs">API Reference</Link></li>
             <li><a href="https://pypi.org/project/ward-protocol/" target="_blank" rel="noopener noreferrer">PyPI</a></li>
             <li><a href="https://github.com/wflores9/ward-protocol" target="_blank" rel="noopener noreferrer">GitHub</a></li>
-            <li><a href="https://discord.gg/9BZY4MrU3t" target="_blank" rel="noopener noreferrer">Discord</a></li>
+            <li><a href="https://discord.gg/cGm9m5pEGK" target="_blank" rel="noopener noreferrer">Discord</a></li>
           </ul>
         </div>
         <div>
