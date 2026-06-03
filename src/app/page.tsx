@@ -1,12 +1,12 @@
 import Link from 'next/link'
 
 const flows = [
-  { code: 'F·01', name: 'Vault Registration' },
-  { code: 'F·02', name: 'Credential Issuance' },
-  { code: 'F·03', name: 'Policy Purchase' },
-  { code: 'F·04', name: 'Default Detection' },
-  { code: 'F·05', name: 'Claim Validation' },
-  { code: 'F·06', name: 'Escrow Settlement' },
+  { code: 'F·01', name: 'Vault Registration', status: 'LIVE' },
+  { code: 'F·02', name: 'Credential Issuance', status: 'LIVE' },
+  { code: 'F·03', name: 'Policy Purchase',     status: 'LIVE' },
+  { code: 'F·04', name: 'Default Detection',   status: 'LIVE' },
+  { code: 'F·05', name: 'Claim Validation',    status: 'XLS-66 MAINNET' },
+  { code: 'F·06', name: 'Escrow Settlement',   status: 'XLS-66 MAINNET' },
 ]
 
 const steps = [
@@ -58,12 +58,9 @@ export default function Home() {
               When a borrower defaults, Ward Protocol defines exactly what happens.
               Nine on-ledger checks. No oracle. No human judgment. No Ward signature — ever.
             </p>
-            <p style={{ fontSize: 12, fontFamily: 'monospace', color: 'rgba(168,197,232,0.55)', marginTop: 4, marginBottom: 0, letterSpacing: '0.04em' }}>
-              Built on XRPL. Mainnet-ready at XLS-66 launch.
-            </p>
             <div className="hero-actions">
               <Link href="/spec" className="btn-primary">View Specification →</Link>
-              <a href="mailto:wflores@wardprotocol.org" className="btn-ghost">Contact Us</a>
+              <Link href="/demo" className="btn-ghost">Try Demo →</Link>
             </div>
           </div>
 
@@ -81,7 +78,7 @@ export default function Home() {
                 <li className="flow-item" key={f.code}>
                   <span className="flow-code">{f.code}</span>
                   <span className="flow-name">{f.name}</span>
-                  <span className="flow-status">LIVE</span>
+                  <span className="flow-status" style={f.status !== 'LIVE' ? { color: '#c8a94a' } : undefined}>{f.status}</span>
                 </li>
               ))}
             </ul>
@@ -95,8 +92,8 @@ export default function Home() {
                 <span className="hero-stat-lbl">ward_signed</span>
               </div>
               <div className="hero-stat">
-                <span className="hero-stat-val" style={{ color: '#c8a94a' }}>5</span>
-                <span className="hero-stat-lbl">Altnet Txns</span>
+                <span className="hero-stat-val" style={{ color: '#c8a94a' }}>3</span>
+                <span className="hero-stat-lbl">Confirmation Window</span>
               </div>
             </div>
           </div>
