@@ -52,11 +52,14 @@ export default function Home() {
       <div className="hero-wrap">
         <div className="hero">
           <div className="hero-content">
-            <p className="hero-eyebrow">XLS-66 · XRPL Ledger · Default Protection</p>
-            <h1>Deterministic default resolution for <em>XLS-66 lending vaults</em> on the XRP Ledger.</h1>
+            <p className="hero-eyebrow">DETERMINISTIC · ON-CHAIN · ORACLE-FREE</p>
+            <h1>Deterministic default resolution for <em>on-chain lending.</em></h1>
             <p className="hero-body">
-              When a borrower defaults on an XLS-66 vault, Ward Protocol defines exactly what happens.
+              When a borrower defaults, Ward Protocol defines exactly what happens.
               Nine on-ledger checks. No oracle. No human judgment. No Ward signature — ever.
+            </p>
+            <p style={{ fontSize: 12, fontFamily: 'monospace', color: 'rgba(168,197,232,0.55)', marginTop: 4, marginBottom: 0, letterSpacing: '0.04em' }}>
+              Built on XRPL. Mainnet-ready at XLS-66 launch.
             </p>
             <div className="hero-actions">
               <Link href="/spec" className="btn-primary">View Specification →</Link>
@@ -120,7 +123,7 @@ export default function Home() {
         <div className="section-inner">
           <p className="eyebrow border-l-2 border-[#c8a94a] pl-3">The problem</p>
           <h2>What happens when the borrower doesn&apos;t pay?</h2>
-          <p>Every institution deploying capital into XLS-66 lending vaults will eventually ask this question. Today, there is no standard answer. Every protocol builds their own — or ignores the risk entirely.</p>
+          <p>Every institution deploying capital into on-chain lending will eventually ask this question. Today, there is no standard answer. Every protocol builds their own — or ignores the risk entirely.</p>
           <p>Ward Protocol is the answer. The open specification that defines exactly what happens on default. Deterministic. Auditable. On-chain.</p>
           <p className="question-answer">Ward Protocol is that missing layer.</p>
         </div>
@@ -267,7 +270,7 @@ export default function Home() {
       <section className="page-section status-section">
         <div className="section-inner">
           <p className="eyebrow">Current status</p>
-          <h2>Live on XRPL Altnet</h2>
+          <h2>Built on XRPL · Mainnet-Ready at XLS-66 Launch</h2>
           <table className="status-table">
             <thead><tr><th>Metric</th><th>Value</th></tr></thead>
             <tbody>

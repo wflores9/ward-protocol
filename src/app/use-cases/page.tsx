@@ -3,7 +3,7 @@ import Link from 'next/link'
 
 export const metadata: Metadata = {
   title: 'Ward Protocol — Use Cases',
-  description: 'Deterministic default resolution for institutional lending, milestone escrow, and trade finance on the XRP Ledger.',
+  description: 'Deterministic default resolution for institutional lending, milestone escrow, and trade finance on-chain.',
 }
 
 const scenarios = [
@@ -75,7 +75,7 @@ export default function UseCasesPage() {
             The question every institution asks.
           </h1>
           <p className="text-base text-sub max-w-2xl leading-relaxed">
-            What happens when the borrower does not pay? Today, there is no standard answer on XRPL.
+            What happens when the borrower does not pay? Today, there is no standard answer on-chain.
             Every vault operator builds their own resolution logic — or ignores the risk entirely.
             Ward Protocol is the answer. Deterministic. Auditable. On-chain.
           </p>

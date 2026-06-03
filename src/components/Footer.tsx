@@ -16,7 +16,8 @@ export default function Footer() {
               <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Protocol</span>
             </div>
           </Link>
-          <p className="footer-tagline">The default protection layer for institutional lending on the XRP Ledger.</p>
+          <p className="footer-tagline">Deterministic default resolution for on-chain lending.</p>
+          <p style={{ fontSize: 11, color: 'rgba(168,197,232,0.4)', fontFamily: 'monospace', marginTop: 2, marginBottom: 8 }}>Built on XRPL. Mainnet-ready at XLS-66 launch.</p>
           <p className="footer-invariant">ward_signed = False — always.</p>
         </div>
         <div>
