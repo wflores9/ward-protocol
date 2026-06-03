@@ -21,90 +21,51 @@ class VaultRegistration(TypedDict):
     label: str  # human-readable vault name
 
 
-# ---------------------------------------------------------------------------
-# Network endpoints
-# ---------------------------------------------------------------------------
-
-DEFAULT_TESTNET_URL: str = "https://s.altnet.rippletest.net:51234/"
-DEFAULT_TESTNET_WS: str = "wss://s.altnet.rippletest.net:51233/"
-DEFAULT_MAINNET_URL: str = "https://xrplcluster.com/"
-DEFAULT_MAINNET_WS: str = "wss://xrplcluster.com/"
-
-# ---------------------------------------------------------------------------
-# XLS-20 NFToken flags
-# ---------------------------------------------------------------------------
-
-TF_BURNABLE: int = 0x00000001  # Issuer can burn the NFT
-TF_ONLY_XRP: int = 0x00000002  # Not used by Ward, but present in xrpl-py
-TF_TRANSFERABLE: int = 0x00000008  # Defined here to DOCUMENT its absence.
-# Ward policies MUST NOT use TF_TRANSFERABLE. Only TF_BURNABLE is set.
-# Audit check: assert (flags & TF_TRANSFERABLE) == 0 on every NFTokenMint.
-
-# ---------------------------------------------------------------------------
-# Ward Protocol NFT taxon values  (XLS-20 §4.3)
-# ---------------------------------------------------------------------------
-
-WARD_POLICY_TAXON: int = 281  # Default-protection policy NFT (XLS-20 taxon)
-WARD_CREDENTIAL_TAXON: int = 282  # KYC/AML credential NFT (XLS-70)
-CREDENTIAL_NFT_TAXON: int = WARD_CREDENTIAL_TAXON  # backward-compat alias
-
-# ---------------------------------------------------------------------------
-# KYC / credential
-# ---------------------------------------------------------------------------
-
-VALID_KYC_TYPES: frozenset = frozenset(
-    {"KYC_VERIFIED", "AML_CLEARED", "ACCREDITED_INVESTOR"}
-)
-MAX_CREDENTIAL_URI_LEN: int = 256  # bytes, not hex chars
-
-# ---------------------------------------------------------------------------
-# XLS-66 loan-state flags
-# ---------------------------------------------------------------------------
-
-LSF_LOAN_DEFAULT: int = 0x00010000
-LSF_LOAN_IMPAIRED: int = 0x00020000
-
-# ---------------------------------------------------------------------------
-# XRPL on-chain constants
-# ---------------------------------------------------------------------------
-
-RIPPLE_EPOCH_OFFSET: int = 946684800  # Unix ts of Ripple epoch (Jan 1 2000)
-XRPL_BASE_RESERVE_DROPS: int = 20_000_000  # 20 XRP base account reserve
-XRPL_OWNER_RESERVE_DROPS: int = 2_000_000  # 2 XRP per owned object
-XRP_MAX_DROPS: int = 100_000_000_000_000_000  # 100 billion XRP in drops
-
-# ---------------------------------------------------------------------------
-# Ward business parameters
-# ---------------------------------------------------------------------------
+# ── Chain-Agnostic Constants ──────────────────────────────────────────────────
+# These values are identical across XRPL, Flare, Hedera, Solana, Stellar, XDC.
+# When porting to a new chain: import these directly — no chain-specific override needed.
 
 MIN_COVERAGE_RATIO: float = 1.5  # Pool must hold ≥1.5× active coverage
+
+CLAIM_RATE_LIMIT_MAX: int = 3  # Max claim attempts per token per window
+CLAIM_RATE_LIMIT_WINDOW_S: int = 300  # Window size in seconds (5 minutes)
+CLAIM_RATE_LIMIT_WINDOW_SECONDS: int = CLAIM_RATE_LIMIT_WINDOW_S  # long-form alias
+
 ESCROW_DISPUTE_HOURS: int = 48  # Escrow finish window after creation
 ESCROW_CANCEL_HOURS: int = 72  # Escrow cancel window if claimant fails
-DEFAULT_CONFIRM_COUNT: int = 3  # Ledger closes required before default confirmed
 
-# ---------------------------------------------------------------------------
-# Rate limiting  (ClaimValidator)
-# ---------------------------------------------------------------------------
+WARD_POLICY_TAXON: int = 281  # Canonical policy certificate identifier — chain-agnostic concept
+DEFAULT_CONFIRM_COUNT: int = 3  # Block/ledger closes required before default confirmed
+DEFAULT_CONFIRMATION_COUNT: int = DEFAULT_CONFIRM_COUNT  # long-form alias
 
-CLAIM_RATE_LIMIT_MAX: int = 3  # Max claim attempts per NFT per window
-CLAIM_RATE_LIMIT_WINDOW_S: int = 300  # Window size in seconds (5 minutes)
+# Pool risk-tier thresholds (coverage ratio bands) — chain-agnostic business logic
+RISK_TIER_THRESHOLDS: list = [
+    (5.0, "safest"),
+    (3.0, "safe"),
+    (2.0, "moderate"),
+    (1.5, "elevated"),
+    (0.0, "high"),
+]
 
-# ---------------------------------------------------------------------------
-# Retryable XRPL engine results  (submit_with_retry)
-# ---------------------------------------------------------------------------
+# Base annual premium rates by tier (annualised) — chain-agnostic
+TIER_BASE_RATES: dict = {
+    "safest": 0.01,  # 1.0%
+    "safe": 0.02,  # 2.0%
+    "moderate": 0.03,  # 3.0%
+    "elevated": 0.04,  # 4.0%
+    "high": 0.05,  # 5.0%
+}
 
-RETRYABLE_ENGINE_RESULTS: frozenset = frozenset(
-    {
-        "telINSUF_FEE_P",
-        "terRETRY",
-        "terQUEUED",
-        "terPRE_SEQ",
-    }
-)
+# Premium multipliers by tier — chain-agnostic
+TIER_MULTIPLIERS: dict = {
+    "safest": 0.50,
+    "safe": 0.75,
+    "moderate": 1.00,
+    "elevated": 1.50,
+    "high": 2.00,
+}
 
-# ---------------------------------------------------------------------------
-# Licensing tier definitions  (mirrors index.html tiers)
-# ---------------------------------------------------------------------------
+# Licensing tier definitions — chain-agnostic business logic
 
 
 class LicenseTier:
@@ -122,41 +83,56 @@ class LicenseTier:
     }
 
 
-# ---------------------------------------------------------------------------
-# Pool risk-tier thresholds  (coverage ratio bands)
-# ---------------------------------------------------------------------------
+# KYC / credential — chain-agnostic validity rules
+VALID_KYC_TYPES: frozenset = frozenset(
+    {"KYC_VERIFIED", "AML_CLEARED", "ACCREDITED_INVESTOR"}
+)
+MAX_CREDENTIAL_URI_LEN: int = 256  # bytes, not hex chars
 
-RISK_TIER_THRESHOLDS: list = [
-    (5.0, "safest"),
-    (3.0, "safe"),
-    (2.0, "moderate"),
-    (1.5, "elevated"),
-    (0.0, "high"),
-]
 
-# Base annual premium rates by tier (annualised)
-TIER_BASE_RATES: dict = {
-    "safest": 0.01,  # 1.0%
-    "safe": 0.02,  # 2.0%
-    "moderate": 0.03,  # 3.0%
-    "elevated": 0.04,  # 4.0%
-    "high": 0.05,  # 5.0%
-}
+# ── XRPL-Specific Constants ───────────────────────────────────────────────────
+# These are XRPL-native — will have chain-specific equivalents in phase ports.
+# When porting to a new chain: do NOT import these. Implement chain equivalents.
+# Example: XRPL_BASE_RESERVE_DROPS → Hedera HBAR minimum balance, Solana rent-exempt minimum.
 
-# Premium multipliers by tier
-TIER_MULTIPLIERS: dict = {
-    "safest": 0.50,
-    "safe": 0.75,
-    "moderate": 1.00,
-    "elevated": 1.50,
-    "high": 2.00,
-}
+DEFAULT_TESTNET_URL: str = "https://s.altnet.rippletest.net:51234/"
+DEFAULT_TESTNET_WS: str = "wss://s.altnet.rippletest.net:51233/"
+DEFAULT_MAINNET_URL: str = "https://xrplcluster.com/"
+DEFAULT_MAINNET_WS: str = "wss://xrplcluster.com/"
 
-# ---------------------------------------------------------------------------
-# Monitor endpoint whitelist  (attack vector 2.7 — monitor spoofing)
+# XLS-20 NFToken flags
+TF_BURNABLE: int = 0x00000001  # Issuer can burn the NFT
+TF_ONLY_XRP: int = 0x00000002  # Not used by Ward, but present in xrpl-py
+TF_TRANSFERABLE: int = 0x00000008  # Defined here to DOCUMENT its absence.
+# Ward policies MUST NOT use TF_TRANSFERABLE. Only TF_BURNABLE is set.
+# Audit check: assert (flags & TF_TRANSFERABLE) == 0 on every NFTokenMint.
+
+# Ward Protocol NFT taxon values (XLS-20 §4.3)
+WARD_CREDENTIAL_TAXON: int = 282  # KYC/AML credential NFT (XLS-70)
+CREDENTIAL_NFT_TAXON: int = WARD_CREDENTIAL_TAXON  # backward-compat alias
+
+# XLS-66 loan-state flags
+LSF_LOAN_DEFAULT: int = 0x00010000
+LSF_LOAN_IMPAIRED: int = 0x00020000
+
+# XRPL on-chain constants
+RIPPLE_EPOCH_OFFSET: int = 946684800  # Unix ts of Ripple epoch (Jan 1 2000)
+XRPL_BASE_RESERVE_DROPS: int = 20_000_000  # 20 XRP base account reserve
+XRPL_OWNER_RESERVE_DROPS: int = 2_000_000  # 2 XRP per owned object
+XRP_MAX_DROPS: int = 100_000_000_000_000_000  # 100 billion XRP in drops
+
+# Retryable XRPL engine results (submit_with_retry)
+RETRYABLE_ENGINE_RESULTS: frozenset = frozenset(
+    {
+        "telINSUF_FEE_P",
+        "terRETRY",
+        "terQUEUED",
+        "terPRE_SEQ",
+    }
+)
+
+# Monitor endpoint whitelist (attack vector 2.7 — monitor spoofing)
 # Only TLS (wss://) endpoints. ws:// connections are always rejected.
-# ---------------------------------------------------------------------------
-
 ALLOWED_WS_URLS: frozenset = frozenset(
     {
         "wss://s.altnet.rippletest.net:51233/",

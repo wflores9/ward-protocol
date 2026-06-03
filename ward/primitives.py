@@ -4,6 +4,18 @@ Ward Protocol — Shared primitives.
 Errors, validators, and utilities used by every SDK module.
 Import from here; never duplicate in module files.
 
+Organised into two sections:
+
+  Chain-Agnostic Primitives
+    Pure cryptographic and business logic. These port verbatim to every chain —
+    generate_claim_preimage, make_preimage_condition, check_rate_limit, and the
+    error hierarchy are identical on Flare, Hedera, Solana, Stellar, and XDC.
+
+  XRPL-Specific Primitives
+    Functions that depend on xrpl-py types, Ripple epoch time, or the XRPL
+    address/hex encoding scheme. When porting to a new chain, replace these with
+    chain-native equivalents — do NOT import them from this module.
+
 Fixes applied:
     #4  No long-lived client instance attributes.
     #6  submit_with_retry handles retryable XRPL engine results.
@@ -39,6 +51,10 @@ from ward.constants import (
 logger = logging.getLogger("ward.primitives")
 
 
+# ── Chain-Agnostic Primitives ─────────────────────────────────────────────────
+# Pure cryptographic and business logic — ports verbatim to every chain.
+# When porting: copy this section as-is. No chain-specific imports required.
+
 # ---------------------------------------------------------------------------
 # Errors
 # ---------------------------------------------------------------------------
@@ -59,6 +75,11 @@ class SecurityError(WardError):
 class LedgerError(WardError):
     """XRPL ledger interaction failed."""
 
+
+# ── XRPL-Specific Primitives ──────────────────────────────────────────────────
+# Functions that depend on xrpl-py, Ripple epoch time, or XRPL address encoding.
+# When porting to a new chain: implement chain-native equivalents — do NOT import
+# these. Each chain adapter (ward/chain.py ChainAdapter subclass) replaces them.
 
 # ---------------------------------------------------------------------------
 # Address and amount validators
@@ -158,8 +179,10 @@ def validate_nft_id(nft_id: str, label: str = "NFT token ID") -> None:
         raise ValidationError(f"{label} must be uppercase hex (0-9, A-F)")
 
 
+# ── Chain-Agnostic Primitives (continued) ────────────────────────────────────
+
 # ---------------------------------------------------------------------------
-# Rate limiter — per NFT token ID  (attack vector 2.12 — rate limiting bypass)
+# Rate limiter — per token ID  (attack vector 2.12 — rate limiting bypass)
 # ---------------------------------------------------------------------------
 
 _rate_limit_lock: threading.Lock = threading.Lock()
@@ -219,7 +242,7 @@ def check_rate_limit(nft_token_id: str) -> bool:
     return True
 
 
-def validate_wallet(wallet: object, label: str = "wallet") -> Wallet:
+def validate_wallet(wallet: object, label: str = "wallet") -> Wallet:  # XRPL-specific
     """
     Assert that wallet is an xrpl.wallet.Wallet instance with a valid address.
 
@@ -237,7 +260,7 @@ def validate_wallet(wallet: object, label: str = "wallet") -> Wallet:
 
 
 # ---------------------------------------------------------------------------
-# XRPL time utilities
+# XRPL time utilities  (XRPL-specific: Ripple epoch offset, xrpl-py Ledger model)
 # ---------------------------------------------------------------------------
 
 
@@ -286,8 +309,11 @@ def ripple_time_now() -> int:
     return int(time.time()) - RIPPLE_EPOCH_OFFSET
 
 
+# ── Chain-Agnostic Primitives (continued) ────────────────────────────────────
+
 # ---------------------------------------------------------------------------
 # Crypto — PREIMAGE-SHA-256 condition / fulfillment
+# RFC 3230 encoding — identical on every chain that supports hash-time-locked escrow
 # ---------------------------------------------------------------------------
 
 
@@ -322,8 +348,10 @@ def generate_claim_preimage() -> bytes:
     return secrets.token_bytes(32)
 
 
+# ── XRPL-Specific Primitives (continued) ─────────────────────────────────────
+
 # ---------------------------------------------------------------------------
-# Submission with retry  (Fix #6 — retryable XRPL errors)
+# Submission with retry  (Fix #6 — retryable XRPL errors; XRPL-specific)
 # ---------------------------------------------------------------------------
 
 
