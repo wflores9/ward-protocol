@@ -16,13 +16,6 @@ from dataclasses import dataclass
 from typing import Optional, Tuple
 
 from xrpl.asyncio.clients import AsyncJsonRpcClient
-
-async def _get_client(url: str):
-    """Return AsyncJsonRpcClient — wrapped for xrpl-py 3.x/4.x compat."""
-    return AsyncJsonRpcClient(url)
-
-
-
 from xrpl.models import AccountInfo, AccountNFTs, LedgerEntry
 
 from ward.constants import (
@@ -108,13 +101,18 @@ class ClaimValidator:
         # ValidationResult rather than propagating as an unhandled exception.
         try:
             _raw_client = AsyncJsonRpcClient(self._url)
-            if not hasattr(_raw_client.__class__, '__aenter__'):
-                async def _aenter(self): return self
-                async def _aexit(self, *a): pass
+            if not hasattr(_raw_client.__class__, "__aenter__"):
+
+                async def _aenter(self):
+                    return self
+
+                async def _aexit(self, *a):
+                    pass
+
                 _raw_client.__class__ = type(
-                    '_CompatClient',
+                    "_CompatClient",
                     (_raw_client.__class__,),
-                    {'__aenter__': _aenter, '__aexit__': _aexit}
+                    {"__aenter__": _aenter, "__aexit__": _aexit},
                 )
             async with _raw_client as client:
                 # Steps 1, 4, pool-info run concurrently.
