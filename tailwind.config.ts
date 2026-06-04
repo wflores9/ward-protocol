@@ -17,6 +17,8 @@ const config: Config = {
         green: '#00cc66',
         border: '#284047',
         dim: '#a9bdb8',
+        paper: '#f6f4ee',
+        mist: '#edf4f1',
         panel: '#edf4f1',
         p2: '#dcebe6',
         sub: '#4f665f',
