@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+﻿import type { Metadata } from 'next'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
@@ -128,20 +128,20 @@ export default function SpecPage() {
       {/* Header */}
       <div className="border-b border-gold/20 bg-white px-6 md:px-12 py-10">
         <div className="max-w-4xl mx-auto">
-          <div className="text-xs uppercase tracking-[.15em] text-ice2 mb-2 font-mono">Ward Protocol v0.2.5</div>
+          <div className="text-sm uppercase tracking-[.15em] text-ice2 mb-2 font-mono">Ward Protocol v0.2.5</div>
           <h1 className="font-condensed font-black text-5xl text-steel mb-3">Protocol Specification</h1>
           <p className="text-sm text-sub max-w-2xl">
             Technical reference for Ward Protocol: architecture, 9-step claim validation,
             VaultMonitor, escrow settlement, and all 15 attack-vector mitigations.
           </p>
           <div className="flex gap-3 mt-5">
-            <span className="text-xs bg-[#fdf8ed] text-[#c8a94a] border border-gold/30 px-2.5 py-1 rounded font-mono font-bold">
+            <span className="text-sm bg-[#fdf8ed] text-[#c8a94a] border border-gold/30 px-2.5 py-1 rounded font-mono font-bold">
               317/317 Python · 40/40 Rust · 45/45 TypeScript
             </span>
-            <span className="text-xs bg-panel border border-border text-sub px-2.5 py-1 rounded font-mono">
+            <span className="text-sm bg-panel border border-border text-sub px-2.5 py-1 rounded font-mono">
               SDK v0.2.5
             </span>
-            <span className="text-xs bg-[#fdf8ed] text-[#c8a94a] border border-gold/30 px-2.5 py-1 rounded font-mono">
+            <span className="text-sm bg-[#fdf8ed] text-[#c8a94a] border border-gold/30 px-2.5 py-1 rounded font-mono">
               15 AVs Mitigated
             </span>
           </div>
@@ -152,18 +152,18 @@ export default function SpecPage() {
       <div className="max-w-4xl mx-auto px-6 md:px-12 py-12 grid md:grid-cols-[200px_1fr] gap-10 items-start">
         {/* TOC */}
         <nav className="sticky top-20 hidden md:block">
-          <div className="text-xs uppercase tracking-widest text-sub mb-3">Contents</div>
+          <div className="text-sm uppercase tracking-widest text-sub mb-3">Contents</div>
           <ul className="space-y-1.5">
             {sections.map(s => (
               <li key={s.id}>
-                <a href={`#${s.id}`} className="text-xs text-sub hover:text-steel transition-colors no-underline block">
+                <a href={`#${s.id}`} className="text-sm text-sub hover:text-steel transition-colors no-underline block">
                   {s.title}
                 </a>
               </li>
             ))}
           </ul>
           <div className="mt-6 pt-6 border-t border-p2">
-            <Link href="/demo" className="text-xs text-ice2 hover:text-steel transition-colors no-underline">
+            <Link href="/demo" className="text-sm text-ice2 hover:text-steel transition-colors no-underline">
               → Try Checklist
             </Link>
           </div>
@@ -177,7 +177,7 @@ export default function SpecPage() {
                 {s.title}
               </h2>
               {s.id === 'claim-validation' ? (
-                <div className="bg-steel rounded-md p-5 overflow-x-auto font-mono text-xs leading-relaxed">
+                <div className="bg-steel rounded-md p-5 overflow-x-auto font-mono text-sm leading-relaxed">
                   {CLAIM_STEPS.map(step => (
                     <div key={step.n} className="flex gap-2 mb-1">
                       <span className="text-[#c8a94a] shrink-0 w-14">Step {step.n}</span>
@@ -186,7 +186,7 @@ export default function SpecPage() {
                   ))}
                 </div>
               ) : s.id === 'constants' ? (
-                <div className="bg-steel rounded-md p-5 overflow-x-auto font-mono text-xs leading-relaxed">
+                <div className="bg-steel rounded-md p-5 overflow-x-auto font-mono text-sm leading-relaxed">
                   {CONSTANTS.map(c => (
                     <div key={c.name} className="flex mb-0.5">
                       <span className="text-[#c8a94a] shrink-0 min-w-[28ch]">{c.name}</span>
@@ -196,7 +196,7 @@ export default function SpecPage() {
                   ))}
                 </div>
               ) : (
-                <pre className="bg-steel text-ice text-xs leading-relaxed rounded-md p-5 overflow-x-auto font-mono whitespace-pre-wrap">
+                <pre className="bg-steel text-ice text-sm leading-relaxed rounded-md p-5 overflow-x-auto font-mono whitespace-pre-wrap">
                   {s.content}
                 </pre>
               )}

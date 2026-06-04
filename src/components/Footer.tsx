@@ -4,8 +4,8 @@ import Link from 'next/link'
 export default function Footer() {
   return (
     <footer style={{
-      background: '#060d1a',
-      borderTop: '1px solid rgba(168,197,232,0.08)',
+      background: '#101d23',
+      borderTop: '1px solid rgba(182,215,206,0.12)',
     }}>
       <div style={{
         maxWidth: 1100, margin: '0 auto', padding: '64px 32px 40px',
@@ -15,31 +15,31 @@ export default function Footer() {
         <div>
           <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none', marginBottom: 16 }}>
             <div style={{
-              width: 36, height: 36, borderRadius: '50%',
-              background: 'rgba(168,197,232,0.08)',
-              border: '1px solid rgba(168,197,232,0.15)',
+              width: 44, height: 44, borderRadius: '50%',
+              background: '#172f37',
+              border: '1px solid rgba(182,215,206,0.18)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               position: 'relative', flexShrink: 0,
             }}>
-              <span style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 900, fontSize: 17, color: '#a8c5e8' }}>W</span>
-              <div style={{ position: 'absolute', bottom: 6, left: '50%', transform: 'translateX(-50%)', width: 12, height: 2, background: '#c8a94a', borderRadius: 1 }} />
+              <span style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 900, fontSize: 21, color: '#e8edf5' }}>W</span>
+              <div style={{ position: 'absolute', bottom: 8, left: '50%', transform: 'translateX(-50%)', width: 16, height: 2, background: '#d4a93e', borderRadius: 1 }} />
             </div>
             <div>
-              <div style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 900, fontSize: 14, color: '#e8edf5', letterSpacing: '0.08em' }}>WARD</div>
-              <div style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 400, fontSize: 10, color: '#6b7a99', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Protocol</div>
+              <div style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 900, fontSize: 16, color: '#e8edf5', letterSpacing: 0 }}>WARD</div>
+              <div style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 400, fontSize: 14, color: '#aec0bc', letterSpacing: 0, textTransform: 'uppercase' }}>Protocol</div>
             </div>
           </Link>
-          <p style={{ fontSize: 13, color: '#6b7a99', lineHeight: 1.6, marginBottom: 8, maxWidth: 240 }}>
+          <p style={{ fontSize: 14, color: '#aec0bc', lineHeight: 1.7, marginBottom: 8, maxWidth: 260 }}>
             Deterministic default resolution for on-chain lending.
           </p>
-          <p style={{ fontFamily: 'DM Mono, monospace', fontSize: 12, color: '#c8a94a', marginTop: 12 }}>
+          <p style={{ fontFamily: 'DM Mono, monospace', fontSize: 14, color: '#d4a93e', marginTop: 12 }}>
             ward_signed = False — always.
           </p>
         </div>
 
         {/* Product */}
         <div>
-          <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 10, fontWeight: 700, letterSpacing: '0.15em', color: '#3d4f6e', textTransform: 'uppercase', marginBottom: 16 }}>PRODUCT</div>
+          <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 14, fontWeight: 700, letterSpacing: 0, color: '#78908b', textTransform: 'uppercase', marginBottom: 16 }}>PRODUCT</div>
           <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 10 }}>
             {[
               { label: 'Protocol', href: '/spec' },
@@ -50,8 +50,8 @@ export default function Footer() {
             ].map(l => (
               <li key={l.label}>
                 {l.ext
-                  ? <a href={l.href} target="_blank" rel="noopener noreferrer" style={{ fontSize: 13, color: '#6b7a99', textDecoration: 'none', transition: 'color 0.15s' }} onMouseEnter={e => (e.currentTarget.style.color = '#e8edf5')} onMouseLeave={e => (e.currentTarget.style.color = '#6b7a99')}>{l.label}</a>
-                  : <Link href={l.href} style={{ fontSize: 13, color: '#6b7a99', textDecoration: 'none', transition: 'color 0.15s' }} onMouseEnter={e => (e.currentTarget.style.color = '#e8edf5')} onMouseLeave={e => (e.currentTarget.style.color = '#6b7a99')}>{l.label}</Link>
+                  ? <a href={l.href} target="_blank" rel="noopener noreferrer" style={{ fontSize: 14, color: '#aec0bc', textDecoration: 'none', transition: 'color 0.15s' }} onMouseEnter={e => (e.currentTarget.style.color = '#e8edf5')} onMouseLeave={e => (e.currentTarget.style.color = '#aec0bc')}>{l.label}</a>
+                  : <Link href={l.href} style={{ fontSize: 14, color: '#aec0bc', textDecoration: 'none', transition: 'color 0.15s' }} onMouseEnter={e => (e.currentTarget.style.color = '#e8edf5')} onMouseLeave={e => (e.currentTarget.style.color = '#aec0bc')}>{l.label}</Link>
                 }
               </li>
             ))}
@@ -60,7 +60,7 @@ export default function Footer() {
 
         {/* Resources */}
         <div>
-          <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 10, fontWeight: 700, letterSpacing: '0.15em', color: '#3d4f6e', textTransform: 'uppercase', marginBottom: 16 }}>RESOURCES</div>
+          <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 14, fontWeight: 700, letterSpacing: 0, color: '#78908b', textTransform: 'uppercase', marginBottom: 16 }}>RESOURCES</div>
           <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 10 }}>
             {[
               { label: 'Specification', href: '/spec' },
@@ -71,8 +71,8 @@ export default function Footer() {
             ].map(l => (
               <li key={l.label}>
                 {l.ext
-                  ? <a href={l.href} target="_blank" rel="noopener noreferrer" style={{ fontSize: 13, color: '#6b7a99', textDecoration: 'none' }} onMouseEnter={e => (e.currentTarget.style.color = '#e8edf5')} onMouseLeave={e => (e.currentTarget.style.color = '#6b7a99')}>{l.label}</a>
-                  : <Link href={l.href} style={{ fontSize: 13, color: '#6b7a99', textDecoration: 'none' }} onMouseEnter={e => (e.currentTarget.style.color = '#e8edf5')} onMouseLeave={e => (e.currentTarget.style.color = '#6b7a99')}>{l.label}</Link>
+                  ? <a href={l.href} target="_blank" rel="noopener noreferrer" style={{ fontSize: 14, color: '#aec0bc', textDecoration: 'none' }} onMouseEnter={e => (e.currentTarget.style.color = '#e8edf5')} onMouseLeave={e => (e.currentTarget.style.color = '#aec0bc')}>{l.label}</a>
+                  : <Link href={l.href} style={{ fontSize: 14, color: '#aec0bc', textDecoration: 'none' }} onMouseEnter={e => (e.currentTarget.style.color = '#e8edf5')} onMouseLeave={e => (e.currentTarget.style.color = '#aec0bc')}>{l.label}</Link>
                 }
               </li>
             ))}
@@ -81,7 +81,7 @@ export default function Footer() {
 
         {/* Legal */}
         <div>
-          <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 10, fontWeight: 700, letterSpacing: '0.15em', color: '#3d4f6e', textTransform: 'uppercase', marginBottom: 16 }}>LEGAL</div>
+          <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 14, fontWeight: 700, letterSpacing: 0, color: '#78908b', textTransform: 'uppercase', marginBottom: 16 }}>LEGAL</div>
           <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 10 }}>
             {[
               { label: 'Privacy Policy', href: '/privacy' },
@@ -90,8 +90,8 @@ export default function Footer() {
             ].map(l => (
               <li key={l.label}>
                 {l.ext
-                  ? <a href={l.href} style={{ fontSize: 13, color: '#6b7a99', textDecoration: 'none' }} onMouseEnter={e => (e.currentTarget.style.color = '#e8edf5')} onMouseLeave={e => (e.currentTarget.style.color = '#6b7a99')}>{l.label}</a>
-                  : <Link href={l.href} style={{ fontSize: 13, color: '#6b7a99', textDecoration: 'none' }} onMouseEnter={e => (e.currentTarget.style.color = '#e8edf5')} onMouseLeave={e => (e.currentTarget.style.color = '#6b7a99')}>{l.label}</Link>
+                  ? <a href={l.href} style={{ fontSize: 14, color: '#aec0bc', textDecoration: 'none' }} onMouseEnter={e => (e.currentTarget.style.color = '#e8edf5')} onMouseLeave={e => (e.currentTarget.style.color = '#aec0bc')}>{l.label}</a>
+                  : <Link href={l.href} style={{ fontSize: 14, color: '#aec0bc', textDecoration: 'none' }} onMouseEnter={e => (e.currentTarget.style.color = '#e8edf5')} onMouseLeave={e => (e.currentTarget.style.color = '#aec0bc')}>{l.label}</Link>
                 }
               </li>
             ))}
@@ -102,11 +102,11 @@ export default function Footer() {
       {/* Bottom bar */}
       <div style={{
         maxWidth: 1100, margin: '0 auto', padding: '20px 32px',
-        borderTop: '1px solid rgba(168,197,232,0.06)',
+        borderTop: '1px solid rgba(182,215,206,0.1)',
         display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8,
       }}>
-        <span style={{ fontSize: 12, color: '#3d4f6e' }}>© 2026 Ward Protocol</span>
-        <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 12, color: '#c8a94a' }}>ward_signed = False — always.</span>
+        <span style={{ fontSize: 14, color: '#78908b' }}>© 2026 Ward Protocol</span>
+        <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 14, color: '#d4a93e' }}>ward_signed = False — always.</span>
       </div>
 
       <style>{`

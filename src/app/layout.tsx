@@ -4,6 +4,7 @@ import './globals.css'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
 import { WalletProvider } from '@/context/WalletContext'
+import { MARKETING } from '@/lib/marketingContent'
 
 const dmSans = DM_Sans({
   subsets: ['latin'],
@@ -21,10 +22,10 @@ const dmMono = DM_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://wardprotocol.org'),
-  title: 'Ward Protocol — Deterministic Default Resolution for On-Chain Lending',
-  description: 'Deterministic default resolution for on-chain lending. Built on XRPL. Mainnet-ready at XLS-66 launch. ward_signed = False — always.',
+  title: MARKETING.metaTitle,
+  description: MARKETING.metaDescription,
   openGraph: {
-    title: 'Ward Protocol — Deterministic Default Resolution for On-Chain Lending',
+    title: MARKETING.metaTitle,
     description: 'Nine on-ledger checks. No oracle. No Ward signature — ever.',
     url: 'https://wardprotocol.org',
     siteName: 'Ward Protocol',
@@ -33,7 +34,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Ward Protocol — Deterministic Default Resolution for On-Chain Lending',
+    title: MARKETING.metaTitle,
     description: 'Nine on-ledger checks. No oracle. No Ward signature — ever.',
   },
   icons: { icon: '/favicon.svg' },

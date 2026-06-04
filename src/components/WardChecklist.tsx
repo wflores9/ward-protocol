@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 
@@ -61,12 +61,12 @@ export default function WardChecklist() {
                 className="flex items-center gap-4 p-4 cursor-pointer select-none"
                 onClick={() => toggleOpen(s.n)}
               >
-                <div className={`w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 transition-colors ${
+                <div className={`w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold shrink-0 transition-colors ${
                   isChecked ? 'bg-green text-white' : 'bg-p2 text-[#c8a94a]'
                 }`}>{s.n}</div>
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-bold text-steel">{s.name}</div>
-                  <div className="text-xs text-sub truncate">{s.desc}</div>
+                  <div className="text-sm text-sub truncate">{s.desc}</div>
                 </div>
                 <svg
                   className={`w-4 h-4 text-dim shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`}
@@ -114,14 +114,14 @@ export default function WardChecklist() {
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
                 <span className="font-condensed font-black text-2xl leading-none text-steel">{count}</span>
-                <span className="text-[10px] text-sub font-mono">/ 9</span>
+                <span className="text-sm text-sub font-mono">/ 9</span>
               </div>
             </div>
             <div>
               <div className="font-condensed font-black text-lg text-steel leading-tight">
                 {count === 9 ? 'All Steps Passed' : count === 0 ? 'Not Started' : `${count} / 9 Passed`}
               </div>
-              <div className={`mt-1 inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded border ${
+              <div className={`mt-1 inline-flex items-center gap-1 text-sm font-bold px-2 py-0.5 rounded border ${
                 count === 9
                   ? 'text-[#00994d] bg-[#e8fff3] border-green'
                   : 'text-dim bg-p2 border-border'
@@ -139,7 +139,7 @@ export default function WardChecklist() {
         </div>
 
         <div className="bg-white border border-p2 rounded-md p-5">
-          <h3 className="text-xs uppercase tracking-widest text-sub mb-3">Core Invariants</h3>
+          <h3 className="text-sm uppercase tracking-widest text-sub mb-3">Core Invariants</h3>
           <ul className="space-y-2 text-sm text-sub">
             {[
               ['ward_signed = False', 'Ward never holds signing keys'],
@@ -158,7 +158,7 @@ export default function WardChecklist() {
 
         <button
           onClick={() => setChecked(new Set())}
-          className="w-full py-2 text-xs uppercase tracking-widest text-sub bg-panel border border-border rounded-md hover:bg-p2 transition-colors"
+          className="w-full py-2 text-sm uppercase tracking-widest text-sub bg-panel border border-border rounded-md hover:bg-p2 transition-colors"
         >
           ↺ Reset
         </button>

@@ -1,4 +1,4 @@
-import Link from 'next/link'
+﻿import Link from 'next/link'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -10,7 +10,7 @@ const S = {
   section: { padding: '80px 0' },
   container: { maxWidth: 1100, margin: '0 auto', padding: '0 32px' },
   containerNarrow: { maxWidth: 720, margin: '0 auto', padding: '0 32px' },
-  label: { fontFamily: 'DM Mono, monospace', fontSize: 11, fontWeight: 500, letterSpacing: '0.15em', textTransform: 'uppercase' as const, color: 'var(--gold)', marginBottom: 16, display: 'block' },
+  label: { fontFamily: 'DM Mono, monospace', fontSize: 14, fontWeight: 500, letterSpacing: '0.15em', textTransform: 'uppercase' as const, color: 'var(--gold)', marginBottom: 16, display: 'block' },
   h2: { fontSize: 'clamp(28px,3.5vw,44px)', fontWeight: 800, letterSpacing: '-0.03em', lineHeight: 1.1, color: 'var(--text-primary)', marginBottom: 16 },
   body: { fontSize: 16, lineHeight: 1.7, color: 'var(--text-secondary)' },
   card: { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(168,197,232,0.08)', borderRadius: 12, padding: 28 },
@@ -41,13 +41,13 @@ export default function BuildPage() {
 
             {/* Python */}
             <div style={S.card}>
-              <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 11, color: 'var(--gold)', letterSpacing: '0.1em', marginBottom: 12 }}>PYTHON SDK</div>
+              <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 14, color: 'var(--gold)', letterSpacing: '0.1em', marginBottom: 12 }}>PYTHON SDK</div>
               <div style={{ background: '#060d1a', border: '1px solid rgba(168,197,232,0.1)', borderRadius: 8, padding: '14px 16px', marginBottom: 16, position: 'relative', overflow: 'hidden' }}>
                 <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 1, background: 'linear-gradient(90deg, transparent, var(--gold), transparent)', opacity: 0.3 }} />
-                <code style={{ fontFamily: 'DM Mono, monospace', fontSize: 13, color: 'var(--ice)' }}>pip install ward-protocol</code>
+                <code style={{ fontFamily: 'DM Mono, monospace', fontSize: 14, color: 'var(--ice)' }}>pip install ward-protocol</code>
               </div>
               <div style={{ background: '#060d1a', border: '1px solid rgba(168,197,232,0.08)', borderRadius: 8, padding: '14px 16px', marginBottom: 16 }}>
-                <pre style={{ fontFamily: 'DM Mono, monospace', fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.7, margin: 0, overflowX: 'auto' }}>{`from ward import WardClient, ClaimValidator
+                <pre style={{ fontFamily: 'DM Mono, monospace', fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.7, margin: 0, overflowX: 'auto' }}>{`from ward import WardClient, ClaimValidator
 
 client = WardClient(
   url="https://s.altnet.rippletest.net:51234/"
@@ -62,20 +62,20 @@ result = await client.purchase_coverage(
 )
 # ward_signed = False — always.`}</pre>
               </div>
-              <a href="https://pypi.org/project/ward-protocol/" target="_blank" rel="noopener noreferrer" className="btn-ghost" style={{ display: 'block', textAlign: 'center', fontSize: 13 }}>
+              <a href="https://pypi.org/project/ward-protocol/" target="_blank" rel="noopener noreferrer" className="btn-ghost" style={{ display: 'block', textAlign: 'center', fontSize: 14 }}>
                 View on PyPI →
               </a>
             </div>
 
             {/* TypeScript */}
             <div style={S.card}>
-              <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 11, color: 'var(--gold)', letterSpacing: '0.1em', marginBottom: 12 }}>TYPESCRIPT SDK</div>
+              <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 14, color: 'var(--gold)', letterSpacing: '0.1em', marginBottom: 12 }}>TYPESCRIPT SDK</div>
               <div style={{ background: '#060d1a', border: '1px solid rgba(168,197,232,0.1)', borderRadius: 8, padding: '14px 16px', marginBottom: 16, position: 'relative', overflow: 'hidden' }}>
                 <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 1, background: 'linear-gradient(90deg, transparent, var(--gold), transparent)', opacity: 0.3 }} />
-                <code style={{ fontFamily: 'DM Mono, monospace', fontSize: 13, color: 'var(--ice)' }}>npm install ward-protocol</code>
+                <code style={{ fontFamily: 'DM Mono, monospace', fontSize: 14, color: 'var(--ice)' }}>npm install ward-protocol</code>
               </div>
               <div style={{ background: '#060d1a', border: '1px solid rgba(168,197,232,0.08)', borderRadius: 8, padding: '14px 16px', marginBottom: 16 }}>
-                <pre style={{ fontFamily: 'DM Mono, monospace', fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.7, margin: 0, overflowX: 'auto' }}>{`import { WardClient } from 'ward-protocol'
+                <pre style={{ fontFamily: 'DM Mono, monospace', fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.7, margin: 0, overflowX: 'auto' }}>{`import { WardClient } from 'ward-protocol'
 
 const client = new WardClient({
   url: 'https://s.altnet.rippletest.net:51234/'
@@ -90,33 +90,33 @@ const result = await client.validateClaim({
 })
 // result.approved — true / false`}</pre>
               </div>
-              <a href="https://www.npmjs.com/package/ward-protocol" target="_blank" rel="noopener noreferrer" className="btn-ghost" style={{ display: 'block', textAlign: 'center', fontSize: 13 }}>
+              <a href="https://www.npmjs.com/package/ward-protocol" target="_blank" rel="noopener noreferrer" className="btn-ghost" style={{ display: 'block', textAlign: 'center', fontSize: 14 }}>
                 View on npm →
               </a>
             </div>
 
             {/* API */}
             <div style={S.card}>
-              <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 11, color: 'var(--gold)', letterSpacing: '0.1em', marginBottom: 12 }}>LIVE API</div>
+              <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 14, color: 'var(--gold)', letterSpacing: '0.1em', marginBottom: 12 }}>LIVE API</div>
               <div style={{ marginBottom: 12 }}>
-                <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 6 }}>Base URL</div>
+                <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 6 }}>Base URL</div>
                 <div style={{ background: '#060d1a', border: '1px solid rgba(168,197,232,0.08)', borderRadius: 6, padding: '10px 14px' }}>
-                  <code style={{ fontFamily: 'DM Mono, monospace', fontSize: 12, color: 'var(--ice)' }}>https://api.wardprotocol.org</code>
+                  <code style={{ fontFamily: 'DM Mono, monospace', fontSize: 14, color: 'var(--ice)' }}>https://api.wardprotocol.org</code>
                 </div>
               </div>
               <div style={{ marginBottom: 12 }}>
-                <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 6 }}>Authentication</div>
+                <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 6 }}>Authentication</div>
                 <div style={{ background: '#060d1a', border: '1px solid rgba(168,197,232,0.08)', borderRadius: 6, padding: '10px 14px' }}>
-                  <code style={{ fontFamily: 'DM Mono, monospace', fontSize: 12, color: 'var(--text-secondary)' }}>X-Institution-Key: ward_T_...</code>
+                  <code style={{ fontFamily: 'DM Mono, monospace', fontSize: 14, color: 'var(--text-secondary)' }}>X-Institution-Key: ward_T_...</code>
                 </div>
               </div>
               <div style={{ marginBottom: 20 }}>
-                <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 6 }}>Generate API Key (free)</div>
+                <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 6 }}>Generate API Key (free)</div>
                 <div style={{ background: '#060d1a', border: '1px solid rgba(168,197,232,0.08)', borderRadius: 6, padding: '10px 14px' }}>
-                  <code style={{ fontFamily: 'DM Mono, monospace', fontSize: 12, color: 'var(--green)' }}>POST /keys/generate</code>
+                  <code style={{ fontFamily: 'DM Mono, monospace', fontSize: 14, color: 'var(--green)' }}>POST /keys/generate</code>
                 </div>
               </div>
-              <a href="https://api.wardprotocol.org/health" target="_blank" rel="noopener noreferrer" className="btn-ghost" style={{ display: 'block', textAlign: 'center', fontSize: 13 }}>
+              <a href="https://api.wardprotocol.org/health" target="_blank" rel="noopener noreferrer" className="btn-ghost" style={{ display: 'block', textAlign: 'center', fontSize: 14 }}>
                 Check API Health →
               </a>
             </div>
@@ -139,7 +139,7 @@ const result = await client.validateClaim({
               <div key={item.label} style={{ ...S.card, display: 'flex', flexDirection: 'column' }}>
                 <h3 style={{ fontSize: 17, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 10, letterSpacing: '-0.02em' }}>{item.label}</h3>
                 <p style={{ fontSize: 14, lineHeight: 1.65, color: 'var(--text-secondary)', flex: 1, marginBottom: 20 }}>{item.desc}</p>
-                <a href={item.href} target={item.href.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer" className="btn-ghost" style={{ display: 'block', textAlign: 'center', fontSize: 13 }}>
+                <a href={item.href} target={item.href.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer" className="btn-ghost" style={{ display: 'block', textAlign: 'center', fontSize: 14 }}>
                   {item.cta}
                 </a>
               </div>

@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+﻿import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Ward Protocol — Terms of Service',
@@ -9,9 +9,9 @@ export default function TermsPage() {
   return (
     <div className="max-w-3xl mx-auto px-6 md:px-12 py-12">
       <h1 className="font-condensed font-black text-4xl text-steel mb-2">Terms of Service</h1>
-      <p className="text-[11px] text-sub font-mono mb-8">Effective date: 2026-01-01 · Ward Protocol</p>
+      <p className="text-sm text-sub font-mono mb-8">Effective date: 2026-01-01 · Ward Protocol</p>
 
-      <div className="space-y-8 text-[13px] text-sub leading-relaxed">
+      <div className="space-y-8 text-sm text-sub leading-relaxed">
         <section>
           <h2 className="font-condensed font-black text-xl text-steel mb-2">1. Acceptance</h2>
           <p>

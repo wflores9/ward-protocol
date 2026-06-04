@@ -2,213 +2,249 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
-  title: 'Ward Protocol — Use Cases',
-  description: 'Deterministic default resolution for institutional lending, milestone escrow, and trade finance on-chain.',
+  title: 'Ward Protocol - Use Cases',
+  description:
+    'Deterministic default resolution for institutional lending, milestone escrow, trade finance, and compliance workflows on-chain.',
 }
 
 const scenarios = [
   {
     id: '01',
-    bg: 'bg-white',
-    title: 'The borrower does not pay.',
-    subtitle: 'What happens to the vault?',
     category: 'Institutional Lending',
-    without: 'The vault operator decides what happens. Manually. With discretion. With delay. Depositors wait.',
-    with: 'Nine deterministic checks run against live XRPL ledger state the moment the default flag is set. No oracle. No human judgment. No Ward signature. If all nine pass, the escrow releases to the claimant automatically. If any check fails, the claim is rejected with a verifiable reason code — on-chain. The resolution is the same every time, for every institution, regardless of who is running the vault.',
-    quote: 'Risks become more programmatic. Observable. Quantifiable. That kind of visibility is what larger institutions look for.',
-    attr: 'Asheesh Birla, CEO Evernorth',
-    role: 'XRPL Commons · April 2026',
+    title: 'The borrower does not pay.',
+    question: 'What happens to the vault?',
+    pressure:
+      'The vault operator decides manually. Depositors wait. Legal, operations, and engineering all become part of the incident.',
+    ward:
+      'Ward runs nine deterministic checks against live XRPL ledger state when the default flag is set. If every check passes, the escrow release is prepared. If any check fails, the rejection reason is verifiable on-chain.',
+    proof: 'Same outcome, same checks, same audit trail.',
   },
   {
     id: '02',
-    bg: 'bg-[#f8fafc]',
+    category: 'Milestone Escrow',
     title: 'The condition is not met.',
-    subtitle: 'Who decides the escrow outcome?',
-    category: 'Milestone & Conditional Escrow',
-    without: 'An arbiter decides. A DAO votes. A timer expires. The resolution is discretionary, slow, and contestable.',
-    with: 'The resolution conditions are encoded at registration. Ward evaluates them deterministically against on-chain state. Either the conditions are met or they are not. There is no judgment call. The claimant holds the preimage — Ward never does. Ward constructs unsigned transactions. The institution signs. XRPL settles. Disputes are eliminated by design, not by arbitration.',
-    quote: 'The ledger itself governs borrowing terms, repayments, and authorization — a key differentiator from other DeFi approaches.',
-    attr: 'Ripple Insights',
-    role: 'The Next Phase of Institutional DeFi on XRPL · September 2025',
+    question: 'Who decides the outcome?',
+    pressure:
+      'An arbiter decides. A DAO votes. A timer expires. The system falls back to human discretion at the exact moment certainty matters.',
+    ward:
+      'Resolution conditions are registered before capital moves. Ward evaluates those conditions against ledger state and returns unsigned transactions. The institution signs. XRPL settles.',
+    proof: 'No arbiter, no Ward key, no judgment call.',
   },
   {
     id: '03',
-    bg: 'bg-white',
+    category: 'Trade Finance',
     title: 'The invoice is not settled.',
-    subtitle: 'How does on-chain credit resolve?',
-    category: 'Trade Finance & Credit',
-    without: 'Resolution falls back to off-chain legal processes. The on-chain record exists but the settlement mechanism does not. Institutions are left bridging two worlds manually.',
-    with: 'Default resolution is native to the lending protocol. The same nine checks that govern DeFi lending vaults apply to any XLS-66 credit obligation. The resolution is on-chain, auditable, and independent of jurisdiction. No financial institution will deploy serious capital into on-chain credit without knowing what the downside scenario looks like. Ward defines it.',
-    quote: 'A default at one facility does not spill into others, in sharp contrast to pooled DeFi systems where contagion can spread.',
-    attr: '24/7 Wall St',
-    role: 'XRPL Lending Protocol Coverage · February 2026',
+    question: 'How does on-chain credit resolve?',
+    pressure:
+      'The on-chain record exists, but the settlement mechanism falls back to off-chain legal processes and fragmented operational work.',
+    ward:
+      'Ward gives XLS-66 credit obligations a standard default path. Resolution is native to the protocol, auditable by third parties, and independent of any single operator.',
+    proof: 'Credit can move on-chain with a defined downside path.',
   },
   {
     id: '04',
-    bg: 'bg-[#f8fafc]',
-    title: 'The regulator asks what happens on default.',
-    subtitle: 'What is your answer?',
     category: 'Compliance & Audit',
-    without: 'The answer is: it depends. It depends on who runs the vault, what their internal policy is, whether they follow it, and whether anyone is watching. There is no standard answer. There is no audit trail. There is no on-chain proof. Regulators hate this answer.',
-    with: 'The answer is: here is the transaction hash. Nine checks ran against live blockchain state at this ledger index. Steps 1 through 9 passed. The escrow released at this timestamp. Every step is verifiable by any third party, at any time, without asking Ward. The audit trail is the blockchain itself. Ward never held a key. Ward never made a judgment. The ledger decided.',
-    quote: 'The protocol is ahead of the compliance tooling.',
-    attr: 'XRPL Zone Paris Working Group',
-    role: 'April 14, 2026',
+    title: 'The regulator asks what happened.',
+    question: 'What is your answer?',
+    pressure:
+      'The answer is usually: it depends. It depends on the vault, the operator, internal policy, manual judgment, and whether anyone can reconstruct the trail.',
+    ward:
+      'The answer becomes a transaction hash, a ledger index, and nine checks that can be verified without asking Ward. The audit trail is the blockchain itself.',
+    proof: 'A clean, inspectable answer for institutional review.',
   },
 ]
 
 const signals = [
-  { text: 'Risks become more programmatic. Observable. Quantifiable. That kind of visibility is what larger institutions look for.', attr: 'Asheesh Birla, CEO Evernorth', role: 'XRPL Commons · April 2026' },
-  { text: 'The protocol is ahead of the compliance tooling.', attr: 'XRPL Zone Paris Working Group', role: 'April 14, 2026' },
-  { text: 'XLS-66 + Ward = risk-managed credit infrastructure institutions need before deploying serious capital.', attr: 'XRP Cipher Podcast', role: 'April 2026' },
-  { text: 'In Ward We Trust.', attr: 'Grape (@RealGrapedrop)', role: 'XRPL Developer · 44K views' },
+  {
+    text: 'Risks become more programmatic. Observable. Quantifiable. That kind of visibility is what larger institutions look for.',
+    attr: 'Asheesh Birla, CEO Evernorth',
+  },
+  {
+    text: 'The protocol is ahead of the compliance tooling.',
+    attr: 'XRPL Zone Paris Working Group',
+  },
+  {
+    text: 'XLS-66 + Ward = risk-managed credit infrastructure institutions need before deploying serious capital.',
+    attr: 'XRP Cipher Podcast',
+  },
 ]
 
 export default function UseCasesPage() {
   return (
     <>
-      {/* Header */}
-      <div className="border-b border-gold/20 bg-white px-6 md:px-12 py-14">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-xs uppercase tracking-[.15em] text-ice2 mb-3 font-mono">Ward Protocol — Use Cases</div>
-          <h1 className="font-condensed font-black text-5xl md:text-6xl text-steel mb-4 leading-none">
-            The question every institution asks.
-          </h1>
-          <p className="text-base text-sub max-w-2xl leading-relaxed">
-            What happens when the borrower does not pay? Today, there is no standard answer on-chain.
-            Every vault operator builds their own resolution logic — or ignores the risk entirely.
-            Ward Protocol is the answer. Deterministic. Auditable. On-chain.
-          </p>
+      <section className="relative overflow-hidden bg-steel px-6 py-24 md:px-12 md:py-28">
+        <div className="absolute inset-0 opacity-70" style={{
+          background:
+            'radial-gradient(circle at 20% 20%, rgba(182,215,206,0.14), transparent 34%), radial-gradient(circle at 86% 18%, rgba(212,169,62,0.12), transparent 32%), linear-gradient(rgba(182,215,206,0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(182,215,206,0.035) 1px, transparent 1px)',
+          backgroundSize: 'auto, auto, 72px 72px, 72px 72px',
+        }} />
+        <div className="relative mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-[1fr_430px]">
+          <div>
+            <div className="mb-5 font-mono text-sm font-semibold uppercase tracking-[0.08em] text-gold">
+              Ward Protocol Use Cases
+            </div>
+            <h1 className="mb-6 max-w-3xl text-[42px] font-black leading-[1.08] text-white md:text-[64px]">
+              Default resolution, designed for institutional scale.
+            </h1>
+            <p className="max-w-2xl text-[19px] leading-8 text-[#c7d8d4]">
+              Ward gives on-chain credit a standard answer to the hardest question:
+              what happens when something goes wrong? The answer is deterministic,
+              auditable, and never dependent on Ward holding a key.
+            </p>
+            <div className="mt-9 flex flex-wrap gap-3">
+              <Link href="/spec" className="btn-primary">View Specification</Link>
+              <Link href="/demo" className="btn-ghost">Run the Demo</Link>
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-white/12 bg-white/[0.07] p-7 shadow-2xl shadow-black/20 backdrop-blur">
+            <div className="mb-6 flex items-center justify-between border-b border-white/10 pb-4">
+              <span className="font-mono text-sm text-[#c7d8d4]">WARD RESOLUTION LAYER</span>
+              <span className="rounded-full border border-gold/30 bg-gold/15 px-3 py-1 font-mono text-sm font-semibold text-gold">
+                XLS-66
+              </span>
+            </div>
+            <div className="space-y-4">
+              {['Vault state confirmed', 'Policy NFT verified', 'Default flag checked', 'Escrow path prepared'].map((item, i) => (
+                <div key={item} className="flex items-center gap-4 rounded-lg border border-white/10 bg-[#101d23]/70 p-4">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-gold/15 font-mono text-sm font-bold text-gold">
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+                  <span className="text-base font-semibold text-white">{item}</span>
+                </div>
+              ))}
+            </div>
+            <div className="mt-6 rounded-lg border-l-4 border-gold bg-[#101d23] p-5">
+              <div className="mb-2 font-mono text-sm text-[#9fb7b1]">Core invariant</div>
+              <div className="font-mono text-lg font-bold text-gold">ward_signed = False</div>
+            </div>
+          </div>
         </div>
-      </div>
+      </section>
 
-      {/* Plain English */}
-      <section className="bg-[#f8fafc] px-6 md:px-12 py-16 border-b border-gray-100">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-xs font-mono text-[#c8a94a] uppercase tracking-widest mb-3">Ward Protocol — Plain English</div>
-          <h2 className="font-condensed font-black text-4xl text-steel mb-2">No jargon. Just the problem and the answer.</h2>
-          <p className="text-sm text-sub mb-10 max-w-2xl">
-            You don&apos;t need to know what XLS-66 is. You just need to know what happens when something goes wrong.
-          </p>
+      <section className="bg-paper px-6 py-20 md:px-12">
+        <div className="mx-auto max-w-6xl">
+          <div className="mb-12 max-w-3xl">
+            <div className="mb-4 font-mono text-sm font-semibold uppercase tracking-[0.08em] text-gold">
+              Plain English
+            </div>
+            <h2 className="mb-5 text-4xl font-black leading-tight text-navy md:text-5xl">
+              The missing operating standard for on-chain credit.
+            </h2>
+            <p className="text-lg leading-8 text-sub">
+              Institutions do not need more dashboards. They need predictable resolution.
+              Ward turns the default path into a technical standard that can be reviewed,
+              repeated, and trusted.
+            </p>
+          </div>
 
-          <div className="grid md:grid-cols-3 gap-5 mb-12">
+          <div className="grid gap-5 md:grid-cols-3">
             {[
-              {
-                icon: '⚠️',
-                title: 'Billions in loans. No standard for what happens when they go wrong.',
-                body: 'Digital lending is moving on-chain. Institutions are deploying real capital into blockchain-based loan vaults. But nobody has defined what happens when a borrower defaults. Every platform handles it differently — or not at all.',
-              },
-              {
-                icon: '🔄',
-                title: 'Manual decisions. Slow resolution. Human error.',
-                body: 'Today, when a digital loan defaults, someone has to decide what happens. That means delays, disputes, and inconsistency. It means counterparty risk. It means institutional capital sitting in limbo while humans argue.',
-              },
-              {
-                icon: '🛡️',
-                title: 'Nine checks. Automatic resolution. No one in the middle.',
-                body: 'Ward Protocol defines exactly what happens on default — before it happens. Nine conditions are checked automatically against the blockchain. If they pass, funds are released. If they don\'t, the claim is rejected. No delays. No disputes. No Ward signature — ever.',
-              },
-            ].map(card => (
-              <div key={card.icon} className="bg-white border border-gray-100 rounded-md p-6 shadow-sm">
-                <div className="text-3xl mb-4">{card.icon}</div>
-                <div className="font-condensed font-black text-base text-steel mb-3 leading-snug">{card.title}</div>
-                <p className="text-sm text-sub leading-relaxed">{card.body}</p>
+              ['Before capital moves', 'The vault, policy, and settlement rules are registered in a way Ward can evaluate deterministically.'],
+              ['When default happens', 'Ward checks ledger state, not opinions. The result is either a valid unsigned transaction or a verifiable rejection reason.'],
+              ['After resolution', 'The institution keeps signing control. The blockchain keeps the audit trail. Ward remains outside custody and settlement.'],
+            ].map(([title, body]) => (
+              <div key={title} className="rounded-xl border border-[#d8e4df] bg-white p-7 shadow-sm">
+                <h3 className="mb-3 text-xl font-extrabold text-navy">{title}</h3>
+                <p className="text-base leading-7 text-sub">{body}</p>
               </div>
             ))}
-          </div>
-
-          {/* Comparison table */}
-          <div className="overflow-x-auto rounded-md border border-gray-200">
-            <table className="w-full text-sm border-collapse">
-              <thead>
-                <tr>
-                  <th className="bg-steel text-ice font-mono text-xs font-semibold px-5 py-3 text-left">Without Ward</th>
-                  <th className="bg-steel text-ice font-mono text-xs font-semibold px-5 py-3 text-left">With Ward</th>
-                </tr>
-              </thead>
-              <tbody>
-                {[
-                  ['Manual decision by vault operator',  'Automatic 9-step on-chain validation'],
-                  ['Outcome varies by platform',         'Same outcome every time, every institution'],
-                  ['Disputes require arbitration',       'Disputes eliminated by design'],
-                  ['Off-chain legal fallback',           'Fully on-chain resolution'],
-                  ['No audit trail',                     'Every check verifiable on the ledger'],
-                  ['Counterparty risk',                  'ward_signed = False — no Ward keys'],
-                ].map(([without, with_], i) => (
-                  <tr key={i} className={i % 2 === 0 ? 'bg-white' : 'bg-[#f8fafc]'}>
-                    <td className="px-5 py-3 text-sub border-t border-gray-100">{without}</td>
-                    <td className="px-5 py-3 border-t border-gray-100 font-medium" style={{ color: '#00cc66' }}>{with_}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
           </div>
         </div>
       </section>
 
-      {/* Scenarios */}
-      {scenarios.map(s => (
-        <section key={s.id} className={`${s.bg} px-6 md:px-12 py-16 border-b border-gray-100`}>
-          <div className="max-w-4xl mx-auto">
-            <div className="text-xs font-mono text-[#c8a94a] uppercase tracking-widest mb-2">
-              Scenario {s.id} — {s.category}
+      <section className="bg-[#183038] px-6 py-20 md:px-12">
+        <div className="mx-auto max-w-6xl">
+          <div className="mb-12 max-w-3xl">
+            <div className="mb-4 font-mono text-sm font-semibold uppercase tracking-[0.08em] text-gold">
+              Production Scenarios
             </div>
-            <h2 className="font-condensed font-black text-4xl text-steel mb-1">{s.title}</h2>
-            <p className="text-lg text-sub mb-8">{s.subtitle}</p>
-
-            <div className="grid md:grid-cols-2 gap-6 mb-8">
-              <div className="bg-[#fff5f5] border border-red-100 rounded-md p-5">
-                <div className="text-[10px] font-mono text-red-400 uppercase tracking-widest mb-3">Without Ward</div>
-                <p className="text-sm text-sub leading-relaxed">{s.without}</p>
-              </div>
-              <div className="bg-[#f0fdf6] border border-green-100 rounded-md p-5">
-                <div className="text-[10px] font-mono text-[#00cc66] uppercase tracking-widest mb-3">With Ward</div>
-                <p className="text-sm text-steel font-medium leading-relaxed">{s.with}</p>
-              </div>
-            </div>
-
-            <blockquote className="border-l-2 border-[#c8a94a] pl-5">
-              <p className="text-sm text-steel italic mb-2">&ldquo;{s.quote}&rdquo;</p>
-              <footer className="text-xs text-sub font-mono">{s.attr} · {s.role}</footer>
-            </blockquote>
+            <h2 className="mb-5 text-4xl font-black leading-tight text-white md:text-5xl">
+              Four institutional moments where Ward moves center stage.
+            </h2>
+            <p className="text-lg leading-8 text-[#c7d8d4]">
+              Each use case is the same promise in a different operating environment:
+              less discretion, more proof, and a resolution path the market can inspect.
+            </p>
           </div>
-        </section>
-      ))}
 
-      {/* Ecosystem signal */}
-      <section className="bg-steel px-6 md:px-12 py-16">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-xs font-mono text-[#c8a94a] uppercase tracking-widest mb-3">Ecosystem Signal</div>
-          <h2 className="font-condensed font-black text-4xl text-ice mb-2">They described it before we built it.</h2>
-          <p className="text-sm text-dim mb-10 max-w-xl">
-            Independent commentary from builders, analysts, and operators in the XRPL ecosystem. None of these were prompted.
-          </p>
-          <div className="grid sm:grid-cols-2 gap-4 mb-6">
-            {signals.map(q => (
-              <div key={q.attr} className="bg-deep border border-border rounded-md p-5">
-                <p className="text-sm text-ice leading-relaxed mb-4">&ldquo;{q.text}&rdquo;</p>
-                <div className="text-xs text-[#c8a94a] font-mono">{q.attr}</div>
-                <div className="text-xs text-dim font-mono">{q.role}</div>
-              </div>
+          <div className="space-y-6">
+            {scenarios.map((s) => (
+              <article key={s.id} className="rounded-xl border border-white/10 bg-white/[0.06] p-6 shadow-xl shadow-black/10 md:p-8">
+                <div className="mb-6 flex flex-wrap items-center gap-3">
+                  <span className="rounded-md bg-gold px-3 py-1 font-mono text-sm font-bold text-navy">{s.id}</span>
+                  <span className="font-mono text-sm font-semibold uppercase tracking-[0.08em] text-gold">{s.category}</span>
+                </div>
+                <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
+                  <div>
+                    <h3 className="mb-3 text-3xl font-black leading-tight text-white md:text-4xl">{s.title}</h3>
+                    <p className="text-xl font-semibold text-[#b6d7ce]">{s.question}</p>
+                  </div>
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div className="rounded-lg border border-red-300/25 bg-red-950/20 p-5">
+                      <div className="mb-3 font-mono text-sm font-semibold uppercase tracking-[0.08em] text-red-200">
+                        Without Ward
+                      </div>
+                      <p className="text-base leading-7 text-[#f0d3d3]">{s.pressure}</p>
+                    </div>
+                    <div className="rounded-lg border border-emerald-300/25 bg-emerald-950/20 p-5">
+                      <div className="mb-3 font-mono text-sm font-semibold uppercase tracking-[0.08em] text-emerald-200">
+                        With Ward
+                      </div>
+                      <p className="text-base leading-7 text-[#d8f3e6]">{s.ward}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-6 rounded-lg border border-gold/25 bg-gold/10 px-5 py-4 font-mono text-sm font-semibold text-gold">
+                  {s.proof}
+                </div>
+              </article>
             ))}
           </div>
-          <p className="text-xs text-dim">These are independent comments, not formal endorsements.</p>
         </div>
       </section>
 
-      {/* Core invariant CTA */}
-      <section className="bg-white px-6 md:px-12 py-16">
-        <div className="max-w-4xl mx-auto text-center">
-          <div className="text-xs font-mono text-[#c8a94a] uppercase tracking-widest mb-3">The Core Invariant</div>
-          <h2 className="font-condensed font-black text-4xl text-steel mb-4">ward_signed = False — always.</h2>
-          <p className="text-sm text-sub max-w-2xl mx-auto leading-relaxed mb-8">
-            Ward constructs unsigned transactions. Institutions sign. XRPL settles. Ward is never a counterparty,
-            never a custodian, never a signatory. In every scenario above, the institution retains full control
-            of the signing key.
+      <section className="bg-paper px-6 py-20 md:px-12">
+        <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[0.85fr_1.15fr]">
+          <div>
+            <div className="mb-4 font-mono text-sm font-semibold uppercase tracking-[0.08em] text-gold">
+              Ecosystem Signal
+            </div>
+            <h2 className="mb-5 text-4xl font-black leading-tight text-navy md:text-5xl">
+              The market is already describing the need.
+            </h2>
+            <p className="text-lg leading-8 text-sub">
+              The language around institutional DeFi keeps returning to the same themes:
+              visibility, repeatability, and risk controls that can survive scrutiny.
+            </p>
+          </div>
+          <div className="grid gap-4">
+            {signals.map((q) => (
+              <blockquote key={q.attr} className="rounded-xl border border-[#d8e4df] bg-white p-6 shadow-sm">
+                <p className="mb-5 text-lg leading-8 text-navy">&ldquo;{q.text}&rdquo;</p>
+                <footer className="font-mono text-sm font-semibold text-gold">{q.attr}</footer>
+              </blockquote>
+            ))}
+            <p className="font-mono text-sm text-sub">Independent comments, not formal endorsements.</p>
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-steel px-6 py-20 text-center md:px-12">
+        <div className="mx-auto max-w-3xl">
+          <div className="mb-4 font-mono text-sm font-semibold uppercase tracking-[0.08em] text-gold">
+            Ward Center Stage
+          </div>
+          <h2 className="mb-5 text-4xl font-black leading-tight text-white md:text-5xl">
+            The default path should be as engineered as the lending product.
+          </h2>
+          <p className="mx-auto mb-9 max-w-2xl text-lg leading-8 text-[#c7d8d4]">
+            Ward Protocol is not a button, a bot, or a back-office workaround.
+            It is the resolution layer institutions can build around.
           </p>
-          <div className="flex flex-wrap gap-3 justify-center">
-            <Link href="/spec" className="btn-primary">View Specification →</Link>
-            <Link href="/demo" className="btn-ghost">Try the Demo</Link>
+          <div className="flex flex-wrap justify-center gap-3">
+            <Link href="/spec" className="btn-primary">Read the Spec</Link>
+            <Link href="/build" className="btn-ghost">Build with Ward</Link>
           </div>
         </div>
       </section>

@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect } from 'react'
 import { useWallet } from '../context/WalletContext'
@@ -115,7 +115,7 @@ export default function LiveValidator() {
 
   return (
     <div className="max-w-4xl mx-auto px-6 md:px-12 py-8 border-b border-gold/20">
-      <div className="text-xs uppercase tracking-[.15em] text-[#c8a94a] mb-2 font-mono">
+      <div className="text-sm uppercase tracking-[.15em] text-[#c8a94a] mb-2 font-mono">
         Live Validation — {accountInfo.address.slice(0, 8)}...{accountInfo.address.slice(-6)}
       </div>
 
@@ -129,12 +129,12 @@ export default function LiveValidator() {
       {!loading && nfts.length === 0 && (
         <div className="bg-[#fffdf5] border border-[#c8a94a]/30 rounded-md p-4">
           <div className="text-sm font-bold text-steel mb-1">No Ward policy NFT found</div>
-          <p className="text-xs text-sub leading-relaxed">
+          <p className="text-sm text-sub leading-relaxed">
             This wallet does not hold a Ward Protocol policy NFT (taxon 281) on Altnet.
             A policy NFT is required to run claim validation. Ward correctly rejects
             wallets without on-chain coverage — this is the system working as designed.
           </p>
-          <p className="text-xs text-sub mt-2">
+          <p className="text-sm text-sub mt-2">
             <span className="text-steel font-mono">ward_signed = False</span> — all checks
             read live XRPL ledger state.
           </p>
@@ -146,12 +146,12 @@ export default function LiveValidator() {
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2 bg-[#f0fff8] border border-green rounded-md px-3 py-2">
               <div className="w-2 h-2 rounded-full bg-[#00cc66]" />
-              <span className="text-xs font-bold text-steel">{nfts.length} Ward policy NFT{nfts.length > 1 ? 's' : ''} found</span>
+              <span className="text-sm font-bold text-steel">{nfts.length} Ward policy NFT{nfts.length > 1 ? 's' : ''} found</span>
             </div>
             <button
               onClick={handleValidate}
               disabled={validating}
-              className="inline-flex items-center gap-2 bg-steel text-ice px-4 py-2 rounded-md text-xs font-mono hover:bg-[#122030] transition-colors disabled:opacity-50"
+              className="inline-flex items-center gap-2 bg-steel text-ice px-4 py-2 rounded-md text-sm font-mono hover:bg-[#122030] transition-colors disabled:opacity-50"
             >
               {validating ? (
                 <>
@@ -162,7 +162,7 @@ export default function LiveValidator() {
             </button>
           </div>
 
-          <div className="font-mono text-xs text-sub">
+          <div className="font-mono text-sm text-sub">
             NFT: {selectedNft?.slice(0, 16)}...{selectedNft?.slice(-8)}
           </div>
 
@@ -173,25 +173,25 @@ export default function LiveValidator() {
                   {result.approved ? '✓ WARD-CONFORMANT' : `${result.steps_passed} / 9 Steps Passed`}
                 </div>
                 {!result.approved && (
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded border text-dim bg-p2 border-border">
+                  <span className="text-sm font-bold px-2 py-0.5 rounded border text-dim bg-p2 border-border">
                     NOT CONFORMANT
                   </span>
                 )}
               </div>
               {result.rejection_reason && (
-                <p className="text-xs text-sub font-mono">{result.rejection_reason}</p>
+                <p className="text-sm text-sub font-mono">{result.rejection_reason}</p>
               )}
               {result.approved && result.claim_payout_drops && (
-                <p className="text-xs text-sub">
+                <p className="text-sm text-sub">
                   Payout: <span className="text-steel font-mono">{(result.claim_payout_drops / 1_000_000).toFixed(2)} XRP</span>
                 </p>
               )}
-              <p className="text-[10px] text-sub mt-2 font-mono">ward_signed = False — all checks read live XRPL Altnet state</p>
+              <p className="text-sm text-sub mt-2 font-mono">ward_signed = False — all checks read live XRPL Altnet state</p>
             </div>
           )}
 
           {error && (
-            <p className="text-xs text-red-500 font-mono">{error}</p>
+            <p className="text-sm text-red-500 font-mono">{error}</p>
           )}
         </div>
       )}

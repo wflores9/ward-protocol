@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import { useWallet } from '../context/WalletContext'
@@ -67,16 +67,16 @@ export default function WalletConnector() {
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-2 bg-[#f0fff8] border border-green rounded-md px-3 py-2">
           <div className="w-2 h-2 rounded-full bg-[#00cc66]" />
-          <span className="font-mono text-xs text-steel">
+          <span className="font-mono text-sm text-steel">
             {accountInfo.address.slice(0, 8)}...{accountInfo.address.slice(-6)}
           </span>
-          <span className="text-[10px] text-sub uppercase tracking-wider ml-1">
+          <span className="text-sm text-sub uppercase tracking-wider ml-1">
             {accountInfo.walletName}
           </span>
         </div>
         <button
           onClick={disconnect}
-          className="text-xs text-sub hover:text-steel border border-border rounded-md px-3 py-2 transition-colors"
+          className="text-sm text-sub hover:text-steel border border-border rounded-md px-3 py-2 transition-colors"
         >
           Disconnect
         </button>
@@ -105,7 +105,7 @@ export default function WalletConnector() {
                 ×
               </button>
             </div>
-            <p className="text-xs text-sub mb-4 font-mono">
+            <p className="text-sm text-sub mb-4 font-mono">
               Verify wallet ownership — no transaction submitted. ward_signed = False.
             </p>
             <div className="flex flex-col gap-2">
@@ -118,7 +118,7 @@ export default function WalletConnector() {
                 >
                   <div className="text-left">
                     <div className="text-sm font-bold text-steel">{w.label}</div>
-                    <div className="text-xs text-sub">{w.desc}</div>
+                    <div className="text-sm text-sub">{w.desc}</div>
                   </div>
                   {loading === w.id && (
                     <span className="w-4 h-4 border border-steel border-t-transparent rounded-full animate-spin" />
@@ -127,7 +127,7 @@ export default function WalletConnector() {
               ))}
             </div>
             {error && (
-              <p className="mt-3 text-xs text-red-500 font-mono">{error}</p>
+              <p className="mt-3 text-sm text-red-500 font-mono">{error}</p>
             )}
           </div>
         </div>

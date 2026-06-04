@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 
@@ -83,7 +83,7 @@ result = await validator.validate_claim(
 )
 
 print(result.approved)           # True / False
-print(result.steps_passed)       # 0–9
+print(result.steps_passed)       # 0—9
 print(result.claim_payout_drops) # min(vault_loss, coverage)`,
   },
   {
@@ -122,7 +122,7 @@ export default function FlowRunner() {
           <button
             key={f.id}
             onClick={() => setActive(i)}
-            className={`px-4 py-3 text-xs font-mono whitespace-nowrap border-r border-p2 transition-colors ${
+            className={`px-4 py-3 text-sm font-mono whitespace-nowrap border-r border-p2 transition-colors ${
               i === active ? 'bg-white text-[#c8a94a] font-bold border-b-2 border-b-[#c8a94a] -mb-px' : 'text-sub hover:text-[#c8a94a]'
             }`}
           >
@@ -135,7 +135,7 @@ export default function FlowRunner() {
       <div className="p-5">
         <h3 className="font-condensed font-black text-xl text-steel mb-1">{flow.title}</h3>
         <p className="text-sm text-sub mb-4">{flow.desc}</p>
-        <pre className="bg-steel rounded-md p-4 text-[11px] text-ice leading-relaxed overflow-x-auto font-mono whitespace-pre">
+        <pre className="bg-steel rounded-md p-4 text-sm text-ice leading-relaxed overflow-x-auto font-mono whitespace-pre">
           {flow.code}
         </pre>
       </div>
