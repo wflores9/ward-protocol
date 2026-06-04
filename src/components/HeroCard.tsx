@@ -29,7 +29,7 @@ export default function HeroCard() {
             onClick={copy}
             className="text-sm text-dim hover:text-ice transition-colors shrink-0 border border-border rounded px-2 py-1"
           >
-            {copied ? 'âœ" Copied' : 'Copy'}
+            {copied ? '✓ Copied' : 'Copy'}
           </button>
         </div>
       </div>

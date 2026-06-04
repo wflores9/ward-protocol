@@ -56,7 +56,7 @@ export default function CertifiedPage() {
         <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
           {[
             {
-              icon: 'âš™ï¸',
+              icon: '⚙ï¸',
               title: 'Technical Review',
               desc: 'Ward verifies the vault implementation against the full 9-step specification.',
             },
@@ -182,7 +182,7 @@ export default function CertifiedPage() {
                 'ward_signed=False enforced throughout',
               ].map((item) => (
                 <li key={item} className="flex items-start gap-3 text-[15px] text-slate-700">
-                  <span className="text-emerald-500 font-bold mt-0.5 flex-shrink-0">âœ"</span>
+                  <span className="text-emerald-500 font-bold mt-0.5 flex-shrink-0">✓</span>
                   {item}
                 </li>
               ))}

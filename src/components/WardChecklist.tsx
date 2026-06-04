@@ -126,7 +126,7 @@ export default function WardChecklist() {
                   ? 'text-[#00994d] bg-[#e8fff3] border-green'
                   : 'text-dim bg-p2 border-border'
               }`}>
-                {count === 9 ? 'âœ" WARD-CONFORMANT' : 'NOT CONFORMANT'}
+                {count === 9 ? '✓ WARD-CONFORMANT' : 'NOT CONFORMANT'}
               </div>
             </div>
           </div>

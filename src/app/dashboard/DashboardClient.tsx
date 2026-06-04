@@ -336,7 +336,7 @@ export default function DashboardClient() {
                       <div className="text-dim text-sm mt-0.5">{fmtAddr(claim.vault_address)}</div>
                       {claim.rejection_reason && (
                         <div className="text-red-400/70 text-sm mt-1 max-w-xs truncate" title={claim.rejection_reason}>
-                          âœ• step {claim.rejection_step}: {claim.rejection_reason}
+                          ✕ step {claim.rejection_step}: {claim.rejection_reason}
                         </div>
                       )}
                       {claim.escrow_tx && (

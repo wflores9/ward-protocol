@@ -170,7 +170,7 @@ export default function LiveValidator() {
             <div className={`rounded-md border p-4 ${result.approved ? 'border-green bg-[#f0fff8]' : 'border-[#c8a94a]/40 bg-[#fffdf5]'}`}>
               <div className="flex items-center gap-3 mb-2">
                 <div className={`text-sm font-bold ${result.approved ? 'text-[#00994d]' : 'text-steel'}`}>
-                  {result.approved ? 'âœ" WARD-CONFORMANT' : `${result.steps_passed} / 9 Steps Passed`}
+                  {result.approved ? '✓ WARD-CONFORMANT' : `${result.steps_passed} / 9 Steps Passed`}
                 </div>
                 {!result.approved && (
                   <span className="text-sm font-bold px-2 py-0.5 rounded border text-dim bg-p2 border-border">

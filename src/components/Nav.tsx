@@ -139,7 +139,7 @@ export default function Nav() {
           padding: 10,
         }}
       >
-        {open ? 'âœ•' : '≡'}
+        {open ? '✕' : '≡'}
       </button>
 
       {/* Mobile Menu */}

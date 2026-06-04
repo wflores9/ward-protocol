@@ -82,7 +82,7 @@ const S = {
 export default function Home() {
   return (
     <>
-      {/* â"€â"€ HERO â"€â"€ */}
+      {/* ── HERO ── */}
       <div style={{
         minHeight: 'calc(100vh - 76px)', display: 'flex', alignItems: 'center',
         background: 'radial-gradient(ellipse 80% 60% at 20% 30%, rgba(182,215,206,0.12) 0%, transparent 60%), radial-gradient(ellipse 60% 40% at 80% 70%, rgba(212,169,62,0.08) 0%, transparent 50%), #14242b',
@@ -153,7 +153,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* â"€â"€ TICKER â"€â"€ */}
+      {/* ── TICKER ── */}
       <div style={{ borderTop: '1px solid rgba(182,215,206,0.12)', borderBottom: '1px solid rgba(182,215,206,0.12)', background: '#edf4f1', padding: '16px 0', overflow: 'hidden' }}>
         <div style={{ display: 'flex', gap: 48, padding: '0 32px', flexWrap: 'wrap', justifyContent: 'center' }}>
           {['Active on', 'XRPL Altnet', 'XRPLF Standards #474', 'PyPI · ward-protocol', 'Discord Community', '317 Tests Passing'].map((t, i) => (
@@ -162,7 +162,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* â"€â"€ PROBLEM â"€â"€ */}
+      {/* ── PROBLEM ── */}
       <section style={{ ...S.section, background: 'var(--steel-2)' }}>
         <div style={{ ...S.containerNarrow, textAlign: 'center' }}>
           <span style={S.label}>THE PROBLEM</span>
@@ -177,7 +177,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* â"€â"€ HOW IT WORKS â"€â"€ */}
+      {/* ── HOW IT WORKS ── */}
       <section style={{ ...S.section, background: 'var(--steel)' }}>
         <div style={S.container}>
           <div style={{ marginBottom: 56 }}>
@@ -197,7 +197,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* â"€â"€ CORE INVARIANT â"€â"€ */}
+      {/* ── CORE INVARIANT ── */}
       <section style={{ ...S.section, background: 'var(--steel-2)', borderTop: '1px solid rgba(200,169,74,0.15)', borderBottom: '1px solid rgba(200,169,74,0.15)' }}>
         <div style={{ ...S.containerNarrow, textAlign: 'center' }}>
           <span style={S.label}>THE CORE INVARIANT</span>
@@ -221,7 +221,7 @@ return UnsignedTransaction(
         </div>
       </section>
 
-      {/* â"€â"€ WHY WARD â"€â"€ */}
+      {/* ── WHY WARD ── */}
       <section style={{ ...S.section, background: 'var(--paper)' }}>
         <div style={{ ...S.containerNarrow, textAlign: 'center' }}>
           <span style={{ ...S.label, color: '#c8a94a' }}>WHY WARD</span>
@@ -235,7 +235,7 @@ return UnsignedTransaction(
         </div>
       </section>
 
-      {/* â"€â"€ NINE ON-LEDGER CHECKS â"€â"€ */}
+      {/* ── NINE ON-LEDGER CHECKS ── */}
       <section style={{ ...S.section, background: '#183038', borderTop: '3px solid var(--gold)' }}>
         <div style={S.container}>
           <div style={{ textAlign: 'center', marginBottom: 52 }}>
@@ -257,7 +257,7 @@ return UnsignedTransaction(
         </div>
       </section>
 
-      {/* â"€â"€ CURRENT STATUS â"€â"€ */}
+      {/* ── CURRENT STATUS ── */}
       <section style={{ ...S.section, background: 'var(--steel-2)' }}>
         <div style={S.container}>
           <span style={S.label}>CURRENT STATUS</span>
@@ -293,7 +293,7 @@ return UnsignedTransaction(
         </div>
       </section>
 
-      {/* â"€â"€ LICENSING â"€â"€ */}
+      {/* ── LICENSING ── */}
       <section style={{ ...S.section, background: 'var(--paper)' }}>
         <div style={S.container}>
           <div style={{ marginBottom: 16 }}>
@@ -302,7 +302,7 @@ return UnsignedTransaction(
             <p style={{ ...S.bodyDark, maxWidth: 520, marginBottom: 24 }}>Ward Protocol is pre-mainnet. All tier pricing is confirmed at XLS-66 mainnet launch. Reach out early to discuss your use case and secure pilot access.</p>
           </div>
           <div style={{ background: '#fff7dc', border: '1px solid #e6c765', borderRadius: 8, padding: '14px 18px', marginBottom: 34, display: 'flex', alignItems: 'center', gap: 10 }}>
-            <span>â³</span>
+            <span>⏳</span>
             <span style={{ fontSize: 15, color: '#7c6418' }}>Pricing coming soon "" announced at XLS-66 mainnet launch. <a href="mailto:wflores@wardprotocol.org" style={{ color: '#a67c16', fontWeight: 700 }}>Contact us</a> for early institutional access.</span>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px,1fr))', gap: 16 }}>
@@ -335,7 +335,7 @@ return UnsignedTransaction(
         </div>
       </section>
 
-      {/* â"€â"€ COMMUNITY SIGNAL â"€â"€ */}
+      {/* ── COMMUNITY SIGNAL ── */}
       <section style={{ ...S.section, background: 'var(--steel)' }}>
         <div style={S.container}>
           <div style={{ marginBottom: 48 }}>
@@ -357,7 +357,7 @@ return UnsignedTransaction(
         </div>
       </section>
 
-      {/* â"€â"€ FAQ â"€â"€ */}
+      {/* ── FAQ ── */}
       <section style={{ ...S.section, background: 'var(--paper)' }}>
         <div style={S.containerNarrow}>
           <div style={{ textAlign: 'center', marginBottom: 48 }}>
@@ -380,7 +380,7 @@ return UnsignedTransaction(
         </div>
       </section>
 
-      {/* â"€â"€ FINAL CTA â"€â"€ */}
+      {/* ── FINAL CTA ── */}
       <section style={{ ...S.section, background: '#1d3035', borderTop: '1px solid rgba(182,215,206,0.12)' }}>
         <div style={{ ...S.containerNarrow, textAlign: 'center' }}>
           <h2 style={{ ...S.h2, marginBottom: 16 }}>Ready to add default protection to your vault?</h2>
