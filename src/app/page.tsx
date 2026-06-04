@@ -292,6 +292,83 @@ export default function Home() {
         </div>
       </section>
 
+
+      {/* WHY WARD */}
+      <section className="py-20 bg-white">
+        <div className="max-w-3xl mx-auto px-6 text-center">
+          <div className="text-xs uppercase tracking-[.15em] text-[#c8a94a] mb-3 font-mono">Why Ward</div>
+          <h2 className="font-condensed font-black text-4xl text-steel mb-6">Designed out of the equation.</h2>
+          <p className="text-sub text-lg leading-relaxed mb-6">
+            Most infrastructure wants to be in the middle. Ward is built to be invisible. We never hold keys, never co-sign transactions, never act as a counterparty. When a vault defaults, Ward evaluates the conditions and returns an unsigned transaction. The institution signs. The chain settles. Ward was never there.
+          </p>
+          <div className="border-l-4 border-[#c8a94a] pl-4 text-left inline-block">
+            <code className="text-[#c8a94a] font-mono text-lg font-bold">ward_signed = False — always.</code>
+          </div>
+        </div>
+      </section>
+
+      {/* NINE ON-LEDGER CHECKS */}
+      <section className="py-20 bg-steel border-t-4 border-[#c8a94a]">
+        <div className="max-w-5xl mx-auto px-6">
+          <div className="text-center mb-12">
+            <div className="text-xs uppercase tracking-[.15em] text-[#c8a94a] mb-3 font-mono">Nine On-Ledger Checks</div>
+            <h2 className="font-condensed font-black text-4xl text-ice">Every default. The same answer.</h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {[
+              { n: '01', title: 'Policy NFT Verified', desc: 'Taxon 281, non-transferable' },
+              { n: '02', title: 'Policy Not Expired', desc: 'Checked against ledger close_time' },
+              { n: '03', title: 'Vault Address Match', desc: 'NFT metadata verified on-chain' },
+              { n: '04', title: 'Default Flag Confirmed', desc: 'LSF_LOAN_DEFAULT set on-chain' },
+              { n: '05', title: 'Vault Loss > Zero', desc: 'Outstanding loan value confirmed' },
+              { n: '06', title: 'Pool Coverage Available', desc: 'Reserve balance checked' },
+              { n: '07', title: 'NFT Still Live', desc: 'Not previously burned' },
+              { n: '08', title: 'Claimant Holds NFT', desc: 'Ownership verified on-chain' },
+              { n: '09', title: 'Pool Solvent', desc: 'Rate limit and solvency clear' },
+            ].map((step) => (
+              <div key={step.n} className="bg-[#0a1828] border border-[#1a3050] rounded-lg p-5">
+                <div className="text-[#a8c5e8] font-mono text-sm font-bold mb-2">{step.n}</div>
+                <div className="text-white font-bold text-base mb-1">{step.title}</div>
+                <div className="text-[#6a7d90] text-sm">{step.desc}</div>
+              </div>
+            ))}
+          </div>
+          <p className="text-center text-[#6a7d90] text-sm mt-8 font-mono">
+            All nine must pass. Any failure returns a verifiable rejection reason — on-chain.
+          </p>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section className="py-20 bg-white">
+        <div className="max-w-3xl mx-auto px-6">
+          <div className="text-center mb-12">
+            <div className="text-xs uppercase tracking-[.15em] text-[#c8a94a] mb-3 font-mono">FAQ</div>
+            <h2 className="font-condensed font-black text-4xl text-steel">Common questions.</h2>
+          </div>
+          <div className="space-y-4">
+            {[
+              { q: 'Does Ward hold any signing keys?', a: 'Never. ward_signed = False is a founding architectural constraint. Ward constructs unsigned transactions. Institutions sign. The chain settles. Ward has no technical capability to move funds.' },
+              { q: 'Does Ward use oracles?', a: 'No. All nine validation checks read directly from on-chain ledger state. No external price feeds, no off-chain APIs, no trust dependencies.' },
+              { q: "What happens if Ward\'s API goes down?", a: 'The on-chain validation logic is open-source and can be run locally. The hosted API at api.wardprotocol.org provides convenience — not dependency. The protocol itself is independent of Ward Labs infrastructure.' },
+              { q: 'Which chains does Ward support?', a: 'Ward Protocol is built on XRPL and is chain-agnostic by design. Mainnet at XLS-66 launch. Multi-chain ports (Flare, Solana, Hedera) are in the integration roadmap.' },
+              { q: 'How is Ward different from a liquidation bot?', a: 'Liquidation bots are reactive, oracle-dependent, and application-layer. Ward is deterministic, oracle-free, and infrastructure-layer. They solve different problems — liquidation bots execute after a decision, Ward defines what the decision is.' },
+              { q: 'What does Ward-Conformant mean?', a: "A Ward-Conformant protocol has passed Ward\'s conformance review — confirming that its vault structure, policy certificates, and settlement flow meet the Ward Protocol specification. It signals to institutional depositors that default resolution is deterministic and auditable." },
+            ].map((item, i) => (
+              <details key={i} className="group border border-[#e0e8f0] rounded-lg">
+                <summary className="flex items-center justify-between p-5 cursor-pointer list-none">
+                  <span className="font-bold text-steel text-base">{item.q}</span>
+                  <span className="text-[#c8a94a] font-bold text-xl group-open:rotate-45 transition-transform">+</span>
+                </summary>
+                <p className="px-5 pb-5 text-sub text-sm leading-relaxed border-l-4 border-[#c8a94a] ml-5">
+                  {item.a}
+                </p>
+              </details>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* FINAL CTA */}
       <section className="page-section cta-section">
         <div className="section-inner">
