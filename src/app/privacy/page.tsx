@@ -1,7 +1,7 @@
 ﻿import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Ward Protocol "" Privacy Policy',
+  title: 'Ward Protocol — Privacy Policy',
   description: 'Privacy Policy for Ward Protocol.',
 }
 
@@ -28,7 +28,7 @@ export default function PrivacyPage() {
             Ward Protocol does not store, transmit, or process private keys or wallet seeds.
           </p>
           <p className="mt-2">
-            <strong className="text-steel">ward_signed = False</strong> "" Ward Protocol never holds,
+            <strong className="text-steel">ward_signed = False</strong> — Ward Protocol never holds,
             requests, or processes signing keys. Institutions sign transactions locally.
           </p>
         </section>

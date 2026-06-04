@@ -106,7 +106,7 @@ export default function WalletConnector() {
               </button>
             </div>
             <p className="text-sm text-sub mb-4 font-mono">
-              Verify wallet ownership "" no transaction submitted. ward_signed = False.
+              Verify wallet ownership — no transaction submitted. ward_signed = False.
             </p>
             <div className="flex flex-col gap-2">
               {WALLETS.map(w => (

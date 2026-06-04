@@ -286,7 +286,7 @@ export default function DashboardClient() {
 
       {/* Demo banner */}
       <div className="bg-gold/10 border-b border-gold/20 text-gold text-sm text-center py-2 font-mono">
-        DEMO "" mock data · connect api.wardprotocol.org for live XRPL state
+        DEMO — mock data · connect api.wardprotocol.org for live XRPL state
       </div>
 
       <main className="max-w-7xl mx-auto px-6 py-8 space-y-8">

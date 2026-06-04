@@ -1,7 +1,7 @@
 ﻿import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Ward Protocol "" Terms of Service',
+  title: 'Ward Protocol — Terms of Service',
   description: 'Terms of Service for Ward Protocol.',
 }
 
@@ -55,7 +55,7 @@ export default function TermsPage() {
         <section>
           <h2 className="font-condensed font-black text-xl text-steel mb-2">5. Key Management</h2>
           <p>
-            <strong className="text-steel">ward_signed = False</strong> "" Ward Protocol is designed
+            <strong className="text-steel">ward_signed = False</strong> — Ward Protocol is designed
             so that it never holds, requests, or processes private keys or wallet seeds. Users remain
             solely responsible for the security of their signing keys. Loss of keys is irreversible.
           </p>
