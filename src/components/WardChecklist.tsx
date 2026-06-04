@@ -4,21 +4,21 @@ import { useState } from 'react'
 
 const STEPS = [
   { n: 1, name: 'NFT Existence & Taxon', desc: 'Policy NFT in claimant wallet with taxon = 281 (WARD_POLICY_TAXON)',
-    detail: 'Ward calls AccountNFTs on the claimant address and verifies at least one NFT exists with NFTokenTaxon = 281. This taxon is the WARD_POLICY_TAXON constant "” any NFT with a different taxon is rejected regardless of other attributes.' },
-  { n: 2, name: 'Policy Expiry', desc: 'Expiry checked against XRPL ledger close_time "” not server clock',
+    detail: 'Ward calls AccountNFTs on the claimant address and verifies at least one NFT exists with NFTokenTaxon = 281. This taxon is the WARD_POLICY_TAXON constant "" any NFT with a different taxon is rejected regardless of other attributes.' },
+  { n: 2, name: 'Policy Expiry', desc: 'Expiry checked against XRPL ledger close_time "" not server clock',
     detail: 'The policy expiry timestamp encoded in the NFT URI is compared against the current ledger close_time from a validated ledger. Server clocks are never trusted. This prevents expiry manipulation through clock skew or timezone attacks.' },
   { n: 3, name: 'Vault Address Binding', desc: 'NFT metadata vault address matches reported defaulted_vault',
     detail: 'The NFT URI metadata contains the vault address the policy was issued for. Ward decodes this and checks it exactly matches the defaulted_vault parameter in the claim. A policy issued for vault A cannot be used to claim against vault B.' },
   { n: 4, name: 'On-Chain Default Flag', desc: 'LedgerEntry carries LSF_LOAN_DEFAULT (0x00010000)',
-    detail: 'Ward fetches the LedgerEntry for the reported loan and checks that the LSF_LOAN_DEFAULT flag (0x00010000) is set. This flag is set by the XLS-66 vault contract upon confirmed default "” it cannot be set off-chain.' },
+    detail: 'Ward fetches the LedgerEntry for the reported loan and checks that the LSF_LOAN_DEFAULT flag (0x00010000) is set. This flag is set by the XLS-66 vault contract upon confirmed default "" it cannot be set off-chain.' },
   { n: 5, name: 'Positive Vault Loss', desc: 'TotalValueOutstanding from defaulted loan > 0 drops',
     detail: 'Ward reads TotalValueOutstanding from the defaulted loan LedgerEntry and confirms it is greater than zero. A zero-loss default produces no payout. This prevents claims on loans that were fully repaid before the flag was cleared.' },
   { n: 6, name: 'Pool Coverage Breach', desc: 'Usable pool balance = balance − XRPL reserve ≥ 0',
     detail: 'Ward calculates usable pool balance as the raw XRP balance minus the XRPL base reserve (currently 10 XRP). The reserve is non-spendable on the XRPL ledger. Only the usable portion is eligible for claim payout.' },
   { n: 7, name: 'Replay Protection', desc: 'NFT still live on-chain; burn-on-settlement prevents replays',
-    detail: 'Ward confirms the policy NFT is still present in the claimant wallet at claim time. Upon successful settlement the NFT is burned via NFTokenBurn. A burned token cannot be replayed "” the same loss event cannot be claimed twice.' },
+    detail: 'Ward confirms the policy NFT is still present in the claimant wallet at claim time. Upon successful settlement the NFT is burned via NFTokenBurn. A burned token cannot be replayed "" the same loss event cannot be claimed twice.' },
   { n: 8, name: 'Claimant Holds NFT', desc: 'NFT found in claimant_address wallet via AccountNFTs',
-    detail: 'Ward calls AccountNFTs on the claimant_address and verifies the specific NFTokenID is present. The NFT must be in the claimant wallet "” not escrowed, not in another account. This binds the claim to the actual policy holder.' },
+    detail: 'Ward calls AccountNFTs on the claimant_address and verifies the specific NFTokenID is present. The NFT must be in the claimant wallet "" not escrowed, not in another account. This binds the claim to the actual policy holder.' },
   { n: 9, name: 'Pool Solvency & Rate Limit', desc: 'Usable ≥ payout, ratio ≥ 1.5×, ≤ 3 claims/NFT per 300 s',
     detail: 'Three final checks: (1) usable pool balance must cover the full payout amount, (2) post-payout pool ratio must remain ≥ 1.5× to prevent pool insolvency, (3) no more than 3 claims per NFT within any 300-second window to prevent automated draining attacks.' },
 ]
@@ -45,7 +45,7 @@ export default function WardChecklist() {
       {/* Steps */}
       <div>
         <h2 className="font-condensed font-black text-2xl text-steel mb-1">9-Step Claim Validation</h2>
-        <p className="text-sm text-sub mb-6">All state sourced from XRPL ledger "” no off-chain inputs trusted.</p>
+        <p className="text-sm text-sub mb-6">All state sourced from XRPL ledger "" no off-chain inputs trusted.</p>
 
         {STEPS.map(s => {
           const isChecked = checked.has(s.n)
@@ -126,7 +126,7 @@ export default function WardChecklist() {
                   ? 'text-[#00994d] bg-[#e8fff3] border-green'
                   : 'text-dim bg-p2 border-border'
               }`}>
-                {count === 9 ? 'âœ“ WARD-CONFORMANT' : 'NOT CONFORMANT'}
+                {count === 9 ? 'âœ" WARD-CONFORMANT' : 'NOT CONFORMANT'}
               </div>
             </div>
           </div>
@@ -150,7 +150,7 @@ export default function WardChecklist() {
             ].map(([k, v]) => (
               <li key={k} className="flex gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-ice2 mt-1.5 shrink-0"/>
-                <span><strong className="text-steel">{k}</strong> "” {v}</span>
+                <span><strong className="text-steel">{k}</strong> "" {v}</span>
               </li>
             ))}
           </ul>

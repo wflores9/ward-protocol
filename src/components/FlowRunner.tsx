@@ -5,7 +5,7 @@ import { useState } from 'react'
 const FLOWS = [
   {
     id:    'F01',
-    title: 'F·01 "” Vault Registration',
+    title: 'F·01 "" Vault Registration',
     desc:  'Register an XLS-66 vault. Ward returns an unsigned NFTokenMint; institution signs.',
     code:  `from ward import WardClient
 from xrpl.wallet import Wallet
@@ -13,7 +13,7 @@ from xrpl.wallet import Wallet
 client = WardClient()
 wallet = Wallet.from_seed(seed)   # institution holds key
 
-# Ward builds unsigned tx "” ward_signed = False
+# Ward builds unsigned tx "" ward_signed = False
 unsigned_tx = await client.register_vault(
     institution_address=wallet.classic_address,
     collateral_currency="XRP",
@@ -26,7 +26,7 @@ result = await submit_and_wait(unsigned_tx, xrpl_client, wallet)`,
   },
   {
     id:    'F02',
-    title: 'F·02 "” Policy Purchase',
+    title: 'F·02 "" Policy Purchase',
     desc:  'Mint a Ward policy NFT (taxon=281, TF_BURNABLE, no TF_TRANSFERABLE).',
     code:  `from ward import WardClient
 from ward.constants import WARD_POLICY_TAXON, TF_TRANSFERABLE
@@ -47,7 +47,7 @@ assert "TxnSignature" not in unsigned_tx                   # ward_signed = False
   },
   {
     id:    'F03',
-    title: 'F·03 "” Vault Monitor',
+    title: 'F·03 "" Vault Monitor',
     desc:  'Subscribe to XRPL ledger stream. 3-ledger confirmation before VerifiedDefault fires.',
     code:  `from ward import VaultMonitor, VerifiedDefault
 
@@ -68,7 +68,7 @@ await monitor.run()   # reconnects on disconnect`,
   },
   {
     id:    'F04',
-    title: 'F·04 "” Claim Validation',
+    title: 'F·04 "" Claim Validation',
     desc:  '9-step on-chain claim validation. All state sourced from XRPL ledger.',
     code:  `from ward import ClaimValidator
 
@@ -83,12 +83,12 @@ result = await validator.validate_claim(
 )
 
 print(result.approved)           # True / False
-print(result.steps_passed)       # 0"“9
+print(result.steps_passed)       # 0""9
 print(result.claim_payout_drops) # min(vault_loss, coverage)`,
   },
   {
     id:    'F05',
-    title: 'F·05 "” Escrow Settlement',
+    title: 'F·05 "" Escrow Settlement',
     desc:  'Claimant holds preimage. Ward receives condition_hex only. ward_signed = False.',
     code:  `from ward.primitives import generate_claim_preimage, make_preimage_condition
 
@@ -96,7 +96,7 @@ print(result.claim_payout_drops) # min(vault_loss, coverage)`,
 preimage = generate_claim_preimage()   # 32 random bytes
 condition_hex, fulfillment_hex = make_preimage_condition(preimage)
 
-# Ward receives condition_hex ONLY "” never the preimage
+# Ward receives condition_hex ONLY "" never the preimage
 unsigned_create = await client.create_claim_escrow(
     pool_address=pool_addr,
     claimant_address=wallet.classic_address,

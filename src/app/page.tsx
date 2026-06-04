@@ -13,10 +13,10 @@ const flows = [
 const steps = [
   { n: 1, title: 'Vault Registration', body: 'Institution registers its XLS-66 vault. Ward confirms the vault object exists on the XRPL ledger via account_objects.' },
   { n: 2, title: 'Policy Purchase',    body: 'Depositor acquires coverage via a non-transferable XLS-20 NFT (taxon 281). Ward returns an unsigned NFTokenMint. Institution signs. XRPL settles.' },
-  { n: 3, title: 'Vault Monitoring',   body: 'Ward monitors vault health via WebSocket. Events are hints "” ledger state is always truth. 3-ledger confirmation window eliminates manipulation.' },
+  { n: 3, title: 'Vault Monitoring',   body: 'Ward monitors vault health via WebSocket. Events are hints "" ledger state is always truth. 3-ledger confirmation window eliminates manipulation.' },
   { n: 4, title: 'Default Detection',  body: 'Health ratio below 1.5 confirmed across 3 consecutive ledger closes (~12 seconds). Single-block manipulation is structurally impossible.' },
   { n: 5, title: 'Claim Validation',   body: 'Nine deterministic checks run against live XRPL ledger state. No oracle. No human judgment. Every check is verifiable on-chain.' },
-  { n: 6, title: 'Escrow Settlement',  body: 'Ward returns an unsigned EscrowCreate with PREIMAGE-SHA-256 (48-hour window). Institution signs. XRPL settles. ward_signed=False "” always.' },
+  { n: 6, title: 'Escrow Settlement',  body: 'Ward returns an unsigned EscrowCreate with PREIMAGE-SHA-256 (48-hour window). Institution signs. XRPL settles. ward_signed=False "" always.' },
 ]
 
 const quotes = [
@@ -41,18 +41,18 @@ const validationSteps = [
 const faqItems = [
   { q: 'Does Ward hold any signing keys?', a: 'Never. ward_signed = False is a founding architectural constraint. Ward constructs unsigned transactions. Institutions sign. The chain settles. Ward has no technical capability to move funds.' },
   { q: 'Does Ward use oracles?', a: 'No. All nine validation checks read directly from on-chain ledger state. No external price feeds, no off-chain APIs, no trust dependencies.' },
-  { q: 'What happens if Ward\'s API goes down?', a: 'The on-chain validation logic is open-source and can be run locally. The hosted API at api.wardprotocol.org provides convenience "” not dependency. The protocol itself is independent of Ward Labs infrastructure.' },
+  { q: 'What happens if Ward\'s API goes down?', a: 'The on-chain validation logic is open-source and can be run locally. The hosted API at api.wardprotocol.org provides convenience "" not dependency. The protocol itself is independent of Ward Labs infrastructure.' },
   { q: 'Which chains does Ward support?', a: 'Ward Protocol is built on XRPL and is chain-agnostic by design. Mainnet at XLS-66 launch. Multi-chain ports (Flare, Solana, Hedera) are in the integration roadmap.' },
-  { q: 'How is Ward different from a liquidation bot?', a: 'Liquidation bots are reactive, oracle-dependent, and application-layer. Ward is deterministic, oracle-free, and infrastructure-layer. They solve different problems "” liquidation bots execute after a decision, Ward defines what the decision is.' },
-  { q: 'What does Ward-Conformant mean?', a: 'A Ward-Conformant protocol has passed Ward\'s conformance review "” confirming that its vault structure, policy certificates, and settlement flow meet the Ward Protocol specification.' },
+  { q: 'How is Ward different from a liquidation bot?', a: 'Liquidation bots are reactive, oracle-dependent, and application-layer. Ward is deterministic, oracle-free, and infrastructure-layer. They solve different problems "" liquidation bots execute after a decision, Ward defines what the decision is.' },
+  { q: 'What does Ward-Conformant mean?', a: 'A Ward-Conformant protocol has passed Ward\'s conformance review "" confirming that its vault structure, policy certificates, and settlement flow meet the Ward Protocol specification.' },
 ]
 
 const statusRows: [string, React.ReactNode][] = [
   ['SDK Version', 'v0.2.5'],
   ['Unit Tests', <span key="tests" style={{ color: 'var(--green)' }}>317 Python · 40 Rust · 45 TypeScript</span>],
   ['Coverage', 'chain_reader 100% · monitor 100% · tx_builder 100% · vault_monitor 99%'],
-  ['On-Chain Transactions', '2 confirmed (XRPL Altnet) · F·03"“F·05 pending XLS-66 mainnet'],
-  ['External Dependencies', '0 "” pure XRPL'],
+  ['On-Chain Transactions', '2 confirmed (XRPL Altnet) · F·03""F·05 pending XLS-66 mainnet'],
+  ['External Dependencies', '0 "" pure XRPL'],
   ['Ward Holds Keys', 'Never'],
   ['Authoritative State', 'XRPL Ledger'],
   ['Production Code', '2,148 lines'],
@@ -60,11 +60,11 @@ const statusRows: [string, React.ReactNode][] = [
 ]
 
 const txns = [
-  { step: '1 "” Premium Payment',  type: 'Payment',      proves: 'Premium to pool',               hash: 'B756484C...3B8D7E' },
-  { step: '2 "” Policy NFT Mint',  type: 'NFTokenMint',  proves: 'Coverage issued (taxon 281)',   hash: '2800219A...E79E2CB' },
-  { step: '3 "” Escrow Create',    type: 'EscrowCreate', proves: 'Funds locked PREIMAGE-SHA-256', hash: 'Pending F·05' },
-  { step: '4 "” Escrow Finish',    type: 'EscrowFinish', proves: 'Payout released with preimage', hash: 'Pending F·05' },
-  { step: '5 "” Policy NFT Burn',  type: 'NFTokenBurn',  proves: 'Replay protection confirmed',  hash: 'Pending F·05' },
+  { step: '1 "" Premium Payment',  type: 'Payment',      proves: 'Premium to pool',               hash: 'B756484C...3B8D7E' },
+  { step: '2 "" Policy NFT Mint',  type: 'NFTokenMint',  proves: 'Coverage issued (taxon 281)',   hash: '2800219A...E79E2CB' },
+  { step: '3 "" Escrow Create',    type: 'EscrowCreate', proves: 'Funds locked PREIMAGE-SHA-256', hash: 'Pending F·05' },
+  { step: '4 "" Escrow Finish',    type: 'EscrowFinish', proves: 'Payout released with preimage', hash: 'Pending F·05' },
+  { step: '5 "" Policy NFT Burn',  type: 'NFTokenBurn',  proves: 'Replay protection confirmed',  hash: 'Pending F·05' },
 ]
 
 const S = {
@@ -82,7 +82,7 @@ const S = {
 export default function Home() {
   return (
     <>
-      {/* â”€â”€ HERO â”€â”€ */}
+      {/* â"€â"€ HERO â"€â"€ */}
       <div style={{
         minHeight: 'calc(100vh - 76px)', display: 'flex', alignItems: 'center',
         background: 'radial-gradient(ellipse 80% 60% at 20% 30%, rgba(182,215,206,0.12) 0%, transparent 60%), radial-gradient(ellipse 60% 40% at 80% 70%, rgba(212,169,62,0.08) 0%, transparent 50%), #14242b',
@@ -102,7 +102,7 @@ export default function Home() {
             </h1>
             <p style={{ fontSize: 19, lineHeight: 1.75, color: 'var(--text-secondary)', marginBottom: 36, maxWidth: 560 }}>
               When a borrower defaults, Ward Protocol defines exactly what happens.
-              Nine on-ledger checks. No oracle. No human judgment. No Ward signature "” ever.
+              Nine on-ledger checks. No oracle. No human judgment. No Ward signature "" ever.
             </p>
             <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
               <Link href="/spec" className="btn-primary">View Specification →</Link>
@@ -110,7 +110,7 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Right "” Status Card */}
+          {/* Right "" Status Card */}
           <div style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(182,215,206,0.18)', borderRadius: 16, padding: 30, backdropFilter: 'blur(20px)' }}>
             {/* Card header */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, paddingBottom: 16, borderBottom: '1px solid rgba(168,197,232,0.08)' }}>
@@ -153,7 +153,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* â”€â”€ TICKER â”€â”€ */}
+      {/* â"€â"€ TICKER â"€â"€ */}
       <div style={{ borderTop: '1px solid rgba(182,215,206,0.12)', borderBottom: '1px solid rgba(182,215,206,0.12)', background: '#edf4f1', padding: '16px 0', overflow: 'hidden' }}>
         <div style={{ display: 'flex', gap: 48, padding: '0 32px', flexWrap: 'wrap', justifyContent: 'center' }}>
           {['Active on', 'XRPL Altnet', 'XRPLF Standards #474', 'PyPI · ward-protocol', 'Discord Community', '317 Tests Passing'].map((t, i) => (
@@ -162,7 +162,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* â”€â”€ PROBLEM â”€â”€ */}
+      {/* â"€â"€ PROBLEM â"€â"€ */}
       <section style={{ ...S.section, background: 'var(--steel-2)' }}>
         <div style={{ ...S.containerNarrow, textAlign: 'center' }}>
           <span style={S.label}>THE PROBLEM</span>
@@ -171,13 +171,13 @@ export default function Home() {
           </h2>
           <p style={{ ...S.body, maxWidth: 560, margin: '0 auto 20px' }}>
             Every institution deploying capital into on-chain lending will eventually ask this question.
-            Today, there is no standard answer. Every protocol builds their own "” or ignores the risk entirely.
+            Today, there is no standard answer. Every protocol builds their own "" or ignores the risk entirely.
           </p>
           <p style={{ fontFamily: 'DM Mono, monospace', fontSize: 15, color: 'var(--ice)', fontWeight: 500 }}>Ward Protocol is that missing layer.</p>
         </div>
       </section>
 
-      {/* â”€â”€ HOW IT WORKS â”€â”€ */}
+      {/* â"€â"€ HOW IT WORKS â"€â"€ */}
       <section style={{ ...S.section, background: 'var(--steel)' }}>
         <div style={S.container}>
           <div style={{ marginBottom: 56 }}>
@@ -197,12 +197,12 @@ export default function Home() {
         </div>
       </section>
 
-      {/* â”€â”€ CORE INVARIANT â”€â”€ */}
+      {/* â"€â"€ CORE INVARIANT â"€â"€ */}
       <section style={{ ...S.section, background: 'var(--steel-2)', borderTop: '1px solid rgba(200,169,74,0.15)', borderBottom: '1px solid rgba(200,169,74,0.15)' }}>
         <div style={{ ...S.containerNarrow, textAlign: 'center' }}>
           <span style={S.label}>THE CORE INVARIANT</span>
           <h2 style={{ fontSize: 44, fontWeight: 850, letterSpacing: 0, lineHeight: 1.16, marginBottom: 16, background: 'linear-gradient(135deg, #d4a93e, #f0d080)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
-            ward_signed = False "” always
+            ward_signed = False "" always
           </h2>
           <p style={{ ...S.body, marginBottom: 36 }}>Ward constructs unsigned transactions. Institutions sign. XRPL settles. Ward is never a counterparty.</p>
           <div style={{ background: '#101d23', border: '1px solid rgba(182,215,206,0.16)', borderRadius: 12, padding: '30px 34px', textAlign: 'left', position: 'relative', overflow: 'hidden' }}>
@@ -221,7 +221,7 @@ return UnsignedTransaction(
         </div>
       </section>
 
-      {/* â”€â”€ WHY WARD â”€â”€ */}
+      {/* â"€â"€ WHY WARD â"€â"€ */}
       <section style={{ ...S.section, background: 'var(--paper)' }}>
         <div style={{ ...S.containerNarrow, textAlign: 'center' }}>
           <span style={{ ...S.label, color: '#c8a94a' }}>WHY WARD</span>
@@ -230,12 +230,12 @@ return UnsignedTransaction(
             Most infrastructure wants to be in the middle. Ward is built to be invisible. We never hold keys, never co-sign transactions, never act as a counterparty. When a vault defaults, Ward evaluates the conditions and returns an unsigned transaction. The institution signs. The chain settles. Ward was never there.
           </p>
           <div style={{ display: 'inline-block', borderLeft: '3px solid #c8a94a', paddingLeft: 16, textAlign: 'left' }}>
-            <code style={{ fontFamily: 'DM Mono, monospace', fontSize: 16, color: '#c8a94a', fontWeight: 700 }}>ward_signed = False "” always.</code>
+            <code style={{ fontFamily: 'DM Mono, monospace', fontSize: 16, color: '#c8a94a', fontWeight: 700 }}>ward_signed = False "" always.</code>
           </div>
         </div>
       </section>
 
-      {/* â”€â”€ NINE ON-LEDGER CHECKS â”€â”€ */}
+      {/* â"€â"€ NINE ON-LEDGER CHECKS â"€â"€ */}
       <section style={{ ...S.section, background: '#183038', borderTop: '3px solid var(--gold)' }}>
         <div style={S.container}>
           <div style={{ textAlign: 'center', marginBottom: 52 }}>
@@ -252,12 +252,12 @@ return UnsignedTransaction(
             ))}
           </div>
           <p style={{ textAlign: 'center', fontFamily: 'DM Mono, monospace', fontSize: 14, color: 'var(--text-tertiary)', marginTop: 28 }}>
-            All nine must pass. Any failure returns a verifiable rejection reason "” on-chain.
+            All nine must pass. Any failure returns a verifiable rejection reason "" on-chain.
           </p>
         </div>
       </section>
 
-      {/* â”€â”€ CURRENT STATUS â”€â”€ */}
+      {/* â"€â"€ CURRENT STATUS â"€â"€ */}
       <section style={{ ...S.section, background: 'var(--steel-2)' }}>
         <div style={S.container}>
           <span style={S.label}>CURRENT STATUS</span>
@@ -293,7 +293,7 @@ return UnsignedTransaction(
         </div>
       </section>
 
-      {/* â”€â”€ LICENSING â”€â”€ */}
+      {/* â"€â"€ LICENSING â"€â"€ */}
       <section style={{ ...S.section, background: 'var(--paper)' }}>
         <div style={S.container}>
           <div style={{ marginBottom: 16 }}>
@@ -303,7 +303,7 @@ return UnsignedTransaction(
           </div>
           <div style={{ background: '#fff7dc', border: '1px solid #e6c765', borderRadius: 8, padding: '14px 18px', marginBottom: 34, display: 'flex', alignItems: 'center', gap: 10 }}>
             <span>â³</span>
-            <span style={{ fontSize: 15, color: '#7c6418' }}>Pricing coming soon "” announced at XLS-66 mainnet launch. <a href="mailto:wflores@wardprotocol.org" style={{ color: '#a67c16', fontWeight: 700 }}>Contact us</a> for early institutional access.</span>
+            <span style={{ fontSize: 15, color: '#7c6418' }}>Pricing coming soon "" announced at XLS-66 mainnet launch. <a href="mailto:wflores@wardprotocol.org" style={{ color: '#a67c16', fontWeight: 700 }}>Contact us</a> for early institutional access.</span>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px,1fr))', gap: 16 }}>
             {[
@@ -335,7 +335,7 @@ return UnsignedTransaction(
         </div>
       </section>
 
-      {/* â”€â”€ COMMUNITY SIGNAL â”€â”€ */}
+      {/* â"€â"€ COMMUNITY SIGNAL â"€â"€ */}
       <section style={{ ...S.section, background: 'var(--steel)' }}>
         <div style={S.container}>
           <div style={{ marginBottom: 48 }}>
@@ -357,7 +357,7 @@ return UnsignedTransaction(
         </div>
       </section>
 
-      {/* â”€â”€ FAQ â”€â”€ */}
+      {/* â"€â"€ FAQ â"€â"€ */}
       <section style={{ ...S.section, background: 'var(--paper)' }}>
         <div style={S.containerNarrow}>
           <div style={{ textAlign: 'center', marginBottom: 48 }}>
@@ -380,7 +380,7 @@ return UnsignedTransaction(
         </div>
       </section>
 
-      {/* â”€â”€ FINAL CTA â”€â”€ */}
+      {/* â"€â"€ FINAL CTA â"€â"€ */}
       <section style={{ ...S.section, background: '#1d3035', borderTop: '1px solid rgba(182,215,206,0.12)' }}>
         <div style={{ ...S.containerNarrow, textAlign: 'center' }}>
           <h2 style={{ ...S.h2, marginBottom: 16 }}>Ready to add default protection to your vault?</h2>
