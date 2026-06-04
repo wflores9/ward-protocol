@@ -62,7 +62,7 @@ async def handle(event: VerifiedDefault):
     print(f"Default confirmed: {event.vault_address}")
     print(f"Health ratio:      {event.health_ratio:.4f}")
     print(f"Confirmed ledger:  {event.confirmed_ledger}")
-    # Trigger claim validation â†’ escrow settlement
+    # Trigger claim validation → escrow settlement
 
 await monitor.run()   # reconnects on disconnect`,
   },

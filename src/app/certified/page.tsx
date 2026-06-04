@@ -223,7 +223,7 @@ export default function CertifiedPage() {
           href="mailto:wflores@wardprotocol.org?subject=Ward%20Certified%20Application"
           className="inline-block bg-navy text-white px-10 py-4 rounded-lg font-semibold text-base hover:bg-[#162d47] transition-colors no-underline"
         >
-          Apply for Certification â†’
+          Apply for Certification →
         </a>
         <p className="text-sm text-navy/50 mt-6 max-w-lg mx-auto">
           Ward Certified is a technical conformance designation "” not a financial guarantee.

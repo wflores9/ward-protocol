@@ -72,9 +72,9 @@ Shared: ward/primitives.py, ward/constants.py, ward/tx_builder.py`,
 Default detection:
   1. WebSocket transaction message received (hint only)
   2. _verify_default_on_chain(): LedgerEntry(index=loan_id) via independent RPC
-  3. 3 consecutive ledger closes with LSF_LOAN_DEFAULT set â†’ VerifiedDefault
+  3. 3 consecutive ledger closes with LSF_LOAN_DEFAULT set → VerifiedDefault
 
-Reconnect: exponential backoff (1 s â†’ 60 s max)
+Reconnect: exponential backoff (1 s → 60 s max)
 Heartbeat:  reconnects if no ledger event in MONITOR_HEARTBEAT_TIMEOUT_S (60 s)
 URL allow-list: ALLOWED_WS_URLS "” rejects unknown or non-TLS endpoints`,
   },
@@ -86,7 +86,7 @@ URL allow-list: ALLOWED_WS_URLS "” rejects unknown or non-TLS endpoints`,
   1. Claimant: preimage = secrets.token_bytes(32)
   2. Claimant: condition_hex, fulfillment_hex = make_preimage_condition(preimage)
   3. Claimant sends condition_hex to Ward API "” preimage never transmitted
-  4. Ward builds unsigned EscrowCreate (pool â†’ claimant, condition=condition_hex)
+  4. Ward builds unsigned EscrowCreate (pool → claimant, condition=condition_hex)
   5. Pool institution signs + submits EscrowCreate
   6. Ward builds unsigned EscrowFinish (fulfillment=fulfillment_hex)
   7. Claimant signs + submits EscrowFinish
@@ -164,7 +164,7 @@ export default function SpecPage() {
           </ul>
           <div className="mt-6 pt-6 border-t border-p2">
             <Link href="/demo" className="text-sm text-ice2 hover:text-steel transition-colors no-underline">
-              â†’ Try Checklist
+              → Try Checklist
             </Link>
           </div>
         </nav>
@@ -219,7 +219,7 @@ export default function SpecPage() {
                   rel={href.startsWith('http') ? 'noopener noreferrer' : undefined}
                   className="flex items-center gap-2 text-sm text-sub hover:text-steel border border-p2 bg-white rounded-md px-4 py-3 transition-colors no-underline"
                 >
-                  <span className="text-ice2">â†—</span> {label}
+                  <span className="text-ice2">↗</span> {label}
                 </a>
               ))}
             </div>

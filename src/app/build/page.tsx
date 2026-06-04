@@ -63,7 +63,7 @@ result = await client.purchase_coverage(
 # ward_signed = False "” always.`}</pre>
               </div>
               <a href="https://pypi.org/project/ward-protocol/" target="_blank" rel="noopener noreferrer" className="btn-ghost" style={{ display: 'block', textAlign: 'center', fontSize: 14 }}>
-                View on PyPI â†’
+                View on PyPI →
               </a>
             </div>
 
@@ -91,7 +91,7 @@ const result = await client.validateClaim({
 // result.approved "” true / false`}</pre>
               </div>
               <a href="https://www.npmjs.com/package/ward-protocol" target="_blank" rel="noopener noreferrer" className="btn-ghost" style={{ display: 'block', textAlign: 'center', fontSize: 14 }}>
-                View on npm â†’
+                View on npm →
               </a>
             </div>
 
@@ -117,7 +117,7 @@ const result = await client.validateClaim({
                 </div>
               </div>
               <a href="https://api.wardprotocol.org/health" target="_blank" rel="noopener noreferrer" className="btn-ghost" style={{ display: 'block', textAlign: 'center', fontSize: 14 }}>
-                Check API Health â†’
+                Check API Health →
               </a>
             </div>
           </div>
@@ -132,9 +132,9 @@ const result = await client.validateClaim({
           <p style={{ ...S.body, maxWidth: 520, marginBottom: 40 }}>Ward is pre-mainnet. All paths below lead to mainnet readiness at XLS-66 launch.</p>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px,1fr))', gap: 16 }}>
             {[
-              { label: 'Ward-Conformant Review', desc: 'Get your vault architecture reviewed against the Ward spec. Certification signals institutional-grade default resolution to your depositors.', cta: 'Start Review â†’', href: '/demo' },
-              { label: 'Starter Integration', desc: 'SDK integration for teams building on XRPL. Includes Altnet setup, policy NFT minting, and claim validation walkthrough.', cta: 'Get in Touch â†’', href: 'https://tally.so/r/VLDbBE' },
-              { label: 'Enterprise Deployment', desc: 'Custom SLA, dedicated onboarding, legal opinion letter support, and direct integration engineering for regulated institutions.', cta: 'Book a Call â†’', href: 'https://cal.com/wardprotocol/30min' },
+              { label: 'Ward-Conformant Review', desc: 'Get your vault architecture reviewed against the Ward spec. Certification signals institutional-grade default resolution to your depositors.', cta: 'Start Review →', href: '/demo' },
+              { label: 'Starter Integration', desc: 'SDK integration for teams building on XRPL. Includes Altnet setup, policy NFT minting, and claim validation walkthrough.', cta: 'Get in Touch →', href: 'https://tally.so/r/VLDbBE' },
+              { label: 'Enterprise Deployment', desc: 'Custom SLA, dedicated onboarding, legal opinion letter support, and direct integration engineering for regulated institutions.', cta: 'Book a Call →', href: 'https://cal.com/wardprotocol/30min' },
             ].map(item => (
               <div key={item.label} style={{ ...S.card, display: 'flex', flexDirection: 'column' }}>
                 <h3 style={{ fontSize: 17, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 10, letterSpacing: '-0.02em' }}>{item.label}</h3>
@@ -155,7 +155,7 @@ const result = await client.validateClaim({
           <h2 style={S.h2}>Follow the standard as it evolves.</h2>
           <p style={{ ...S.body, marginBottom: 32 }}>Ward Protocol is an active discussion in the XRPL Foundation Standards repository. Join the conversation, challenge the spec, and shape the default resolution standard.</p>
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <a href="https://github.com/XRPLF/XRPL-Standards/discussions/474" target="_blank" rel="noopener noreferrer" className="btn-primary">View Discussion #474 â†’</a>
+            <a href="https://github.com/XRPLF/XRPL-Standards/discussions/474" target="_blank" rel="noopener noreferrer" className="btn-primary">View Discussion #474 →</a>
             <Link href="/spec" className="btn-ghost">Read the Spec</Link>
           </div>
         </div>

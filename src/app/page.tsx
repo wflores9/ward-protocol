@@ -105,8 +105,8 @@ export default function Home() {
               Nine on-ledger checks. No oracle. No human judgment. No Ward signature "” ever.
             </p>
             <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-              <Link href="/spec" className="btn-primary">View Specification â†’</Link>
-              <Link href="/demo" className="btn-ghost">Try Demo â†’</Link>
+              <Link href="/spec" className="btn-primary">View Specification →</Link>
+              <Link href="/demo" className="btn-ghost">Try Demo →</Link>
             </div>
           </div>
 
@@ -307,10 +307,10 @@ return UnsignedTransaction(
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px,1fr))', gap: 16 }}>
             {[
-              { tier: 'DEVELOPER', sub: 'For builders', features: ['Ward Protocol SDK (Python + TypeScript)','Altnet sandbox access','Starter repo + full documentation','XRPLF Discussion #474','Community Discord support'], cta: 'Get Started â†’', ctaHref: 'https://pypi.org/project/ward-protocol/', featured: false },
-              { tier: 'STARTER', sub: 'For teams deploying on-chain', features: ['Ward Protocol SDK access','Python, TypeScript, Java examples','Altnet integration out of the box','XRPLF Discussion #474','Email support'], cta: 'Get in Touch â†’', ctaHref: 'https://tally.so/r/VLDbBE', featured: false },
-              { tier: 'STANDARD', sub: 'For institutional integrations', features: ['Hosted API at api.wardprotocol.org','X-Institution-Key authentication','Onboarding session included','Ward-Conformant certification path','99.9% uptime SLA'], cta: 'Book a Call â†’', ctaHref: 'https://cal.com/wardprotocol/30min', featured: true },
-              { tier: 'ENTERPRISE', sub: 'For regulated institutions', features: ['White-label implementation','Custom SLA and dedicated support','Legal opinion letter support','Direct integration engineering','Priority audit coordination'], cta: 'Book a Call â†’', ctaHref: 'https://cal.com/wardprotocol/30min', featured: false },
+              { tier: 'DEVELOPER', sub: 'For builders', features: ['Ward Protocol SDK (Python + TypeScript)','Altnet sandbox access','Starter repo + full documentation','XRPLF Discussion #474','Community Discord support'], cta: 'Get Started →', ctaHref: 'https://pypi.org/project/ward-protocol/', featured: false },
+              { tier: 'STARTER', sub: 'For teams deploying on-chain', features: ['Ward Protocol SDK access','Python, TypeScript, Java examples','Altnet integration out of the box','XRPLF Discussion #474','Email support'], cta: 'Get in Touch →', ctaHref: 'https://tally.so/r/VLDbBE', featured: false },
+              { tier: 'STANDARD', sub: 'For institutional integrations', features: ['Hosted API at api.wardprotocol.org','X-Institution-Key authentication','Onboarding session included','Ward-Conformant certification path','99.9% uptime SLA'], cta: 'Book a Call →', ctaHref: 'https://cal.com/wardprotocol/30min', featured: true },
+              { tier: 'ENTERPRISE', sub: 'For regulated institutions', features: ['White-label implementation','Custom SLA and dedicated support','Legal opinion letter support','Direct integration engineering','Priority audit coordination'], cta: 'Book a Call →', ctaHref: 'https://cal.com/wardprotocol/30min', featured: false },
             ].map(p => (
               <div key={p.tier} style={{ background: p.featured ? '#173039' : 'white', border: p.featured ? '2px solid rgba(182,215,206,0.24)' : '1px solid #dce5e1', borderRadius: 12, padding: 26, display: 'flex', flexDirection: 'column' }}>
                 <div style={{ marginBottom: 16 }}>
@@ -386,7 +386,7 @@ return UnsignedTransaction(
           <h2 style={{ ...S.h2, marginBottom: 16 }}>Ready to add default protection to your vault?</h2>
           <p style={{ ...S.body, marginBottom: 36 }}>Ward Protocol is free to implement. The specification is open. The rails are yours.</p>
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link href="/spec" className="btn-primary">View Specification â†’</Link>
+            <Link href="/spec" className="btn-primary">View Specification →</Link>
             <a href="mailto:wflores@wardprotocol.org" className="btn-ghost">Contact Us</a>
           </div>
         </div>

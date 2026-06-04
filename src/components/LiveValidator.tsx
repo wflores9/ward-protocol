@@ -158,7 +158,7 @@ export default function LiveValidator() {
                   <span className="w-3 h-3 border border-ice border-t-transparent rounded-full animate-spin" />
                   Running 9-step validation...
                 </>
-              ) : 'Run Live Validation â†’'}
+              ) : 'Run Live Validation →'}
             </button>
           </div>
 

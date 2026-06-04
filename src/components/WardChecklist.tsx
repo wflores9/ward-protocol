@@ -160,7 +160,7 @@ export default function WardChecklist() {
           onClick={() => setChecked(new Set())}
           className="w-full py-2 text-sm uppercase tracking-widest text-sub bg-panel border border-border rounded-md hover:bg-p2 transition-colors"
         >
-          â†º Reset
+          ↺ Reset
         </button>
       </div>
     </div>

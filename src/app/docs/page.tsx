@@ -70,7 +70,7 @@ export default function DocsPage() {
             New to Ward Protocol? Start with the Use Cases "” plain English scenarios showing Ward in action.
           </p>
           <Link href="/use-cases" className="text-sm text-blue-700 font-semibold hover:text-blue-900 transition-colors whitespace-nowrap no-underline">
-            View Use Cases â†’
+            View Use Cases →
           </Link>
         </div>
 
@@ -123,7 +123,7 @@ export default function DocsPage() {
                 { type: 'Added', text: 'MultiInstitutionPool "” shared capital, pro-rata loss distribution, admin access control' },
                 { type: 'Added', text: 'register_pool_member() "” unsigned AccountSet tx, ward_signed=False in memo payload' },
                 { type: 'Changed', text: 'Step 6 now rejects when pool usable balance < vault loss (min_balance enforcement)' },
-                { type: 'Fixed', text: 'asyncio.get_event_loop().run_until_complete() â†’ asyncio.run() (pytest-asyncio 1.4.0 compatibility)' },
+                { type: 'Fixed', text: 'asyncio.get_event_loop().run_until_complete() → asyncio.run() (pytest-asyncio 1.4.0 compatibility)' },
                 { type: 'Changed', text: 'Python tests: 317/317 passing across Python 3.10 · 3.11 · 3.12' },
               ],
             },
@@ -133,7 +133,7 @@ export default function DocsPage() {
               changes: [
                 { type: 'Changed', text: 'Test counts corrected "” 317/317 Python · 40/40 Rust · 45/45 TypeScript' },
                 { type: 'Added', text: 'Coverage sprint "” chain_reader 100%, monitor 100%, tx_builder 100%, vault_monitor 99%' },
-                { type: 'Changed', text: 'Python tests: 204/204 â†’ 257/257 (92 new coverage tests)' },
+                { type: 'Changed', text: 'Python tests: 204/204 → 257/257 (92 new coverage tests)' },
                 { type: 'Fixed', text: 'Headline typo corrected in README and PyPI description' },
               ],
             },
@@ -149,7 +149,7 @@ export default function DocsPage() {
                 { type: 'Fixed', text: 'WardError raised on empty premium tx hash' },
                 { type: 'Added', text: 'Rust EscrowBuilder audit memos "” ward/claim-escrow format matching Python' },
                 { type: 'Changed', text: 'xrpl-py updated to 4.5.0' },
-                { type: 'Changed', text: 'Python tests: 165/165 â†’ 204/204 â†’ 257/257 · Rust tests: 40/40' },
+                { type: 'Changed', text: 'Python tests: 165/165 → 204/204 → 257/257 · Rust tests: 40/40' },
               ],
             },
             {
@@ -202,7 +202,7 @@ export default function DocsPage() {
                 rel={l.ext ? 'noopener noreferrer' : undefined}
                 className="flex items-center gap-2 text-sm text-sub hover:text-steel border border-p2 bg-white rounded-md px-4 py-3 transition-colors no-underline"
               >
-                <span className="text-ice2">â†—</span> {l.label}
+                <span className="text-ice2">↗</span> {l.label}
               </a>
             ))}
           </div>

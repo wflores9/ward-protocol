@@ -120,7 +120,7 @@ export default function Nav() {
               el.style.transform = 'translateY(0)';
             }}
           >
-            Get Started â†’
+            Get Started →
           </a>
         </li>
       </ul>
@@ -191,7 +191,7 @@ export default function Nav() {
                 textDecoration: 'none',
               }}
             >
-              Get Started â†’
+              Get Started →
             </a>
           </div>
         </div>
