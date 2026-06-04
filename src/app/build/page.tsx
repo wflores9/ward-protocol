@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Build on Ward Protocol',
-  description: 'Everything you need to integrate Ward Protocol "" Python SDK, TypeScript SDK, live API, and enterprise licensing.',
+  description: 'Everything you need to integrate Ward Protocol — Python SDK, TypeScript SDK, live API, and enterprise licensing.',
 }
 
 const S = {
@@ -22,7 +22,7 @@ export default function BuildPage() {
       {/* Header */}
       <div style={{ background: 'var(--steel-2)', borderBottom: '1px solid rgba(168,197,232,0.08)', padding: '72px 32px' }}>
         <div style={{ maxWidth: 720, margin: '0 auto' }}>
-          <span style={S.label}>WARD PROTOCOL "" BUILD</span>
+          <span style={S.label}>WARD PROTOCOL — BUILD</span>
           <h1 style={{ fontSize: 'clamp(36px,5vw,60px)', fontWeight: 900, letterSpacing: '-0.04em', lineHeight: 1.05, color: 'var(--text-primary)', marginBottom: 20 }}>
             Everything you need<br />to integrate Ward.
           </h1>
@@ -35,7 +35,7 @@ export default function BuildPage() {
       {/* Get Started */}
       <section style={{ ...S.section, background: 'var(--steel)' }}>
         <div style={S.container}>
-          <span style={S.label}>GET STARTED "" FREE</span>
+          <span style={S.label}>GET STARTED — FREE</span>
           <h2 style={S.h2}>Install in 30 seconds.</h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px,1fr))', gap: 16, marginTop: 32 }}>
 
@@ -60,7 +60,7 @@ result = await client.purchase_coverage(
   period_days=30,
   pool_address=pool_addr,
 )
-# ward_signed = False "" always.`}</pre>
+# ward_signed = False — always.`}</pre>
               </div>
               <a href="https://pypi.org/project/ward-protocol/" target="_blank" rel="noopener noreferrer" className="btn-ghost" style={{ display: 'block', textAlign: 'center', fontSize: 14 }}>
                 View on PyPI →
@@ -88,7 +88,7 @@ const result = await client.validateClaim({
   loanId: loanId,
   poolAddress: poolAddr,
 })
-// result.approved "" true / false`}</pre>
+// result.approved — true / false`}</pre>
               </div>
               <a href="https://www.npmjs.com/package/ward-protocol" target="_blank" rel="noopener noreferrer" className="btn-ghost" style={{ display: 'block', textAlign: 'center', fontSize: 14 }}>
                 View on npm →
@@ -127,7 +127,7 @@ const result = await client.validateClaim({
       {/* Go Live */}
       <section style={{ ...S.section, background: 'var(--steel-2)' }}>
         <div style={S.container}>
-          <span style={S.label}>GO LIVE "" INSTITUTIONAL</span>
+          <span style={S.label}>GO LIVE — INSTITUTIONAL</span>
           <h2 style={S.h2}>From Altnet to mainnet.</h2>
           <p style={{ ...S.body, maxWidth: 520, marginBottom: 40 }}>Ward is pre-mainnet. All paths below lead to mainnet readiness at XLS-66 launch.</p>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px,1fr))', gap: 16 }}>
