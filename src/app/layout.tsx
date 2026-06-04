@@ -1,16 +1,30 @@
 import type { Metadata } from 'next'
+import { DM_Sans, DM_Mono } from 'next/font/google'
 import './globals.css'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
 import { WalletProvider } from '@/context/WalletContext'
 
+const dmSans = DM_Sans({
+  subsets: ['latin'],
+  weight: ['400', '500', '700', '800', '900'],
+  variable: '--font-dm-sans',
+  display: 'swap',
+})
+
+const dmMono = DM_Mono({
+  subsets: ['latin'],
+  weight: ['400', '500'],
+  variable: '--font-dm-mono',
+  display: 'swap',
+})
+
 export const metadata: Metadata = {
   metadataBase: new URL('https://wardprotocol.org'),
-  title: 'Ward Protocol — Deterministic Default Resolution for XLS-66 Lending Vaults',
-  description:
-    'Deterministic default resolution for XLS-66 lending vaults on the XRP Ledger. ward_signed = False — always.',
+  title: 'Ward Protocol — Deterministic Default Resolution for On-Chain Lending',
+  description: 'Deterministic default resolution for on-chain lending. Built on XRPL. Mainnet-ready at XLS-66 launch. ward_signed = False — always.',
   openGraph: {
-    title: 'Ward Protocol — Deterministic Default Resolution for XLS-66 Lending Vaults',
+    title: 'Ward Protocol — Deterministic Default Resolution for On-Chain Lending',
     description: 'Nine on-ledger checks. No oracle. No Ward signature — ever.',
     url: 'https://wardprotocol.org',
     siteName: 'Ward Protocol',
@@ -19,7 +33,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Ward Protocol — Deterministic Default Resolution for XLS-66 Lending Vaults',
+    title: 'Ward Protocol — Deterministic Default Resolution for On-Chain Lending',
     description: 'Nine on-ledger checks. No oracle. No Ward signature — ever.',
   },
   icons: { icon: '/favicon.svg' },
@@ -31,8 +45,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <body>
+    <html lang="en" className={`${dmSans.variable} ${dmMono.variable}`}>
+      <body className={dmSans.className}>
         <WalletProvider>
           <Nav />
           {children}
