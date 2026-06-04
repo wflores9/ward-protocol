@@ -34,7 +34,9 @@ CLAIM_RATE_LIMIT_WINDOW_SECONDS: int = CLAIM_RATE_LIMIT_WINDOW_S  # long-form al
 ESCROW_DISPUTE_HOURS: int = 48  # Escrow finish window after creation
 ESCROW_CANCEL_HOURS: int = 72  # Escrow cancel window if claimant fails
 
-WARD_POLICY_TAXON: int = 281  # Canonical policy certificate identifier — chain-agnostic concept
+WARD_POLICY_TAXON: int = (
+    281  # Canonical policy certificate identifier — chain-agnostic concept
+)
 DEFAULT_CONFIRM_COUNT: int = 3  # Block/ledger closes required before default confirmed
 DEFAULT_CONFIRMATION_COUNT: int = DEFAULT_CONFIRM_COUNT  # long-form alias
 
