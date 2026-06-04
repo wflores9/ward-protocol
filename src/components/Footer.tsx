@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 import Link from 'next/link'
 
 export default function Footer() {
@@ -26,20 +26,20 @@ export default function Footer() {
             </div>
             <div>
               <div style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 900, fontSize: 16, color: '#e8edf5', letterSpacing: 0 }}>WARD</div>
-              <div style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 400, fontSize: 12, color: '#aec0bc', letterSpacing: 0, textTransform: 'uppercase' }}>Protocol</div>
+              <div style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 400, fontSize: 14, color: '#aec0bc', letterSpacing: 0, textTransform: 'uppercase' }}>Protocol</div>
             </div>
           </Link>
           <p style={{ fontSize: 14, color: '#aec0bc', lineHeight: 1.7, marginBottom: 8, maxWidth: 260 }}>
             Deterministic default resolution for on-chain lending.
           </p>
-          <p style={{ fontFamily: 'DM Mono, monospace', fontSize: 13, color: '#d4a93e', marginTop: 12 }}>
-            ward_signed = False — always.
+          <p style={{ fontFamily: 'DM Mono, monospace', fontSize: 14, color: '#d4a93e', marginTop: 12 }}>
+            ward_signed = False â€” always.
           </p>
         </div>
 
         {/* Product */}
         <div>
-          <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 11, fontWeight: 700, letterSpacing: 0, color: '#78908b', textTransform: 'uppercase', marginBottom: 16 }}>PRODUCT</div>
+          <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 14, fontWeight: 700, letterSpacing: 0, color: '#78908b', textTransform: 'uppercase', marginBottom: 16 }}>PRODUCT</div>
           <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 10 }}>
             {[
               { label: 'Protocol', href: '/spec' },
@@ -60,7 +60,7 @@ export default function Footer() {
 
         {/* Resources */}
         <div>
-          <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 11, fontWeight: 700, letterSpacing: 0, color: '#78908b', textTransform: 'uppercase', marginBottom: 16 }}>RESOURCES</div>
+          <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 14, fontWeight: 700, letterSpacing: 0, color: '#78908b', textTransform: 'uppercase', marginBottom: 16 }}>RESOURCES</div>
           <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 10 }}>
             {[
               { label: 'Specification', href: '/spec' },
@@ -81,7 +81,7 @@ export default function Footer() {
 
         {/* Legal */}
         <div>
-          <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 11, fontWeight: 700, letterSpacing: 0, color: '#78908b', textTransform: 'uppercase', marginBottom: 16 }}>LEGAL</div>
+          <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 14, fontWeight: 700, letterSpacing: 0, color: '#78908b', textTransform: 'uppercase', marginBottom: 16 }}>LEGAL</div>
           <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 10 }}>
             {[
               { label: 'Privacy Policy', href: '/privacy' },
@@ -105,8 +105,8 @@ export default function Footer() {
         borderTop: '1px solid rgba(182,215,206,0.1)',
         display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8,
       }}>
-        <span style={{ fontSize: 13, color: '#78908b' }}>© 2026 Ward Protocol</span>
-        <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 13, color: '#d4a93e' }}>ward_signed = False — always.</span>
+        <span style={{ fontSize: 14, color: '#78908b' }}>Â© 2026 Ward Protocol</span>
+        <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 14, color: '#d4a93e' }}>ward_signed = False â€” always.</span>
       </div>
 
       <style>{`

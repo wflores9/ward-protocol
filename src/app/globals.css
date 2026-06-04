@@ -22,8 +22,8 @@
   --green-dim: rgba(0,204,102,0.12);
   --red: #ef4444;
   --text-primary: #f7faf8;
-  --text-secondary: #aec0bc;
-  --text-tertiary: #78908b;
+  --text-secondary: #d2e1dd;
+  --text-tertiary: #a9bdb8;
   --glow-gold: 0 0 60px rgba(212,169,62,0.14);
   --glow-ice: 0 0 60px rgba(182,215,206,0.1);
   --glow-green: 0 0 40px rgba(0,204,102,0.15);
@@ -183,10 +183,10 @@ code, pre, .font-mono { font-family: "DM Mono", monospace; }
   color: var(--green);
   padding: 3px 10px;
   border-radius: 20px;
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 600;
   font-family: "DM Mono", monospace;
-  letter-spacing: 0.05em;
+  letter-spacing: 0;
   text-transform: uppercase;
 }
 .badge-live::before {
@@ -207,10 +207,10 @@ code, pre, .font-mono { font-family: "DM Mono", monospace; }
   color: var(--gold);
   padding: 3px 10px;
   border-radius: 20px;
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 600;
   font-family: "DM Mono", monospace;
-  letter-spacing: 0.05em;
+  letter-spacing: 0;
   text-transform: uppercase;
 }
 
@@ -227,7 +227,7 @@ code, pre, .font-mono { font-family: "DM Mono", monospace; }
 
 .section-label {
   font-family: "DM Mono", monospace;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 500;
   letter-spacing: 0.08em;
   text-transform: uppercase;

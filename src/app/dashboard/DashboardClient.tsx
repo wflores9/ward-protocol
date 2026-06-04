@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 
@@ -69,7 +69,7 @@ const MOCK_CLAIMS: Claim[] = [
     status: 'REJECTED',
     steps_passed: 2,
     rejection_step: 3,
-    rejection_reason: 'Cross-vault claim rejected: NFT covers rEuL…, claim is against rN7n…',
+    rejection_reason: 'Cross-vault claim rejected: NFT covers rEuLâ€¦, claim is against rN7nâ€¦',
     filed_at: Date.now() - 7_200_000,
   },
   {
@@ -152,11 +152,11 @@ function fmtXrp(drops: number) {
 }
 
 function fmtAddr(addr: string) {
-  return addr.slice(0, 6) + '…' + addr.slice(-4)
+  return addr.slice(0, 6) + 'â€¦' + addr.slice(-4)
 }
 
 function fmtNft(id: string) {
-  return id.slice(0, 8) + '…' + id.slice(-4)
+  return id.slice(0, 8) + 'â€¦' + id.slice(-4)
 }
 
 function fmtRelTime(ms: number) {
@@ -198,7 +198,7 @@ const ESCROW_STATUS_STYLES: Record<EscrowStatus, string> = {
 
 function StatusBadge({ status }: { status: ClaimStatus }) {
   return (
-    <span className={`inline-block px-2 py-0.5 rounded text-xs font-mono font-semibold tracking-wider ${STATUS_STYLES[status]}`}>
+    <span className={`inline-block px-2 py-0.5 rounded text-sm font-mono font-semibold tracking-wider ${STATUS_STYLES[status]}`}>
       {status}
     </span>
   )
@@ -206,7 +206,7 @@ function StatusBadge({ status }: { status: ClaimStatus }) {
 
 function EscrowBadge({ status }: { status: EscrowStatus }) {
   return (
-    <span className={`inline-block px-2 py-0.5 rounded text-xs font-mono font-semibold tracking-wider ${ESCROW_STATUS_STYLES[status]}`}>
+    <span className={`inline-block px-2 py-0.5 rounded text-sm font-mono font-semibold tracking-wider ${ESCROW_STATUS_STYLES[status]}`}>
       {status}
     </span>
   )
@@ -265,19 +265,19 @@ export default function DashboardClient() {
             <span className="font-condensed text-xl font-bold tracking-widest text-ice uppercase">
               Ward Protocol
             </span>
-            <span className="text-dim text-xs">›</span>
+            <span className="text-dim text-sm">â€º</span>
             <span className="text-sm text-white/60 font-condensed uppercase tracking-wider">
               Claim Dispute Dashboard
             </span>
           </div>
           <div className="flex items-center gap-6">
-            <span className="text-xs text-red-400 bg-red-400/10 border border-red-400/20 px-2 py-1 rounded font-mono">
+            <span className="text-sm text-red-400 bg-red-400/10 border border-red-400/20 px-2 py-1 rounded font-mono">
               ward_signed = False
             </span>
-            <div className="flex items-center gap-2 text-xs text-dim">
+            <div className="flex items-center gap-2 text-sm text-dim">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse inline-block" />
               <span>TESTNET</span>
-              <span className="text-white/30">·</span>
+              <span className="text-white/30">Â·</span>
               <span>refresh in {secondsUntilRefresh}s</span>
             </div>
           </div>
@@ -285,8 +285,8 @@ export default function DashboardClient() {
       </header>
 
       {/* Demo banner */}
-      <div className="bg-gold/10 border-b border-gold/20 text-gold text-xs text-center py-2 font-mono">
-        DEMO — mock data · connect api.wardprotocol.org for live XRPL state
+      <div className="bg-gold/10 border-b border-gold/20 text-gold text-sm text-center py-2 font-mono">
+        DEMO â€” mock data Â· connect api.wardprotocol.org for live XRPL state
       </div>
 
       <main className="max-w-7xl mx-auto px-6 py-8 space-y-8">
@@ -300,7 +300,7 @@ export default function DashboardClient() {
           ].map(({ label, value, accent }) => (
             <div key={label} className="bg-mid border border-white/10 rounded-lg px-4 py-4">
               <div className={`text-2xl font-bold font-condensed ${accent}`}>{value}</div>
-              <div className="text-xs text-dim mt-1 uppercase tracking-wider">{label}</div>
+              <div className="text-sm text-dim mt-1 uppercase tracking-wider">{label}</div>
             </div>
           ))}
         </div>
@@ -311,12 +311,12 @@ export default function DashboardClient() {
             <h2 className="font-condensed text-lg font-bold uppercase tracking-widest text-ice">
               Active Claims
             </h2>
-            <span className="text-xs text-dim">{MOCK_CLAIMS.length} total</span>
+            <span className="text-sm text-dim">{MOCK_CLAIMS.length} total</span>
           </div>
           <div className="bg-mid border border-white/10 rounded-lg overflow-hidden">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-white/10 text-dim text-xs uppercase tracking-wider">
+                <tr className="border-b border-white/10 text-dim text-sm uppercase tracking-wider">
                   <th className="text-left px-4 py-3">NFT / Vault</th>
                   <th className="text-left px-4 py-3 hidden md:table-cell">Claimant</th>
                   <th className="text-right px-4 py-3">Coverage</th>
@@ -332,24 +332,24 @@ export default function DashboardClient() {
                     className={`border-b border-white/5 hover:bg-white/[0.02] transition-colors ${i === MOCK_CLAIMS.length - 1 ? 'border-none' : ''}`}
                   >
                     <td className="px-4 py-3">
-                      <div className="text-white/80 text-xs font-mono">{fmtNft(claim.nft_token_id)}</div>
-                      <div className="text-dim text-xs mt-0.5">{fmtAddr(claim.vault_address)}</div>
+                      <div className="text-white/80 text-sm font-mono">{fmtNft(claim.nft_token_id)}</div>
+                      <div className="text-dim text-sm mt-0.5">{fmtAddr(claim.vault_address)}</div>
                       {claim.rejection_reason && (
-                        <div className="text-red-400/70 text-xs mt-1 max-w-xs truncate" title={claim.rejection_reason}>
-                          ✕ step {claim.rejection_step}: {claim.rejection_reason}
+                        <div className="text-red-400/70 text-sm mt-1 max-w-xs truncate" title={claim.rejection_reason}>
+                          âœ• step {claim.rejection_step}: {claim.rejection_reason}
                         </div>
                       )}
                       {claim.escrow_tx && (
-                        <div className="text-emerald-400/70 text-xs mt-1">
-                          escrow: {claim.escrow_tx.slice(0, 10)}…
+                        <div className="text-emerald-400/70 text-sm mt-1">
+                          escrow: {claim.escrow_tx.slice(0, 10)}â€¦
                         </div>
                       )}
                     </td>
                     <td className="px-4 py-3 hidden md:table-cell">
-                      <span className="text-white/60 text-xs">{fmtAddr(claim.claimant)}</span>
+                      <span className="text-white/60 text-sm">{fmtAddr(claim.claimant)}</span>
                     </td>
                     <td className="px-4 py-3 text-right">
-                      <span className="text-ice text-xs">{fmtXrp(claim.coverage_drops)}</span>
+                      <span className="text-ice text-sm">{fmtXrp(claim.coverage_drops)}</span>
                     </td>
                     <td className="px-4 py-3 text-center">
                       <StatusBadge status={claim.status} />
@@ -357,11 +357,11 @@ export default function DashboardClient() {
                     <td className="px-4 py-3 hidden lg:table-cell">
                       <div className="space-y-1">
                         <StepProgress steps={claim.steps_passed} />
-                        <span className="text-dim text-xs">{claim.steps_passed}/9</span>
+                        <span className="text-dim text-sm">{claim.steps_passed}/9</span>
                       </div>
                     </td>
                     <td className="px-4 py-3 text-right hidden sm:table-cell">
-                      <span className="text-dim text-xs">{fmtRelTime(claim.filed_at)}</span>
+                      <span className="text-dim text-sm">{fmtRelTime(claim.filed_at)}</span>
                     </td>
                   </tr>
                 ))}
@@ -378,7 +378,7 @@ export default function DashboardClient() {
               <h2 className="font-condensed text-lg font-bold uppercase tracking-widest text-ice">
                 Dispute Windows
               </h2>
-              <span className="text-xs text-dim">48h PREIMAGE-SHA-256</span>
+              <span className="text-sm text-dim">48h PREIMAGE-SHA-256</span>
             </div>
             <div className="bg-mid border border-white/10 rounded-lg divide-y divide-white/5">
               {MOCK_ESCROWS.map((escrow) => {
@@ -391,13 +391,13 @@ export default function DashboardClient() {
                   <div key={escrow.id} className="px-4 py-4">
                     <div className="flex items-start justify-between gap-2 mb-2">
                       <div>
-                        <div className="text-white/70 text-xs font-mono">{fmtAddr(escrow.vault_address)}</div>
-                        <div className="text-dim text-xs mt-0.5">{fmtXrp(escrow.amount_drops)}</div>
+                        <div className="text-white/70 text-sm font-mono">{fmtAddr(escrow.vault_address)}</div>
+                        <div className="text-dim text-sm mt-0.5">{fmtXrp(escrow.amount_drops)}</div>
                       </div>
                       <EscrowBadge status={status} />
                     </div>
                     <div className="mb-2">
-                      <div className="flex justify-between text-xs mb-1">
+                      <div className="flex justify-between text-sm mb-1">
                         <span className="text-dim">window elapsed</span>
                         <span className={`font-mono font-bold ${status === 'EXPIRED' ? 'text-red-400' : status === 'EXPIRING' ? 'text-gold' : 'text-emerald-400'}`}>
                           {status === 'EXPIRED' ? 'EXPIRED' : fmtCountdown(escrow.cancel_after, now)}
@@ -410,8 +410,8 @@ export default function DashboardClient() {
                         />
                       </div>
                     </div>
-                    <div className="text-dim text-xs font-mono truncate" title={escrow.condition_hex}>
-                      cond: {escrow.condition_hex.slice(0, 20)}…
+                    <div className="text-dim text-sm font-mono truncate" title={escrow.condition_hex}>
+                      cond: {escrow.condition_hex.slice(0, 20)}â€¦
                     </div>
                   </div>
                 )
@@ -425,18 +425,18 @@ export default function DashboardClient() {
               <h2 className="font-condensed text-lg font-bold uppercase tracking-widest text-ice">
                 Policy Registry
               </h2>
-              <span className="text-xs text-dim">
-                {MOCK_POLICIES.length} active · {fmtXrp(totalCoverage)} total
+              <span className="text-sm text-dim">
+                {MOCK_POLICIES.length} active Â· {fmtXrp(totalCoverage)} total
               </span>
             </div>
             <div className="bg-mid border border-white/10 rounded-lg divide-y divide-white/5">
               {Object.entries(depositorGroups).map(([depositor, policies]) => (
                 <div key={depositor} className="px-4 py-4">
                   <div className="flex items-center gap-2 mb-3">
-                    <span className="text-xs text-dim uppercase tracking-wider">Depositor</span>
-                    <span className="text-white/70 text-xs font-mono">{fmtAddr(depositor)}</span>
+                    <span className="text-sm text-dim uppercase tracking-wider">Depositor</span>
+                    <span className="text-white/70 text-sm font-mono">{fmtAddr(depositor)}</span>
                     {policies.some((p) => p.is_multi_vault) && (
-                      <span className="text-xs text-gold bg-gold/10 border border-gold/20 px-1.5 py-0.5 rounded font-mono">
+                      <span className="text-sm text-gold bg-gold/10 border border-gold/20 px-1.5 py-0.5 rounded font-mono">
                         multi-vault
                       </span>
                     )}
@@ -448,12 +448,12 @@ export default function DashboardClient() {
                       return (
                         <div key={policy.nft_token_id} className="flex items-center justify-between bg-navy/50 rounded px-3 py-2">
                           <div>
-                            <div className="text-white/60 text-xs font-mono">{fmtNft(policy.nft_token_id)}</div>
-                            <div className="text-dim text-xs mt-0.5">{fmtAddr(policy.vault_address)}</div>
+                            <div className="text-white/60 text-sm font-mono">{fmtNft(policy.nft_token_id)}</div>
+                            <div className="text-dim text-sm mt-0.5">{fmtAddr(policy.vault_address)}</div>
                           </div>
                           <div className="text-right">
-                            <div className="text-ice text-xs font-mono">{fmtXrp(policy.coverage_drops)}</div>
-                            <div className={`text-xs mt-0.5 ${expiringSoon ? 'text-red-400' : 'text-dim'}`}>
+                            <div className="text-ice text-sm font-mono">{fmtXrp(policy.coverage_drops)}</div>
+                            <div className={`text-sm mt-0.5 ${expiringSoon ? 'text-red-400' : 'text-dim'}`}>
                               {daysLeft}d left
                             </div>
                           </div>
@@ -468,11 +468,11 @@ export default function DashboardClient() {
         </div>
 
         {/* Footer */}
-        <footer className="border-t border-white/10 pt-6 flex items-center justify-between text-xs text-dim">
+        <footer className="border-t border-white/10 pt-6 flex items-center justify-between text-sm text-dim">
           <span>
-            Last refreshed {new Date(refreshedAt).toLocaleTimeString()} · All state from XRPL ledger
+            Last refreshed {new Date(refreshedAt).toLocaleTimeString()} Â· All state from XRPL ledger
           </span>
-          <span className="font-mono">ward_signed = False · taxon 281 · PREIMAGE-SHA-256</span>
+          <span className="font-mono">ward_signed = False Â· taxon 281 Â· PREIMAGE-SHA-256</span>
         </footer>
       </main>
     </div>

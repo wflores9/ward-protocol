@@ -1,11 +1,11 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 
 const FLOWS = [
   {
     id:    'F01',
-    title: 'F·01 — Vault Registration',
+    title: 'FÂ·01 â€” Vault Registration',
     desc:  'Register an XLS-66 vault. Ward returns an unsigned NFTokenMint; institution signs.',
     code:  `from ward import WardClient
 from xrpl.wallet import Wallet
@@ -13,7 +13,7 @@ from xrpl.wallet import Wallet
 client = WardClient()
 wallet = Wallet.from_seed(seed)   # institution holds key
 
-# Ward builds unsigned tx — ward_signed = False
+# Ward builds unsigned tx â€” ward_signed = False
 unsigned_tx = await client.register_vault(
     institution_address=wallet.classic_address,
     collateral_currency="XRP",
@@ -26,7 +26,7 @@ result = await submit_and_wait(unsigned_tx, xrpl_client, wallet)`,
   },
   {
     id:    'F02',
-    title: 'F·02 — Policy Purchase',
+    title: 'FÂ·02 â€” Policy Purchase',
     desc:  'Mint a Ward policy NFT (taxon=281, TF_BURNABLE, no TF_TRANSFERABLE).',
     code:  `from ward import WardClient
 from ward.constants import WARD_POLICY_TAXON, TF_TRANSFERABLE
@@ -47,7 +47,7 @@ assert "TxnSignature" not in unsigned_tx                   # ward_signed = False
   },
   {
     id:    'F03',
-    title: 'F·03 — Vault Monitor',
+    title: 'FÂ·03 â€” Vault Monitor',
     desc:  'Subscribe to XRPL ledger stream. 3-ledger confirmation before VerifiedDefault fires.',
     code:  `from ward import VaultMonitor, VerifiedDefault
 
@@ -62,13 +62,13 @@ async def handle(event: VerifiedDefault):
     print(f"Default confirmed: {event.vault_address}")
     print(f"Health ratio:      {event.health_ratio:.4f}")
     print(f"Confirmed ledger:  {event.confirmed_ledger}")
-    # Trigger claim validation → escrow settlement
+    # Trigger claim validation â†’ escrow settlement
 
 await monitor.run()   # reconnects on disconnect`,
   },
   {
     id:    'F04',
-    title: 'F·04 — Claim Validation',
+    title: 'FÂ·04 â€” Claim Validation',
     desc:  '9-step on-chain claim validation. All state sourced from XRPL ledger.',
     code:  `from ward import ClaimValidator
 
@@ -83,12 +83,12 @@ result = await validator.validate_claim(
 )
 
 print(result.approved)           # True / False
-print(result.steps_passed)       # 0–9
+print(result.steps_passed)       # 0â€“9
 print(result.claim_payout_drops) # min(vault_loss, coverage)`,
   },
   {
     id:    'F05',
-    title: 'F·05 — Escrow Settlement',
+    title: 'FÂ·05 â€” Escrow Settlement',
     desc:  'Claimant holds preimage. Ward receives condition_hex only. ward_signed = False.',
     code:  `from ward.primitives import generate_claim_preimage, make_preimage_condition
 
@@ -96,7 +96,7 @@ print(result.claim_payout_drops) # min(vault_loss, coverage)`,
 preimage = generate_claim_preimage()   # 32 random bytes
 condition_hex, fulfillment_hex = make_preimage_condition(preimage)
 
-# Ward receives condition_hex ONLY — never the preimage
+# Ward receives condition_hex ONLY â€” never the preimage
 unsigned_create = await client.create_claim_escrow(
     pool_address=pool_addr,
     claimant_address=wallet.classic_address,
@@ -122,7 +122,7 @@ export default function FlowRunner() {
           <button
             key={f.id}
             onClick={() => setActive(i)}
-            className={`px-4 py-3 text-xs font-mono whitespace-nowrap border-r border-p2 transition-colors ${
+            className={`px-4 py-3 text-sm font-mono whitespace-nowrap border-r border-p2 transition-colors ${
               i === active ? 'bg-white text-[#c8a94a] font-bold border-b-2 border-b-[#c8a94a] -mb-px' : 'text-sub hover:text-[#c8a94a]'
             }`}
           >
@@ -135,7 +135,7 @@ export default function FlowRunner() {
       <div className="p-5">
         <h3 className="font-condensed font-black text-xl text-steel mb-1">{flow.title}</h3>
         <p className="text-sm text-sub mb-4">{flow.desc}</p>
-        <pre className="bg-steel rounded-md p-4 text-[11px] text-ice leading-relaxed overflow-x-auto font-mono whitespace-pre">
+        <pre className="bg-steel rounded-md p-4 text-sm text-ice leading-relaxed overflow-x-auto font-mono whitespace-pre">
           {flow.code}
         </pre>
       </div>

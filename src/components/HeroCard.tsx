@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 
@@ -22,21 +22,21 @@ export default function HeroCard() {
     <div className="flex flex-col gap-6">
       {/* Install card */}
       <div className="bg-steel rounded-md p-5 font-mono text-sm">
-        <div className="text-dim text-[10px] uppercase tracking-widest mb-3">Install</div>
+        <div className="text-dim text-sm uppercase tracking-widest mb-3">Install</div>
         <div className="flex items-center justify-between gap-3">
-          <code className="text-ice text-[13px]">pip install ward-protocol==0.2.5</code>
+          <code className="text-ice text-sm">pip install ward-protocol==0.2.5</code>
           <button
             onClick={copy}
-            className="text-[10px] text-dim hover:text-ice transition-colors shrink-0 border border-border rounded px-2 py-1"
+            className="text-sm text-dim hover:text-ice transition-colors shrink-0 border border-border rounded px-2 py-1"
           >
-            {copied ? '✓ Copied' : 'Copy'}
+            {copied ? 'âœ“ Copied' : 'Copy'}
           </button>
         </div>
       </div>
 
       {/* invariant */}
-      <div className="bg-deep rounded-md p-4 font-mono text-[12px] border border-border">
-        <span className="text-dim"># Core invariant — never changes{'\n'}</span>
+      <div className="bg-deep rounded-md p-4 font-mono text-sm border border-border">
+        <span className="text-dim"># Core invariant â€” never changes{'\n'}</span>
         <span className="text-ice">ward_signed</span>
         <span className="text-dim"> = </span>
         <span className="ward-gold">False</span>
@@ -49,7 +49,7 @@ export default function HeroCard() {
             <div className={`font-condensed font-black text-2xl leading-none mb-1 ${s.green ? 'text-green' : 'text-steel'}`}>
               {s.val}
             </div>
-            <div className="text-[10px] text-sub leading-tight">{s.label}</div>
+            <div className="text-sm text-sub leading-tight">{s.label}</div>
           </div>
         ))}
       </div>

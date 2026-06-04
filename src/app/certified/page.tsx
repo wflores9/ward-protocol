@@ -1,10 +1,10 @@
-import type { Metadata } from 'next'
+﻿import type { Metadata } from 'next'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
   title: 'Ward Certified',
   description:
-    'Public registry of vaults certified to implement the Ward Protocol specification correctly. Ward Certified is a technical conformance designation — not a financial guarantee.',
+    'Public registry of vaults certified to implement the Ward Protocol specification correctly. Ward Certified is a technical conformance designation â€” not a financial guarantee.',
 }
 
 const vaults = [
@@ -47,7 +47,7 @@ export default function CertifiedPage() {
           Vaults verified to implement the Ward Protocol specification correctly.
         </p>
         <p className="text-[14px] text-white/35 max-w-xl mx-auto">
-          Ward Certified is a technical conformance designation — not a financial guarantee.
+          Ward Certified is a technical conformance designation â€” not a financial guarantee.
         </p>
       </div>
 
@@ -56,17 +56,17 @@ export default function CertifiedPage() {
         <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
           {[
             {
-              icon: '⚙️',
+              icon: 'âš™ï¸',
               title: 'Technical Review',
               desc: 'Ward verifies the vault implementation against the full 9-step specification.',
             },
             {
-              icon: '📋',
+              icon: 'ðŸ“‹',
               title: 'Public Record',
-              desc: 'Each certification has a unique ID, spec version, and expiry date — permanently on record.',
+              desc: 'Each certification has a unique ID, spec version, and expiry date â€” permanently on record.',
             },
             {
-              icon: '🔄',
+              icon: 'ðŸ”„',
               title: 'Annual Recertification',
               desc: 'Certified vaults are reviewed annually and when major SDK versions are released.',
             },
@@ -88,7 +88,7 @@ export default function CertifiedPage() {
             Certified Vaults
           </h2>
           <p className="text-[18px] text-slate-500 leading-relaxed mb-12">
-            All Ward Certified vaults are listed here. Certification records are permanent —
+            All Ward Certified vaults are listed here. Certification records are permanent â€”
             revoked entries remain visible with updated status.
           </p>
 
@@ -107,7 +107,7 @@ export default function CertifiedPage() {
                   ].map((h) => (
                     <th
                       key={h}
-                      className="text-left px-5 py-3.5 text-xs font-semibold text-slate-400 uppercase tracking-wider whitespace-nowrap"
+                      className="text-left px-5 py-3.5 text-sm font-semibold text-slate-400 uppercase tracking-wider whitespace-nowrap"
                     >
                       {h}
                     </th>
@@ -128,7 +128,7 @@ export default function CertifiedPage() {
                       <td className="px-5 py-4 text-[14px] text-slate-700 whitespace-nowrap">
                         {v.institution}
                         {v.network === 'Altnet' && (
-                          <span className="ml-2 text-[10px] bg-amber-50 text-amber-600 border border-amber-200 px-1.5 py-0.5 rounded font-semibold">
+                          <span className="ml-2 text-sm bg-amber-50 text-amber-600 border border-amber-200 px-1.5 py-0.5 rounded font-semibold">
                             ALTNET
                           </span>
                         )}
@@ -139,12 +139,12 @@ export default function CertifiedPage() {
                       <td className="px-5 py-4 text-[14px] text-slate-500 whitespace-nowrap">
                         {v.validUntil}
                       </td>
-                      <td className="px-5 py-4 font-mono text-xs text-slate-400 whitespace-nowrap">
+                      <td className="px-5 py-4 font-mono text-sm text-slate-400 whitespace-nowrap">
                         {v.specVersion}
                       </td>
                       <td className="px-5 py-4 whitespace-nowrap">
                         <span
-                          className={`inline-flex items-center gap-1.5 text-[12px] font-semibold px-2.5 py-1 rounded-full ${s.badge}`}
+                          className={`inline-flex items-center gap-1.5 text-sm font-semibold px-2.5 py-1 rounded-full ${s.badge}`}
                         >
                           <span className={`w-1.5 h-1.5 rounded-full ${s.dot}`} />
                           {v.status}
@@ -157,7 +157,7 @@ export default function CertifiedPage() {
             </table>
           </div>
 
-          <p className="text-[13px] text-slate-400 italic">
+          <p className="text-sm text-slate-400 italic">
             Mainnet certifications will appear here when XLS-66 goes live on XRPL mainnet.
             The current entry is an Altnet development certification.
           </p>
@@ -174,15 +174,15 @@ export default function CertifiedPage() {
             <ul className="space-y-3">
               {[
                 'Vault exists as a valid XLS-66 object on ledger',
-                'Policy NFT correctly minted — taxon=281, tfBurnable, not transferable',
-                'KYC credential valid — XLS-70, taxon=282',
+                'Policy NFT correctly minted â€” taxon=281, tfBurnable, not transferable',
+                'KYC credential valid â€” XLS-70, taxon=282',
                 'Ward SDK version current and correctly integrated',
                 '3-ledger confirmation window correctly implemented',
                 'Escrow settlement using PREIMAGE-SHA-256',
                 'ward_signed=False enforced throughout',
               ].map((item) => (
                 <li key={item} className="flex items-start gap-3 text-[15px] text-slate-700">
-                  <span className="text-emerald-500 font-bold mt-0.5 flex-shrink-0">✓</span>
+                  <span className="text-emerald-500 font-bold mt-0.5 flex-shrink-0">âœ“</span>
                   {item}
                 </li>
               ))}
@@ -197,11 +197,11 @@ export default function CertifiedPage() {
                 'Vault collateral quality or solvency',
                 'Institution creditworthiness or regulatory status',
                 'Whether the preimage holder will submit EscrowFinish',
-                'XLS-66 ledger behavior — the XRPL enforces that',
+                'XLS-66 ledger behavior â€” the XRPL enforces that',
                 'Any outcome after the 9-step validation completes',
               ].map((item) => (
                 <li key={item} className="flex items-start gap-3 text-[15px] text-slate-700">
-                  <span className="text-slate-300 font-bold mt-0.5 flex-shrink-0">·</span>
+                  <span className="text-slate-300 font-bold mt-0.5 flex-shrink-0">Â·</span>
                   {item}
                 </li>
               ))}
@@ -223,10 +223,10 @@ export default function CertifiedPage() {
           href="mailto:wflores@wardprotocol.org?subject=Ward%20Certified%20Application"
           className="inline-block bg-navy text-white px-10 py-4 rounded-lg font-semibold text-base hover:bg-[#162d47] transition-colors no-underline"
         >
-          Apply for Certification →
+          Apply for Certification â†’
         </a>
-        <p className="text-[13px] text-navy/50 mt-6 max-w-lg mx-auto">
-          Ward Certified is a technical conformance designation — not a financial guarantee.
+        <p className="text-sm text-navy/50 mt-6 max-w-lg mx-auto">
+          Ward Certified is a technical conformance designation â€” not a financial guarantee.
           See{' '}
           <Link href="/terms" className="text-navy/60 hover:text-navy/80 underline">
             Terms & Conditions

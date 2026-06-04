@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 import { useState } from 'react';
 import Link from 'next/link';
 
@@ -53,7 +53,7 @@ export default function Nav() {
           }}>WARD</span>
           <span style={{
             fontFamily: 'DM Sans, sans-serif', fontWeight: 400,
-            fontSize: 12, color: '#5c7184', letterSpacing: 0,
+            fontSize: 14, color: '#5c7184', letterSpacing: 0,
             lineHeight: 1.2, textTransform: 'uppercase',
           }}>Protocol</span>
         </div>
@@ -120,7 +120,7 @@ export default function Nav() {
               el.style.transform = 'translateY(0)';
             }}
           >
-            Get Started →
+            Get Started â†’
           </a>
         </li>
       </ul>
@@ -139,7 +139,7 @@ export default function Nav() {
           padding: 10,
         }}
       >
-        {open ? '✕' : '≡'}
+        {open ? 'âœ•' : 'â‰¡'}
       </button>
 
       {/* Mobile Menu */}
@@ -191,7 +191,7 @@ export default function Nav() {
                 textDecoration: 'none',
               }}
             >
-              Get Started →
+              Get Started â†’
             </a>
           </div>
         </div>

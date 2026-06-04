@@ -16,7 +16,7 @@ const config: Config = {
         'signal-green': '#00cc66',
         green: '#00cc66',
         border: '#284047',
-        dim: '#78908b',
+        dim: '#a9bdb8',
         panel: '#edf4f1',
         p2: '#dcebe6',
         sub: '#4f665f',
