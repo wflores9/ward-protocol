@@ -1,17 +1,16 @@
-python3 - << 'PYEOF'
-content = """'use client'
-import { useState } from 'react'
-import Link from 'next/link'
+'use client';
+import { useState } from 'react';
+import Link from 'next/link';
 
 const navLinks = [
   { label: 'Protocol',  href: '/spec'      },
   { label: 'Use Cases', href: '/use-cases' },
   { label: 'Build',     href: '/build'     },
   { label: 'Demo',      href: '/demo'      },
-]
+];
 
 export default function Nav() {
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(false);
 
   return (
     <nav style={{
@@ -59,60 +58,65 @@ export default function Nav() {
         </div>
       </Link>
 
-      {/* Desktop links */}
+      {/* Desktop Navigation */}
       <ul style={{
         display: 'flex', alignItems: 'center', gap: 4,
         listStyle: 'none', margin: 0, padding: 0,
       }} className="hidden md:flex">
         {navLinks.map(l => (
           <li key={l.href}>
-            <Link 
-              href={l.href} 
+            <Link
+              href={l.href}
               style={{
-                color: '#6b7a99', 
-                fontSize: 14, 
+                color: '#6b7a99',
+                fontSize: 14,
                 fontWeight: 500,
-                textDecoration: 'none', 
+                textDecoration: 'none',
                 padding: '6px 12px',
-                borderRadius: 6, 
+                borderRadius: 6,
                 letterSpacing: '-0.01em',
-                transition: 'color 0.15s ease',
+                transition: 'color 0.15s',
               }}
-              onMouseEnter={(e) => e.currentTarget.style.color = '#e8edf5'}
-              onMouseLeave={(e) => e.currentTarget.style.color = '#6b7a99'}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = '#e8edf5';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = '#6b7a99';
+              }}
             >
               {l.label}
             </Link>
           </li>
         ))}
+
         <li style={{ marginLeft: 8 }}>
-          <a 
-            href="https://tally.so/r/VLDbBE" 
-            target="_blank" 
+          <a
+            href="https://tally.so/r/VLDbBE"
+            target="_blank"
             rel="noopener noreferrer"
             style={{
-              background: '#e8edf5', 
+              background: '#e8edf5',
               color: '#080f1e',
-              padding: '8px 18px', 
+              padding: '8px 18px',
               borderRadius: 8,
-              fontWeight: 700, 
-              fontSize: 13, 
+              fontWeight: 700,
+              fontSize: 13,
               textDecoration: 'none',
-              letterSpacing: '-0.01em', 
-              transition: 'all 0.15s ease',
-              display: 'inline-flex', 
-              alignItems: 'center', 
+              letterSpacing: '-0.01em',
+              display: 'inline-flex',
+              alignItems: 'center',
               gap: 4,
+              transition: 'all 0.15s',
             }}
             onMouseEnter={(e) => {
-              const el = e.currentTarget as HTMLElement
-              el.style.background = '#ffffff'
-              el.style.transform = 'translateY(-1px)'
+              const el = e.currentTarget as HTMLElement;
+              el.style.background = '#ffffff';
+              el.style.transform = 'translateY(-1px)';
             }}
             onMouseLeave={(e) => {
-              const el = e.currentTarget as HTMLElement
-              el.style.background = '#e8edf5'
-              el.style.transform = 'translateY(0)'
+              const el = e.currentTarget as HTMLElement;
+              el.style.background = '#e8edf5';
+              el.style.transform = 'translateY(0)';
             }}
           >
             Get Started →
@@ -121,35 +125,46 @@ export default function Nav() {
       </ul>
 
       {/* Mobile hamburger */}
-      <button className="md:hidden"
+      <button
+        className="md:hidden"
         onClick={() => setOpen(o => !o)}
         aria-label={open ? 'Close menu' : 'Open menu'}
         style={{
-          background: 'none', border: 'none', cursor: 'pointer',
-          color: '#a8c5e8', fontSize: 22, padding: 8,
-        }}>
+          background: 'none',
+          border: 'none',
+          cursor: 'pointer',
+          color: '#a8c5e8',
+          fontSize: 22,
+          padding: 8,
+        }}
+      >
         {open ? '✕' : '≡'}
       </button>
 
-      {/* Mobile dropdown */}
+      {/* Mobile Menu */}
       {open && (
         <div className="md:hidden" style={{
-          position: 'absolute', top: 64, left: 0, right: 0, zIndex: 50,
+          position: 'absolute',
+          top: 64,
+          left: 0,
+          right: 0,
+          zIndex: 50,
           background: 'rgba(8,15,30,0.97)',
           backdropFilter: 'blur(20px)',
           borderBottom: '1px solid rgba(168,197,232,0.08)',
-          display: 'flex', flexDirection: 'column',
+          display: 'flex',
+          flexDirection: 'column',
         }}>
           {navLinks.map(l => (
-            <Link 
-              key={l.href} 
-              href={l.href} 
+            <Link
+              key={l.href}
+              href={l.href}
               onClick={() => setOpen(false)}
               style={{
-                padding: '16px 24px', 
-                color: '#a8c5e8', 
+                padding: '16px 24px',
+                color: '#a8c5e8',
                 fontSize: 15,
-                fontWeight: 500, 
+                fontWeight: 500,
                 textDecoration: 'none',
                 borderBottom: '1px solid rgba(168,197,232,0.06)',
               }}
@@ -157,4 +172,29 @@ export default function Nav() {
               {l.label}
             </Link>
           ))}
-          <div style={{ padding: '16px 24px'
+          <div style={{ padding: '16px 24px' }}>
+            <a
+              href="https://tally.so/r/VLDbBE"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setOpen(false)}
+              style={{
+                display: 'block',
+                textAlign: 'center',
+                background: '#c8a94a',
+                color: '#080f1e',
+                padding: '12px 24px',
+                borderRadius: 8,
+                fontWeight: 700,
+                fontSize: 14,
+                textDecoration: 'none',
+              }}
+            >
+              Get Started →
+            </a>
+          </div>
+        </div>
+      )}
+    </nav>
+  );
+}
