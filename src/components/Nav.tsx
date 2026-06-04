@@ -27,7 +27,7 @@ export default function Nav() {
       <Link href="/" onClick={() => setOpen(false)}
         style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
         <div style={{
-          width: 32, height: 32, borderRadius: '50%',
+          width: 40, height: 40, borderRadius: '50%',
           background: 'rgba(168,197,232,0.08)',
           border: '1px solid rgba(168,197,232,0.15)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -35,7 +35,7 @@ export default function Nav() {
         }}>
           <span style={{
             fontFamily: 'DM Sans, sans-serif', fontWeight: 900,
-            fontSize: 15, color: '#a8c5e8', letterSpacing: '-0.5px',
+            fontSize: 18, color: '#a8c5e8', letterSpacing: '-0.5px',
           }}>W</span>
           <div style={{
             position: 'absolute', bottom: 5, left: '50%',
@@ -46,12 +46,12 @@ export default function Nav() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
           <span style={{
             fontFamily: 'DM Sans, sans-serif', fontWeight: 900,
-            fontSize: 13, color: '#e8edf5', letterSpacing: '0.08em',
+            fontSize: 15, color: '#e8edf5', letterSpacing: '0.08em',
             lineHeight: 1.1,
           }}>WARD</span>
           <span style={{
             fontFamily: 'DM Sans, sans-serif', fontWeight: 400,
-            fontSize: 10, color: '#6b7a99', letterSpacing: '0.06em',
+            fontSize: 11, color: '#6b7a99', letterSpacing: '0.06em',
             lineHeight: 1.1, textTransform: 'uppercase',
           }}>Protocol</span>
         </div>
