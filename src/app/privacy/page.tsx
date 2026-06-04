@@ -1,7 +1,7 @@
 ﻿import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Ward Protocol â€” Privacy Policy',
+  title: 'Ward Protocol "” Privacy Policy',
   description: 'Privacy Policy for Ward Protocol.',
 }
 
@@ -9,7 +9,7 @@ export default function PrivacyPage() {
   return (
     <div className="max-w-3xl mx-auto px-6 md:px-12 py-12">
       <h1 className="font-condensed font-black text-4xl text-steel mb-2">Privacy Policy</h1>
-      <p className="text-sm text-sub font-mono mb-8">Effective date: 2026-01-01 Â· Ward Protocol</p>
+      <p className="text-sm text-sub font-mono mb-8">Effective date: 2026-01-01 · Ward Protocol</p>
 
       <div className="space-y-8 text-sm text-sub leading-relaxed">
         <section>
@@ -28,7 +28,7 @@ export default function PrivacyPage() {
             Ward Protocol does not store, transmit, or process private keys or wallet seeds.
           </p>
           <p className="mt-2">
-            <strong className="text-steel">ward_signed = False</strong> â€” Ward Protocol never holds,
+            <strong className="text-steel">ward_signed = False</strong> "” Ward Protocol never holds,
             requests, or processes signing keys. Institutions sign transactions locally.
           </p>
         </section>

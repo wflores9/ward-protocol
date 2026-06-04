@@ -6,7 +6,7 @@ const WalletConnector = dynamic(() => import('@/components/WalletConnector'), { 
 const LiveValidator = dynamic(() => import('@/components/LiveValidator'), { ssr: false })
 
 export const metadata: Metadata = {
-  title: 'Ward Protocol â€” Demo & Conformance Checklist',
+  title: 'Ward Protocol "” Demo & Conformance Checklist',
   description: 'Interactive 9-step Ward Protocol conformance checklist and Python SDK flow examples.',
 }
 
@@ -16,11 +16,11 @@ export default function DemoPage() {
       {/* Header */}
       <div className="border-b border-gold/20 bg-white px-6 md:px-12 py-10">
         <div className="max-w-4xl mx-auto">
-          <div className="text-sm uppercase tracking-[.15em] text-[#c8a94a] mb-2 font-mono">Ward Protocol â€” Interactive</div>
+          <div className="text-sm uppercase tracking-[.15em] text-[#c8a94a] mb-2 font-mono">Ward Protocol "” Interactive</div>
           <h1 className="font-condensed font-black text-5xl text-steel mb-3">Demo & Checklist</h1>
           <p className="text-sm text-sub max-w-2xl mb-6">
             Verify your integration satisfies all 9 Ward Protocol claim validation steps.
-            All state must be sourced from the XRPL ledger â€” no off-chain inputs trusted.
+            All state must be sourced from the XRPL ledger "” no off-chain inputs trusted.
           </p>
           <WalletConnector />
         </div>
@@ -31,7 +31,7 @@ export default function DemoPage() {
       {/* Flow examples */}
       <div className="border-t border-gold/20 bg-white">
         <div className="max-w-6xl mx-auto px-6 md:px-12 py-12">
-          <div className="text-sm uppercase tracking-[.15em] text-[#c8a94a] mb-2 font-mono">Python SDK â€” v0.2.4</div>
+          <div className="text-sm uppercase tracking-[.15em] text-[#c8a94a] mb-2 font-mono">Python SDK "” v0.2.4</div>
           <h2 className="font-condensed font-black text-3xl text-steel mb-2">Integration Flow Examples</h2>
           <p className="text-sm text-sub mb-6">
             Five flows from vault registration to escrow settlement.{' '}

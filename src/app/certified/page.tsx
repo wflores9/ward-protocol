@@ -4,7 +4,7 @@ import Link from 'next/link'
 export const metadata: Metadata = {
   title: 'Ward Certified',
   description:
-    'Public registry of vaults certified to implement the Ward Protocol specification correctly. Ward Certified is a technical conformance designation â€” not a financial guarantee.',
+    'Public registry of vaults certified to implement the Ward Protocol specification correctly. Ward Certified is a technical conformance designation "” not a financial guarantee.',
 }
 
 const vaults = [
@@ -47,7 +47,7 @@ export default function CertifiedPage() {
           Vaults verified to implement the Ward Protocol specification correctly.
         </p>
         <p className="text-[14px] text-white/35 max-w-xl mx-auto">
-          Ward Certified is a technical conformance designation â€” not a financial guarantee.
+          Ward Certified is a technical conformance designation "” not a financial guarantee.
         </p>
       </div>
 
@@ -63,7 +63,7 @@ export default function CertifiedPage() {
             {
               icon: 'ðŸ“‹',
               title: 'Public Record',
-              desc: 'Each certification has a unique ID, spec version, and expiry date â€” permanently on record.',
+              desc: 'Each certification has a unique ID, spec version, and expiry date "” permanently on record.',
             },
             {
               icon: 'ðŸ”„',
@@ -88,7 +88,7 @@ export default function CertifiedPage() {
             Certified Vaults
           </h2>
           <p className="text-[18px] text-slate-500 leading-relaxed mb-12">
-            All Ward Certified vaults are listed here. Certification records are permanent â€”
+            All Ward Certified vaults are listed here. Certification records are permanent "”
             revoked entries remain visible with updated status.
           </p>
 
@@ -174,8 +174,8 @@ export default function CertifiedPage() {
             <ul className="space-y-3">
               {[
                 'Vault exists as a valid XLS-66 object on ledger',
-                'Policy NFT correctly minted â€” taxon=281, tfBurnable, not transferable',
-                'KYC credential valid â€” XLS-70, taxon=282',
+                'Policy NFT correctly minted "” taxon=281, tfBurnable, not transferable',
+                'KYC credential valid "” XLS-70, taxon=282',
                 'Ward SDK version current and correctly integrated',
                 '3-ledger confirmation window correctly implemented',
                 'Escrow settlement using PREIMAGE-SHA-256',
@@ -197,11 +197,11 @@ export default function CertifiedPage() {
                 'Vault collateral quality or solvency',
                 'Institution creditworthiness or regulatory status',
                 'Whether the preimage holder will submit EscrowFinish',
-                'XLS-66 ledger behavior â€” the XRPL enforces that',
+                'XLS-66 ledger behavior "” the XRPL enforces that',
                 'Any outcome after the 9-step validation completes',
               ].map((item) => (
                 <li key={item} className="flex items-start gap-3 text-[15px] text-slate-700">
-                  <span className="text-slate-300 font-bold mt-0.5 flex-shrink-0">Â·</span>
+                  <span className="text-slate-300 font-bold mt-0.5 flex-shrink-0">·</span>
                   {item}
                 </li>
               ))}
@@ -226,7 +226,7 @@ export default function CertifiedPage() {
           Apply for Certification â†’
         </a>
         <p className="text-sm text-navy/50 mt-6 max-w-lg mx-auto">
-          Ward Certified is a technical conformance designation â€” not a financial guarantee.
+          Ward Certified is a technical conformance designation "” not a financial guarantee.
           See{' '}
           <Link href="/terms" className="text-navy/60 hover:text-navy/80 underline">
             Terms & Conditions

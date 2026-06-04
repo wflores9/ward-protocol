@@ -102,11 +102,11 @@ export default function WalletConnector() {
                 onClick={() => { setShowPicker(false); setError(null) }}
                 className="text-sub hover:text-steel text-lg leading-none"
               >
-                Ã—
+                ×
               </button>
             </div>
             <p className="text-sm text-sub mb-4 font-mono">
-              Verify wallet ownership â€” no transaction submitted. ward_signed = False.
+              Verify wallet ownership "” no transaction submitted. ward_signed = False.
             </p>
             <div className="flex flex-col gap-2">
               {WALLETS.map(w => (

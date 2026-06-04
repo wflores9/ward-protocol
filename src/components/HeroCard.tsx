@@ -36,7 +36,7 @@ export default function HeroCard() {
 
       {/* invariant */}
       <div className="bg-deep rounded-md p-4 font-mono text-sm border border-border">
-        <span className="text-dim"># Core invariant â€” never changes{'\n'}</span>
+        <span className="text-dim"># Core invariant "” never changes{'\n'}</span>
         <span className="text-ice">ward_signed</span>
         <span className="text-dim"> = </span>
         <span className="ward-gold">False</span>

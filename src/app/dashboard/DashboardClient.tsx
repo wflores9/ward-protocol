@@ -69,7 +69,7 @@ const MOCK_CLAIMS: Claim[] = [
     status: 'REJECTED',
     steps_passed: 2,
     rejection_step: 3,
-    rejection_reason: 'Cross-vault claim rejected: NFT covers rEuLâ€¦, claim is against rN7nâ€¦',
+    rejection_reason: 'Cross-vault claim rejected: NFT covers rEuL"¦, claim is against rN7n"¦',
     filed_at: Date.now() - 7_200_000,
   },
   {
@@ -152,11 +152,11 @@ function fmtXrp(drops: number) {
 }
 
 function fmtAddr(addr: string) {
-  return addr.slice(0, 6) + 'â€¦' + addr.slice(-4)
+  return addr.slice(0, 6) + '"¦' + addr.slice(-4)
 }
 
 function fmtNft(id: string) {
-  return id.slice(0, 8) + 'â€¦' + id.slice(-4)
+  return id.slice(0, 8) + '"¦' + id.slice(-4)
 }
 
 function fmtRelTime(ms: number) {
@@ -265,7 +265,7 @@ export default function DashboardClient() {
             <span className="font-condensed text-xl font-bold tracking-widest text-ice uppercase">
               Ward Protocol
             </span>
-            <span className="text-dim text-sm">â€º</span>
+            <span className="text-dim text-sm">"º</span>
             <span className="text-sm text-white/60 font-condensed uppercase tracking-wider">
               Claim Dispute Dashboard
             </span>
@@ -277,7 +277,7 @@ export default function DashboardClient() {
             <div className="flex items-center gap-2 text-sm text-dim">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse inline-block" />
               <span>TESTNET</span>
-              <span className="text-white/30">Â·</span>
+              <span className="text-white/30">·</span>
               <span>refresh in {secondsUntilRefresh}s</span>
             </div>
           </div>
@@ -286,7 +286,7 @@ export default function DashboardClient() {
 
       {/* Demo banner */}
       <div className="bg-gold/10 border-b border-gold/20 text-gold text-sm text-center py-2 font-mono">
-        DEMO â€” mock data Â· connect api.wardprotocol.org for live XRPL state
+        DEMO "” mock data · connect api.wardprotocol.org for live XRPL state
       </div>
 
       <main className="max-w-7xl mx-auto px-6 py-8 space-y-8">
@@ -341,7 +341,7 @@ export default function DashboardClient() {
                       )}
                       {claim.escrow_tx && (
                         <div className="text-emerald-400/70 text-sm mt-1">
-                          escrow: {claim.escrow_tx.slice(0, 10)}â€¦
+                          escrow: {claim.escrow_tx.slice(0, 10)}"¦
                         </div>
                       )}
                     </td>
@@ -411,7 +411,7 @@ export default function DashboardClient() {
                       </div>
                     </div>
                     <div className="text-dim text-sm font-mono truncate" title={escrow.condition_hex}>
-                      cond: {escrow.condition_hex.slice(0, 20)}â€¦
+                      cond: {escrow.condition_hex.slice(0, 20)}"¦
                     </div>
                   </div>
                 )
@@ -426,7 +426,7 @@ export default function DashboardClient() {
                 Policy Registry
               </h2>
               <span className="text-sm text-dim">
-                {MOCK_POLICIES.length} active Â· {fmtXrp(totalCoverage)} total
+                {MOCK_POLICIES.length} active · {fmtXrp(totalCoverage)} total
               </span>
             </div>
             <div className="bg-mid border border-white/10 rounded-lg divide-y divide-white/5">
@@ -470,9 +470,9 @@ export default function DashboardClient() {
         {/* Footer */}
         <footer className="border-t border-white/10 pt-6 flex items-center justify-between text-sm text-dim">
           <span>
-            Last refreshed {new Date(refreshedAt).toLocaleTimeString()} Â· All state from XRPL ledger
+            Last refreshed {new Date(refreshedAt).toLocaleTimeString()} · All state from XRPL ledger
           </span>
-          <span className="font-mono">ward_signed = False Â· taxon 281 Â· PREIMAGE-SHA-256</span>
+          <span className="font-mono">ward_signed = False · taxon 281 · PREIMAGE-SHA-256</span>
         </footer>
       </main>
     </div>
