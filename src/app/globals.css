@@ -5,25 +5,27 @@
 @tailwind utilities;
 
 :root {
-  --steel: #080f1e;
-  --steel-2: #0d1828;
-  --steel-3: #111f35;
-  --surface: rgba(255,255,255,0.03);
-  --surface-2: rgba(255,255,255,0.06);
-  --border: rgba(168,197,232,0.08);
-  --border-2: rgba(168,197,232,0.15);
-  --gold: #c8a94a;
-  --gold-dim: rgba(200,169,74,0.15);
-  --ice: #a8c5e8;
-  --ice-dim: rgba(168,197,232,0.12);
+  --steel: #14242b;
+  --steel-2: #1d3035;
+  --steel-3: #284047;
+  --paper: #f6f4ee;
+  --mist: #edf4f1;
+  --surface: rgba(255,255,255,0.055);
+  --surface-2: rgba(255,255,255,0.09);
+  --border: rgba(182,215,206,0.12);
+  --border-2: rgba(182,215,206,0.22);
+  --gold: #d4a93e;
+  --gold-dim: rgba(212,169,62,0.16);
+  --ice: #b6d7ce;
+  --ice-dim: rgba(182,215,206,0.14);
   --green: #00cc66;
   --green-dim: rgba(0,204,102,0.12);
   --red: #ef4444;
-  --text-primary: #e8edf5;
-  --text-secondary: #6b7a99;
-  --text-tertiary: #3d4f6e;
-  --glow-gold: 0 0 60px rgba(200,169,74,0.15);
-  --glow-ice: 0 0 60px rgba(168,197,232,0.1);
+  --text-primary: #f7faf8;
+  --text-secondary: #aec0bc;
+  --text-tertiary: #78908b;
+  --glow-gold: 0 0 60px rgba(212,169,62,0.14);
+  --glow-ice: 0 0 60px rgba(182,215,206,0.1);
   --glow-green: 0 0 40px rgba(0,204,102,0.15);
 }
 
@@ -39,15 +41,15 @@ body {
   background: var(--steel);
   color: var(--text-primary);
   font-family: "DM Sans", sans-serif;
-  font-size: 16px;
-  line-height: 1.6;
+  font-size: 17px;
+  line-height: 1.65;
 }
 
 h1, h2, h3, h4 {
   font-family: "DM Sans", sans-serif;
   font-weight: 800;
-  letter-spacing: -0.03em;
-  line-height: 1.1;
+  letter-spacing: 0;
+  line-height: 1.14;
 }
 
 code, pre, .font-mono { font-family: "DM Mono", monospace; }
@@ -90,8 +92,8 @@ code, pre, .font-mono { font-family: "DM Mono", monospace; }
 
 .mesh-bg {
   background:
-    radial-gradient(ellipse 80% 50% at 20% 20%, rgba(168,197,232,0.06) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 40% at 80% 80%, rgba(200,169,74,0.05) 0%, transparent 50%),
+    radial-gradient(ellipse 80% 50% at 20% 20%, rgba(182,215,206,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 80%, rgba(212,169,62,0.07) 0%, transparent 50%),
     radial-gradient(ellipse 100% 60% at 50% 50%, rgba(0,204,102,0.02) 0%, transparent 70%),
     var(--steel);
 }
@@ -116,11 +118,11 @@ code, pre, .font-mono { font-family: "DM Mono", monospace; }
   gap: 8px;
   background: var(--text-primary);
   color: var(--steel);
-  padding: 12px 24px;
+  padding: 13px 24px;
   border-radius: 8px;
   font-weight: 700;
-  font-size: 14px;
-  letter-spacing: -0.01em;
+  font-size: 15px;
+  letter-spacing: 0;
   transition: all 0.15s ease;
   border: none;
   cursor: pointer;
@@ -138,11 +140,11 @@ code, pre, .font-mono { font-family: "DM Mono", monospace; }
   gap: 8px;
   background: transparent;
   color: var(--text-primary);
-  padding: 11px 24px;
+  padding: 12px 24px;
   border-radius: 8px;
   font-weight: 600;
-  font-size: 14px;
-  letter-spacing: -0.01em;
+  font-size: 15px;
+  letter-spacing: 0;
   border: 1px solid var(--border-2);
   transition: all 0.15s ease;
   cursor: pointer;
@@ -160,11 +162,11 @@ code, pre, .font-mono { font-family: "DM Mono", monospace; }
   gap: 8px;
   background: var(--gold);
   color: var(--steel);
-  padding: 12px 24px;
+  padding: 13px 24px;
   border-radius: 8px;
   font-weight: 700;
-  font-size: 14px;
-  letter-spacing: -0.01em;
+  font-size: 15px;
+  letter-spacing: 0;
   transition: all 0.15s ease;
   border: none;
   cursor: pointer;
@@ -225,21 +227,21 @@ code, pre, .font-mono { font-family: "DM Mono", monospace; }
 
 .section-label {
   font-family: "DM Mono", monospace;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 500;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--gold);
 }
 
 .code-block {
-  background: #080f1a;
+  background: #101d23;
   border: 1px solid var(--border-2);
   border-radius: 10px;
   padding: 20px 24px;
   font-family: "DM Mono", monospace;
-  font-size: 13px;
-  line-height: 1.7;
+  font-size: 14px;
+  line-height: 1.75;
   position: relative;
   overflow: hidden;
 }
@@ -269,26 +271,32 @@ code, pre, .font-mono { font-family: "DM Mono", monospace; }
 
 .nav-link {
   color: var(--text-secondary);
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 500;
   text-decoration: none;
   transition: color 0.15s;
-  letter-spacing: -0.01em;
+  letter-spacing: 0;
 }
 .nav-link:hover { color: var(--text-primary); }
 
 .nav-cta {
   background: var(--text-primary);
   color: var(--steel);
-  padding: 8px 18px;
+  padding: 10px 20px;
   border-radius: 8px;
   font-weight: 700;
-  font-size: 13px;
+  font-size: 14px;
   text-decoration: none;
   transition: all 0.15s;
-  letter-spacing: -0.01em;
+  letter-spacing: 0;
 }
 .nav-cta:hover { background: #ffffff; transform: translateY(-1px); }
+
+@media (max-width: 640px) {
+  .site-nav {
+    padding: 0 24px !important;
+  }
+}
 
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: var(--steel); }

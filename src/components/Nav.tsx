@@ -13,54 +13,55 @@ export default function Nav() {
   const [open, setOpen] = useState(false);
 
   return (
-    <nav style={{
+    <nav className="site-nav" style={{
       position: 'sticky', top: 0, zIndex: 100,
-      height: 64,
+      height: 76,
       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      padding: '0 32px',
-      background: 'rgba(8,15,30,0.85)',
+      padding: '0 40px',
+      background: 'rgba(248,250,252,0.92)',
       backdropFilter: 'blur(20px)',
       WebkitBackdropFilter: 'blur(20px)',
-      borderBottom: '1px solid rgba(168,197,232,0.08)',
+      borderBottom: '1px solid rgba(15,34,54,0.1)',
+      boxShadow: '0 10px 30px rgba(15,34,54,0.08)',
     }}>
 
       {/* Brand */}
       <Link href="/" onClick={() => setOpen(false)}
-        style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
+        style={{ display: 'flex', alignItems: 'center', gap: 14, textDecoration: 'none' }}>
         <div style={{
-          width: 32, height: 32, borderRadius: '50%',
-          background: 'rgba(168,197,232,0.08)',
-          border: '1px solid rgba(168,197,232,0.15)',
+          width: 46, height: 46, borderRadius: '50%',
+          background: '#102235',
+          border: '1px solid rgba(15,34,54,0.2)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           position: 'relative',
         }}>
           <span style={{
             fontFamily: 'DM Sans, sans-serif', fontWeight: 900,
-            fontSize: 15, color: '#a8c5e8', letterSpacing: '-0.5px',
+            fontSize: 22, color: '#e8edf5', letterSpacing: 0,
           }}>W</span>
           <div style={{
-            position: 'absolute', bottom: 5, left: '50%',
+            position: 'absolute', bottom: 8, left: '50%',
             transform: 'translateX(-50%)',
-            width: 10, height: 1.5, background: '#c8a94a', borderRadius: 1,
+            width: 16, height: 2, background: '#d4a93e', borderRadius: 1,
           }} />
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
           <span style={{
             fontFamily: 'DM Sans, sans-serif', fontWeight: 900,
-            fontSize: 13, color: '#e8edf5', letterSpacing: '0.08em',
-            lineHeight: 1.1,
+            fontSize: 16, color: '#102235', letterSpacing: 0,
+            lineHeight: 1.05,
           }}>WARD</span>
           <span style={{
             fontFamily: 'DM Sans, sans-serif', fontWeight: 400,
-            fontSize: 10, color: '#6b7a99', letterSpacing: '0.06em',
-            lineHeight: 1.1, textTransform: 'uppercase',
+            fontSize: 12, color: '#5c7184', letterSpacing: 0,
+            lineHeight: 1.2, textTransform: 'uppercase',
           }}>Protocol</span>
         </div>
       </Link>
 
       {/* Desktop Navigation */}
       <ul style={{
-        display: 'flex', alignItems: 'center', gap: 4,
+        alignItems: 'center', gap: 8,
         listStyle: 'none', margin: 0, padding: 0,
       }} className="hidden md:flex">
         {navLinks.map(l => (
@@ -68,20 +69,20 @@ export default function Nav() {
             <Link
               href={l.href}
               style={{
-                color: '#6b7a99',
-                fontSize: 14,
-                fontWeight: 500,
+                color: '#40596f',
+                fontSize: 15,
+                fontWeight: 650,
                 textDecoration: 'none',
-                padding: '6px 12px',
-                borderRadius: 6,
-                letterSpacing: '-0.01em',
+                padding: '10px 14px',
+                borderRadius: 8,
+                letterSpacing: 0,
                 transition: 'color 0.15s',
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.color = '#e8edf5';
+                e.currentTarget.style.color = '#102235';
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.color = '#6b7a99';
+                e.currentTarget.style.color = '#40596f';
               }}
             >
               {l.label}
@@ -95,14 +96,14 @@ export default function Nav() {
             target="_blank"
             rel="noopener noreferrer"
             style={{
-              background: '#e8edf5',
-              color: '#080f1e',
-              padding: '8px 18px',
+              background: '#d4a93e',
+              color: '#102235',
+              padding: '10px 20px',
               borderRadius: 8,
               fontWeight: 700,
-              fontSize: 13,
+              fontSize: 14,
               textDecoration: 'none',
-              letterSpacing: '-0.01em',
+              letterSpacing: 0,
               display: 'inline-flex',
               alignItems: 'center',
               gap: 4,
@@ -110,12 +111,12 @@ export default function Nav() {
             }}
             onMouseEnter={(e) => {
               const el = e.currentTarget as HTMLElement;
-              el.style.background = '#ffffff';
+              el.style.background = '#e5bd55';
               el.style.transform = 'translateY(-1px)';
             }}
             onMouseLeave={(e) => {
               const el = e.currentTarget as HTMLElement;
-              el.style.background = '#e8edf5';
+              el.style.background = '#d4a93e';
               el.style.transform = 'translateY(0)';
             }}
           >
@@ -133,9 +134,9 @@ export default function Nav() {
           background: 'none',
           border: 'none',
           cursor: 'pointer',
-          color: '#a8c5e8',
-          fontSize: 22,
-          padding: 8,
+          color: '#102235',
+          fontSize: 28,
+          padding: 10,
         }}
       >
         {open ? '✕' : '≡'}
@@ -145,13 +146,13 @@ export default function Nav() {
       {open && (
         <div className="md:hidden" style={{
           position: 'absolute',
-          top: 64,
+          top: 76,
           left: 0,
           right: 0,
           zIndex: 50,
-          background: 'rgba(8,15,30,0.97)',
+          background: 'rgba(248,250,252,0.98)',
           backdropFilter: 'blur(20px)',
-          borderBottom: '1px solid rgba(168,197,232,0.08)',
+          borderBottom: '1px solid rgba(15,34,54,0.1)',
           display: 'flex',
           flexDirection: 'column',
         }}>
@@ -161,12 +162,12 @@ export default function Nav() {
               href={l.href}
               onClick={() => setOpen(false)}
               style={{
-                padding: '16px 24px',
-                color: '#a8c5e8',
-                fontSize: 15,
-                fontWeight: 500,
+                padding: '18px 28px',
+                color: '#102235',
+                fontSize: 17,
+                fontWeight: 650,
                 textDecoration: 'none',
-                borderBottom: '1px solid rgba(168,197,232,0.06)',
+                borderBottom: '1px solid rgba(15,34,54,0.08)',
               }}
             >
               {l.label}
@@ -182,11 +183,11 @@ export default function Nav() {
                 display: 'block',
                 textAlign: 'center',
                 background: '#c8a94a',
-                color: '#080f1e',
-                padding: '12px 24px',
+              color: '#102235',
+              padding: '14px 24px',
                 borderRadius: 8,
                 fontWeight: 700,
-                fontSize: 14,
+              fontSize: 16,
                 textDecoration: 'none',
               }}
             >
