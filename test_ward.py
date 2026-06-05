@@ -5192,3 +5192,742 @@ class TestWormholeNTTAdapter:
         )
         assert tx["ward_signed"] is False
         assert tx["TransactionType"] == "EscrowFinish"
+
+
+# ===========================================================================
+# Tests: FlareAdapter
+# ===========================================================================
+from ward.adapters import FlareAdapter
+from ward.adapters.flare import FlareResolutionPayload, LedgerState as FlareLedgerState, VaultState as FlareVaultState
+
+
+class TestFlareAdapter:
+    def setup_method(self):
+        self.adapter = FlareAdapter(
+            rpc_url="https://flare-api.flare.network/ext/C/rpc",
+            chain_id=14,
+        )
+
+    # -- ward_signed invariant ------------------------------------------------
+
+    @pytest.mark.asyncio
+    async def test_build_resolution_tx_ward_signed_false(self):
+        """ward_signed must always be False on the returned UnsignedTransaction."""
+        tx = await self.adapter.build_resolution_tx(
+            pool_address=VALID_ADDRESS,
+            claimant_address=VALID_ADDRESS2,
+            payout_amount=1_000_000,
+        )
+        assert tx.ward_signed is False
+
+    def test_flare_payload_ward_signed_not_init_param(self):
+        """FlareResolutionPayload.ward_signed is init=False — cannot be overridden."""
+        import dataclasses
+        init_fields = {f.name for f in dataclasses.fields(FlareResolutionPayload) if f.init}
+        assert "ward_signed" not in init_fields
+
+    # -- successful resolution path ------------------------------------------
+
+    @pytest.mark.asyncio
+    async def test_build_resolution_tx_success(self):
+        """Successful resolution returns correct tx_type and addresses."""
+        tx = await self.adapter.build_resolution_tx(
+            pool_address=VALID_ADDRESS,
+            claimant_address=VALID_ADDRESS2,
+            payout_amount=500_000,
+            dest_chain_id=14,
+            nonce=7,
+        )
+        assert tx.tx_type == "FLARE_EVM_CALL"
+        assert tx.account == VALID_ADDRESS
+        assert tx.destination == VALID_ADDRESS2
+        assert tx.amount_drops == 500_000
+        assert tx.ward_signed is False
+
+    @pytest.mark.asyncio
+    async def test_build_resolution_tx_payload_in_send_max(self):
+        """Flare payload is embedded in send_max with correct fields."""
+        tx = await self.adapter.build_resolution_tx(
+            pool_address=VALID_ADDRESS,
+            claimant_address=VALID_ADDRESS2,
+            payout_amount=750_000,
+            nonce=3,
+        )
+        payload = tx.send_max
+        assert payload is not None
+        assert payload["call_type"] == "FLARE_EVM_CALL"
+        assert payload["chain_id"] == 14
+        assert payload["amount"] == 750_000
+        assert payload["ward_signed"] is False
+
+    @pytest.mark.asyncio
+    async def test_verify_vault_returns_vault_state(self):
+        """verify_vault returns a VaultState dataclass."""
+        state = await self.adapter.verify_vault(
+            vault_address=VALID_ADDRESS,
+            loan_id=VALID_LOAN_ID,
+            pool_address=VALID_ADDRESS2,
+        )
+        assert isinstance(state, FlareVaultState)
+        assert state.vault_address == VALID_ADDRESS
+
+    @pytest.mark.asyncio
+    async def test_get_ledger_state_returns_ledger_state(self):
+        """get_ledger_state returns a LedgerState dataclass."""
+        state = await self.adapter.get_ledger_state()
+        assert isinstance(state, FlareLedgerState)
+
+    # -- failed resolution path ----------------------------------------------
+
+    @pytest.mark.asyncio
+    async def test_verify_vault_not_defaulted(self):
+        """Base adapter returns is_defaulted=False (no live RPC wired)."""
+        state = await self.adapter.verify_vault(
+            vault_address=VALID_ADDRESS,
+            loan_id=VALID_LOAN_ID,
+            pool_address=VALID_ADDRESS2,
+        )
+        assert state.is_defaulted is False
+
+    @pytest.mark.asyncio
+    async def test_build_unsigned_escrow_create_ward_signed_false(self):
+        """Flare escrow create always has ward_signed=False."""
+        tx = await self.adapter.build_unsigned_escrow_create(
+            pool_address=VALID_ADDRESS,
+            claimant_address=VALID_ADDRESS2,
+            amount=1_000_000,
+            condition_hex="ABCD1234",
+        )
+        assert tx["ward_signed"] is False
+        assert tx["TransactionType"] == "EscrowCreate"
+
+    @pytest.mark.asyncio
+    async def test_build_unsigned_escrow_finish_ward_signed_false(self):
+        """Flare escrow finish always has ward_signed=False."""
+        tx = await self.adapter.build_unsigned_escrow_finish(
+            claimant_address=VALID_ADDRESS2,
+            owner_address=VALID_ADDRESS,
+            offer_sequence=99,
+            condition_hex="ABCD1234",
+            fulfillment_hex="EFGH5678",
+        )
+        assert tx["ward_signed"] is False
+        assert tx["TransactionType"] == "EscrowFinish"
+
+
+# ===========================================================================
+# Tests: AxelarAdapter
+# ===========================================================================
+from ward.adapters import AxelarAdapter
+from ward.adapters.axelar import AxelarGMPPayload, LedgerState as AxelarLedgerState, VaultState as AxelarVaultState
+
+
+class TestAxelarAdapter:
+    def setup_method(self):
+        self.adapter = AxelarAdapter(
+            source_rpc_url="https://rpc-evm-sidechain.xrpl.org",
+            source_chain="xrpl-evm",
+            dest_chain="ethereum",
+        )
+
+    # -- ward_signed invariant ------------------------------------------------
+
+    @pytest.mark.asyncio
+    async def test_build_resolution_tx_ward_signed_false(self):
+        """ward_signed must always be False on the returned UnsignedTransaction."""
+        tx = await self.adapter.build_resolution_tx(
+            pool_address=VALID_ADDRESS,
+            claimant_address=VALID_ADDRESS2,
+            payout_amount=1_000_000,
+        )
+        assert tx.ward_signed is False
+
+    def test_axelar_payload_ward_signed_not_init_param(self):
+        """AxelarGMPPayload.ward_signed is init=False — cannot be overridden."""
+        import dataclasses
+        init_fields = {f.name for f in dataclasses.fields(AxelarGMPPayload) if f.init}
+        assert "ward_signed" not in init_fields
+
+    # -- successful resolution path ------------------------------------------
+
+    @pytest.mark.asyncio
+    async def test_build_resolution_tx_success(self):
+        """Successful resolution returns correct tx_type and addresses."""
+        tx = await self.adapter.build_resolution_tx(
+            pool_address=VALID_ADDRESS,
+            claimant_address=VALID_ADDRESS2,
+            payout_amount=500_000,
+            dest_chain="ethereum",
+            nonce=5,
+        )
+        assert tx.tx_type == "AXELAR_GMP_CALL"
+        assert tx.account == VALID_ADDRESS
+        assert tx.destination == VALID_ADDRESS2
+        assert tx.amount_drops == 500_000
+        assert tx.ward_signed is False
+
+    @pytest.mark.asyncio
+    async def test_build_resolution_tx_payload_in_send_max(self):
+        """Axelar GMP payload embedded in send_max with correct fields."""
+        tx = await self.adapter.build_resolution_tx(
+            pool_address=VALID_ADDRESS,
+            claimant_address=VALID_ADDRESS2,
+            payout_amount=750_000,
+            dest_chain="polygon",
+            nonce=9,
+        )
+        payload = tx.send_max
+        assert payload is not None
+        assert payload["call_type"] == "AXELAR_GMP_CALL"
+        assert payload["dest_chain"] == "polygon"
+        assert payload["amount"] == 750_000
+        assert payload["nonce"] == 9
+        assert payload["ward_signed"] is False
+
+    @pytest.mark.asyncio
+    async def test_send_resolution_message_ward_signed_false(self):
+        """send_resolution_message returns dict with ward_signed=False."""
+        msg = await self.adapter.send_resolution_message(
+            pool_address=VALID_ADDRESS,
+            claimant_address=VALID_ADDRESS2,
+            payout_amount=300_000,
+            nonce=1,
+        )
+        assert msg["ward_signed"] is False
+        assert msg["call_type"] == "AXELAR_GMP_CALL"
+        assert msg["source_chain"] == "xrpl-evm"
+        assert msg["dest_chain"] == "ethereum"
+
+    @pytest.mark.asyncio
+    async def test_verify_vault_returns_vault_state(self):
+        """verify_vault returns a VaultState dataclass."""
+        state = await self.adapter.verify_vault(
+            vault_address=VALID_ADDRESS,
+            loan_id=VALID_LOAN_ID,
+            pool_address=VALID_ADDRESS2,
+        )
+        assert isinstance(state, AxelarVaultState)
+        assert state.vault_address == VALID_ADDRESS
+
+    @pytest.mark.asyncio
+    async def test_get_ledger_state_returns_ledger_state(self):
+        """get_ledger_state returns a LedgerState dataclass."""
+        state = await self.adapter.get_ledger_state()
+        assert isinstance(state, AxelarLedgerState)
+
+    # -- failed resolution path ----------------------------------------------
+
+    @pytest.mark.asyncio
+    async def test_verify_vault_not_defaulted(self):
+        """Base adapter returns is_defaulted=False (no live RPC wired)."""
+        state = await self.adapter.verify_vault(
+            vault_address=VALID_ADDRESS,
+            loan_id=VALID_LOAN_ID,
+            pool_address=VALID_ADDRESS2,
+        )
+        assert state.is_defaulted is False
+
+    @pytest.mark.asyncio
+    async def test_build_unsigned_escrow_create_ward_signed_false(self):
+        """Axelar escrow create always has ward_signed=False."""
+        tx = await self.adapter.build_unsigned_escrow_create(
+            pool_address=VALID_ADDRESS,
+            claimant_address=VALID_ADDRESS2,
+            amount=1_000_000,
+            condition_hex="ABCD1234",
+        )
+        assert tx["ward_signed"] is False
+        assert tx["TransactionType"] == "EscrowCreate"
+
+
+# ===========================================================================
+# Tests: SolanaAdapter
+# ===========================================================================
+from ward.adapters import SolanaAdapter
+from ward.adapters.solana import SolanaTransferPayload, LedgerState as SolanaLedgerState, VaultState as SolanaVaultState
+
+
+EVM_ADDRESS = "0xabc123def456aaa000111222333444555666777"
+EVM_ADDRESS2 = "0xbbb123ccc456ddd789eee012fff345aaa678bbb"
+SOL_ADDRESS = "7EcDhSYGxXyscszYEp35KHN8vvw3svAuLKTzXwCFLtV"
+SOL_ADDRESS2 = "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"
+
+
+class TestSolanaAdapter:
+    def setup_method(self):
+        self.adapter = SolanaAdapter(
+            rpc_url="https://api.devnet.solana.com",
+        )
+
+    # -- ward_signed invariant ------------------------------------------------
+
+    @pytest.mark.asyncio
+    async def test_build_resolution_tx_ward_signed_false(self):
+        """ward_signed must always be False on the returned UnsignedTransaction."""
+        tx = await self.adapter.build_resolution_tx(
+            pool_token_account=SOL_ADDRESS,
+            claimant_token_account=SOL_ADDRESS2,
+            authority_address=SOL_ADDRESS,
+            payout_amount=1_000_000,
+        )
+        assert tx.ward_signed is False
+
+    def test_solana_payload_ward_signed_not_init_param(self):
+        """SolanaTransferPayload.ward_signed is init=False — cannot be overridden."""
+        import dataclasses
+        init_fields = {f.name for f in dataclasses.fields(SolanaTransferPayload) if f.init}
+        assert "ward_signed" not in init_fields
+
+    # -- successful resolution path ------------------------------------------
+
+    @pytest.mark.asyncio
+    async def test_build_resolution_tx_success(self):
+        """Successful Solana resolution returns correct tx_type and accounts."""
+        tx = await self.adapter.build_resolution_tx(
+            pool_token_account=SOL_ADDRESS,
+            claimant_token_account=SOL_ADDRESS2,
+            authority_address=SOL_ADDRESS,
+            payout_amount=500_000,
+            nonce=1,
+        )
+        assert tx.tx_type == "SOLANA_TRANSFER"
+        assert tx.account == SOL_ADDRESS
+        assert tx.destination == SOL_ADDRESS2
+        assert tx.amount_drops == 500_000
+        assert tx.ward_signed is False
+
+    @pytest.mark.asyncio
+    async def test_build_resolution_tx_payload_in_send_max(self):
+        """Solana payload embedded in send_max with correct fields."""
+        tx = await self.adapter.build_resolution_tx(
+            pool_token_account=SOL_ADDRESS,
+            claimant_token_account=SOL_ADDRESS2,
+            authority_address=SOL_ADDRESS,
+            payout_amount=750_000,
+            recent_blockhash="abc123",
+            nonce=4,
+        )
+        payload = tx.send_max
+        assert payload is not None
+        assert payload["transfer_type"] == "SOLANA_TRANSFER"
+        assert payload["amount"] == 750_000
+        assert payload["recent_blockhash"] == "abc123"
+        assert payload["ward_signed"] is False
+
+    @pytest.mark.asyncio
+    async def test_verify_vault_returns_vault_state(self):
+        """verify_vault returns a VaultState dataclass."""
+        state = await self.adapter.verify_vault(
+            vault_address=SOL_ADDRESS,
+            loan_id=VALID_LOAN_ID,
+            pool_address=SOL_ADDRESS2,
+        )
+        assert isinstance(state, SolanaVaultState)
+        assert state.vault_address == SOL_ADDRESS
+
+    @pytest.mark.asyncio
+    async def test_get_ledger_state_returns_ledger_state(self):
+        """get_ledger_state returns a LedgerState dataclass."""
+        state = await self.adapter.get_ledger_state()
+        assert isinstance(state, SolanaLedgerState)
+
+    # -- failed resolution path ----------------------------------------------
+
+    @pytest.mark.asyncio
+    async def test_verify_vault_not_defaulted(self):
+        """Base adapter returns is_defaulted=False (no live RPC wired)."""
+        state = await self.adapter.verify_vault(
+            vault_address=SOL_ADDRESS,
+            loan_id=VALID_LOAN_ID,
+            pool_address=SOL_ADDRESS2,
+        )
+        assert state.is_defaulted is False
+
+    @pytest.mark.asyncio
+    async def test_build_unsigned_escrow_create_ward_signed_false(self):
+        """Solana escrow create always has ward_signed=False."""
+        tx = await self.adapter.build_unsigned_escrow_create(
+            pool_address=SOL_ADDRESS,
+            claimant_address=SOL_ADDRESS2,
+            amount=1_000_000,
+            condition_hex="ABCD1234",
+        )
+        assert tx["ward_signed"] is False
+        assert tx["TransactionType"] == "EscrowCreate"
+
+    @pytest.mark.asyncio
+    async def test_build_unsigned_escrow_finish_ward_signed_false(self):
+        """Solana escrow finish always has ward_signed=False."""
+        tx = await self.adapter.build_unsigned_escrow_finish(
+            claimant_address=SOL_ADDRESS2,
+            owner_address=SOL_ADDRESS,
+            offer_sequence=1,
+            condition_hex="ABCD1234",
+            fulfillment_hex="EFGH5678",
+        )
+        assert tx["ward_signed"] is False
+        assert tx["TransactionType"] == "EscrowFinish"
+
+
+# ===========================================================================
+# Tests: HederaAdapter
+# ===========================================================================
+from ward.adapters import HederaAdapter
+from ward.adapters.hedera import HederaTransferPayload, LedgerState as HederaLedgerState, VaultState as HederaVaultState
+
+HEDERA_ACCOUNT = "0.0.123456"
+HEDERA_ACCOUNT2 = "0.0.789012"
+
+
+class TestHederaAdapter:
+    def setup_method(self):
+        self.adapter = HederaAdapter(
+            mirror_node_url="https://testnet.mirrornode.hedera.com",
+            rlusd_token_id="0.0.99999",
+            network="testnet",
+        )
+
+    # -- ward_signed invariant ------------------------------------------------
+
+    @pytest.mark.asyncio
+    async def test_build_resolution_tx_ward_signed_false(self):
+        """ward_signed must always be False on the returned UnsignedTransaction."""
+        tx = await self.adapter.build_resolution_tx(
+            pool_address=HEDERA_ACCOUNT,
+            claimant_address=HEDERA_ACCOUNT2,
+            payout_amount=1_000_000,
+        )
+        assert tx.ward_signed is False
+
+    def test_hedera_payload_ward_signed_not_init_param(self):
+        """HederaTransferPayload.ward_signed is init=False — cannot be overridden."""
+        import dataclasses
+        init_fields = {f.name for f in dataclasses.fields(HederaTransferPayload) if f.init}
+        assert "ward_signed" not in init_fields
+
+    # -- successful resolution path ------------------------------------------
+
+    @pytest.mark.asyncio
+    async def test_build_resolution_tx_success(self):
+        """Successful Hedera resolution returns correct tx_type and accounts."""
+        tx = await self.adapter.build_resolution_tx(
+            pool_address=HEDERA_ACCOUNT,
+            claimant_address=HEDERA_ACCOUNT2,
+            payout_amount=500_000,
+            nonce=2,
+        )
+        assert tx.tx_type == "HEDERA_CRYPTO_TRANSFER"
+        assert tx.account == HEDERA_ACCOUNT
+        assert tx.destination == HEDERA_ACCOUNT2
+        assert tx.amount_drops == 500_000
+        assert tx.ward_signed is False
+
+    @pytest.mark.asyncio
+    async def test_build_resolution_tx_payload_in_send_max(self):
+        """Hedera payload embedded in send_max with correct fields."""
+        tx = await self.adapter.build_resolution_tx(
+            pool_address=HEDERA_ACCOUNT,
+            claimant_address=HEDERA_ACCOUNT2,
+            payout_amount=750_000,
+            nonce=8,
+        )
+        payload = tx.send_max
+        assert payload is not None
+        assert payload["transfer_type"] == "HEDERA_CRYPTO_TRANSFER"
+        assert payload["token_id"] == "0.0.99999"
+        assert payload["amount"] == 750_000
+        assert payload["ward_signed"] is False
+
+    @pytest.mark.asyncio
+    async def test_verify_vault_returns_vault_state(self):
+        """verify_vault returns a VaultState dataclass."""
+        state = await self.adapter.verify_vault(
+            vault_address=HEDERA_ACCOUNT,
+            loan_id=VALID_LOAN_ID,
+            pool_address=HEDERA_ACCOUNT2,
+        )
+        assert isinstance(state, HederaVaultState)
+        assert state.vault_address == HEDERA_ACCOUNT
+
+    @pytest.mark.asyncio
+    async def test_get_ledger_state_returns_ledger_state(self):
+        """get_ledger_state returns a LedgerState dataclass."""
+        state = await self.adapter.get_ledger_state()
+        assert isinstance(state, HederaLedgerState)
+
+    # -- failed resolution path ----------------------------------------------
+
+    @pytest.mark.asyncio
+    async def test_verify_vault_not_defaulted(self):
+        """Base adapter returns is_defaulted=False (no live RPC wired)."""
+        state = await self.adapter.verify_vault(
+            vault_address=HEDERA_ACCOUNT,
+            loan_id=VALID_LOAN_ID,
+            pool_address=HEDERA_ACCOUNT2,
+        )
+        assert state.is_defaulted is False
+
+    @pytest.mark.asyncio
+    async def test_build_unsigned_escrow_create_ward_signed_false(self):
+        """Hedera escrow create always has ward_signed=False."""
+        tx = await self.adapter.build_unsigned_escrow_create(
+            pool_address=HEDERA_ACCOUNT,
+            claimant_address=HEDERA_ACCOUNT2,
+            amount=1_000_000,
+            condition_hex="ABCD1234",
+        )
+        assert tx["ward_signed"] is False
+        assert tx["TransactionType"] == "EscrowCreate"
+
+
+# ===========================================================================
+# Tests: StellarAdapter
+# ===========================================================================
+from ward.adapters import StellarAdapter
+from ward.adapters.stellar import StellarPaymentPayload, LedgerState as StellarLedgerState, VaultState as StellarVaultState
+
+STELLAR_ACCOUNT = "GBOPNQMHQQHLNLQUBMJMTVKZXEZFKPQ3VHZPNXIVMKFH7QQVVKLJ7BH"
+STELLAR_ACCOUNT2 = "GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGVZC8CS76WQZE8EKLE7JVD"
+
+
+class TestStellarAdapter:
+    def setup_method(self):
+        self.adapter = StellarAdapter(
+            horizon_url="https://horizon-testnet.stellar.org",
+            rlusd_asset_code="RLUSD",
+            rlusd_issuer="GXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+            network_passphrase="Test SDF Network ; September 2015",
+        )
+
+    # -- ward_signed invariant ------------------------------------------------
+
+    @pytest.mark.asyncio
+    async def test_build_resolution_tx_ward_signed_false(self):
+        """ward_signed must always be False on the returned UnsignedTransaction."""
+        tx = await self.adapter.build_resolution_tx(
+            pool_address=STELLAR_ACCOUNT,
+            claimant_address=STELLAR_ACCOUNT2,
+            payout_amount=5_000_000,  # 0.5 RLUSD in stroops
+        )
+        assert tx.ward_signed is False
+
+    def test_stellar_payload_ward_signed_not_init_param(self):
+        """StellarPaymentPayload.ward_signed is init=False — cannot be overridden."""
+        import dataclasses
+        init_fields = {f.name for f in dataclasses.fields(StellarPaymentPayload) if f.init}
+        assert "ward_signed" not in init_fields
+
+    # -- successful resolution path ------------------------------------------
+
+    @pytest.mark.asyncio
+    async def test_build_resolution_tx_success(self):
+        """Successful Stellar resolution returns correct tx_type and accounts."""
+        tx = await self.adapter.build_resolution_tx(
+            pool_address=STELLAR_ACCOUNT,
+            claimant_address=STELLAR_ACCOUNT2,
+            payout_amount=5_000_000,
+            sequence_number=12345,
+            fee_stroops=100,
+            memo="ward:test",
+        )
+        assert tx.tx_type == "STELLAR_PAYMENT"
+        assert tx.account == STELLAR_ACCOUNT
+        assert tx.destination == STELLAR_ACCOUNT2
+        assert tx.amount_drops == 5_000_000
+        assert tx.ward_signed is False
+
+    @pytest.mark.asyncio
+    async def test_build_resolution_tx_payload_in_send_max(self):
+        """Stellar payload embedded in send_max with correct fields."""
+        tx = await self.adapter.build_resolution_tx(
+            pool_address=STELLAR_ACCOUNT,
+            claimant_address=STELLAR_ACCOUNT2,
+            payout_amount=7_000_000,
+            sequence_number=99,
+            memo="ward:claim-001",
+        )
+        payload = tx.send_max
+        assert payload is not None
+        assert payload["payment_type"] == "STELLAR_PAYMENT"
+        assert payload["asset_code"] == "RLUSD"
+        assert payload["memo"] == "ward:claim-001"
+        assert payload["sequence_number"] == 99
+        assert payload["ward_signed"] is False
+
+    @pytest.mark.asyncio
+    async def test_build_resolution_tx_amount_str_format(self):
+        """Payout amount converted to 7-decimal Stellar string format."""
+        tx = await self.adapter.build_resolution_tx(
+            pool_address=STELLAR_ACCOUNT,
+            claimant_address=STELLAR_ACCOUNT2,
+            payout_amount=10_000_000,  # 1.0 RLUSD = 10,000,000 stroops
+        )
+        payload = tx.send_max
+        # 10_000_000 / 10_000_000 = 1.0000000
+        assert payload["amount_str"] == "1.0000000"
+
+    @pytest.mark.asyncio
+    async def test_verify_vault_returns_vault_state(self):
+        """verify_vault returns a VaultState dataclass."""
+        state = await self.adapter.verify_vault(
+            vault_address=STELLAR_ACCOUNT,
+            loan_id=VALID_LOAN_ID,
+            pool_address=STELLAR_ACCOUNT2,
+        )
+        assert isinstance(state, StellarVaultState)
+        assert state.vault_address == STELLAR_ACCOUNT
+
+    @pytest.mark.asyncio
+    async def test_get_ledger_state_returns_ledger_state(self):
+        """get_ledger_state returns a LedgerState dataclass."""
+        state = await self.adapter.get_ledger_state()
+        assert isinstance(state, StellarLedgerState)
+
+    # -- failed resolution path ----------------------------------------------
+
+    @pytest.mark.asyncio
+    async def test_verify_vault_not_defaulted(self):
+        """Base adapter returns is_defaulted=False (no live RPC wired)."""
+        state = await self.adapter.verify_vault(
+            vault_address=STELLAR_ACCOUNT,
+            loan_id=VALID_LOAN_ID,
+            pool_address=STELLAR_ACCOUNT2,
+        )
+        assert state.is_defaulted is False
+
+    @pytest.mark.asyncio
+    async def test_build_unsigned_escrow_create_ward_signed_false(self):
+        """Stellar escrow create always has ward_signed=False."""
+        tx = await self.adapter.build_unsigned_escrow_create(
+            pool_address=STELLAR_ACCOUNT,
+            claimant_address=STELLAR_ACCOUNT2,
+            amount=5_000_000,
+            condition_hex="ABCD1234",
+        )
+        assert tx["ward_signed"] is False
+        assert tx["TransactionType"] == "EscrowCreate"
+        assert tx["asset_code"] == "RLUSD"
+
+
+# ===========================================================================
+# Tests: XDCAdapter
+# ===========================================================================
+from ward.adapters import XDCAdapter
+from ward.adapters.xdc import XDCResolutionPayload, LedgerState as XDCLedgerState, VaultState as XDCVaultState
+
+XDC_ADDRESS = "xdcabc123def456aaa000111222333444555666777"
+XDC_ADDRESS2 = "xdcbbb123ccc456ddd789eee012fff345aaa678bbb"
+
+
+class TestXDCAdapter:
+    def setup_method(self):
+        self.adapter = XDCAdapter(
+            rpc_url="https://erpc.apothem.network",
+            chain_id=51,
+        )
+
+    # -- ward_signed invariant ------------------------------------------------
+
+    @pytest.mark.asyncio
+    async def test_build_resolution_tx_ward_signed_false(self):
+        """ward_signed must always be False on the returned UnsignedTransaction."""
+        tx = await self.adapter.build_resolution_tx(
+            pool_address=XDC_ADDRESS,
+            claimant_address=XDC_ADDRESS2,
+            payout_amount=1_000_000,
+        )
+        assert tx.ward_signed is False
+
+    def test_xdc_payload_ward_signed_not_init_param(self):
+        """XDCResolutionPayload.ward_signed is init=False — cannot be overridden."""
+        import dataclasses
+        init_fields = {f.name for f in dataclasses.fields(XDCResolutionPayload) if f.init}
+        assert "ward_signed" not in init_fields
+
+    # -- successful resolution path ------------------------------------------
+
+    @pytest.mark.asyncio
+    async def test_build_resolution_tx_success(self):
+        """Successful XDC resolution returns correct tx_type and addresses."""
+        tx = await self.adapter.build_resolution_tx(
+            pool_address=XDC_ADDRESS,
+            claimant_address=XDC_ADDRESS2,
+            payout_amount=500_000,
+            dest_chain_id=51,
+            nonce=6,
+        )
+        assert tx.tx_type == "XDC_EVM_CALL"
+        assert tx.account == XDC_ADDRESS
+        assert tx.destination == XDC_ADDRESS2
+        assert tx.amount_drops == 500_000
+        assert tx.ward_signed is False
+
+    @pytest.mark.asyncio
+    async def test_build_resolution_tx_payload_in_send_max(self):
+        """XDC payload embedded in send_max with correct fields."""
+        tx = await self.adapter.build_resolution_tx(
+            pool_address=XDC_ADDRESS,
+            claimant_address=XDC_ADDRESS2,
+            payout_amount=750_000,
+            nonce=2,
+        )
+        payload = tx.send_max
+        assert payload is not None
+        assert payload["call_type"] == "XDC_EVM_CALL"
+        assert payload["chain_id"] == 51
+        assert payload["amount"] == 750_000
+        assert payload["ward_signed"] is False
+
+    @pytest.mark.asyncio
+    async def test_verify_vault_returns_vault_state(self):
+        """verify_vault returns a VaultState dataclass."""
+        state = await self.adapter.verify_vault(
+            vault_address=XDC_ADDRESS,
+            loan_id=VALID_LOAN_ID,
+            pool_address=XDC_ADDRESS2,
+        )
+        assert isinstance(state, XDCVaultState)
+        assert state.vault_address == XDC_ADDRESS
+
+    @pytest.mark.asyncio
+    async def test_get_ledger_state_returns_ledger_state(self):
+        """get_ledger_state returns a LedgerState dataclass."""
+        state = await self.adapter.get_ledger_state()
+        assert isinstance(state, XDCLedgerState)
+
+    # -- failed resolution path ----------------------------------------------
+
+    @pytest.mark.asyncio
+    async def test_verify_vault_not_defaulted(self):
+        """Base adapter returns is_defaulted=False (no live RPC wired)."""
+        state = await self.adapter.verify_vault(
+            vault_address=XDC_ADDRESS,
+            loan_id=VALID_LOAN_ID,
+            pool_address=XDC_ADDRESS2,
+        )
+        assert state.is_defaulted is False
+
+    @pytest.mark.asyncio
+    async def test_build_unsigned_escrow_create_ward_signed_false(self):
+        """XDC escrow create always has ward_signed=False."""
+        tx = await self.adapter.build_unsigned_escrow_create(
+            pool_address=XDC_ADDRESS,
+            claimant_address=XDC_ADDRESS2,
+            amount=1_000_000,
+            condition_hex="ABCD1234",
+        )
+        assert tx["ward_signed"] is False
+        assert tx["TransactionType"] == "EscrowCreate"
+
+    @pytest.mark.asyncio
+    async def test_build_unsigned_escrow_finish_ward_signed_false(self):
+        """XDC escrow finish always has ward_signed=False."""
+        tx = await self.adapter.build_unsigned_escrow_finish(
+            claimant_address=XDC_ADDRESS2,
+            owner_address=XDC_ADDRESS,
+            offer_sequence=77,
+            condition_hex="ABCD1234",
+            fulfillment_hex="EFGH5678",
+        )
+        assert tx["ward_signed"] is False
+        assert tx["TransactionType"] == "EscrowFinish"
