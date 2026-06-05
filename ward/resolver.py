@@ -15,7 +15,7 @@ from typing import Optional, Tuple, Union
 
 from xrpl.asyncio.clients import AsyncJsonRpcClient
 from xrpl.models.amounts import IssuedCurrencyAmount
-from xrpl.models.currencies import IssuedCurrency, XRP
+from xrpl.models.currencies import XRP, IssuedCurrency
 from xrpl.models.requests import RipplePathFind
 
 from ward.constants import DEFAULT_TESTNET_URL
