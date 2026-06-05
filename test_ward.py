@@ -5062,3 +5062,133 @@ class TestStep9PathAvailability:
     def test_default_path_available_is_true(self):
         err = self.validator._step9_check_pool_solvency(self.solvent_pool, 50_000)
         assert err is None
+
+
+# ===========================================================================
+# Tests: WormholeNTTAdapter
+# ===========================================================================
+
+from ward.adapters import WormholeNTTAdapter
+from ward.adapters.wormhole import LedgerState, NTTTransferPayload, VaultState
+
+
+class TestWormholeNTTAdapter:
+    def setup_method(self):
+        self.adapter = WormholeNTTAdapter(
+            source_rpc_url="https://s.altnet.rippletest.net:51234/",
+            dest_chain_id=2,
+        )
+
+    # -- ward_signed invariant ------------------------------------------------
+
+    @pytest.mark.asyncio
+    async def test_build_resolution_tx_ward_signed_false(self):
+        """ward_signed must always be False on the returned UnsignedTransaction."""
+        tx = await self.adapter.build_resolution_tx(
+            pool_address=VALID_ADDRESS,
+            claimant_address=VALID_ADDRESS2,
+            payout_drops=1_000_000,
+        )
+        assert tx.ward_signed is False
+
+    def test_ntt_payload_ward_signed_not_init_param(self):
+        """NTTTransferPayload.ward_signed is init=False — cannot be overridden."""
+        import dataclasses
+
+        init_fields = {
+            f.name for f in dataclasses.fields(NTTTransferPayload) if f.init
+        }
+        assert "ward_signed" not in init_fields
+
+    # -- successful resolution path ------------------------------------------
+
+    @pytest.mark.asyncio
+    async def test_build_resolution_tx_success(self):
+        """Successful resolution returns correct tx_type and addresses."""
+        tx = await self.adapter.build_resolution_tx(
+            pool_address=VALID_ADDRESS,
+            claimant_address=VALID_ADDRESS2,
+            payout_drops=500_000,
+            dest_chain_id=2,
+            nonce=42,
+        )
+        assert tx.tx_type == "NTT_TRANSFER"
+        assert tx.account == VALID_ADDRESS
+        assert tx.destination == VALID_ADDRESS2
+        assert tx.amount_drops == 500_000
+        assert tx.ward_signed is False
+        assert tx.partial_resolution is False
+
+    @pytest.mark.asyncio
+    async def test_build_resolution_tx_ntt_payload_in_send_max(self):
+        """NTT payload is embedded in send_max with correct fields."""
+        tx = await self.adapter.build_resolution_tx(
+            pool_address=VALID_ADDRESS,
+            claimant_address=VALID_ADDRESS2,
+            payout_drops=750_000,
+            dest_chain_id=2,
+            nonce=7,
+        )
+        payload = tx.send_max
+        assert payload is not None
+        assert payload["transfer_type"] == "NTT_TRANSFER"
+        assert payload["dest_chain_id"] == 2
+        assert payload["amount"] == 750_000
+        assert payload["nonce"] == 7
+        assert payload["ward_signed"] is False
+        assert payload["sender"] == VALID_ADDRESS
+        assert payload["recipient"] == VALID_ADDRESS2
+
+    @pytest.mark.asyncio
+    async def test_verify_vault_returns_vault_state(self):
+        """verify_vault returns a VaultState dataclass."""
+        state = await self.adapter.verify_vault(
+            vault_address=VALID_ADDRESS,
+            loan_id=VALID_LOAN_ID,
+            pool_address=VALID_ADDRESS2,
+        )
+        assert isinstance(state, VaultState)
+        assert state.vault_address == VALID_ADDRESS
+
+    @pytest.mark.asyncio
+    async def test_get_ledger_state_returns_ledger_state(self):
+        """get_ledger_state returns a LedgerState dataclass."""
+        state = await self.adapter.get_ledger_state()
+        assert isinstance(state, LedgerState)
+
+    # -- failed resolution path ----------------------------------------------
+
+    @pytest.mark.asyncio
+    async def test_verify_vault_not_defaulted(self):
+        """Base adapter returns is_defaulted=False (no live RPC wired)."""
+        state = await self.adapter.verify_vault(
+            vault_address=VALID_ADDRESS,
+            loan_id=VALID_LOAN_ID,
+            pool_address=VALID_ADDRESS2,
+        )
+        assert state.is_defaulted is False
+
+    @pytest.mark.asyncio
+    async def test_build_unsigned_escrow_create_ward_signed_false(self):
+        """ChainAdapter escrow create always has ward_signed=False."""
+        tx = await self.adapter.build_unsigned_escrow_create(
+            pool_address=VALID_ADDRESS,
+            claimant_address=VALID_ADDRESS2,
+            amount=1_000_000,
+            condition_hex="ABCD1234",
+        )
+        assert tx["ward_signed"] is False
+        assert tx["TransactionType"] == "EscrowCreate"
+
+    @pytest.mark.asyncio
+    async def test_build_unsigned_escrow_finish_ward_signed_false(self):
+        """ChainAdapter escrow finish always has ward_signed=False."""
+        tx = await self.adapter.build_unsigned_escrow_finish(
+            claimant_address=VALID_ADDRESS2,
+            owner_address=VALID_ADDRESS,
+            offer_sequence=12345,
+            condition_hex="ABCD1234",
+            fulfillment_hex="EFGH5678",
+        )
+        assert tx["ward_signed"] is False
+        assert tx["TransactionType"] == "EscrowFinish"
