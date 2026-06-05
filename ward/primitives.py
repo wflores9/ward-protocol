@@ -31,6 +31,7 @@ import logging
 import secrets
 import threading
 import time
+from dataclasses import dataclass, field
 from typing import Optional, Tuple
 
 from xrpl.asyncio.clients import AsyncJsonRpcClient
@@ -74,6 +75,31 @@ class SecurityError(WardError):
 
 class LedgerError(WardError):
     """XRPL ledger interaction failed."""
+
+
+# ── Chain-Agnostic Data Models ────────────────────────────────────────────────
+
+
+@dataclass
+class UnsignedTransaction:
+    """
+    Ward Protocol unsigned transaction envelope.
+
+    ward_signed is invariantly False — Ward never holds signing keys,
+    never signs transactions. The institution signs; XRPL settles.
+
+    partial_resolution=True signals no liquid cross-asset path was found
+    at ledger close; the caller must decide how to proceed.
+    """
+
+    tx_type: str
+    account: str
+    destination: str
+    amount_drops: int
+    paths: Optional[list] = None
+    send_max: Optional[dict] = None
+    partial_resolution: bool = False
+    ward_signed: bool = field(default=False, init=False)
 
 
 # ── XRPL-Specific Primitives ──────────────────────────────────────────────────

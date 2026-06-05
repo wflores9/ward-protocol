@@ -52,6 +52,7 @@ from ward.constants import (
 from ward.primitives import (
     LedgerError,
     SecurityError,
+    UnsignedTransaction,
     ValidationError,
     WardError,
     generate_claim_preimage,
@@ -64,6 +65,7 @@ from ward.client import WardClient
 from ward.vault_monitor import VaultMonitor
 from ward.validator import ClaimValidator, ValidationResult
 from ward.settlement import EscrowRecord, EscrowSettlement
+from ward.resolver import Resolver
 from ward.pool import PoolHealth, PoolHealthMonitor
 from ward.tx_builder import TxBuilder
 from xrpl.models import EscrowFinish
@@ -4891,3 +4893,172 @@ class TestMultiInstitutionPool:
                 member_address=VALID_ADDRESS,
                 contribution_drops=0,
             )
+
+
+# ===========================================================================
+# Tests: UnsignedTransaction
+# ===========================================================================
+
+_XRP_ASSET = {"currency": "XRP"}
+_USD_ASSET = {"currency": "USD", "issuer": VALID_ADDRESS}
+
+
+class TestUnsignedTransaction:
+    def test_ward_signed_is_always_false(self):
+        tx = UnsignedTransaction(
+            tx_type="Payment",
+            account=VALID_ADDRESS,
+            destination=VALID_ADDRESS2,
+            amount_drops=1_000_000,
+        )
+        assert tx.ward_signed is False
+
+    def test_ward_signed_not_an_init_parameter(self):
+        import dataclasses
+        field_names = {f.name for f in dataclasses.fields(UnsignedTransaction)}
+        init_fields = {
+            f.name for f in dataclasses.fields(UnsignedTransaction) if f.init
+        }
+        assert "ward_signed" in field_names
+        assert "ward_signed" not in init_fields
+
+    def test_defaults(self):
+        tx = UnsignedTransaction(
+            tx_type="Payment",
+            account=VALID_ADDRESS,
+            destination=VALID_ADDRESS2,
+            amount_drops=500_000,
+        )
+        assert tx.paths is None
+        assert tx.send_max is None
+        assert tx.partial_resolution is False
+
+    def test_partial_resolution_can_be_set(self):
+        tx = UnsignedTransaction(
+            tx_type="Payment",
+            account=VALID_ADDRESS,
+            destination=VALID_ADDRESS2,
+            amount_drops=1_000,
+            partial_resolution=True,
+        )
+        assert tx.partial_resolution is True
+        assert tx.ward_signed is False
+
+
+# ===========================================================================
+# Tests: Resolver
+# ===========================================================================
+
+
+class TestResolver:
+    @pytest.mark.asyncio
+    async def test_same_asset_no_pathfinding(self):
+        """Same collateral and payout asset — direct payment, no paths."""
+        resolver = Resolver()
+        tx = await resolver.build_unsigned_tx(
+            pool_address=VALID_ADDRESS,
+            claimant_address=VALID_ADDRESS2,
+            payout_drops=1_000_000,
+            collateral_asset=_XRP_ASSET,
+            payout_asset=_XRP_ASSET,
+        )
+        assert tx.tx_type == "Payment"
+        assert tx.account == VALID_ADDRESS
+        assert tx.destination == VALID_ADDRESS2
+        assert tx.amount_drops == 1_000_000
+        assert tx.paths is None
+        assert tx.send_max is None
+        assert tx.partial_resolution is False
+        assert tx.ward_signed is False
+
+    @pytest.mark.asyncio
+    async def test_cross_asset_valid_path_populates_paths_and_send_max(self):
+        """Cross-asset with a valid ripple_path_find result populates paths/send_max."""
+        mock_paths = [[{"account": VALID_ADDRESS}]]
+        mock_send_max = {"currency": "XRP", "value": "1.5"}
+        path_resp = _make_success_response(
+            {
+                "alternatives": [
+                    {
+                        "paths_computed": mock_paths,
+                        "source_amount": mock_send_max,
+                    }
+                ]
+            }
+        )
+        MockClient = _async_client_factory(AsyncMock(return_value=path_resp))
+
+        with patch("ward.resolver.AsyncJsonRpcClient", MockClient):
+            resolver = Resolver()
+            tx = await resolver.build_unsigned_tx(
+                pool_address=VALID_ADDRESS,
+                claimant_address=VALID_ADDRESS2,
+                payout_drops=500_000,
+                collateral_asset=_XRP_ASSET,
+                payout_asset=_USD_ASSET,
+            )
+
+        assert tx.paths == mock_paths
+        assert tx.send_max == mock_send_max
+        assert tx.partial_resolution is False
+        assert tx.ward_signed is False
+
+    @pytest.mark.asyncio
+    async def test_cross_asset_no_path_sets_partial_resolution(self):
+        """Cross-asset with no alternatives from ripple_path_find sets partial_resolution."""
+        empty_resp = _make_success_response({"alternatives": []})
+        MockClient = _async_client_factory(AsyncMock(return_value=empty_resp))
+
+        with patch("ward.resolver.AsyncJsonRpcClient", MockClient):
+            resolver = Resolver()
+            tx = await resolver.build_unsigned_tx(
+                pool_address=VALID_ADDRESS,
+                claimant_address=VALID_ADDRESS2,
+                payout_drops=500_000,
+                collateral_asset=_XRP_ASSET,
+                payout_asset=_USD_ASSET,
+            )
+
+        assert tx.partial_resolution is True
+        assert tx.paths is None
+        assert tx.send_max is None
+        assert tx.ward_signed is False
+
+
+# ===========================================================================
+# Tests: Step 9 — path_available flag
+# ===========================================================================
+
+
+class TestStep9PathAvailability:
+    def setup_method(self):
+        from ward.constants import XRPL_BASE_RESERVE_DROPS
+
+        self.validator = ClaimValidator()
+        self.solvent_pool = {
+            "Balance": str(50_000_000 + XRPL_BASE_RESERVE_DROPS),
+            "OwnerCount": 0,
+        }
+
+    def test_same_asset_solvent_pool_passes(self):
+        err = self.validator._step9_check_pool_solvency(
+            self.solvent_pool, 50_000, path_available=True
+        )
+        assert err is None
+
+    def test_path_unavailable_rejects_regardless_of_balance(self):
+        err = self.validator._step9_check_pool_solvency(
+            self.solvent_pool, 50_000, path_available=False
+        )
+        assert err is not None
+        assert "path" in err.lower()
+
+    def test_none_pool_info_always_rejects(self):
+        err = self.validator._step9_check_pool_solvency(
+            None, 50_000, path_available=True
+        )
+        assert err is not None
+
+    def test_default_path_available_is_true(self):
+        err = self.validator._step9_check_pool_solvency(self.solvent_pool, 50_000)
+        assert err is None

@@ -406,9 +406,13 @@ class ClaimValidator:
             )
         return None
 
-    def _step9_check_pool_solvency(self, pool_info, payout: int) -> Optional[str]:
+    def _step9_check_pool_solvency(
+        self, pool_info, payout: int, *, path_available: bool = True
+    ) -> Optional[str]:
         if pool_info is None:
             return "Pool info unavailable"
+        if not path_available:
+            return "No liquid cross-asset path available at ledger close"
         balance = int(pool_info.get("Balance", 0))
         owner_count = int(pool_info.get("OwnerCount", 0))
         reserve = XRPL_BASE_RESERVE_DROPS + (owner_count * XRPL_OWNER_RESERVE_DROPS)
