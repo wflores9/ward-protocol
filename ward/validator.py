@@ -51,6 +51,7 @@ class ValidationResult:
     policy_coverage_drops: int = 0
     rejection_reason: str = ""
     steps_passed: int = 0
+    rejection_memo_hex: str = ""  # Hex-encoded rejection reason for on-chain memo
 
 
 # Sentinel returned by _step1_verify_nft_exists when NFT has wrong taxon.
@@ -481,6 +482,14 @@ class ClaimValidator:
     @staticmethod
     def _reject(step: int, reason: str) -> ValidationResult:
         logger.warning("CLAIM REJECTED step %d: %s", step, reason)
+        # Encode rejection reason as hex memo for on-chain audit trail
+        # Institution includes this memo when submitting any rejection acknowledgment
+        import json as _json
+        rejection_data = _json.dumps(
+            {"ward_reject": True, "step": step, "reason": reason},
+            separators=(",", ":")
+        )
+        rejection_memo_hex = rejection_data.encode("utf-8").hex().upper()
         return ValidationResult(
             approved=False,
             claim_payout_drops=0,
@@ -488,4 +497,5 @@ class ClaimValidator:
             policy_coverage_drops=0,
             rejection_reason=reason,
             steps_passed=step - 1,
+            rejection_memo_hex=rejection_memo_hex,
         )

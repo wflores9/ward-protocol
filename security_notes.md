@@ -312,3 +312,13 @@ This document catalogues every attack vector identified during design and implem
 **Fallback:** In-memory fallback if Redis is unavailable — for dev/test only. Not distributed-safe. Production deployments must have Redis configured.
 
 **Guarantee:** Max 3 claims per NFT per 300 seconds, enforced across all instances.
+
+## Rejection Reasons On-Chain
+
+**Status:** Implemented via memo hex encoding.
+
+**Implementation:** `ValidationResult.rejection_memo_hex` contains the rejection reason hex-encoded for inclusion in an on-chain transaction memo. The API returns this field on every `/validate` response. Institutions include this memo when submitting any rejection acknowledgment transaction, creating a permanent on-chain audit trail.
+
+**Format:** JSON `{"ward_reject": true, "step": N, "reason": "..."}` hex-encoded as UTF-8, suitable for XRPL Memo field.
+
+**ward_signed = False — Ward never submits the rejection memo. Institution signs and submits.**

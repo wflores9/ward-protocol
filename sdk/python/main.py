@@ -825,7 +825,8 @@ async def validate_claim(
             "vault_loss_drops": result.vault_loss_drops,
             "policy_coverage_drops": result.policy_coverage_drops,
             "rejection_reason": result.rejection_reason,
-            "note": "All checks read live XRPL ledger state. No off-chain inputs permitted.",
+            "rejection_memo_hex": result.rejection_memo_hex,
+            "note": "All checks read live XRPL ledger state. Include rejection_memo_hex in on-chain transaction memo for audit trail.",
         }
     except ValidationError as e:
         raise HTTPException(
