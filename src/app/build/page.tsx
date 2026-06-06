@@ -90,9 +90,9 @@ const result = await client.validateClaim({
 })
 // result.approved — true / false`}</pre>
               </div>
-              <a href="https://www.npmjs.com/package/ward-protocol" target="_blank" rel="noopener noreferrer" className="btn-ghost" style={{ display: 'block', textAlign: 'center', fontSize: 14 }}>
-                View on npm →
-              </a>
+              <p style={{ textAlign: 'center', fontSize: 13, color: 'var(--text-secondary)', margin: 0 }}>
+                TypeScript SDK — available at PyPI launch
+              </p>
             </div>
 
             {/* API */}
