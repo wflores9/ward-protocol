@@ -61,5 +61,11 @@ export default {
       chainId: 11155111,
       accounts: [DEPLOYER_PRIVATE_KEY],
     },
+    hedera: {
+      type: "http",
+      url: "https://testnet.hashio.io/api",
+      chainId: 296,
+      accounts: [DEPLOYER_PRIVATE_KEY],
+    },
   },
 };
