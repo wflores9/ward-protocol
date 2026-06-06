@@ -109,7 +109,7 @@ async def main():
 # Generated: {datetime.now().isoformat()}
 
 # Database
-DATABASE_URL=postgresql://ward:ward_secure_password_change_me@localhost/ward_protocol
+DATABASE_URL=${WARD_DATABASE_URL:?WARD_DATABASE_URL environment variable is required}
 
 # XRPL Testnet
 XRPL_WEBSOCKET_URL=wss://s.altnet.rippletest.net:51233

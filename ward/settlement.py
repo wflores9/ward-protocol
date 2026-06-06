@@ -33,6 +33,7 @@ from ward.primitives import (
     build_unsigned_tx,
     client_context,
     get_ledger_close_time,
+    validate_condition_hex,
     validate_drops_amount,
     validate_xrpl_address,
 )
@@ -115,6 +116,7 @@ class EscrowSettlement:
         """
         validate_xrpl_address(claimant_address, "claimant_address")
         validate_drops_amount(payout_drops, "payout_drops")
+        validate_condition_hex(condition_hex, "condition_hex")
 
         async with client_context(AsyncJsonRpcClient(self._url)) as client:
             current_time = await get_ledger_close_time(client)

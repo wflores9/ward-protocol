@@ -61,7 +61,9 @@ async def main():
     
     # Final fallback to default
     if not database_url:
-        database_url = "postgresql://ward:ward_secure_password_change_me@localhost/ward_protocol"
+        database_url = os.getenv("WARD_DATABASE_URL")
+        if not database_url:
+            raise ValueError("WARD_DATABASE_URL environment variable is required. Never use default credentials.")
         print("⚠️  Using default DATABASE_URL")
     
     # Connect to testnet

@@ -59,6 +59,7 @@ from ward.primitives import (
     validate_drops,
     validate_drops_amount,
     validate_nft_id,
+    validate_condition_hex,
     validate_xrpl_address,
 )
 from ward.registry import (
@@ -95,6 +96,7 @@ __all__ = [
     "SecurityError",
     "LedgerError",
     # Validators / crypto utilities
+    "validate_condition_hex",
     "validate_xrpl_address",
     "validate_drops_amount",
     "validate_drops",

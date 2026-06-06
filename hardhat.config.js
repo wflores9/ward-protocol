@@ -1,7 +1,10 @@
 import hardhatEthers from "@nomicfoundation/hardhat-ethers";
 import "dotenv/config";
 
-const DEPLOYER_PRIVATE_KEY = process.env.DEPLOYER_PRIVATE_KEY ?? "0x0000000000000000000000000000000000000000000000000000000000000001";
+if (!process.env.DEPLOYER_PRIVATE_KEY) {
+  throw new Error("DEPLOYER_PRIVATE_KEY environment variable is required. Never commit private keys.");
+}
+const DEPLOYER_PRIVATE_KEY = process.env.DEPLOYER_PRIVATE_KEY;
 
 export default {
   plugins: [hardhatEthers],

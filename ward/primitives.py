@@ -411,6 +411,32 @@ def generate_claim_preimage() -> bytes:
     return secrets.token_bytes(32)
 
 
+def validate_condition_hex(condition_hex: str, label: str = "condition_hex") -> str:
+    """
+    Validate a PREIMAGE-SHA-256 condition hex string.
+    Valid condition_hex is exactly 78 uppercase hex characters (39 bytes).
+    ASN.1 prefix: A0 25 80 20 <32-byte-sha256> 81 01 20
+    Raises:
+        ValidationError: if condition_hex is malformed.
+    """
+    if not isinstance(condition_hex, str):
+        raise ValidationError(f"{label} must be a string")
+    hex_clean = condition_hex.upper().strip()
+    if len(hex_clean) != 78:
+        raise ValidationError(
+            f"{label} must be 78 hex chars (PREIMAGE-SHA-256), got {len(hex_clean)}"
+        )
+    try:
+        bytes.fromhex(hex_clean)
+    except ValueError:
+        raise ValidationError(f"{label} contains invalid hex characters")
+    if not hex_clean.startswith("A025802"):
+        raise ValidationError(
+            f"{label} does not match PREIMAGE-SHA-256 ASN.1 prefix (A0258020...)"
+        )
+    return hex_clean
+
+
 # ── XRPL-Specific Primitives (continued) ─────────────────────────────────────
 
 # ---------------------------------------------------------------------------
