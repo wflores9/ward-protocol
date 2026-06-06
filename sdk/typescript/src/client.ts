@@ -52,6 +52,52 @@ export class WardClient {
     return res as unknown as PolicyNFT
   }
 
+  /** F·05 — Validate a default claim (9 on-ledger checks) */
+  async validateClaim(
+    claimantAddress: string,
+    nftTokenId: string,
+    defaultedVault: string,
+    loanId: string,
+    poolAddress: string,
+  ): Promise<Record<string, unknown>> {
+    validateXrplAddress(claimantAddress)
+    validateXrplAddress(defaultedVault)
+    validateXrplAddress(poolAddress)
+    const res = await this._post('/validate', {
+      claimant_address: claimantAddress,
+      policy_nft_id: nftTokenId,
+      vault_id: defaultedVault,
+      loan_id: loanId,
+      pool_address: poolAddress,
+    })
+    assertWardSignedFalse(res)
+    return res
+  }
+
+  /** F·06 — Create a claim escrow (unsigned EscrowCreate) */
+  async createClaimEscrow(
+    poolAddress: string,
+    claimantAddress: string,
+    payoutDrops: number,
+    conditionHex: string,
+    nftTokenId: string,
+    claimId: string,
+  ): Promise<UnsignedTransaction> {
+    validateXrplAddress(poolAddress)
+    validateXrplAddress(claimantAddress)
+    validateDrops(payoutDrops)
+    const res = await this._post('/settlement/escrow', {
+      pool_address: poolAddress,
+      claimant_address: claimantAddress,
+      payout_drops: payoutDrops,
+      condition_hex: conditionHex,
+      nft_token_id: nftTokenId,
+      claim_id: claimId,
+    })
+    assertWardSignedFalse(res)
+    return res as unknown as UnsignedTransaction
+  }
+
   /** List all vaults registered under this institution key */
   async listVaults(): Promise<VaultRegistration[]> {
     const res = await this._get('/vaults')
