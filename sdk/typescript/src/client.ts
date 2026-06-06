@@ -42,7 +42,7 @@ export class WardClient {
     validateXrplAddress(vaultAddress)
     validateXrplAddress(depositorAddress)
     validateDrops(coverageDrops)
-    const res = await this._post('/policies/purchase', {
+    const res = await this._post('/purchase', {
       vault_address: vaultAddress,
       depositor_address: depositorAddress,
       coverage_drops: coverageDrops,
@@ -62,7 +62,7 @@ export class WardClient {
   /** Get health ratio for a vault */
   async getVaultHealth(vaultAddress: string): Promise<Record<string, unknown>> {
     validateXrplAddress(vaultAddress)
-    const res = await this._get(`/vaults/${vaultAddress}/health`)
+    const res = await this._get(`/dashboard/vault/${vaultAddress}/health`)
     assertWardSignedFalse(res)
     return res
   }
