@@ -23,10 +23,9 @@ from typing import Optional
 from fastapi import FastAPI, HTTPException, Depends, Header, Request, Body
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field, ConfigDict, field_validator
 from xrpl.asyncio.clients import AsyncJsonRpcClient
 from xrpl.models import AccountInfo
-from xrpl.wallet import Wallet
 
 # ── Ensure ward_client.py (repo root) is importable from sdk/python
 # Procfile: cd sdk/python && uvicorn main:app
@@ -214,10 +213,12 @@ class CredentialIssueRequest(BaseModel):
     kyc_type: str = Field(..., description="institutional | retail | accredited")
     expiry_days: int = Field(default=365, ge=30, le=730)
 
+XRPL_ADDRESS_REGEX = r"^r[1-9A-HJ-NP-Za-km-z]{24,34}$"
+
+
 class PolicyPurchaseRequest(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
-    wallet_seed: str = Field(..., description="Institution XRPL seed (used in-memory only for signing)")
     vault_address: str = Field(..., alias="vault_id", description="XLS-66 vault address")
     pool_address: str = Field(..., description="Coverage pool XRPL address")
     coverage_drops: int = Field(..., gt=0, description="Coverage amount in XRP drops")
@@ -225,6 +226,15 @@ class PolicyPurchaseRequest(BaseModel):
     premium_rate: float = Field(default=0.01, gt=0, le=1.0, description="Annual premium rate as fraction (0,1]")
     license_tier: str = Field(default="starter", description="starter | standard | enterprise")
     depositor_address: Optional[str] = Field(default=None, description="Deprecated. Not used by current SDK path.")
+
+    @field_validator('vault_address', 'pool_address')
+    @classmethod
+    def validate_policy_addresses(cls, v: str) -> str:
+        import re
+        if not re.match(XRPL_ADDRESS_REGEX, v):
+            raise ValueError('Invalid XRPL address')
+        return v
+
 
 class ClaimFileRequest(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
@@ -234,6 +244,15 @@ class ClaimFileRequest(BaseModel):
     claimant_address: str = Field(..., description="Claimant XRPL address")
     loan_id: str = Field(..., description="Defaulted XLS-66 loan object index (64 hex chars)")
     pool_address: str = Field(..., description="Coverage pool XRPL address")
+
+    @field_validator('defaulted_vault', 'claimant_address', 'pool_address')
+    @classmethod
+    def validate_claim_addresses(cls, v: str) -> str:
+        import re
+        if not re.match(XRPL_ADDRESS_REGEX, v):
+            raise ValueError('Invalid XRPL address')
+        return v
+
 
 class EscrowCreateRequest(BaseModel):
     claim_id: str
@@ -652,7 +671,6 @@ async def verify_credential(
         }
     },
 )
-@app.post("/policies/purchase", include_in_schema=False)
 async def purchase_policy(
     req: PolicyPurchaseRequest = Body(
         ...,
@@ -660,7 +678,6 @@ async def purchase_policy(
             "default": {
                 "summary": "Purchase coverage",
                 "value": {
-                    "wallet_seed": "s████████████████████████",
                     "vault_id": "rVaultXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
                     "pool_address": "rPoolXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
                     "coverage_drops": 500000000,
@@ -697,9 +714,7 @@ async def purchase_policy(
 
     try:
         client = WardClient(url=XRPL_URL)
-        wallet = Wallet.from_seed(req.wallet_seed)
         result = await client.purchase_coverage(
-            wallet=wallet,
             vault_address=req.vault_address,
             coverage_drops=req.coverage_drops,
             period_days=req.period_days,
@@ -742,8 +757,6 @@ async def purchase_policy(
         }
     },
 )
-@app.post("/claims/validate", include_in_schema=False)
-@app.post("/claims/file", include_in_schema=False)
 async def validate_claim(
     req: ClaimFileRequest = Body(
         ...,
