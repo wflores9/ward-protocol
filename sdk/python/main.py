@@ -20,12 +20,13 @@ import time
 from datetime import datetime
 from typing import Optional
 
-from fastapi import FastAPI, HTTPException, Depends, Header, Request
+from fastapi import FastAPI, HTTPException, Depends, Header, Request, Body
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from xrpl.asyncio.clients import AsyncJsonRpcClient
 from xrpl.models import AccountInfo
+from xrpl.wallet import Wallet
 
 # ── Ensure ward_client.py (repo root) is importable from sdk/python
 # Procfile: cd sdk/python && uvicorn main:app
@@ -214,17 +215,25 @@ class CredentialIssueRequest(BaseModel):
     expiry_days: int = Field(default=365, ge=30, le=730)
 
 class PolicyPurchaseRequest(BaseModel):
-    vault_id: str = Field(..., description="XLS-66 vault address")
-    depositor_address: str = Field(..., description="Depositor XRPL address")
+    model_config = ConfigDict(populate_by_name=True)
+
+    wallet_seed: str = Field(..., description="Institution XRPL seed (used in-memory only for signing)")
+    vault_address: str = Field(..., alias="vault_id", description="XLS-66 vault address")
+    pool_address: str = Field(..., description="Coverage pool XRPL address")
     coverage_drops: int = Field(..., gt=0, description="Coverage amount in XRP drops")
-    duration_days: int = Field(default=90, ge=1, le=365)
-    premium_bps: int = Field(default=50, ge=0, description="Premium in basis points")
+    period_days: int = Field(default=90, alias="duration_days", ge=1, le=365, description="Coverage period in days")
+    premium_rate: float = Field(default=0.01, gt=0, le=1.0, description="Annual premium rate as fraction (0,1]")
+    license_tier: str = Field(default="starter", description="starter | standard | enterprise")
+    depositor_address: Optional[str] = Field(default=None, description="Deprecated. Not used by current SDK path.")
 
 class ClaimFileRequest(BaseModel):
-    vault_id: str = Field(..., description="XLS-66 vault address")
-    policy_nft_id: str = Field(..., description="Policy NFT token ID (64 hex chars)")
+    model_config = ConfigDict(populate_by_name=True)
+
+    defaulted_vault: str = Field(..., alias="vault_id", description="Defaulted XLS-66 vault address")
+    nft_token_id: str = Field(..., alias="policy_nft_id", description="Policy NFT token ID (64 hex chars)")
     claimant_address: str = Field(..., description="Claimant XRPL address")
-    condition_hex: str = Field(..., description="PREIMAGE-SHA-256 condition — Ward never sees the preimage")
+    loan_id: str = Field(..., description="Defaulted XLS-66 loan object index (64 hex chars)")
+    pool_address: str = Field(..., description="Coverage pool XRPL address")
 
 class EscrowCreateRequest(BaseModel):
     claim_id: str
@@ -620,9 +629,48 @@ async def verify_credential(
 
 
 # ── F·03 — Policy Purchase (XLS-20)
-@app.post("/policies/purchase")
+@app.post(
+    "/purchase",
+    summary="F·03 — Purchase policy coverage",
+    description="Thin wrapper for ward.client.WardClient.purchase_coverage. Returns on-chain proof with ward_signed=false.",
+    responses={
+        200: {
+            "description": "Policy purchase result",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "ward_signed": False,
+                        "flow": "F·03",
+                        "nft_token_id": "A" * 64,
+                        "premium_tx": "B" * 64,
+                        "mint_tx": "C" * 64,
+                        "coverage_drops": 500000000,
+                        "expiry_ledger": 800000000,
+                    }
+                }
+            },
+        }
+    },
+)
+@app.post("/policies/purchase", include_in_schema=False)
 async def purchase_policy(
-    req: PolicyPurchaseRequest,
+    req: PolicyPurchaseRequest = Body(
+        ...,
+        examples={
+            "default": {
+                "summary": "Purchase coverage",
+                "value": {
+                    "wallet_seed": "s████████████████████████",
+                    "vault_id": "rVaultXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+                    "pool_address": "rPoolXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+                    "coverage_drops": 500000000,
+                    "duration_days": 90,
+                    "premium_rate": 0.01,
+                    "license_tier": "starter",
+                },
+            }
+        },
+    ),
     x_institution_key: Optional[str] = Header(None),
 ):
     """
@@ -632,7 +680,7 @@ async def purchase_policy(
     Returns unsigned NFTokenMint. ward_signed = False.
     """
     verify_institution_key(x_institution_key)
-    logger.info(f"F·03 purchase_policy: vault={req.vault_id} depositor={req.depositor_address}")
+    logger.info(f"F·03 purchase_policy: vault={req.vault_address}")
 
     if not WARD_CLIENT_AVAILABLE:
         return {
@@ -642,48 +690,93 @@ async def purchase_policy(
             "unsigned_tx_type": "NFTokenMint",
             "policy_nft_taxon": 281,
             "flags": "TF_BURNABLE — non-transferable by design",
-            "uri_encodes": "coverage_drops | expiry_ledger | vault_id | premium_bps",
+            "uri_encodes": "coverage_drops | expiry_ledger | vault_address | premium_rate",
             "params": req.model_dump(),
             "note": "Institution signs with their keypair. Ward never signs.",
         }
 
     try:
-        client = WardClient(xrpl_url=XRPL_URL)
+        client = WardClient(url=XRPL_URL)
+        wallet = Wallet.from_seed(req.wallet_seed)
         result = await client.purchase_coverage(
-            vault_address=req.vault_id,
-            depositor_address=req.depositor_address,
+            wallet=wallet,
+            vault_address=req.vault_address,
             coverage_drops=req.coverage_drops,
-            period_days=req.duration_days,
+            period_days=req.period_days,
+            pool_address=req.pool_address,
+            premium_rate=req.premium_rate,
+            license_tier=req.license_tier,
         )
         return {"ward_signed": False, "flow": "F·03", **result}
     except ValidationError as e:
+        raise HTTPException(status_code=422, detail={"error": "VALIDATION_ERROR", "message": str(e), "ward_signed": False})
+    except ValueError as e:
         raise HTTPException(status_code=422, detail={"error": "VALIDATION_ERROR", "message": str(e), "ward_signed": False})
     except LedgerError as e:
         raise HTTPException(status_code=502, detail={"error": "LEDGER_ERROR", "message": str(e), "ward_signed": False})
 
 
-# ── F·04 + F·05 — Claim Filing + 9-Step Validation
-@app.post("/claims/file")
-async def file_claim(
-    req: ClaimFileRequest,
+# ── F·05 — Claim Validation (9 deterministic checks)
+@app.post(
+    "/validate",
+    summary="F·05 — Validate claim",
+    description="Thin wrapper for ward.validator.ClaimValidator.validate_claim. Runs all 9 on-chain checks and returns deterministic result.",
+    responses={
+        200: {
+            "description": "Claim validation result",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "ward_signed": False,
+                        "flow": "F·05",
+                        "checks_total": 9,
+                        "checks_passed": 9,
+                        "approved": True,
+                        "claim_payout_drops": 1000000,
+                        "vault_loss_drops": 1200000,
+                        "policy_coverage_drops": 2000000,
+                        "rejection_reason": "",
+                    }
+                }
+            },
+        }
+    },
+)
+@app.post("/claims/validate", include_in_schema=False)
+@app.post("/claims/file", include_in_schema=False)
+async def validate_claim(
+    req: ClaimFileRequest = Body(
+        ...,
+        examples={
+            "default": {
+                "summary": "Validate claim",
+                "value": {
+                    "vault_id": "rVaultXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+                    "policy_nft_id": "A" * 64,
+                    "claimant_address": "rClaimantXXXXXXXXXXXXXXXXXXXXXXXXX",
+                    "loan_id": "B" * 64,
+                    "pool_address": "rPoolXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+                },
+            }
+        },
+    ),
     x_institution_key: Optional[str] = Header(None),
 ):
     """
-    F·04 + F·05 — File default claim. Runs 9-step ClaimValidator.
+    F·05 — Validate a default claim with 9 deterministic on-chain checks.
     All checks query live XRPL state. No oracle. No human judgment.
-    All 9 pass → unsigned EscrowCreate returned.
-    Any failure → CLAIM_REJECTED with reason code.
+    Returns deterministic approval/rejection metadata only.
     ward_signed = False.
     """
     verify_institution_key(x_institution_key)
-    logger.info(f"F·04 file_claim: vault={req.vault_id} nft={req.policy_nft_id}")
+    logger.info(f"F·05 validate_claim: vault={req.defaulted_vault} nft={req.nft_token_id}")
 
     if not WARD_CLIENT_AVAILABLE:
         return {
             "ward_signed": False,
-            "flow": "F·04 + F·05",
+            "flow": "F·05",
             "status": "spec_mode",
-            "validation_checks": 9,
+            "checks_total": 9,
             "checks": [
                 {"check": 1, "name": "Policy NFT exists on ledger",         "error_code": "NFT_NOT_FOUND"},
                 {"check": 2, "name": "Policy unexpired",                     "error_code": "POLICY_EXPIRED"},
@@ -699,20 +792,25 @@ async def file_claim(
         }
 
     try:
-        validator = ClaimValidator(xrpl_url=XRPL_URL)
+        validator = ClaimValidator(url=XRPL_URL)
         result = await validator.validate_claim(
             claimant_address=req.claimant_address,
-            nft_token_id=req.policy_nft_id,
-            vault_address=req.vault_id,
-            condition_hex=req.condition_hex,
+            nft_token_id=req.nft_token_id,
+            defaulted_vault=req.defaulted_vault,
+            loan_id=req.loan_id,
+            pool_address=req.pool_address,
         )
         return {
             "ward_signed": False,
-            "flow": "F·04 + F·05",
-            "validation_checks": 9,
-            "checks_passed": 9,
-            **result,
-            "note": "Institution signs unsigned EscrowCreate. Ward never signs.",
+            "flow": "F·05",
+            "checks_total": 9,
+            "checks_passed": result.steps_passed,
+            "approved": result.approved,
+            "claim_payout_drops": result.claim_payout_drops,
+            "vault_loss_drops": result.vault_loss_drops,
+            "policy_coverage_drops": result.policy_coverage_drops,
+            "rejection_reason": result.rejection_reason,
+            "note": "All checks read live XRPL ledger state. No off-chain inputs permitted.",
         }
     except ValidationError as e:
         raise HTTPException(
