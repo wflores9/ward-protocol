@@ -89,3 +89,4 @@ artifacts/
 cache/
 *.bak.
 *.bak
+.envgrep
