@@ -1,74 +1,23 @@
-require("@nomicfoundation/hardhat-toolbox");
-require("dotenv").config();
+import hardhatEthers from "@nomicfoundation/hardhat-ethers";
+import "dotenv/config";
 
-/** @type import('hardhat/config').HardhatUserConfig */
-module.exports = {
-  solidity: {
-    version: "0.8.20",
-    settings: {
-      optimizer: {
-        enabled: true,
-        runs: 200,
-      },
-    },
-  },
+const DEPLOYER_PRIVATE_KEY = process.env.DEPLOYER_PRIVATE_KEY ?? "0x0000000000000000000000000000000000000000000000000000000000000001";
+
+export default {
+  plugins: [hardhatEthers],
+  solidity: "0.8.20",
   networks: {
-    // Local Hardhat node — default for `npx hardhat test`
-    hardhat: {},
-
-    // Flare Coston2 testnet (chain ID 114)
     coston2: {
+      type: "http",
       url: "https://coston2-api.flare.network/ext/C/rpc",
       chainId: 114,
-      accounts: process.env.DEPLOYER_PRIVATE_KEY
-        ? [process.env.DEPLOYER_PRIVATE_KEY]
-        : [],
-      gasPrice: "auto",
-      timeout: 60000,
+      accounts: [DEPLOYER_PRIVATE_KEY],
     },
-
-    // Flare Mainnet (chain ID 14) — guarded, never deploy without explicit flag
-    flareMainnet: {
-      url: "https://flare-api.flare.network/ext/C/rpc",
-      chainId: 14,
-      accounts: process.env.DEPLOYER_PRIVATE_KEY
-        ? [process.env.DEPLOYER_PRIVATE_KEY]
-        : [],
-      gasPrice: "auto",
-      timeout: 60000,
+    xrplevm: {
+      type: "http",
+      url: "https://rpc.testnet.xrplevm.org",
+      chainId: 1449000,
+      accounts: [DEPLOYER_PRIVATE_KEY],
     },
-
-    // XRPL EVM Sidechain testnet (chain ID 1440002)
-    xrplEvmTestnet: {
-      url: "https://rpc-evm-sidechain.xrpl.org",
-      chainId: 1440002,
-      accounts: process.env.DEPLOYER_PRIVATE_KEY
-        ? [process.env.DEPLOYER_PRIVATE_KEY]
-        : [],
-      gasPrice: "auto",
-      timeout: 60000,
-    },
-  },
-  etherscan: {
-    apiKey: {
-      // Flare block explorer verification
-      coston2: process.env.FLARE_EXPLORER_API_KEY || "no-key",
-    },
-    customChains: [
-      {
-        network: "coston2",
-        chainId: 114,
-        urls: {
-          apiURL: "https://coston2-explorer.flare.network/api",
-          browserURL: "https://coston2-explorer.flare.network",
-        },
-      },
-    ],
-  },
-  paths: {
-    sources: "./contracts",
-    tests: "./test",
-    cache: "./cache",
-    artifacts: "./artifacts",
   },
 };
