@@ -5,8 +5,8 @@
 //! Core security guarantees (enforced structurally, not by configuration):
 //!   - ward_signed = false  — hardcoded in EscrowTx::new(), cannot be set to true.
 //!   - No preimage field    — EscrowTx deliberately omits the preimage.
-//! Ward receives only condition_hex (SHA-256 hash).
-//! Only the claimant holds the preimage.
+//!     Ward receives only condition_hex (SHA-256 hash).
+//!     Only the claimant holds the preimage.
 //!   - No wallet, no signing, no submission — construction only.
 //!   - Integer drops only  — Amount field is u64. No floating point.
 //!
