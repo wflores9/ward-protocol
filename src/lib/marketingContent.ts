@@ -20,7 +20,7 @@ export const MARKETING = {
   metaDescription: 'Deterministic default resolution for on-chain lending. Built on XRPL. Mainnet-ready at XLS-66 launch. ward_signed = False — always.',
 
   // Status
-  version: 'v0.2.5',
+  version: 'v0.2.6',
   network: 'XRPL Altnet',
-  tests: '317/317',
+  tests: '436/436',
 } as const
