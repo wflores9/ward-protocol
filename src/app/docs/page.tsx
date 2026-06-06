@@ -3,7 +3,7 @@ import Link from 'next/link'
 
 export const metadata: Metadata = {
   title: 'Ward Protocol — Documentation',
-  description: 'SDK documentation, API reference, and integration guides for Ward Protocol v0.2.5.',
+  description: 'SDK documentation, API reference, and integration guides for Ward Protocol v0.2.6.',
 }
 
 const modules = [
@@ -17,7 +17,7 @@ const modules = [
 ]
 
 const quickstart = `# Install
-pip install ward-protocol==0.2.5
+pip install ward-protocol==0.2.6
 
 # Validate a claim (9 steps, all on-chain)
 from ward import ClaimValidator
@@ -36,7 +36,7 @@ print(result.approved)            # True
 print(result.steps_passed)        # 9
 print(result.claim_payout_drops)  # min(vault_loss, policy_coverage)`
 
-const testCmd = `# Run test suite (317/317 Python passing)
+const testCmd = `# Run test suite (436/436 Python passing)
 pip install -r requirements.txt
 python -m pytest test_ward.py -m "not integration" -v
 
@@ -49,13 +49,13 @@ export default function DocsPage() {
       {/* Header */}
       <div className="border-b border-gold/20 bg-white px-6 md:px-12 py-10">
         <div className="max-w-4xl mx-auto">
-          <div className="text-sm uppercase tracking-[.15em] text-ice2 mb-2 font-mono">Ward Protocol SDK — v0.2.5</div>
+          <div className="text-sm uppercase tracking-[.15em] text-ice2 mb-2 font-mono">Ward Protocol SDK — v0.2.6</div>
           <h1 className="font-condensed font-black text-5xl text-steel mb-3">Documentation</h1>
           <p className="text-sm text-sub max-w-2xl">
             SDK reference, module overview, and integration guides. All modules are independently auditable.
           </p>
           <div className="flex gap-3 mt-5">
-            <span className="text-sm bg-[#fdf8ed] text-[#c8a94a] border border-gold/30 px-2.5 py-1 rounded font-mono font-bold">317/317 Tests</span>
+            <span className="text-sm bg-[#fdf8ed] text-[#c8a94a] border border-gold/30 px-2.5 py-1 rounded font-mono font-bold">436/436 Tests</span>
             <span className="text-sm bg-panel border border-border text-sub px-2.5 py-1 rounded font-mono">Python 3.11+</span>
             <span className="text-sm bg-panel border border-border text-sub px-2.5 py-1 rounded font-mono">MIT License</span>
           </div>
@@ -106,7 +106,7 @@ export default function DocsPage() {
             {testCmd}
           </pre>
           <p className="text-sm text-sub mt-3">
-            317 Python tests + 40 Rust tests + 45 TypeScript tests covering all 9 claim validation steps, all 15 attack vectors, VaultMonitor,
+            436 Python tests + 40 Rust tests + 45 TypeScript tests covering all 9 claim validation steps, all 15 attack vectors, VaultMonitor,
             EscrowSettlement, PoolHealthMonitor, and all primitives.
             Marked <code className="bg-p2 px-1 rounded text-sm">integration</code> tests require XRPL Mainnet access.
           </p>
@@ -117,21 +117,21 @@ export default function DocsPage() {
           <h2 className="font-condensed font-black text-3xl text-[#c8a94a] mb-4">Changelog</h2>
           {[
             {
-              version: 'v0.2.5',
+              version: 'v0.2.6',
               date: 'June 2026',
               changes: [
                 { type: 'Added', text: 'MultiInstitutionPool — shared capital, pro-rata loss distribution, admin access control' },
                 { type: 'Added', text: 'register_pool_member() — unsigned AccountSet tx, ward_signed=False in memo payload' },
                 { type: 'Changed', text: 'Step 6 now rejects when pool usable balance < vault loss (min_balance enforcement)' },
                 { type: 'Fixed', text: 'asyncio.get_event_loop().run_until_complete() → asyncio.run() (pytest-asyncio 1.4.0 compatibility)' },
-                { type: 'Changed', text: 'Python tests: 317/317 passing across Python 3.10 · 3.11 · 3.12' },
+                { type: 'Changed', text: 'Python tests: 436/436 passing across Python 3.10 · 3.11 · 3.12' },
               ],
             },
             {
               version: 'v0.2.4',
               date: 'May 2026',
               changes: [
-                { type: 'Changed', text: 'Test counts corrected — 317/317 Python · 40/40 Rust · 45/45 TypeScript' },
+                { type: 'Changed', text: 'Test counts corrected — 436/436 Python · 40/40 Rust · 45/45 TypeScript' },
                 { type: 'Added', text: 'Coverage sprint — chain_reader 100%, monitor 100%, tx_builder 100%, vault_monitor 99%' },
                 { type: 'Changed', text: 'Python tests: 204/204 → 257/257 (92 new coverage tests)' },
                 { type: 'Fixed', text: 'Headline typo corrected in README and PyPI description' },

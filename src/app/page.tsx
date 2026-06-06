@@ -48,8 +48,8 @@ const faqItems = [
 ]
 
 const statusRows: [string, React.ReactNode][] = [
-  ['SDK Version', 'v0.2.5'],
-  ['Unit Tests', <span key="tests" style={{ color: 'var(--green)' }}>317 Python · 40 Rust · 45 TypeScript</span>],
+  ['SDK Version', 'v0.2.6'],
+  ['Unit Tests', <span key="tests" style={{ color: 'var(--green)' }}>436 Python · 40 Rust · 45 TypeScript</span>],
   ['Coverage', 'chain_reader 100% · monitor 100% · tx_builder 100% · vault_monitor 99%'],
   ['On-Chain Transactions', '2 confirmed (XRPL Altnet) · F·03—F·05 pending XLS-66 mainnet'],
   ['External Dependencies', '0 — pure XRPL'],
@@ -114,7 +114,7 @@ export default function Home() {
           <div style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(182,215,206,0.18)', borderRadius: 16, padding: 30, backdropFilter: 'blur(20px)' }}>
             {/* Card header */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, paddingBottom: 16, borderBottom: '1px solid rgba(168,197,232,0.08)' }}>
-              <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 14, color: 'var(--text-secondary)', letterSpacing: 0 }}>WARD · v0.2.5 · ALTNET</span>
+              <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 14, color: 'var(--text-secondary)', letterSpacing: 0 }}>WARD · v0.2.6 · ALTNET</span>
               <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontFamily: 'DM Mono, monospace', fontSize: 14, color: 'var(--green)', letterSpacing: 0 }}>
                 <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--green)', animation: 'pulse 2s infinite', display: 'inline-block' }} />
                 LIVE
@@ -142,7 +142,7 @@ export default function Home() {
 
             {/* Stats */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 8 }}>
-              {[{v:'317/317',l:'TESTS'},{v:'FALSE',l:'WARD_SIGNED'},{v:'3',l:'CONFIRMATION WINDOW'}].map(s => (
+              {[{v:'436/436',l:'TESTS'},{v:'FALSE',l:'WARD_SIGNED'},{v:'3',l:'CONFIRMATION WINDOW'}].map(s => (
                 <div key={s.l} style={{ background: 'rgba(0,0,0,0.2)', borderRadius: 8, padding: '10px 8px', textAlign: 'center' }}>
                   <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 16, fontWeight: 700, color: 'var(--gold)', marginBottom: 4 }}>{s.v}</div>
                   <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 14, color: 'var(--text-tertiary)', letterSpacing: 0 }}>{s.l}</div>
@@ -156,7 +156,7 @@ export default function Home() {
       {/* ── TICKER ── */}
       <div style={{ borderTop: '1px solid rgba(182,215,206,0.12)', borderBottom: '1px solid rgba(182,215,206,0.12)', background: '#edf4f1', padding: '16px 0', overflow: 'hidden' }}>
         <div style={{ display: 'flex', gap: 48, padding: '0 32px', flexWrap: 'wrap', justifyContent: 'center' }}>
-          {['Active on', 'XRPL Altnet', 'XRPLF Standards #474', 'PyPI · ward-protocol', 'Discord Community', '317 Tests Passing'].map((t, i) => (
+          {['Active on', 'XRPL Altnet', 'XRPLF Standards #474', 'PyPI · ward-protocol', 'Discord Community', '436 Tests Passing'].map((t, i) => (
             <span key={i} style={{ fontFamily: 'DM Mono, monospace', fontSize: 14, color: i % 2 === 0 ? '#78908b' : '#284047', letterSpacing: 0, whiteSpace: 'nowrap' }}>{t}</span>
           ))}
         </div>
