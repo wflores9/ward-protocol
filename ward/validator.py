@@ -160,22 +160,20 @@ class ClaimValidator:
                     return self._reject(5, f"Vault loss not positive: {vault_loss}")
                 logger.info("Step 5 passed")
 
-                breach_err, breached = await self._step6_check_coverage_breach(
-                    client, pool_address, defaulted_vault, min_balance=vault_loss
+                breach_err, breached = self._step6_check_coverage_breach(
+                    pool_info, defaulted_vault, min_balance=vault_loss
                 )
                 if breach_err and not breached:
                     return self._reject(6, breach_err)
                 logger.info("Step 6 passed")
 
-                step7_err = await self._step7_verify_nft_live(
-                    client, claimant_address, nft_token_id
-                )
+                step7_err = await self._step7_verify_nft_live(nft_data, nft_token_id)
                 if step7_err:
                     return self._reject(7, step7_err)
                 logger.info("Step 7 passed")
 
                 step8_err = await self._step8_verify_claimant_holds_nft(
-                    client, claimant_address, nft_token_id
+                    nft_data, claimant_address, nft_token_id
                 )
                 if step8_err:
                     return self._reject(8, step8_err)
@@ -370,25 +368,22 @@ class ClaimValidator:
             logger.error("step4 error: %s", exc)
             return False, 0
 
-    async def _step6_check_coverage_breach(
+    def _step6_check_coverage_breach(
         self,
-        client,
-        pool_address: str,
+        pool_info: Optional[dict],
         defaulted_vault: str,
         min_balance: int = 0,
     ) -> Tuple[Optional[str], bool]:
         """Return (error_str, breached_bool).
-
+        Uses pool_info already fetched in asyncio.gather — no duplicate RPC call.
         When min_balance > 0, also reject if usable drops are insufficient to
         cover the claimed amount even if the pool is technically solvent.
         """
         try:
-            resp = await client.request(AccountInfo(account=pool_address))
-            if not resp.is_successful():
+            if pool_info is None:
                 return "Pool AccountInfo failed", False
-            acct = resp.result.get("account_data", {})
-            balance = int(acct.get("Balance", 0))
-            owner_count = int(acct.get("OwnerCount", 0))
+            balance = int(pool_info.get("Balance", 0))
+            owner_count = int(pool_info.get("OwnerCount", 0))
             reserve = XRPL_BASE_RESERVE_DROPS + (owner_count * XRPL_OWNER_RESERVE_DROPS)
             usable = balance - reserve
             if usable < 0:
@@ -405,28 +400,26 @@ class ClaimValidator:
             return f"Coverage breach check failed: {exc}", False
 
     async def _step7_verify_nft_live(
-        self, client, claimant_address: str, nft_token_id: str
+        self, nft_data, nft_token_id: str
     ) -> Optional[str]:
-        """Step 7: Replay protection — verify NFT still exists (not burned)."""
-        nft = await self._step1_verify_nft_exists(
-            client, claimant_address, nft_token_id
-        )
-        if nft is None:
+        """Step 7: Replay protection — verify NFT still exists (not burned).
+        Uses nft_data already fetched in step 1 — no duplicate RPC call.
+        """
+        if nft_data is None:
             return (
                 f"Replay protection failed: NFT {nft_token_id[:16]}... has been burned"
             )
-        if nft is _WRONG_TAXON:
+        if nft_data is _WRONG_TAXON:
             return "Replay protection failed: NFT taxon mismatch"
         return None
 
     async def _step8_verify_claimant_holds_nft(
-        self, client, claimant_address: str, nft_token_id: str
+        self, nft_data, claimant_address: str, nft_token_id: str
     ) -> Optional[str]:
-        """Step 8: Verify claimant currently holds the NFT (not transferred)."""
-        nft = await self._step1_verify_nft_exists(
-            client, claimant_address, nft_token_id
-        )
-        if nft is None or nft is _WRONG_TAXON:
+        """Step 8: Verify claimant currently holds the NFT (not transferred).
+        Uses nft_data already fetched in step 1 — no duplicate RPC call.
+        """
+        if nft_data is None or nft_data is _WRONG_TAXON:
             return (
                 f"Claimant {claimant_address[:8]}... does not currently hold "
                 f"NFT {nft_token_id[:16]}..."

@@ -2682,12 +2682,7 @@ class TestCriticalBugFixes:
         """FIX 2: Step 7 rejects claim when NFT has been burned since step 1."""
         validator = ClaimValidator()
         client = MagicMock()
-        with patch.object(
-            validator, "_step1_verify_nft_exists", AsyncMock(return_value=None)
-        ):
-            err = await validator._step7_verify_nft_live(
-                client, VALID_ADDRESS, VALID_NFT_ID
-            )
+        err = await validator._step7_verify_nft_live(None, VALID_NFT_ID)
         assert err is not None, "Step 7 must return an error when NFT is burned"
         assert any(
             kw in err.lower() for kw in ("burned", "not found", "replay")
@@ -2698,12 +2693,7 @@ class TestCriticalBugFixes:
         """FIX 2: Step 8 rejects claim when claimant no longer holds NFT."""
         validator = ClaimValidator()
         client = MagicMock()
-        with patch.object(
-            validator, "_step1_verify_nft_exists", AsyncMock(return_value=None)
-        ):
-            err = await validator._step8_verify_claimant_holds_nft(
-                client, VALID_ADDRESS, VALID_NFT_ID
-            )
+        err = await validator._step8_verify_claimant_holds_nft(None, VALID_ADDRESS, VALID_NFT_ID)
         assert err is not None, "Step 8 must return an error when NFT not held"
         assert any(
             kw in err.lower() for kw in ("claimant", "hold", "does not")
@@ -2715,12 +2705,7 @@ class TestCriticalBugFixes:
         validator = ClaimValidator()
         client = MagicMock()
         nft_data = {"NFTokenID": VALID_NFT_ID, "NFTokenTaxon": WARD_POLICY_TAXON}
-        with patch.object(
-            validator, "_step1_verify_nft_exists", AsyncMock(return_value=nft_data)
-        ):
-            err = await validator._step7_verify_nft_live(
-                client, VALID_ADDRESS, VALID_NFT_ID
-            )
+        err = await validator._step7_verify_nft_live(nft_data, VALID_NFT_ID)
         assert err is None, f"Step 7 must pass when NFT is live; got: {err!r}"
 
     @pytest.mark.asyncio
@@ -2729,12 +2714,7 @@ class TestCriticalBugFixes:
         validator = ClaimValidator()
         client = MagicMock()
         nft_data = {"NFTokenID": VALID_NFT_ID, "NFTokenTaxon": WARD_POLICY_TAXON}
-        with patch.object(
-            validator, "_step1_verify_nft_exists", AsyncMock(return_value=nft_data)
-        ):
-            err = await validator._step8_verify_claimant_holds_nft(
-                client, VALID_ADDRESS, VALID_NFT_ID
-            )
+        err = await validator._step8_verify_claimant_holds_nft(nft_data, VALID_ADDRESS, VALID_NFT_ID)
         assert err is None, f"Step 8 must pass when claimant holds NFT; got: {err!r}"
 
     @pytest.mark.asyncio
