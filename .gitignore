@@ -84,3 +84,8 @@ node_modules/
 target/
 ward/target/
 coverage.xml
+
+artifacts/
+cache/
+*.bak.
+*.bak
