@@ -56,10 +56,10 @@ from ward.primitives import (
     get_ledger_close_time,
     make_preimage_condition,
     ripple_time_now,
+    validate_condition_hex,
     validate_drops,
     validate_drops_amount,
     validate_nft_id,
-    validate_condition_hex,
     validate_xrpl_address,
 )
 from ward.registry import (

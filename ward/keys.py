@@ -10,7 +10,9 @@ ward_signed = False — always.
 
 import asyncio
 import hashlib
+import json as _json
 import logging
+import os as _os
 import secrets
 import time
 from dataclasses import dataclass
@@ -36,9 +38,26 @@ class KeyRecord:
     vault_count: int = 0
 
 
-# In-memory key store — keyed by SHA-256 hash
-_key_store: dict[str, KeyRecord] = {}
+# Redis-backed key store — keyed by SHA-256 hash
+# Falls back to in-memory if Redis unavailable (dev/test only)
+
+_redis_keys = None
+try:
+    import redis as _redis_mod
+
+    _redis_keys = _redis_mod.Redis.from_url(
+        _os.getenv("WARD_REDIS_URL", "redis://localhost:6379/0"),
+        socket_connect_timeout=2,
+        socket_timeout=2,
+        decode_responses=True,
+    )
+    _redis_keys.ping()
+except Exception:
+    _redis_keys = None
+
+_key_store: dict[str, KeyRecord] = {}  # fallback only
 _store_lock = asyncio.Lock()
+_REDIS_KEY_PREFIX = "ward:key:"
 
 
 def _hash_key(raw_key: str) -> str:
@@ -103,7 +122,17 @@ async def verify_key(raw_key: str) -> Optional[KeyRecord]:
     key_hash = _hash_key(raw_key)
 
     async with _store_lock:
-        record = _key_store.get(key_hash)
+        record = None
+        if _redis_keys is not None:
+            try:
+                raw = _redis_keys.get(f"{_REDIS_KEY_PREFIX}{key_hash}")
+                if raw:
+                    data = _json.loads(raw)
+                    record = KeyRecord(**data)
+            except Exception:
+                pass
+        if record is None:
+            record = _key_store.get(key_hash)
         if record is None:
             return None
         if record.revoked:
@@ -120,7 +149,17 @@ async def revoke_key(raw_key: str) -> bool:
     """Revoke a key. Returns True if found and revoked."""
     key_hash = _hash_key(raw_key)
     async with _store_lock:
-        record = _key_store.get(key_hash)
+        record = None
+        if _redis_keys is not None:
+            try:
+                raw = _redis_keys.get(f"{_REDIS_KEY_PREFIX}{key_hash}")
+                if raw:
+                    data = _json.loads(raw)
+                    record = KeyRecord(**data)
+            except Exception:
+                pass
+        if record is None:
+            record = _key_store.get(key_hash)
         if record is None:
             return False
         record.revoked = True

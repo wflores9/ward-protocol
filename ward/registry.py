@@ -9,7 +9,9 @@ ward_signed = False — always.
 
 import asyncio
 import hashlib
+import json as _json
 import logging
+import os as _os
 from collections import defaultdict
 from typing import Optional
 
@@ -18,8 +20,26 @@ from ward.primitives import WardError, validate_xrpl_address
 
 logger = logging.getLogger(__name__)
 
-_registry: dict[str, list[VaultRegistration]] = defaultdict(list)
+_registry: dict[str, list[VaultRegistration]] = defaultdict(list)  # fallback only
 _registry_lock = asyncio.Lock()
+
+# Redis-backed registry
+
+_redis_registry = None
+try:
+    import redis as _redis_mod
+
+    _redis_registry = _redis_mod.Redis.from_url(
+        _os.getenv("WARD_REDIS_URL", "redis://localhost:6379/0"),
+        socket_connect_timeout=2,
+        socket_timeout=2,
+        decode_responses=True,
+    )
+    _redis_registry.ping()
+except Exception:
+    _redis_registry = None
+
+_REDIS_REG_PREFIX = "ward:registry:"
 
 _VALID_TIERS = frozenset({"starter", "standard", "enterprise"})
 
@@ -50,7 +70,16 @@ async def register_vault(
     key_hash = _hash_key(institution_key)
 
     async with _registry_lock:
-        existing = _registry[key_hash]
+        if _redis_registry is not None:
+            try:
+                raw = _redis_registry.get(f"{_REDIS_REG_PREFIX}{key_hash}")
+                existing = _json.loads(raw) if raw else []
+            except Exception:
+                existing = list(_registry[key_hash])
+        else:
+            existing = list(_registry[key_hash])
+        # shadow variable for rest of function
+        _registry[key_hash] = existing  # type: ignore
         for existing_entry in existing:
             if existing_entry["vault_address"] == vault_address:
                 raise WardError(
@@ -65,6 +94,14 @@ async def register_vault(
             "label": label or vault_address[:8] + "...",
         }
         _registry[key_hash].append(entry)
+        if _redis_registry is not None:
+            try:
+                _redis_registry.set(
+                    f"{_REDIS_REG_PREFIX}{key_hash}",
+                    _json.dumps(_registry[key_hash]),
+                )
+            except Exception:
+                pass
         logger.info(
             "Vault registered: %s (tier=%s, institution=%s...)",
             vault_address,
