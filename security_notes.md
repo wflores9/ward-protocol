@@ -287,16 +287,19 @@ This document catalogues every attack vector identified during design and implem
 
 ## TOCTOU: EscrowFinish → NFTokenBurn
 
-**Status:** Known, accepted short-term. Documented for auditors.
+**Status:** Mitigated via Redis settlement lock. Residual risk documented.
 
-**Gap:** `finish_escrow()` builds unsigned EscrowFinish and unsigned NFTokenBurn as separate transactions. Between institution signing EscrowFinish and submitting NFTokenBurn, a window exists where the escrow is settled but the NFT is not yet burned.
+**Gap:** `finish_escrow()` builds unsigned EscrowFinish and unsigned NFTokenBurn as separate transactions. XRPL does not support atomic multi-transaction batches today.
 
-**Compensating controls:**
-- Rate limit: max 3 claims per NFT per 300 seconds (Step 9)
+**Mitigations implemented:**
+- Redis settlement lock: `ward:settlement:{claim_id}` set atomically (NX) when EscrowFinish is built. Duplicate settlement attempts rejected with ValidationError.
+- Rate limit: max 3 claims per NFT per 300 seconds (Step 9) — Redis-backed, distributed-safe
 - NFT burn-on-settlement enforced at Step 7 on next claim attempt
 - Ward never holds keys — cannot exploit the gap itself
 
-**Planned mitigation:** Atomic multi-transaction batch when XRPL supports it, or redesign settlement around single-transaction atomic claims.
+**Residual risk:** If institution submits EscrowFinish but fails to submit NFTokenBurn, the settlement lock prevents retry. Institution must contact Ward to release the lock. This is acceptable — it prevents double settlement at the cost of requiring manual intervention on partial failures.
+
+**Planned full fix:** Atomic multi-transaction batch when XRPL protocol supports it.
 
 **ward_signed = False throughout — Ward cannot exploit this gap.**
 

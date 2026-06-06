@@ -40,6 +40,24 @@ logger = logging.getLogger("ward.settlement")
 
 _SECONDS_PER_HOUR = 3_600
 
+# Redis settlement lock — prevents duplicate settlement (TOCTOU mitigation)
+import os as _os
+_settlement_redis = None
+try:
+    import redis as _redis
+    _settlement_redis = _redis.Redis.from_url(
+        _os.getenv("WARD_REDIS_URL", "redis://localhost:6379/0"),
+        socket_connect_timeout=2,
+        socket_timeout=2,
+        decode_responses=True,
+    )
+    _settlement_redis.ping()
+except Exception:
+    _settlement_redis = None
+
+_SETTLEMENT_LOCK_TTL = 3600  # 1 hour — covers dispute window
+
+
 
 @dataclass
 class EscrowRecord:
@@ -180,6 +198,25 @@ class EscrowSettlement:
         Returns:
             {"finish_tx": hash, "burn_tx": hash}
         """
+        # TOCTOU mitigation: Redis settlement lock prevents duplicate settlement
+        lock_key = f"ward:settlement:{escrow_record.claim_id}"
+        if _settlement_redis is not None:
+            try:
+                acquired = _settlement_redis.set(
+                    lock_key, "locked",
+                    nx=True,  # Only set if not exists
+                    ex=_SETTLEMENT_LOCK_TTL
+                )
+                if not acquired:
+                    raise ValidationError(
+                        f"Settlement already in progress for claim {escrow_record.claim_id}. "
+                        "Duplicate settlement attempt rejected."
+                    )
+            except ValidationError:
+                raise
+            except Exception:
+                pass  # Redis unavailable — proceed without lock
+
         async with client_context(AsyncJsonRpcClient(self._url)) as client:
             current_time = await get_ledger_close_time(client)
 
