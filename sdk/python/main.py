@@ -920,6 +920,12 @@ async def dashboard_vault_health(vault_id: str):
     If XLS-66 ledger objects are not available on the target network, this returns XRPL
     account-level data plus a clear note.
     """
+    import re
+    if not re.match(r"^r[1-9A-HJ-NP-Za-km-z]{24,34}$", vault_id):
+        raise HTTPException(
+            status_code=422,
+            detail={"error": "INVALID_ADDRESS", "message": "vault_id must be a valid XRPL r-address", "ward_signed": False}
+        )
     client = AsyncJsonRpcClient(XRPL_RPC)
     try:
         resp = await client.request(AccountInfo(account=vault_id, ledger_index="validated"))

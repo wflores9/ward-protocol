@@ -32,7 +32,7 @@ def test_purchase_requires_auth():
         },
     )
     assert resp.status_code == 401
-    assert resp.json()["ward_signed"] is False
+    assert resp.json()["detail"]["ward_signed"] is False
 
 
 def test_validate_requires_auth():
@@ -47,13 +47,13 @@ def test_validate_requires_auth():
         },
     )
     assert resp.status_code == 401
-    assert resp.json()["ward_signed"] is False
+    assert resp.json()["detail"]["ward_signed"] is False
 
 
 def test_invalid_vault_address_rejected():
     resp = client.get("/dashboard/vault/not-a-real-address/health")
     assert resp.status_code == 422
-    assert resp.json()["ward_signed"] is False
+    assert resp.json()["detail"]["ward_signed"] is False
 
 
 def test_404_includes_ward_signed():

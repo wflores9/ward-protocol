@@ -49,6 +49,8 @@ jobs:
             --cov=ward \
             --cov-report=xml \
             --cov-report=term-missing
+          pip install fastapi httpx
+          pytest sdk/python/tests/ -v --tb=short
 
       - name: Upload coverage to Codecov
         if: matrix.python-version == '3.11'

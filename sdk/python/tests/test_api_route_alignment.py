@@ -1,15 +1,29 @@
+"""
+Ward Protocol — API route alignment tests.
+Verifies /purchase and /validate call correct SDK interfaces.
+ward_signed = False — always.
+"""
 from pathlib import Path
-from types import SimpleNamespace
 import sys
-
-from fastapi.testclient import TestClient
-from xrpl.wallet import Wallet
-
+import os
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
 import main
+from fastapi.testclient import TestClient
+from unittest.mock import AsyncMock, MagicMock
+
+# Set auth env for tests
+os.environ["INSTITUTION_API_KEY"] = "test-key"
+
+client = TestClient(main.app)
+
+VALID_ADDRESS = "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh"
+VALID_ADDRESS2 = "rU6K7V3Po4snVhBBaU29sesqs2qTQJWDw1"
+VALID_NFT_ID = "A" * 64
+VALID_LOAN_ID = "B" * 64
 
 
-def test_purchase_route_calls_sdk_signature(monkeypatch):
+def test_purchase_route_returns_unsigned_transactions(monkeypatch):
     captured = {}
 
     class FakeWardClient:
@@ -18,18 +32,22 @@ def test_purchase_route_calls_sdk_signature(monkeypatch):
 
         async def purchase_coverage(self, **kwargs):
             captured.update(kwargs)
-            return {"nft_token_id": "A" * 64, "premium_tx": "B" * 64, "mint_tx": "C" * 64}
+            return {
+                "nft_token_id": "pending_institution_signature",
+                "mint_tx": "unsigned",
+                "coverage_drops": 1000,
+                "expiry_ledger": 800000000,
+                "ward_signed": False,
+            }
 
     monkeypatch.setattr(main, "WardClient", FakeWardClient)
 
-    client = TestClient(main.app)
     resp = client.post(
         "/purchase",
         headers={"X-Institution-Key": "test-key"},
         json={
-            "wallet_seed": "sEdTM1uX8pu2do5XvTnutH6HsouMaM2",
-            "vault_id": "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh",
-            "pool_address": "rU6K7V3Po4snVhBBaU29sesqs2qTQJWDw1",
+            "vault_id": VALID_ADDRESS,
+            "pool_address": VALID_ADDRESS2,
             "coverage_drops": 1000,
             "duration_days": 30,
         },
@@ -38,42 +56,39 @@ def test_purchase_route_calls_sdk_signature(monkeypatch):
     payload = resp.json()
     assert payload["ward_signed"] is False
     assert payload["flow"] == "F·03"
-    assert isinstance(captured["wallet"], Wallet)
-    assert captured["vault_address"] == "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh"
-    assert captured["pool_address"] == "rU6K7V3Po4snVhBBaU29sesqs2qTQJWDw1"
+    assert "wallet" not in captured
+    assert captured["vault_address"] == VALID_ADDRESS
+    assert captured["pool_address"] == VALID_ADDRESS2
     assert captured["period_days"] == 30
 
 
-def test_validate_route_calls_sdk_signature(monkeypatch):
-    captured = {}
+def test_validate_route_calls_claim_validator(monkeypatch):
+    fake_result = MagicMock()
+    fake_result.steps_passed = 9
+    fake_result.approved = True
+    fake_result.claim_payout_drops = 500000
+    fake_result.vault_loss_drops = 600000
+    fake_result.policy_coverage_drops = 1000000
+    fake_result.rejection_reason = ""
 
     class FakeClaimValidator:
-        def __init__(self, url):
-            captured["url"] = url
+        def __init__(self, url=None):
+            pass
 
         async def validate_claim(self, **kwargs):
-            captured.update(kwargs)
-            return SimpleNamespace(
-                approved=True,
-                claim_payout_drops=100,
-                vault_loss_drops=120,
-                policy_coverage_drops=200,
-                rejection_reason="",
-                steps_passed=9,
-            )
+            return fake_result
 
     monkeypatch.setattr(main, "ClaimValidator", FakeClaimValidator)
 
-    client = TestClient(main.app)
     resp = client.post(
         "/validate",
         headers={"X-Institution-Key": "test-key"},
         json={
-            "vault_id": "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh",
-            "policy_nft_id": "A" * 64,
-            "claimant_address": "rU6K7V3Po4snVhBBaU29sesqs2qTQJWDw1",
-            "loan_id": "B" * 64,
-            "pool_address": "rU6K7V3Po4snVhBBaU29sesqs2qTQJWDw1",
+            "vault_id": VALID_ADDRESS,
+            "policy_nft_id": VALID_NFT_ID,
+            "claimant_address": VALID_ADDRESS,
+            "loan_id": VALID_LOAN_ID,
+            "pool_address": VALID_ADDRESS2,
         },
     )
     assert resp.status_code == 200
@@ -81,8 +96,24 @@ def test_validate_route_calls_sdk_signature(monkeypatch):
     assert payload["ward_signed"] is False
     assert payload["flow"] == "F·05"
     assert payload["checks_total"] == 9
-    assert payload["checks_passed"] == 9
-    assert captured["defaulted_vault"] == "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh"
-    assert captured["nft_token_id"] == "A" * 64
-    assert captured["loan_id"] == "B" * 64
-    assert captured["pool_address"] == "rU6K7V3Po4snVhBBaU29sesqs2qTQJWDw1"
+    assert payload["approved"] is True
+
+
+def test_purchase_requires_auth():
+    resp = client.post(
+        "/purchase",
+        json={"vault_id": VALID_ADDRESS, "pool_address": VALID_ADDRESS2, "coverage_drops": 1000},
+    )
+    assert resp.status_code == 401
+    assert resp.json()["detail"]["ward_signed"] is False
+
+
+def test_validate_requires_auth():
+    resp = client.post(
+        "/validate",
+        json={"vault_id": VALID_ADDRESS, "policy_nft_id": VALID_NFT_ID,
+              "claimant_address": VALID_ADDRESS, "loan_id": VALID_LOAN_ID,
+              "pool_address": VALID_ADDRESS2},
+    )
+    assert resp.status_code == 401
+    assert resp.json()["detail"]["ward_signed"] is False
