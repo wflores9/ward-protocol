@@ -16,18 +16,20 @@
     "xrpl-connect": "^0.8.2"
   },
   "devDependencies": {
-    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
-    "dotenv": "^16.4.5",
-    "hardhat": "^2.22.0",
+    "@nomicfoundation/hardhat-ethers": "^4.0.13",
     "@types/node": "^20.12.7",
     "@types/react": "^18.3.3",
     "@typescript-eslint/eslint-plugin": "^8.12.2",
     "@typescript-eslint/parser": "^8.12.2",
     "autoprefixer": "^10.4.19",
+    "dotenv": "^16.4.5",
     "eslint": "^9.14.0",
     "eslint-config-next": "^16.2.4",
+    "ethers": "^6.16.0",
+    "hardhat": "^3.0.0",
     "postcss": "^8.4.38",
     "tailwindcss": "^3.4.4",
     "typescript": "^5.6.3"
-  }
+  },
+  "type": "module"
 }
