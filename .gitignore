@@ -90,3 +90,5 @@ cache/
 *.bak.
 *.bak
 .envgrep
+.npmrc
+sdk/typescript/.npmrc
