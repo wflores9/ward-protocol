@@ -16,7 +16,7 @@ import logging
 import time
 from collections import defaultdict, deque
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, List, Optional, Set
+from typing import Any, Callable, Dict, List, Optional, Set, cast
 
 from xrpl.asyncio.clients import AsyncWebsocketClient
 from xrpl.models import LedgerEntry, Subscribe
@@ -220,7 +220,7 @@ class VaultMonitor:
 
     async def _subscribe(self, client: AsyncWebsocketClient) -> None:
         all_addresses = list(self._vault_addresses | self._broker_addresses)
-        sub = Subscribe(accounts=all_addresses, streams=["ledger"])
+        sub = Subscribe(accounts=all_addresses, streams=cast(Any, ["ledger"]))
         await client.send(sub)
 
     # ------------------------------------------------------------------

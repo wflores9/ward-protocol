@@ -19,7 +19,6 @@ from xrpl.asyncio.clients import AsyncJsonRpcClient
 from xrpl.models import AccountInfo, AccountNFTs, LedgerEntry
 from xrpl.models.requests import AccountTx
 
-from ward.coverage import has_matching_premium_payment
 from ward.constants import (
     DEFAULT_TESTNET_URL,
     LSF_LOAN_DEFAULT,
@@ -28,6 +27,7 @@ from ward.constants import (
     XRPL_BASE_RESERVE_DROPS,
     XRPL_OWNER_RESERVE_DROPS,
 )
+from ward.coverage import has_matching_premium_payment
 from ward.primitives import (
     LedgerError,
     ValidationError,
@@ -132,7 +132,9 @@ class ClaimValidator:
                 expiry_err = await self._step2_check_expiry(client, metadata)
                 if expiry_err:
                     return self._reject(2, expiry_err)
-                coverage_drops = int(metadata.get("coverage_drops") or metadata.get("c") or 0)
+                coverage_drops = int(
+                    metadata.get("coverage_drops") or metadata.get("c") or 0
+                )
                 premium_err = await self._step2_verify_premium_payment(
                     client=client,
                     claimant_address=claimant_address,

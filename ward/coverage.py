@@ -42,30 +42,6 @@ def _extract_coverage_from_tx(tx: dict) -> Optional[tuple[str, int]]:
     if tx_data.get("TransactionType") != "Payment":
         return None
 
-
-def has_matching_premium_payment(
-        tx: dict,
-        *,
-        claimant_address: str,
-        pool_address: str,
-        nft_token_id: str,
-        coverage_drops: int,
-) -> bool:
-        """Return True when tx is the premium payment for the specified policy."""
-        tx_data = tx.get("tx_json") or tx.get("tx") or tx
-        if tx_data.get("TransactionType") != "Payment":
-            return False
-        if tx_data.get("Account") != claimant_address:
-            return False
-        if tx_data.get("Destination") != pool_address:
-            return False
-
-        amount = tx_data.get("Amount")
-        if not isinstance(amount, str) or not amount.isdigit() or int(amount) <= 0:
-            return False
-
-        return _extract_coverage_from_tx(tx_data) == (nft_token_id, coverage_drops)
-
     memos = tx_data.get("Memos", [])
     for memo_wrapper in memos:
         memo = memo_wrapper.get("Memo", {})
@@ -89,6 +65,30 @@ def has_matching_premium_payment(
             continue
 
     return None
+
+
+def has_matching_premium_payment(
+    tx: dict,
+    *,
+    claimant_address: str,
+    pool_address: str,
+    nft_token_id: str,
+    coverage_drops: int,
+) -> bool:
+    """Return True when tx is the premium payment for the specified policy."""
+    tx_data = tx.get("tx_json") or tx.get("tx") or tx
+    if tx_data.get("TransactionType") != "Payment":
+        return False
+    if tx_data.get("Account") != claimant_address:
+        return False
+    if tx_data.get("Destination") != pool_address:
+        return False
+
+    amount = tx_data.get("Amount")
+    if not isinstance(amount, str) or not amount.isdigit() or int(amount) <= 0:
+        return False
+
+    return _extract_coverage_from_tx(tx) == (nft_token_id, coverage_drops)
 
 
 async def get_active_coverage_drops(

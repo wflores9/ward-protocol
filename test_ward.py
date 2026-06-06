@@ -22,25 +22,23 @@ Run all tests (requires testnet access):
 
 from __future__ import annotations
 
-
 import asyncio
 import hashlib
 import json
 import os
 import time
-from contextlib import asynccontextmanager
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
+from typing import List
 from unittest.mock import AsyncMock, MagicMock, patch
 
-
 import pytest
+from xrpl.models import EscrowFinish
 
+from ward.client import WardClient
 
 # ---------------------------------------------------------------------------
 # Ward SDK imports  (fix #8: all from ward.* modules)
 # ---------------------------------------------------------------------------
-
 from ward.constants import (
     CLAIM_RATE_LIMIT_MAX,
     CLAIM_RATE_LIMIT_WINDOW_S,
@@ -49,6 +47,7 @@ from ward.constants import (
     VALID_KYC_TYPES,
     WARD_POLICY_TAXON,
 )
+from ward.pool import PoolHealth, PoolHealthMonitor
 from ward.primitives import (
     LedgerError,
     SecurityError,
@@ -61,14 +60,11 @@ from ward.primitives import (
     validate_nft_id,
     validate_xrpl_address,
 )
-from ward.client import WardClient
-from ward.vault_monitor import VaultMonitor
-from ward.validator import ClaimValidator, ValidationResult
-from ward.settlement import EscrowRecord, EscrowSettlement
 from ward.resolver import Resolver
-from ward.pool import PoolHealth, PoolHealthMonitor
+from ward.settlement import EscrowRecord, EscrowSettlement
 from ward.tx_builder import TxBuilder
-from xrpl.models import EscrowFinish
+from ward.validator import ClaimValidator, ValidationResult
+from ward.vault_monitor import VaultMonitor
 
 # ---------------------------------------------------------------------------
 # Backward-compat aliases (old test constants mapped to new names)
@@ -725,9 +721,12 @@ class TestClaimValidatorAdversarial:
         pool_info   = {"account_data": {"Balance": str(pool_balance_drops)}}
 
         async def mock_request(req):
-            from xrpl.models import AccountNFTs as _ANFTs, AccountInfo as _AI
-            from xrpl.models import ServerInfo as _SI, LedgerEntry as _LE
+            from xrpl.models import AccountInfo as _AI
+            from xrpl.models import AccountNFTs as _ANFTs
+            from xrpl.models import LedgerEntry as _LE
+            from xrpl.models import ServerInfo as _SI
             from xrpl.models.requests import AccountTx as _ATx
+
             from ward.coverage import build_premium_memo
 
             if isinstance(req, _ANFTs):
@@ -745,7 +744,7 @@ class TestClaimValidatorAdversarial:
                             "tx_json": {
                                 "TransactionType": "Payment",
                                 "Account": VALID_ADDRESS,
-                                "Destination": VALID_ADDRESS2,
+                                "Destination": getattr(req, "account", VALID_ADDRESS2),
                                 "Amount": "1000",
                                 "Memos": [build_premium_memo(VALID_NFT_ID, coverage_drops)],
                             }
@@ -1287,6 +1286,7 @@ class TestPoolHealthMonitorAdvanced:
         async def mock_request(req):
             from xrpl.models import AccountInfo as _AI
             from xrpl.models.requests import AccountTx as _ATx
+
             from ward.coverage import build_premium_memo
             if isinstance(req, _AI):
                 return _make_success_response({
@@ -1785,7 +1785,7 @@ class TestPrimitivesAdvanced:
     @pytest.mark.asyncio
     async def test_submit_with_retry_raises_on_non_retryable(self):
         """submit_with_retry raises LedgerError immediately on tecNO_DST."""
-        from ward.primitives import submit_with_retry, LedgerError
+        from ward.primitives import LedgerError, submit_with_retry
 
         call_count = 0
 
@@ -1882,8 +1882,7 @@ class TestPolicyForgery:
 
     def test_forgery_invalid_taxon_rejected(self):
         """ClaimValidator rejects NFTs with wrong taxon (sentinel _WRONG_TAXON path)."""
-        from ward.validator import ClaimValidator, _WRONG_TAXON
-        from ward.constants import WARD_POLICY_TAXON
+        from ward.validator import ClaimValidator
 
         nft = {"NFTokenID": "A" * 64, "NFTokenTaxon": 9999, "URI": ""}
         # Simulate step 1 finding NFT with wrong taxon
@@ -1909,11 +1908,11 @@ class TestPolicyForgery:
 
     def test_forgery_wrong_flags_rejected(self):
         """Policy NFT must have TF_BURNABLE set and TF_TRANSFERABLE absent."""
-        from ward.constants import TF_BURNABLE, TF_TRANSFERABLE
-        from ward.client import WardClient
 
         # Verify WardClient.purchase_coverage uses TF_BURNABLE only (no TF_TRANSFERABLE)
-        import inspect, ast
+        import inspect
+
+        from ward.client import WardClient
         src = inspect.getsource(WardClient.purchase_coverage)
         assert "TF_BURNABLE" in src, "purchase_coverage must set TF_BURNABLE"
         assert "TF_TRANSFERABLE" not in src, (
@@ -1950,8 +1949,8 @@ class TestReplayProtection:
 
     def test_replay_rate_limit_enforced(self):
         """check_rate_limit raises after CLAIM_RATE_LIMIT_MAX attempts on the same NFT."""
-        from ward.primitives import check_rate_limit, _rate_limit_windows
-        import collections
+
+        from ward.primitives import _rate_limit_windows, check_rate_limit
 
         unique_nft = "B" * 64  # use a unique ID to avoid cross-test pollution
         # Clear any prior state for this NFT
@@ -1974,7 +1973,7 @@ class TestPolicyTransfer:
 
     def test_policy_nft_not_transferable(self):
         """NFTokenMint must NOT include tfTransferable flag."""
-        from ward.constants import TF_BURNABLE, TF_TRANSFERABLE, WARD_POLICY_TAXON
+        from ward.constants import TF_BURNABLE, TF_TRANSFERABLE
         # Ward only sets TF_BURNABLE — verify TF_TRANSFERABLE is not ORed in
         flags_used = TF_BURNABLE
         assert (flags_used & TF_TRANSFERABLE) == 0, (
@@ -1983,7 +1982,7 @@ class TestPolicyTransfer:
 
     def test_policy_flags_explicit(self):
         """TF_TRANSFERABLE constant is defined so its absence can be asserted."""
-        from ward.constants import TF_TRANSFERABLE, TF_BURNABLE
+        from ward.constants import TF_BURNABLE, TF_TRANSFERABLE
         assert TF_TRANSFERABLE == 0x00000008
         assert TF_BURNABLE     == 0x00000001
         # They are distinct flags
@@ -2005,7 +2004,7 @@ class TestSignalManipulation:
         After ledger_closed it re-fetches via independent RPC call.
         _verify_default_on_chain is always called — never short-circuited by event data.
         """
-        from ward.vault_monitor import VaultMonitor, DefaultSignal, VerifiedDefault
+        from ward.vault_monitor import DefaultSignal, VaultMonitor, VerifiedDefault
 
         monitor = VaultMonitor(vault_addresses=[VALID_ADDRESS], confirm_count=1)
         fired = []
@@ -2042,8 +2041,9 @@ class TestSignalManipulation:
     @pytest.mark.asyncio
     async def test_monitor_verifies_via_rpc(self):
         """_verify_default_on_chain uses LedgerEntry (independent RPC), not event data."""
-        from ward.vault_monitor import VaultMonitor, DefaultSignal
         from xrpl.models import LedgerEntry
+
+        from ward.vault_monitor import DefaultSignal, VaultMonitor
 
         monitor = VaultMonitor(vault_addresses=[VALID_ADDRESS], confirm_count=1)
         signal  = DefaultSignal(
@@ -2083,6 +2083,7 @@ class TestClockManipulation:
         never time.time() or datetime.now().
         """
         import inspect
+
         from ward.validator import ClaimValidator
 
         src = inspect.getsource(ClaimValidator._step2_check_expiry)
@@ -2120,6 +2121,7 @@ class TestFrontRunning:
     def test_settlement_never_accepts_preimage(self):
         """EscrowSettlement.create_claim_escrow signature must not accept a preimage param."""
         import inspect
+
         from ward.settlement import EscrowSettlement
         sig = inspect.signature(EscrowSettlement.create_claim_escrow)
         assert "preimage" not in sig.parameters, (
@@ -2129,8 +2131,9 @@ class TestFrontRunning:
 
     def test_only_condition_hex_transmitted(self):
         """EscrowRecord must not have a preimage field."""
-        from ward.settlement import EscrowRecord
         import dataclasses
+
+        from ward.settlement import EscrowRecord
         field_names = {f.name for f in dataclasses.fields(EscrowRecord)}
         assert "preimage" not in field_names, (
             "EscrowRecord must not store a preimage — only condition_hex"
@@ -2184,7 +2187,7 @@ class TestPoolDrainage:
     @pytest.mark.asyncio
     async def test_pool_drainage_blocks_new_policies(self):
         """is_minting_allowed returns False when pool is in 'high' risk tier."""
-        from ward.pool import PoolHealthMonitor, PoolHealth
+        from ward.pool import PoolHealth, PoolHealthMonitor
 
         health = PoolHealth(
             pool_address=VALID_ADDRESS,
@@ -2215,6 +2218,7 @@ class TestPoolDrainage:
         async def mock_request(req):
             from xrpl.models import AccountInfo as _AI
             from xrpl.models.requests import AccountTx as _ATx
+
             from ward.coverage import build_premium_memo
             if isinstance(req, _AI):
                 return _make_success_response({
@@ -2250,6 +2254,7 @@ class TestCoverageRatioManipulation:
         independent of VaultMonitor's cached value.
         """
         import inspect
+
         from ward.validator import ClaimValidator
         src = inspect.getsource(ClaimValidator._step6_check_coverage_breach)
         # Must issue AccountInfo request (independent RPC)
@@ -2317,12 +2322,11 @@ class TestKeyExfiltration:
 
     def test_ward_has_no_wallet_field(self):
         """No Ward module-level class stores a wallet as an instance attribute."""
+
         from ward.client import WardClient
-        from ward.validator import ClaimValidator
-        from ward.settlement import EscrowSettlement
-        from ward.vault_monitor import VaultMonitor
         from ward.pool import PoolHealthMonitor
-        import dataclasses
+        from ward.settlement import EscrowSettlement
+        from ward.validator import ClaimValidator
 
         for cls in (WardClient, ClaimValidator, EscrowSettlement, PoolHealthMonitor):
             instance = cls.__new__(cls)
@@ -2343,8 +2347,8 @@ class TestRateLimiting:
 
     def test_rate_limit_3_attempts_per_5min(self):
         """check_rate_limit allows exactly CLAIM_RATE_LIMIT_MAX calls, then raises."""
-        from ward.primitives import check_rate_limit, _rate_limit_windows
         from ward.constants import CLAIM_RATE_LIMIT_MAX
+        from ward.primitives import _rate_limit_windows, check_rate_limit
 
         nft_id = "C" * 64
         _rate_limit_windows.pop(nft_id, None)
@@ -2358,8 +2362,9 @@ class TestRateLimiting:
     def test_rate_limit_resets_after_window(self):
         """After CLAIM_RATE_LIMIT_WINDOW_S elapses, the window resets."""
         import time as _time
-        from ward.primitives import check_rate_limit, _rate_limit_windows
+
         from ward.constants import CLAIM_RATE_LIMIT_MAX, CLAIM_RATE_LIMIT_WINDOW_S
+        from ward.primitives import _rate_limit_windows, check_rate_limit
 
         nft_id = "D" * 64
         _rate_limit_windows.pop(nft_id, None)
@@ -2377,8 +2382,8 @@ class TestRateLimiting:
 
     def test_rate_limit_per_nft_not_per_address(self):
         """Rate limit is keyed per NFT token ID, not per claimant address."""
-        from ward.primitives import check_rate_limit, _rate_limit_windows
         from ward.constants import CLAIM_RATE_LIMIT_MAX
+        from ward.primitives import _rate_limit_windows, check_rate_limit
 
         nft_a = "E" * 64
         nft_b = "F" * 64
@@ -2395,8 +2400,9 @@ class TestRateLimiting:
         """FIX #8: accessing an NFT with all-expired timestamps evicts stale entries."""
         import collections
         import time as _time
-        from ward.primitives import check_rate_limit, _rate_limit_windows
+
         from ward.constants import CLAIM_RATE_LIMIT_WINDOW_S
+        from ward.primitives import _rate_limit_windows, check_rate_limit
 
         nft_id = "2A" * 32
         _rate_limit_windows.pop(nft_id, None)
@@ -2438,7 +2444,7 @@ class TestNFTTaxonSpoofing:
 
     def test_taxon_spoofing_different_taxon(self):
         """WARD_POLICY_TAXON is a hard constant — not configurable by callers."""
-        from ward.constants import WARD_POLICY_TAXON, WARD_CREDENTIAL_TAXON
+        from ward.constants import WARD_CREDENTIAL_TAXON, WARD_POLICY_TAXON
         assert WARD_POLICY_TAXON == 281,    "Policy taxon must be 281"
         assert WARD_CREDENTIAL_TAXON == 282, "Credential taxon must be 282"
         assert WARD_POLICY_TAXON != WARD_CREDENTIAL_TAXON
@@ -2475,8 +2481,8 @@ class TestDropsUnitConfusion:
 
     def test_drops_overflow_rejected(self):
         """validate_drops must reject amounts exceeding the XRP max supply."""
-        from ward.primitives import validate_drops
         from ward.constants import XRP_MAX_DROPS
+        from ward.primitives import validate_drops
         with pytest.raises(ValidationError, match="max XRP supply"):
             validate_drops(XRP_MAX_DROPS + 1)
 
@@ -2487,8 +2493,8 @@ class TestDropsUnitConfusion:
 
     def test_max_drops_accepted(self):
         """validate_drops allows exactly XRP_MAX_DROPS."""
-        from ward.primitives import validate_drops
         from ward.constants import XRP_MAX_DROPS
+        from ward.primitives import validate_drops
         validate_drops(XRP_MAX_DROPS)   # must not raise
 
     def test_bool_rejected(self):
@@ -2519,6 +2525,7 @@ class TestSilentNetworkFailure:
         times out (i.e., no message arrives within MONITOR_HEARTBEAT_TIMEOUT_S).
         """
         import asyncio as _aio
+
         from ward.vault_monitor import VaultMonitor
 
         monitor = VaultMonitor(vault_addresses=[VALID_ADDRESS])
@@ -2547,6 +2554,7 @@ class TestSilentNetworkFailure:
         _run_with_heartbeat raising TimeoutError).
         """
         import asyncio as _aio
+
         from ward.vault_monitor import VaultMonitor
 
         monitor = VaultMonitor(vault_addresses=[VALID_ADDRESS])
@@ -2593,8 +2601,8 @@ class TestCriticalBugFixes:
     @pytest.mark.asyncio
     async def test_finish_escrow_burn_uses_claimant_wallet(self):
         """FIX 1: NFTokenBurn account must be claimant_wallet, not pool_wallet."""
-        from xrpl.wallet import Wallet as _Wallet
         from xrpl.models import NFTokenBurn as _NFTokenBurn
+        from xrpl.wallet import Wallet as _Wallet
 
         burn_wallet_addresses: List[str] = []
         fake_resp = MagicMock()
@@ -2810,6 +2818,7 @@ class TestPolicyRegistryFixes:
         async def mock_request(req):
             from xrpl.models import AccountInfo as _AI
             from xrpl.models.requests import AccountTx as _ATx
+
             from ward.coverage import build_premium_memo
             if isinstance(req, _AI):
                 return _make_success_response({
@@ -2916,7 +2925,7 @@ class TestMultiVaultRegistry:
 
     async def test_register_single_vault(self):
         """Institution can register a vault."""
-        from ward.registry import register_vault, get_vaults
+        from ward.registry import get_vaults, register_vault
         await register_vault("key_001", self.vault_a)
         vaults = await get_vaults("key_001")
         assert len(vaults) == 1
@@ -2924,7 +2933,7 @@ class TestMultiVaultRegistry:
 
     async def test_register_multiple_vaults(self):
         """Institution can register multiple vaults under one key."""
-        from ward.registry import register_vault, get_vaults
+        from ward.registry import get_vaults, register_vault
         await register_vault("key_001", self.vault_a)
         await register_vault("key_001", self.vault_b)
         await register_vault("key_001", self.vault_c)
@@ -2933,7 +2942,7 @@ class TestMultiVaultRegistry:
 
     async def test_different_institutions_isolated(self):
         """Two institution keys cannot see each other's vaults."""
-        from ward.registry import register_vault, get_vaults
+        from ward.registry import get_vaults, register_vault
         await register_vault("key_A", self.vault_a)
         await register_vault("key_B", self.vault_b)
         vaults_a = await get_vaults("key_A")
@@ -2951,7 +2960,7 @@ class TestMultiVaultRegistry:
 
     async def test_deregister_vault(self):
         """Institution can remove a vault from their registry."""
-        from ward.registry import register_vault, get_vaults, deregister_vault
+        from ward.registry import deregister_vault, get_vaults, register_vault
         await register_vault("key_001", self.vault_a)
         await register_vault("key_001", self.vault_b)
         await deregister_vault("key_001", self.vault_a)
@@ -2992,7 +3001,7 @@ class TestMultiVaultRegistry:
 
     async def test_get_vault_returns_entry_when_present(self):
         """get_vault returns the correct registration entry."""
-        from ward.registry import register_vault, get_vault
+        from ward.registry import get_vault, register_vault
         await register_vault("key_001", self.vault_a, tier="standard", label="Main Vault")
         entry = await get_vault("key_001", self.vault_a)
         assert entry is not None
@@ -3018,25 +3027,25 @@ class TestWebhookNotifications:
 
     async def test_threshold_crossing_warning(self):
         """Crossing below 2.0 from above fires HEALTH_WARNING."""
-        from ward.webhooks import determine_event, WebhookEvent
+        from ward.webhooks import WebhookEvent, determine_event
         event = determine_event(1.9, 2.5)
         assert event == WebhookEvent.HEALTH_WARNING
 
     async def test_threshold_crossing_elevated(self):
         """Crossing below 1.75 fires HEALTH_ELEVATED (not WARNING)."""
-        from ward.webhooks import determine_event, WebhookEvent
+        from ward.webhooks import WebhookEvent, determine_event
         event = determine_event(1.7, 1.8)
         assert event == WebhookEvent.HEALTH_ELEVATED
 
     async def test_threshold_crossing_critical(self):
         """Crossing below 1.5 fires HEALTH_CRITICAL."""
-        from ward.webhooks import determine_event, WebhookEvent
+        from ward.webhooks import WebhookEvent, determine_event
         event = determine_event(1.4, 1.6)
         assert event == WebhookEvent.HEALTH_CRITICAL
 
     async def test_default_resolved(self):
         """Recovery above 1.5 from below fires DEFAULT_RESOLVED."""
-        from ward.webhooks import determine_event, WebhookEvent
+        from ward.webhooks import WebhookEvent, determine_event
         event = determine_event(1.6, 1.4)
         assert event == WebhookEvent.DEFAULT_RESOLVED
 
@@ -3058,7 +3067,7 @@ class TestWebhookNotifications:
 
     async def test_payload_ward_signed_always_false(self):
         """WebhookPayload.ward_signed is always False."""
-        from ward.webhooks import WebhookPayload, WebhookEvent
+        from ward.webhooks import WebhookEvent, WebhookPayload
         payload = WebhookPayload(
             event=WebhookEvent.HEALTH_CRITICAL,
             vault_address=VALID_ADDRESS,
@@ -3073,7 +3082,7 @@ class TestWebhookNotifications:
 
     async def test_register_and_retrieve_webhook(self):
         """Registered webhook is retrievable by vault address."""
-        from ward.webhooks import WebhookConfig, register_webhook, get_webhooks
+        from ward.webhooks import WebhookConfig, get_webhooks, register_webhook
         config = WebhookConfig(
             url="https://example.com/hook",
             vault_address=VALID_ADDRESS,
@@ -3086,7 +3095,12 @@ class TestWebhookNotifications:
 
     async def test_deregister_webhook(self):
         """Deregistering a webhook removes it from the registry."""
-        from ward.webhooks import WebhookConfig, register_webhook, deregister_webhook, get_webhooks
+        from ward.webhooks import (
+            WebhookConfig,
+            deregister_webhook,
+            get_webhooks,
+            register_webhook,
+        )
         await register_webhook(WebhookConfig(url="https://example.com/hook", vault_address=VALID_ADDRESS))
         removed = await deregister_webhook(VALID_ADDRESS, "https://example.com/hook")
         assert removed is True
@@ -3095,8 +3109,8 @@ class TestWebhookNotifications:
 
     async def test_http_url_rejected(self):
         """Webhook URL must use https — plaintext http is rejected."""
-        from ward.webhooks import WebhookConfig, register_webhook
         from ward.primitives import WardError
+        from ward.webhooks import WebhookConfig, register_webhook
         with pytest.raises(WardError, match="https://"):
             await register_webhook(WebhookConfig(url="http://example.com/hook", vault_address=VALID_ADDRESS))
 
@@ -3106,7 +3120,7 @@ class TestWebhookNotifications:
 
     async def test_webhook_registration(self):
         """Second webhook for the same vault appends without re-initialising the list."""
-        from ward.webhooks import WebhookConfig, register_webhook, get_webhooks
+        from ward.webhooks import WebhookConfig, get_webhooks, register_webhook
         cfg1 = WebhookConfig(url="https://hook1.example.com/a", vault_address=VALID_ADDRESS)
         cfg2 = WebhookConfig(url="https://hook2.example.com/b", vault_address=VALID_ADDRESS)
         await register_webhook(cfg1)
@@ -3128,7 +3142,11 @@ class TestWebhookNotifications:
     async def test_fire_webhook_filters_events(self):
         """fire_webhook skips configs whose event filter does not match the fired event."""
         from ward.webhooks import (
-            WebhookConfig, WebhookEvent, WebhookPayload, register_webhook, fire_webhook,
+            WebhookConfig,
+            WebhookEvent,
+            WebhookPayload,
+            fire_webhook,
+            register_webhook,
         )
         cfg = WebhookConfig(
             url="https://example.com/hook",
@@ -3150,7 +3168,11 @@ class TestWebhookNotifications:
     async def test_fire_webhook_delivers_matching_event(self):
         """fire_webhook schedules _post_webhook when event matches the filter."""
         from ward.webhooks import (
-            WebhookConfig, WebhookEvent, WebhookPayload, register_webhook, fire_webhook,
+            WebhookConfig,
+            WebhookEvent,
+            WebhookPayload,
+            fire_webhook,
+            register_webhook,
         )
         cfg = WebhookConfig(
             url="https://example.com/hook",
@@ -3175,7 +3197,12 @@ class TestWebhookNotifications:
 
     async def test_webhook_delivery_success(self):
         """_post_webhook delivers the payload on the first attempt."""
-        from ward.webhooks import WebhookConfig, WebhookEvent, WebhookPayload, _post_webhook
+        from ward.webhooks import (
+            WebhookConfig,
+            WebhookEvent,
+            WebhookPayload,
+            _post_webhook,
+        )
         config = WebhookConfig(url="https://example.com/hook", vault_address=VALID_ADDRESS)
         payload = WebhookPayload(
             event=WebhookEvent.HEALTH_CRITICAL,
@@ -3195,7 +3222,12 @@ class TestWebhookNotifications:
 
     async def test_webhook_delivery_retry_on_failure(self):
         """_post_webhook retries on transient failures and succeeds on third attempt."""
-        from ward.webhooks import WebhookConfig, WebhookEvent, WebhookPayload, _post_webhook
+        from ward.webhooks import (
+            WebhookConfig,
+            WebhookEvent,
+            WebhookPayload,
+            _post_webhook,
+        )
         config = WebhookConfig(url="https://example.com/hook", vault_address=VALID_ADDRESS)
         payload = WebhookPayload(
             event=WebhookEvent.HEALTH_CRITICAL,
@@ -3217,7 +3249,13 @@ class TestWebhookNotifications:
 
     async def test_webhook_delivery_gives_up_after_max_retries(self):
         """_post_webhook gives up silently after MAX_RETRIES failures — never raises."""
-        from ward.webhooks import WebhookConfig, WebhookEvent, WebhookPayload, _post_webhook, MAX_RETRIES
+        from ward.webhooks import (
+            MAX_RETRIES,
+            WebhookConfig,
+            WebhookEvent,
+            WebhookPayload,
+            _post_webhook,
+        )
         config = WebhookConfig(url="https://example.com/hook", vault_address=VALID_ADDRESS)
         payload = WebhookPayload(
             event=WebhookEvent.HEALTH_WARNING,
@@ -3238,10 +3276,16 @@ class TestWebhookNotifications:
 
     async def test_hmac_signature_correct(self):
         """_post_webhook sets X-Ward-Signature header matching HMAC-SHA256 of body."""
-        import hmac as _hmac
         import hashlib as _hashlib
+        import hmac as _hmac
         import json as _json
-        from ward.webhooks import WebhookConfig, WebhookEvent, WebhookPayload, _post_webhook
+
+        from ward.webhooks import (
+            WebhookConfig,
+            WebhookEvent,
+            WebhookPayload,
+            _post_webhook,
+        )
         secret = "ward-test-secret"
         config = WebhookConfig(
             url="https://example.com/hook",
@@ -3278,8 +3322,8 @@ class TestWebhookNotifications:
 
     def test_hmac_signature_rejects_tampered_payload(self):
         """HMAC signature of tampered body does not match signature of original body."""
-        import hmac as _hmac
         import hashlib as _hashlib
+        import hmac as _hmac
         secret = "ward-test-secret"
         body = b'{"event":"health.critical","ward_signed":false}'
         tampered = body[:-1] + bytes([body[-1] ^ 0xFF])
@@ -3291,6 +3335,7 @@ class TestWebhookNotifications:
     def test_all_event_types_have_payloads(self):
         """Every WebhookEvent value can be serialised in a payload with ward_signed=False."""
         import json as _json
+
         from ward.webhooks import WebhookEvent, WebhookPayload
         for event in WebhookEvent:
             payload = WebhookPayload(
@@ -3343,7 +3388,7 @@ class TestApiKeyManagement:
         assert record.label == "Test"
 
     async def test_raw_key_not_stored(self):
-        from ward.keys import generate_key, register_key, _key_store
+        from ward.keys import _key_store, generate_key, register_key
         raw = generate_key()
         await register_key(raw)
         # Raw key must not appear anywhere in the store
@@ -3352,7 +3397,7 @@ class TestApiKeyManagement:
             assert raw not in str(record)
 
     async def test_revoked_key_rejected(self):
-        from ward.keys import generate_key, register_key, verify_key, revoke_key
+        from ward.keys import generate_key, register_key, revoke_key, verify_key
         raw = generate_key()
         await register_key(raw)
         await revoke_key(raw)
@@ -3456,7 +3501,7 @@ class TestOnChainCoverageRegistry:
         assert result is None
 
     def test_extract_ignores_malformed_memo_data(self):
-        from ward.coverage import _extract_coverage_from_tx, WARD_PREMIUM_MEMO_TYPE_HEX
+        from ward.coverage import WARD_PREMIUM_MEMO_TYPE_HEX, _extract_coverage_from_tx
         memo = {
             "Memo": {
                 "MemoType": WARD_PREMIUM_MEMO_TYPE_HEX,
@@ -3698,12 +3743,12 @@ class TestChainReaderGetAccountTransactions:
 # ===========================================================================
 
 import warnings as _warnings_module
+
 from ward.monitor import WardMonitor
 
 
 class TestWardMonitorConstruction:
     def test_requires_wss_url(self):
-        from ward.primitives import SecurityError
         with pytest.raises(SecurityError, match="ws://"):
             with _warnings_module.catch_warnings():
                 _warnings_module.simplefilter("ignore", DeprecationWarning)
@@ -3956,9 +4001,11 @@ class TestWardMonitorFetchBalance:
 # Tests: TxBuilder  (ward/tx_builder.py)
 # ===========================================================================
 
-from ward.tx_builder import EscrowParams, TxBuilder
-from xrpl.models import EscrowCancel, EscrowCreate, Payment
 from datetime import datetime, timedelta, timezone
+
+from xrpl.models import EscrowCancel, EscrowCreate, Payment
+
+from ward.tx_builder import EscrowParams
 
 
 class TestTxBuilderPayment:
@@ -4105,13 +4152,11 @@ class TestTxBuilderEscrowCancel:
 # Tests: VaultMonitor gaps  (ward/vault_monitor.py)
 # ===========================================================================
 
+from ward.constants import DEFAULT_TESTNET_WS, LSF_LOAN_DEFAULT
 from ward.vault_monitor import (
     DefaultSignal,
     VerifiedDefault,
-    VaultMonitor,
-    _validate_ws_url,
 )
-from ward.constants import DEFAULT_TESTNET_WS, LSF_LOAN_DEFAULT
 
 ALLOWED_WS = DEFAULT_TESTNET_WS   # "wss://s.altnet.rippletest.net:51233/"
 
@@ -5208,7 +5253,9 @@ class TestWormholeNTTAdapter:
 # Tests: FlareAdapter
 # ===========================================================================
 from ward.adapters import FlareAdapter
-from ward.adapters.flare import FlareResolutionPayload, LedgerState as FlareLedgerState, VaultState as FlareVaultState
+from ward.adapters.flare import FlareResolutionPayload
+from ward.adapters.flare import LedgerState as FlareLedgerState
+from ward.adapters.flare import VaultState as FlareVaultState
 
 
 class TestFlareAdapter:
@@ -5330,7 +5377,9 @@ class TestFlareAdapter:
 # Tests: AxelarAdapter
 # ===========================================================================
 from ward.adapters import AxelarAdapter
-from ward.adapters.axelar import AxelarGMPPayload, LedgerState as AxelarLedgerState, VaultState as AxelarVaultState
+from ward.adapters.axelar import AxelarGMPPayload
+from ward.adapters.axelar import LedgerState as AxelarLedgerState
+from ward.adapters.axelar import VaultState as AxelarVaultState
 
 
 class TestAxelarAdapter:
@@ -5456,8 +5505,9 @@ class TestAxelarAdapter:
 # Tests: SolanaAdapter
 # ===========================================================================
 from ward.adapters import SolanaAdapter
-from ward.adapters.solana import SolanaTransferPayload, LedgerState as SolanaLedgerState, VaultState as SolanaVaultState
-
+from ward.adapters.solana import LedgerState as SolanaLedgerState
+from ward.adapters.solana import SolanaTransferPayload
+from ward.adapters.solana import VaultState as SolanaVaultState
 
 EVM_ADDRESS = "0xabc123def456aaa000111222333444555666777"
 EVM_ADDRESS2 = "0xbbb123ccc456ddd789eee012fff345aaa678bbb"
@@ -5586,7 +5636,9 @@ class TestSolanaAdapter:
 # Tests: HederaAdapter
 # ===========================================================================
 from ward.adapters import HederaAdapter
-from ward.adapters.hedera import HederaTransferPayload, LedgerState as HederaLedgerState, VaultState as HederaVaultState
+from ward.adapters.hedera import HederaTransferPayload
+from ward.adapters.hedera import LedgerState as HederaLedgerState
+from ward.adapters.hedera import VaultState as HederaVaultState
 
 HEDERA_ACCOUNT = "0.0.123456"
 HEDERA_ACCOUNT2 = "0.0.789012"
@@ -5697,7 +5749,9 @@ class TestHederaAdapter:
 # Tests: StellarAdapter
 # ===========================================================================
 from ward.adapters import StellarAdapter
-from ward.adapters.stellar import StellarPaymentPayload, LedgerState as StellarLedgerState, VaultState as StellarVaultState
+from ward.adapters.stellar import LedgerState as StellarLedgerState
+from ward.adapters.stellar import StellarPaymentPayload
+from ward.adapters.stellar import VaultState as StellarVaultState
 
 STELLAR_ACCOUNT = "GBOPNQMHQQHLNLQUBMJMTVKZXEZFKPQ3VHZPNXIVMKFH7QQVVKLJ7BH"
 STELLAR_ACCOUNT2 = "GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGVZC8CS76WQZE8EKLE7JVD"
@@ -5826,7 +5880,9 @@ class TestStellarAdapter:
 # Tests: XDCAdapter
 # ===========================================================================
 from ward.adapters import XDCAdapter
-from ward.adapters.xdc import XDCResolutionPayload, LedgerState as XDCLedgerState, VaultState as XDCVaultState
+from ward.adapters.xdc import LedgerState as XDCLedgerState
+from ward.adapters.xdc import VaultState as XDCVaultState
+from ward.adapters.xdc import XDCResolutionPayload
 
 XDC_ADDRESS = "xdcabc123def456aaa000111222333444555666777"
 XDC_ADDRESS2 = "xdcbbb123ccc456ddd789eee012fff345aaa678bbb"
@@ -6067,7 +6123,8 @@ class TestAdversarialXRPLCore:
     async def test_adversarial_insolvent_pool_rejected(self):
         """Insolvent pool (balance=0) is rejected at Step 6 or 9."""
         validator = TestClaimValidatorAdversarial()._make_validator_with_mocks(
-            pool_balance_drops=0
+            pool_balance_drops=0,
+            premium_paid=True,
         )
         result = await validator.validate_claim(
             claimant_address=VALID_ADDRESS,
@@ -6099,7 +6156,7 @@ class TestAdversarialXRPLCore:
 
     def test_adversarial_rate_limit_exceeded(self):
         """4th claim attempt on same NFT within 300s is rejected."""
-        from ward.primitives import check_rate_limit, _rate_limit_windows
+        from ward.primitives import _rate_limit_windows, check_rate_limit
         unique_nft = "ADVERSARIAL" + "A" * 53
         _rate_limit_windows.pop(unique_nft, None)
         for _ in range(CLAIM_RATE_LIMIT_MAX):
@@ -6109,7 +6166,7 @@ class TestAdversarialXRPLCore:
 
     def test_adversarial_rate_limit_ward_signed_not_affected(self):
         """Rate limit rejection does not produce any signed output."""
-        from ward.primitives import check_rate_limit, _rate_limit_windows
+        from ward.primitives import _rate_limit_windows, check_rate_limit
         unique_nft = "WARDLIMIT" + "B" * 55
         _rate_limit_windows.pop(unique_nft, None)
         for _ in range(CLAIM_RATE_LIMIT_MAX):
@@ -6178,7 +6235,6 @@ class TestAdversarialWormhole:
 
     def test_adversarial_ntt_payload_ward_signed_immutable(self):
         """NTTTransferPayload.ward_signed cannot be set by caller — field(init=False)."""
-        import dataclasses
         payload = NTTTransferPayload(
             source_chain_id=25,
             dest_chain_id=2,
@@ -6677,7 +6733,7 @@ class TestAdversarialCoreInvariant:
         flare = FlareAdapter(rlusd_address=EVM_ADDRESS)
         axelar = AxelarAdapter(gateway_address=EVM_ADDRESS)
         solana = SolanaAdapter(rlusd_mint=SOL_ADDRESS)
-        hedera = HederaAdapter()
+        hedera = HederaAdapter(rlusd_token_id="0.0.99999")
         stellar = StellarAdapter(rlusd_issuer=STELLAR_ACCOUNT)
         xdc = XDCAdapter(rlusd_address=XDC_ADDRESS)
         wormhole = WormholeNTTAdapter()
@@ -6720,7 +6776,7 @@ class TestAdversarialCoreInvariant:
         flare = FlareAdapter(rlusd_address=EVM_ADDRESS)
         axelar = AxelarAdapter(gateway_address=EVM_ADDRESS)
         solana = SolanaAdapter(rlusd_mint=SOL_ADDRESS)
-        hedera = HederaAdapter()
+        hedera = HederaAdapter(rlusd_token_id="0.0.99999")
         stellar = StellarAdapter(rlusd_issuer=STELLAR_ACCOUNT)
         xdc = XDCAdapter(rlusd_address=XDC_ADDRESS)
         wormhole = WormholeNTTAdapter()
@@ -6745,7 +6801,7 @@ class TestAdversarialCoreInvariant:
             FlareAdapter(rlusd_address=EVM_ADDRESS),
             AxelarAdapter(gateway_address=EVM_ADDRESS),
             SolanaAdapter(rlusd_mint=SOL_ADDRESS),
-            HederaAdapter(),
+            HederaAdapter(rlusd_token_id="0.0.99999"),
             StellarAdapter(rlusd_issuer=STELLAR_ACCOUNT),
             XDCAdapter(rlusd_address=XDC_ADDRESS),
             WormholeNTTAdapter(),
