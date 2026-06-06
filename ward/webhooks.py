@@ -11,15 +11,15 @@ from __future__ import annotations
 import asyncio
 import hashlib
 import hmac
+import ipaddress
 import json
 import logging
+import socket
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Dict, List, Optional
 from urllib.parse import urlparse
 from urllib.request import Request as _URLRequest
-import ipaddress
-import socket
 from urllib.request import urlopen
 
 from ward.primitives import WardError, validate_xrpl_address
@@ -214,11 +214,13 @@ def _validate_webhook_url(url: str) -> None:
     parsed = urlparse(url)
     if parsed.scheme != "https":
         raise WardError(f"Webhook URL must use https://: {url!r}")
-    parsed = __import__('urllib.parse', fromlist=['urlparse']).urlparse(url)
+    parsed = __import__("urllib.parse", fromlist=["urlparse"]).urlparse(url)
     hostname = parsed.hostname or ""
     try:
         ip = ipaddress.ip_address(socket.gethostbyname(hostname))
         if ip.is_private or ip.is_loopback or ip.is_link_local or ip.is_reserved:
-            raise WardError(f"Webhook URL targets a private/internal address — blocked: {url!r}")
+            raise WardError(
+                f"Webhook URL targets a private/internal address — blocked: {url!r}"
+            )
     except (socket.gaierror, ValueError):
         pass  # Unresolvable at registration time — will fail at delivery

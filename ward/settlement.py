@@ -15,7 +15,7 @@ from __future__ import annotations
 import json
 import logging
 from dataclasses import dataclass
-from typing import Any, Dict
+from typing import Dict
 
 from xrpl.asyncio.clients import AsyncJsonRpcClient
 from xrpl.asyncio.transaction import autofill
@@ -29,9 +29,9 @@ from ward.constants import (
 )
 from ward.primitives import (
     ValidationError,
+    build_unsigned_tx,
     client_context,
     get_ledger_close_time,
-    build_unsigned_tx,
     validate_drops_amount,
     validate_xrpl_address,
 )
@@ -126,11 +126,10 @@ class EscrowSettlement:
                 ],
             )
             escrow_tx = await autofill(escrow_tx, client)
-            unsigned_escrow = await build_unsigned_tx(escrow_tx, client)
+            await build_unsigned_tx(escrow_tx, client)
             # ward_signed = False — institution signs and submits escrow_tx
             tx_hash = "unsigned"
             seq = 0
-
 
             logger.info(
                 "EscrowCreate: %s  claim=%s  payout=%d drops  "
@@ -193,7 +192,6 @@ class EscrowSettlement:
                     f"(ledger time {current_time})"
                 )
 
-
             finish_tx = EscrowFinish(
                 account=pool_address,
                 owner=escrow_record.pool_address,
@@ -202,7 +200,7 @@ class EscrowSettlement:
                 fulfillment=fulfillment_hex,
             )
             finish_tx = await autofill(finish_tx, client)
-            unsigned_finish = await build_unsigned_tx(finish_tx, client)
+            await build_unsigned_tx(finish_tx, client)
             # ward_signed = False — institution signs finish_tx
             logger.info(
                 "EscrowFinish unsigned: claim=%s",
@@ -228,7 +226,7 @@ class EscrowSettlement:
                 ],
             )
             burn_tx = await autofill(burn_tx, client)
-            unsigned_burn = await build_unsigned_tx(burn_tx, client)
+            await build_unsigned_tx(burn_tx, client)
             # ward_signed = False — institution signs burn_tx
             logger.info("NFTokenBurn unsigned: claim=%s", escrow_record.claim_id)
 
@@ -261,7 +259,6 @@ class EscrowSettlement:
                     f"cancel_after {escrow_record.cancel_after_ripple})"
                 )
 
-    
             cancel_tx = EscrowCancel(
                 account=pool_address,
                 owner=escrow_record.pool_address,
@@ -274,7 +271,7 @@ class EscrowSettlement:
                 ],
             )
             cancel_tx = await autofill(cancel_tx, client)
-            unsigned_cancel = await build_unsigned_tx(cancel_tx, client)
+            await build_unsigned_tx(cancel_tx, client)
             # ward_signed = False — institution signs cancel_tx
 
         logger.info(

@@ -40,9 +40,8 @@ from ward.constants import (
 from ward.coverage import build_premium_memo
 from ward.primitives import (
     ValidationError,
-    WardError,
-    get_ledger_close_time,
     build_unsigned_tx,
+    get_ledger_close_time,
     validate_drops_amount,
     validate_xrpl_address,
 )
@@ -116,7 +115,6 @@ class WardClient:
         if not (0 < premium_rate <= 1.0):
             raise ValidationError(f"premium_rate must be in (0, 1], got {premium_rate}")
 
-
         # -- Tier gate check ------------------------------------------------
         # (Risk tier enforcement happens at mint time in pool.py; here we
         # block unsupported tiers from reaching the network at all.)
@@ -164,7 +162,7 @@ class WardClient:
             uri=uri_hex,
             memos=[nft_memo],
         )
-        unsigned_mint = await build_unsigned_tx(mint_tx, client)
+        await build_unsigned_tx(mint_tx, client)
         # ward_signed = False — institution signs and submits mint_tx
         mint_tx_hash = "unsigned"
         nft_token_id = "pending_institution_signature"
@@ -181,7 +179,7 @@ class WardClient:
             amount=str(premium_drops),
             memos=[premium_memo],
         )
-        unsigned_payment = await build_unsigned_tx(payment, client)
+        await build_unsigned_tx(payment, client)
         # ward_signed = False — institution signs and submits payment_tx
 
         logger.info(
@@ -255,7 +253,6 @@ class WardClient:
         if not (0 < premium_rate <= 1.0):
             raise ValidationError(f"premium_rate must be in (0, 1], got {premium_rate}")
 
-
         allowed = LicenseTier.TIER_MINT_GATES.get(license_tier)
         if allowed is None:
             raise ValidationError(
@@ -303,7 +300,7 @@ class WardClient:
                 uri=uri_hex,
                 memos=[nft_memo],
             )
-            unsigned_mint = await build_unsigned_tx(mint_tx, client)
+            await build_unsigned_tx(mint_tx, client)
             # ward_signed = False — institution signs and submits mint_tx
             nft_token_id = "pending_institution_signature"
             mint_tx_hash = "unsigned"
