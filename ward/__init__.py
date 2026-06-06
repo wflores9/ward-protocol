@@ -56,11 +56,9 @@ from ward.primitives import (
     get_ledger_close_time,
     make_preimage_condition,
     ripple_time_now,
-    submit_with_retry,
     validate_drops,
     validate_drops_amount,
     validate_nft_id,
-    validate_wallet,
     validate_xrpl_address,
 )
 from ward.registry import (
@@ -101,13 +99,11 @@ __all__ = [
     "validate_drops_amount",
     "validate_drops",
     "validate_nft_id",
-    "validate_wallet",
     "check_rate_limit",
     "make_preimage_condition",
     "generate_claim_preimage",
     "get_ledger_close_time",
     "ripple_time_now",
-    "submit_with_retry",
     "build_unsigned_tx",
     # Licensing tier
     "LicenseTier",
