@@ -16,6 +16,9 @@
     "xrpl-connect": "^0.8.2"
   },
   "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "dotenv": "^16.4.5",
+    "hardhat": "^2.22.0",
     "@types/node": "^20.12.7",
     "@types/react": "^18.3.3",
     "@typescript-eslint/eslint-plugin": "^8.12.2",
