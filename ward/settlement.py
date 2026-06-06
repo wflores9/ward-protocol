@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import json
 import logging
+import os as _os
 from dataclasses import dataclass
 from typing import Dict
 
@@ -41,10 +42,10 @@ logger = logging.getLogger("ward.settlement")
 _SECONDS_PER_HOUR = 3_600
 
 # Redis settlement lock — prevents duplicate settlement (TOCTOU mitigation)
-import os as _os
 _settlement_redis = None
 try:
     import redis as _redis
+
     _settlement_redis = _redis.Redis.from_url(
         _os.getenv("WARD_REDIS_URL", "redis://localhost:6379/0"),
         socket_connect_timeout=2,
@@ -56,7 +57,6 @@ except Exception:
     _settlement_redis = None
 
 _SETTLEMENT_LOCK_TTL = 3600  # 1 hour — covers dispute window
-
 
 
 @dataclass
@@ -203,9 +203,10 @@ class EscrowSettlement:
         if _settlement_redis is not None:
             try:
                 acquired = _settlement_redis.set(
-                    lock_key, "locked",
+                    lock_key,
+                    "locked",
                     nx=True,  # Only set if not exists
-                    ex=_SETTLEMENT_LOCK_TTL
+                    ex=_SETTLEMENT_LOCK_TTL,
                 )
                 if not acquired:
                     raise ValidationError(

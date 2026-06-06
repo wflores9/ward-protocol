@@ -485,9 +485,9 @@ class ClaimValidator:
         # Encode rejection reason as hex memo for on-chain audit trail
         # Institution includes this memo when submitting any rejection acknowledgment
         import json as _json
+
         rejection_data = _json.dumps(
-            {"ward_reject": True, "step": step, "reason": reason},
-            separators=(",", ":")
+            {"ward_reject": True, "step": step, "reason": reason}, separators=(",", ":")
         )
         rejection_memo_hex = rejection_data.encode("utf-8").hex().upper()
         return ValidationResult(
