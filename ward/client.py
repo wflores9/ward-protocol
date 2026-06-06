@@ -167,7 +167,7 @@ class WardClient:
             memos=[nft_memo],
         )
         mint_tx = await autofill(mint_tx, client)
-        mint_result = await submit_with_retry(mint_tx, client, wallet)
+        mint_result: Any = await submit_with_retry(mint_tx, client, wallet)
         nft_token_id = mint_result.result.get("meta", {}).get("nftoken_id", "")
         if not nft_token_id:
             raise WardError(
@@ -190,7 +190,7 @@ class WardClient:
             memos=[premium_memo],
         )
         payment = await autofill(payment, client)
-        premium_result = await submit_with_retry(payment, client, wallet)
+        premium_result: Any = await submit_with_retry(payment, client, wallet)
         premium_tx = premium_result.result.get("hash", "") or premium_result.result.get(
             "tx_json", {}
         ).get("hash", "")
@@ -321,7 +321,7 @@ class WardClient:
                 memos=[nft_memo],
             )
             mint_tx = await autofill(mint_tx, client)
-            mint_result = await submit_with_retry(mint_tx, client, wallet)
+            mint_result: Any = await submit_with_retry(mint_tx, client, wallet)
             nft_token_id = mint_result.result.get("meta", {}).get("nftoken_id", "")
             if not nft_token_id:
                 raise WardError(
@@ -356,7 +356,7 @@ class WardClient:
             memos=[premium_memo],
         )
         payment = await autofill(payment, client)
-        premium_result = await submit_with_retry(payment, client, wallet)
+        premium_result: Any = await submit_with_retry(payment, client, wallet)
         premium_tx = premium_result.result.get("hash", "") or premium_result.result.get(
             "tx_json", {}
         ).get("hash", "")

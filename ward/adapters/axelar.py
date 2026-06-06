@@ -28,6 +28,7 @@ import logging
 from dataclasses import dataclass, field
 from typing import Any, Optional
 
+from ward.adapters._config import require_non_placeholder
 from ward.chain import ChainAdapter, PolicyCertificate
 from ward.primitives import UnsignedTransaction
 
@@ -113,7 +114,11 @@ class AxelarAdapter(ChainAdapter):
         self._source_chain = source_chain
         self._dest_chain = dest_chain
         self._dest_rpc_url = dest_rpc_url
-        self._gateway_address = gateway_address
+        self._gateway_address = require_non_placeholder(
+            gateway_address,
+            field_name="gateway_address",
+            invalid_values={_AXELAR_GATEWAY_XRPL_EVM},
+        )
         self._dest_contract = dest_contract
 
     # ── Ward-specific public interface ───────────────────────────────────────

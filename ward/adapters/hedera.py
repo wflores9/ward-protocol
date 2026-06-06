@@ -24,6 +24,7 @@ import logging
 from dataclasses import dataclass, field
 from typing import Any, Optional
 
+from ward.adapters._config import require_non_placeholder
 from ward.chain import ChainAdapter, PolicyCertificate
 from ward.primitives import UnsignedTransaction
 
@@ -97,7 +98,11 @@ class HederaAdapter(ChainAdapter):
         network: str = "mainnet",
     ) -> None:
         self._mirror_node_url = mirror_node_url
-        self._rlusd_token_id = rlusd_token_id
+        self._rlusd_token_id = require_non_placeholder(
+            rlusd_token_id,
+            field_name="rlusd_token_id",
+            invalid_values={_RLUSD_HEDERA_TOKEN_ID},
+        )
         self._network = network
 
     # ── Ward-specific public interface ───────────────────────────────────────

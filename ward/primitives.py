@@ -27,12 +27,14 @@ from __future__ import annotations
 import asyncio
 import collections
 import hashlib
+import inspect
 import logging
 import secrets
 import threading
 import time
+from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
-from typing import Optional, Tuple
+from typing import Any, AsyncIterator, Optional, Tuple, cast
 
 from xrpl.asyncio.clients import AsyncJsonRpcClient
 from xrpl.asyncio.transaction import submit_and_wait
@@ -75,6 +77,37 @@ class SecurityError(WardError):
 
 class LedgerError(WardError):
     """XRPL ledger interaction failed."""
+
+
+@asynccontextmanager
+async def client_context(client: object) -> AsyncIterator[AsyncJsonRpcClient]:
+    """
+    Yield an AsyncJsonRpcClient-compatible object whether or not it natively
+    implements the async context-manager protocol.
+
+    This keeps runtime behavior fail-closed across xrpl-py versions and also
+    supports the patched client mocks used by the test suite.
+    """
+
+    enter = getattr(client, "__aenter__", None)
+    exit_ = getattr(client, "__aexit__", None)
+
+    if callable(enter) and callable(exit_):
+        managed = await enter()
+        try:
+            yield cast(AsyncJsonRpcClient, managed)
+        finally:
+            await exit_(None, None, None)
+        return
+
+    try:
+        yield cast(AsyncJsonRpcClient, client)
+    finally:
+        close = getattr(client, "close", None)
+        if callable(close):
+            result = close()
+            if inspect.isawaitable(result):
+                await cast(Any, result)
 
 
 # ── Chain-Agnostic Data Models ────────────────────────────────────────────────

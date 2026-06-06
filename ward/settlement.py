@@ -15,7 +15,7 @@ from __future__ import annotations
 import json
 import logging
 from dataclasses import dataclass
-from typing import Dict
+from typing import Any, Dict
 
 from xrpl.asyncio.clients import AsyncJsonRpcClient
 from xrpl.asyncio.transaction import autofill
@@ -30,6 +30,7 @@ from ward.constants import (
 )
 from ward.primitives import (
     ValidationError,
+    client_context,
     get_ledger_close_time,
     submit_with_retry,
     validate_drops_amount,
@@ -100,7 +101,7 @@ class EscrowSettlement:
         validate_drops_amount(payout_drops, "payout_drops")
         pool_wallet = validate_wallet(pool_wallet, "pool_wallet")
 
-        async with AsyncJsonRpcClient(self._url) as client:
+        async with client_context(AsyncJsonRpcClient(self._url)) as client:
             current_time = await get_ledger_close_time(client)
             dispute_deadline_ripple = current_time + (
                 ESCROW_DISPUTE_HOURS * _SECONDS_PER_HOUR
@@ -128,7 +129,7 @@ class EscrowSettlement:
                 ],
             )
             escrow_tx = await autofill(escrow_tx, client)
-            response = await submit_with_retry(escrow_tx, client, pool_wallet)
+            response: Any = await submit_with_retry(escrow_tx, client, pool_wallet)
 
             tx_hash = response.result.get("hash", "")
             seq = (
@@ -186,7 +187,7 @@ class EscrowSettlement:
         Returns:
             {"finish_tx": hash, "burn_tx": hash}
         """
-        async with AsyncJsonRpcClient(self._url) as client:
+        async with client_context(AsyncJsonRpcClient(self._url)) as client:
             current_time = await get_ledger_close_time(client)
 
             if current_time >= escrow_record.dispute_deadline_ripple:
@@ -209,7 +210,7 @@ class EscrowSettlement:
                 fulfillment=fulfillment_hex,
             )
             finish_tx = await autofill(finish_tx, client)
-            finish_resp = await submit_with_retry(finish_tx, client, pool_wallet)
+            finish_resp: Any = await submit_with_retry(finish_tx, client, pool_wallet)
             finish_hash = finish_resp.result.get("hash", "")
             logger.info(
                 "EscrowFinish: %s  claim=%s",
@@ -236,7 +237,7 @@ class EscrowSettlement:
                 ],
             )
             burn_tx = await autofill(burn_tx, client)
-            burn_resp = await submit_with_retry(burn_tx, client, claimant_wallet)
+            burn_resp: Any = await submit_with_retry(burn_tx, client, claimant_wallet)
             burn_hash = burn_resp.result.get("hash", "")
             logger.info(
                 "NFTokenBurn: %s  claim=%s",
@@ -261,7 +262,7 @@ class EscrowSettlement:
         The pool can cancel AFTER cancel_after_ripple if the claimant
         never finished the escrow.
         """
-        async with AsyncJsonRpcClient(self._url) as client:
+        async with client_context(AsyncJsonRpcClient(self._url)) as client:
             current_time = await get_ledger_close_time(client)
             if current_time < escrow_record.cancel_after_ripple:
                 remaining = escrow_record.cancel_after_ripple - current_time
@@ -286,7 +287,7 @@ class EscrowSettlement:
                 ],
             )
             cancel_tx = await autofill(cancel_tx, client)
-            result = await submit_with_retry(cancel_tx, client, pool_wallet)
+            result: Any = await submit_with_retry(cancel_tx, client, pool_wallet)
             tx_hash = result.result.get("hash", "")
 
         logger.info(

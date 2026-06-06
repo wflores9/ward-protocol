@@ -23,6 +23,7 @@ import logging
 from dataclasses import dataclass, field
 from typing import Any, Optional
 
+from ward.adapters._config import require_non_placeholder
 from ward.chain import ChainAdapter, PolicyCertificate
 from ward.primitives import UnsignedTransaction
 
@@ -101,7 +102,11 @@ class SolanaAdapter(ChainAdapter):
         commitment: str = "finalized",
     ) -> None:
         self._rpc_url = rpc_url
-        self._rlusd_mint = rlusd_mint
+        self._rlusd_mint = require_non_placeholder(
+            rlusd_mint,
+            field_name="rlusd_mint",
+            invalid_values={_RLUSD_SOLANA_MINT},
+        )
         self._commitment = commitment
 
     # ── Ward-specific public interface ───────────────────────────────────────

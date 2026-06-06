@@ -10,7 +10,7 @@ import logging
 import warnings
 from typing import Callable, Dict, List, Optional
 
-from ward.primitives import SecurityError
+from ward.primitives import SecurityError, client_context
 
 from .chain_reader import ChainReader
 
@@ -137,8 +137,8 @@ class WardMonitor:
         from xrpl.asyncio.clients import AsyncJsonRpcClient
         from xrpl.models import AccountInfo
 
-        async with AsyncJsonRpcClient(
-            self._xrpl_url.replace("wss://", "https://")
+        async with client_context(
+            AsyncJsonRpcClient(self._xrpl_url.replace("wss://", "https://"))
         ) as client:
             resp = await client.request(
                 AccountInfo(account=address, ledger_index="validated")

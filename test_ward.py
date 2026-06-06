@@ -705,6 +705,7 @@ class TestClaimValidatorAdversarial:
         pool_balance_drops: int = 10_000_000,
         loan_broker_available: bool = True,
         coverage_drops: int = 500_000,
+        premium_paid: bool = True,
     ) -> ClaimValidator:
         metadata = _make_policy_metadata(
             vault_address=policy_vault,
@@ -726,6 +727,8 @@ class TestClaimValidatorAdversarial:
         async def mock_request(req):
             from xrpl.models import AccountNFTs as _ANFTs, AccountInfo as _AI
             from xrpl.models import ServerInfo as _SI, LedgerEntry as _LE
+            from xrpl.models.requests import AccountTx as _ATx
+            from ward.coverage import build_premium_memo
 
             if isinstance(req, _ANFTs):
                 nfts = [nft_entry] if nft_exists else []
@@ -734,6 +737,21 @@ class TestClaimValidatorAdversarial:
                 return _make_success_response(_make_server_info_response(ledger_time))
             elif isinstance(req, _AI):
                 return _make_success_response(pool_info)
+            elif isinstance(req, _ATx):
+                txs = []
+                if premium_paid:
+                    txs.append(
+                        {
+                            "tx_json": {
+                                "TransactionType": "Payment",
+                                "Account": VALID_ADDRESS,
+                                "Destination": VALID_ADDRESS2,
+                                "Amount": "1000",
+                                "Memos": [build_premium_memo(VALID_NFT_ID, coverage_drops)],
+                            }
+                        }
+                    )
+                return _make_success_response({"transactions": txs})
             elif isinstance(req, _LE):
                 index_val = getattr(req, "index", None)
                 vault_val = getattr(req, "vault",  None)
@@ -2840,15 +2858,8 @@ class TestValidateClaimErrorHandling:
 
 
 class TestPremiumVerificationGap:
-    """FIX #16: premium payment not verified on-chain (known High severity gap)."""
+    """FIX #16: premium payment must be verified on-chain before approval."""
 
-    @pytest.mark.xfail(
-        reason=(
-            "TODO(HIGH): premium payment not verified on-chain. "
-            "A fake NFT minted without paying a premium passes all 9 validation steps. "
-            "This test documents the known gap — it passes once the fix is shipped."
-        )
-    )
     @pytest.mark.asyncio
     async def test_fake_nft_without_premium_is_rejected(self):
         """
@@ -2860,10 +2871,13 @@ class TestPremiumVerificationGap:
         from ward.primitives import _rate_limit_windows
 
         # Reset rate limit for VALID_NFT_ID so step 9 rate-limit path
-        # does not mask the premium-gap being documented by this xfail test.
+        # does not mask the premium verification assertion under test.
         _rate_limit_windows.pop(VALID_NFT_ID, None)
 
-        validator = _make_validator_with_mocks(pool_balance_drops=100_000_000)
+        validator = _make_validator_with_mocks(
+            pool_balance_drops=100_000_000,
+            premium_paid=False,
+        )
         p = getattr(validator, "_mock_patch", None)
         try:
             result = await validator.validate_claim(
@@ -2879,12 +2893,8 @@ class TestPremiumVerificationGap:
                     p.stop()
                 except RuntimeError:
                     pass
-        # This claim should be rejected because no premium was paid.
-        # Currently it passes — this assertion will fail until the fix ships.
-        assert not result.approved, (
-            "Claim from fake NFT (no premium) must be rejected — "
-            "premium payment verification not yet implemented"
-        )
+        assert not result.approved
+        assert "premium payment" in result.rejection_reason.lower()
 
 
 # ===========================================================================
@@ -5206,6 +5216,7 @@ class TestFlareAdapter:
         self.adapter = FlareAdapter(
             rpc_url="https://flare-api.flare.network/ext/C/rpc",
             chain_id=14,
+            rlusd_address=EVM_ADDRESS,
         )
 
     # -- ward_signed invariant ------------------------------------------------
@@ -5328,6 +5339,7 @@ class TestAxelarAdapter:
             source_rpc_url="https://rpc-evm-sidechain.xrpl.org",
             source_chain="xrpl-evm",
             dest_chain="ethereum",
+            gateway_address=EVM_ADDRESS,
         )
 
     # -- ward_signed invariant ------------------------------------------------
@@ -5457,6 +5469,7 @@ class TestSolanaAdapter:
     def setup_method(self):
         self.adapter = SolanaAdapter(
             rpc_url="https://api.devnet.solana.com",
+            rlusd_mint=SOL_ADDRESS,
         )
 
     # -- ward_signed invariant ------------------------------------------------
@@ -5695,7 +5708,7 @@ class TestStellarAdapter:
         self.adapter = StellarAdapter(
             horizon_url="https://horizon-testnet.stellar.org",
             rlusd_asset_code="RLUSD",
-            rlusd_issuer="GXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+            rlusd_issuer=STELLAR_ACCOUNT,
             network_passphrase="Test SDF Network ; September 2015",
         )
 
@@ -5824,6 +5837,7 @@ class TestXDCAdapter:
         self.adapter = XDCAdapter(
             rpc_url="https://erpc.apothem.network",
             chain_id=51,
+            rlusd_address=XDC_ADDRESS,
         )
 
     # -- ward_signed invariant ------------------------------------------------
@@ -6238,7 +6252,10 @@ class TestAdversarialFlare:
     """Adversarial edge cases for FlareAdapter. ward_signed=False throughout."""
 
     def setup_method(self):
-        self.adapter = FlareAdapter(rpc_url="https://flare-api.flare.network/ext/C/rpc")
+        self.adapter = FlareAdapter(
+            rpc_url="https://flare-api.flare.network/ext/C/rpc",
+            rlusd_address=EVM_ADDRESS,
+        )
 
     @pytest.mark.asyncio
     async def test_adversarial_invalid_vault_state_not_defaulted(self):
@@ -6294,7 +6311,10 @@ class TestAdversarialSolana:
     """Adversarial edge cases for SolanaAdapter. ward_signed=False throughout."""
 
     def setup_method(self):
-        self.adapter = SolanaAdapter(rpc_url="https://api.devnet.solana.com")
+        self.adapter = SolanaAdapter(
+            rpc_url="https://api.devnet.solana.com",
+            rlusd_mint=SOL_ADDRESS,
+        )
 
     @pytest.mark.asyncio
     async def test_adversarial_invalid_account_not_defaulted(self):
@@ -6417,7 +6437,7 @@ class TestAdversarialStellar:
         self.adapter = StellarAdapter(
             horizon_url="https://horizon-testnet.stellar.org",
             rlusd_asset_code="RLUSD",
-            rlusd_issuer="GXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+            rlusd_issuer=STELLAR_ACCOUNT,
         )
 
     @pytest.mark.asyncio
@@ -6446,6 +6466,7 @@ class TestAdversarialStellar:
         """Wrong network passphrase adapter — ward_signed=False (no automatic signing)."""
         adapter = StellarAdapter(
             horizon_url="https://horizon-testnet.stellar.org",
+            rlusd_issuer=STELLAR_ACCOUNT,
             network_passphrase="ATTACKER CONTROLLED PASSPHRASE",
         )
         tx = await adapter.build_resolution_tx(
@@ -6492,7 +6513,11 @@ class TestAdversarialXDC:
     """Adversarial edge cases for XDCAdapter. ward_signed=False throughout."""
 
     def setup_method(self):
-        self.adapter = XDCAdapter(rpc_url="https://erpc.apothem.network", chain_id=51)
+        self.adapter = XDCAdapter(
+            rpc_url="https://erpc.apothem.network",
+            chain_id=51,
+            rlusd_address=XDC_ADDRESS,
+        )
 
     @pytest.mark.asyncio
     async def test_adversarial_invalid_vault_not_defaulted(self):
@@ -6564,6 +6589,7 @@ class TestAdversarialAxelar:
             source_rpc_url="https://rpc-evm-sidechain.xrpl.org",
             source_chain="xrpl-evm",
             dest_chain="ethereum",
+            gateway_address=EVM_ADDRESS,
         )
 
     @pytest.mark.asyncio
@@ -6648,12 +6674,12 @@ class TestAdversarialCoreInvariant:
     @pytest.mark.asyncio
     async def test_invariant_all_adapters_build_resolution_tx_ward_signed_false(self):
         """Every adapter's build_resolution_tx returns ward_signed=False."""
-        flare = FlareAdapter()
-        axelar = AxelarAdapter()
-        solana = SolanaAdapter()
+        flare = FlareAdapter(rlusd_address=EVM_ADDRESS)
+        axelar = AxelarAdapter(gateway_address=EVM_ADDRESS)
+        solana = SolanaAdapter(rlusd_mint=SOL_ADDRESS)
         hedera = HederaAdapter()
-        stellar = StellarAdapter()
-        xdc = XDCAdapter()
+        stellar = StellarAdapter(rlusd_issuer=STELLAR_ACCOUNT)
+        xdc = XDCAdapter(rlusd_address=XDC_ADDRESS)
         wormhole = WormholeNTTAdapter()
 
         flare_tx = await flare.build_resolution_tx(
@@ -6691,12 +6717,12 @@ class TestAdversarialCoreInvariant:
     @pytest.mark.asyncio
     async def test_invariant_all_adapters_send_max_ward_signed_false(self):
         """Every adapter's send_max payload has ward_signed=False."""
-        flare = FlareAdapter()
-        axelar = AxelarAdapter()
-        solana = SolanaAdapter()
+        flare = FlareAdapter(rlusd_address=EVM_ADDRESS)
+        axelar = AxelarAdapter(gateway_address=EVM_ADDRESS)
+        solana = SolanaAdapter(rlusd_mint=SOL_ADDRESS)
         hedera = HederaAdapter()
-        stellar = StellarAdapter()
-        xdc = XDCAdapter()
+        stellar = StellarAdapter(rlusd_issuer=STELLAR_ACCOUNT)
+        xdc = XDCAdapter(rlusd_address=XDC_ADDRESS)
         wormhole = WormholeNTTAdapter()
 
         results = []
@@ -6716,8 +6742,13 @@ class TestAdversarialCoreInvariant:
     async def test_invariant_all_adapters_escrow_create_ward_signed_false(self):
         """Every adapter's escrow create has ward_signed=False."""
         adapters = [
-            FlareAdapter(), AxelarAdapter(), SolanaAdapter(),
-            HederaAdapter(), StellarAdapter(), XDCAdapter(), WormholeNTTAdapter(),
+            FlareAdapter(rlusd_address=EVM_ADDRESS),
+            AxelarAdapter(gateway_address=EVM_ADDRESS),
+            SolanaAdapter(rlusd_mint=SOL_ADDRESS),
+            HederaAdapter(),
+            StellarAdapter(rlusd_issuer=STELLAR_ACCOUNT),
+            XDCAdapter(rlusd_address=XDC_ADDRESS),
+            WormholeNTTAdapter(),
         ]
         for adapter in adapters:
             # Use appropriate address format per adapter

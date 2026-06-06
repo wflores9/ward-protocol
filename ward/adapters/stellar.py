@@ -25,6 +25,7 @@ import logging
 from dataclasses import dataclass, field
 from typing import Any, Optional
 
+from ward.adapters._config import require_non_placeholder
 from ward.chain import ChainAdapter, PolicyCertificate
 from ward.primitives import UnsignedTransaction
 
@@ -105,7 +106,11 @@ class StellarAdapter(ChainAdapter):
     ) -> None:
         self._horizon_url = horizon_url
         self._rlusd_asset_code = rlusd_asset_code
-        self._rlusd_issuer = rlusd_issuer
+        self._rlusd_issuer = require_non_placeholder(
+            rlusd_issuer,
+            field_name="rlusd_issuer",
+            invalid_values={_RLUSD_STELLAR_ISSUER},
+        )
         self._network_passphrase = network_passphrase
 
     # ── Ward-specific public interface ───────────────────────────────────────
