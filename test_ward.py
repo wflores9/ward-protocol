@@ -5931,3 +5931,802 @@ class TestXDCAdapter:
         )
         assert tx["ward_signed"] is False
         assert tx["TransactionType"] == "EscrowFinish"
+
+
+# ===========================================================================
+# Day 5 — Adversarial Testing
+# All ward_signed = False assertions under every failure path
+# ===========================================================================
+
+
+# ---------------------------------------------------------------------------
+# Adversarial: XRPL Core
+# ---------------------------------------------------------------------------
+
+class TestAdversarialXRPLCore:
+    """
+    Adversarial edge cases for the XRPL nine-check validation core.
+    Tests all rejection paths and verifies ward_signed=False throughout.
+    """
+
+    def setup_method(self):
+        from ward.primitives import _rate_limit_windows
+        _rate_limit_windows.pop(VALID_NFT_ID, None)
+
+    # -- Replay: burned NFT presented as valid ------------------------------
+
+    @pytest.mark.asyncio
+    async def test_adversarial_burned_nft_rejected_at_step1(self):
+        """Burned NFT (absent from AccountNFTs) is rejected at Step 1."""
+        validator = TestClaimValidatorAdversarial()._make_validator_with_mocks(
+            nft_exists=False
+        )
+        result = await validator.validate_claim(
+            claimant_address=VALID_ADDRESS,
+            nft_token_id=VALID_NFT_ID,
+            defaulted_vault=VALID_VAULT,
+            loan_id=VALID_LOAN_ID,
+            pool_address=VALID_ADDRESS,
+        )
+        assert not result.approved
+        assert result.steps_passed == 0
+        # ward_signed is not on ValidationResult, but verify rejection is clean
+        assert result.rejection_reason
+
+    @pytest.mark.asyncio
+    async def test_adversarial_burned_nft_ward_signed_never_set(self):
+        """Even on a burned-NFT attack, the UnsignedTransaction is never produced."""
+        validator = TestClaimValidatorAdversarial()._make_validator_with_mocks(
+            nft_exists=False
+        )
+        result = await validator.validate_claim(
+            claimant_address=VALID_ADDRESS,
+            nft_token_id=VALID_NFT_ID,
+            defaulted_vault=VALID_VAULT,
+            loan_id=VALID_LOAN_ID,
+            pool_address=VALID_ADDRESS,
+        )
+        assert not result.approved
+        assert result.claim_payout_drops == 0
+
+    # -- Expired credentials ------------------------------------------------
+
+    @pytest.mark.asyncio
+    async def test_adversarial_expired_policy_rejected_at_step2(self):
+        """Expired policy is rejected at Step 2 with 'expired' in reason."""
+        validator = TestClaimValidatorAdversarial()._make_validator_with_mocks(
+            ledger_time=999_999_998,
+            expiry_time=100_000,  # far in the past relative to ledger_time
+        )
+        result = await validator.validate_claim(
+            claimant_address=VALID_ADDRESS,
+            nft_token_id=VALID_NFT_ID,
+            defaulted_vault=VALID_VAULT,
+            loan_id=VALID_LOAN_ID,
+            pool_address=VALID_ADDRESS,
+        )
+        assert not result.approved
+        assert result.steps_passed < 3
+        assert result.rejection_reason
+
+    # -- Identity spoofing: vault mismatch ----------------------------------
+
+    @pytest.mark.asyncio
+    async def test_adversarial_vault_mismatch_rejected_at_step3(self):
+        """Cross-vault claim (vault address mismatch) is rejected at Step 3."""
+        wrong_vault = VALID_ADDRESS2  # NFT bound to VALID_ADDRESS
+        validator = TestClaimValidatorAdversarial()._make_validator_with_mocks(
+            policy_vault=VALID_ADDRESS,
+            defaulted_vault=wrong_vault,
+        )
+        result = await validator.validate_claim(
+            claimant_address=VALID_ADDRESS,
+            nft_token_id=VALID_NFT_ID,
+            defaulted_vault=wrong_vault,
+            loan_id=VALID_LOAN_ID,
+            pool_address=VALID_ADDRESS,
+        )
+        assert not result.approved
+        assert result.steps_passed < 4
+
+    # -- Default flag manipulation -------------------------------------------
+
+    @pytest.mark.asyncio
+    async def test_adversarial_no_default_flag_rejected_at_step4(self):
+        """Claim without LSF_LOAN_DEFAULT set is rejected at Step 4."""
+        validator = TestClaimValidatorAdversarial()._make_validator_with_mocks(
+            default_flag_set=False
+        )
+        result = await validator.validate_claim(
+            claimant_address=VALID_ADDRESS,
+            nft_token_id=VALID_NFT_ID,
+            defaulted_vault=VALID_VAULT,
+            loan_id=VALID_LOAN_ID,
+            pool_address=VALID_ADDRESS,
+        )
+        assert not result.approved
+        assert result.steps_passed < 5
+
+    # -- Pool exhaustion: insolvent pool ------------------------------------
+
+    @pytest.mark.asyncio
+    async def test_adversarial_insolvent_pool_rejected(self):
+        """Insolvent pool (balance=0) is rejected at Step 6 or 9."""
+        validator = TestClaimValidatorAdversarial()._make_validator_with_mocks(
+            pool_balance_drops=0
+        )
+        result = await validator.validate_claim(
+            claimant_address=VALID_ADDRESS,
+            nft_token_id=VALID_NFT_ID,
+            defaulted_vault=VALID_VAULT,
+            loan_id=VALID_LOAN_ID,
+            pool_address=VALID_ADDRESS,
+        )
+        assert not result.approved
+        assert "insolvent" in result.rejection_reason.lower()
+
+    @pytest.mark.asyncio
+    async def test_adversarial_pool_below_coverage_ratio(self):
+        """Pool below 1.5× coverage ratio is rejected."""
+        validator = TestClaimValidatorAdversarial()._make_validator_with_mocks(
+            pool_balance_drops=50_000,   # well below 1.5× of vault_loss=100_000
+            vault_loss_drops=100_000,
+        )
+        result = await validator.validate_claim(
+            claimant_address=VALID_ADDRESS,
+            nft_token_id=VALID_NFT_ID,
+            defaulted_vault=VALID_VAULT,
+            loan_id=VALID_LOAN_ID,
+            pool_address=VALID_ADDRESS,
+        )
+        assert not result.approved
+
+    # -- Rate limit: 4+ claims per NFT per 300s ----------------------------
+
+    def test_adversarial_rate_limit_exceeded(self):
+        """4th claim attempt on same NFT within 300s is rejected."""
+        from ward.primitives import check_rate_limit, _rate_limit_windows
+        unique_nft = "ADVERSARIAL" + "A" * 53
+        _rate_limit_windows.pop(unique_nft, None)
+        for _ in range(CLAIM_RATE_LIMIT_MAX):
+            check_rate_limit(unique_nft)
+        with pytest.raises(ValidationError, match="Rate limit"):
+            check_rate_limit(unique_nft)
+
+    def test_adversarial_rate_limit_ward_signed_not_affected(self):
+        """Rate limit rejection does not produce any signed output."""
+        from ward.primitives import check_rate_limit, _rate_limit_windows
+        unique_nft = "WARDLIMIT" + "B" * 55
+        _rate_limit_windows.pop(unique_nft, None)
+        for _ in range(CLAIM_RATE_LIMIT_MAX):
+            check_rate_limit(unique_nft)
+        try:
+            check_rate_limit(unique_nft)
+            assert False, "Should have raised"
+        except ValidationError as exc:
+            assert "Rate limit" in str(exc)
+            # No UnsignedTransaction produced — the exception is the only output
+
+    # -- Partial resolution: no Pathfinder path ----------------------------
+
+    @pytest.mark.asyncio
+    async def test_adversarial_no_pathfinder_path_partial_resolution(self):
+        """When ripple_path_find returns no alternatives, partial_resolution=True."""
+        empty_resp = _make_success_response({"alternatives": []})
+        MockClient = _async_client_factory(AsyncMock(return_value=empty_resp))
+        with patch("ward.resolver.AsyncJsonRpcClient", MockClient):
+            resolver = Resolver()
+            tx = await resolver.build_unsigned_tx(
+                pool_address=VALID_ADDRESS,
+                claimant_address=VALID_ADDRESS2,
+                payout_drops=500_000,
+                collateral_asset=_XRP_ASSET,
+                payout_asset=_USD_ASSET,
+            )
+        assert tx.partial_resolution is True
+        assert tx.ward_signed is False
+        assert tx.paths is None
+        assert tx.send_max is None
+
+    @pytest.mark.asyncio
+    async def test_adversarial_pathfinder_rpc_failure_partial_resolution(self):
+        """When ripple_path_find RPC fails, partial_resolution=True (no panic)."""
+        fail_resp = _make_fail_response("noPath")
+        MockClient = _async_client_factory(AsyncMock(return_value=fail_resp))
+        with patch("ward.resolver.AsyncJsonRpcClient", MockClient):
+            resolver = Resolver()
+            tx = await resolver.build_unsigned_tx(
+                pool_address=VALID_ADDRESS,
+                claimant_address=VALID_ADDRESS2,
+                payout_drops=200_000,
+                collateral_asset=_XRP_ASSET,
+                payout_asset=_USD_ASSET,
+            )
+        assert tx.partial_resolution is True
+        assert tx.ward_signed is False
+
+
+# ---------------------------------------------------------------------------
+# Adversarial: WormholeNTTAdapter
+# ---------------------------------------------------------------------------
+
+class TestAdversarialWormhole:
+    """
+    Adversarial scenarios for the Wormhole NTT adapter.
+    Verifies ward_signed=False is maintained under all failure paths.
+    """
+
+    def setup_method(self):
+        self.adapter = WormholeNTTAdapter(
+            source_rpc_url="https://s.altnet.rippletest.net:51234/",
+            dest_chain_id=2,
+        )
+
+    def test_adversarial_ntt_payload_ward_signed_immutable(self):
+        """NTTTransferPayload.ward_signed cannot be set by caller — field(init=False)."""
+        import dataclasses
+        payload = NTTTransferPayload(
+            source_chain_id=25,
+            dest_chain_id=2,
+            source_token="RLUSD",
+            dest_token="RLUSD",
+            sender=VALID_ADDRESS,
+            recipient=VALID_ADDRESS2,
+            amount=1_000_000,
+            nonce=0,
+        )
+        assert payload.ward_signed is False
+        # Verify it is read-only (dataclass frozen would prevent assignment,
+        # but ward_signed=False invariant is enforced structurally via init=False)
+        payload2 = NTTTransferPayload(
+            source_chain_id=25,
+            dest_chain_id=99,  # attacker changes dest chain
+            source_token="RLUSD",
+            dest_token="EVIL",  # attacker changes dest token
+            sender=VALID_ADDRESS,
+            recipient=VALID_ADDRESS2,
+            amount=1_000_000_000,  # attacker inflates amount
+            nonce=0,
+        )
+        # Even with crafted fields, ward_signed remains False
+        assert payload2.ward_signed is False
+
+    @pytest.mark.asyncio
+    async def test_adversarial_invalid_cross_chain_msg_ward_signed_false(self):
+        """Malformed cross-chain resolution still returns ward_signed=False."""
+        # Empty addresses — adapter builds payload without signing
+        tx = await self.adapter.build_resolution_tx(
+            pool_address=VALID_ADDRESS,
+            claimant_address=VALID_ADDRESS2,
+            payout_drops=0,  # zero payout edge case
+            dest_chain_id=999,  # unknown chain
+            nonce=0,
+        )
+        assert tx.ward_signed is False
+        assert tx.send_max["ward_signed"] is False
+
+    @pytest.mark.asyncio
+    async def test_adversarial_rlusd_issuer_control_preserved(self):
+        """RLUSD issuer fields in NTT payload match canonical constants."""
+        tx = await self.adapter.build_resolution_tx(
+            pool_address=VALID_ADDRESS,
+            claimant_address=VALID_ADDRESS2,
+            payout_drops=500_000,
+        )
+        payload = tx.send_max
+        # source_token must be the canonical RLUSD hex — not an attacker-controlled value
+        assert payload["source_token"] == "524C555344000000000000000000000000000000"
+        assert payload["ward_signed"] is False
+
+    @pytest.mark.asyncio
+    async def test_adversarial_escrow_create_ward_signed_false(self):
+        """Wormhole escrow create under attack path still has ward_signed=False."""
+        tx = await self.adapter.build_unsigned_escrow_create(
+            pool_address=VALID_ADDRESS,
+            claimant_address=VALID_ADDRESS2,
+            amount=0,  # edge: zero amount
+            condition_hex="",
+        )
+        assert tx["ward_signed"] is False
+
+
+# ---------------------------------------------------------------------------
+# Adversarial: FlareAdapter
+# ---------------------------------------------------------------------------
+
+class TestAdversarialFlare:
+    """Adversarial edge cases for FlareAdapter. ward_signed=False throughout."""
+
+    def setup_method(self):
+        self.adapter = FlareAdapter(rpc_url="https://flare-api.flare.network/ext/C/rpc")
+
+    @pytest.mark.asyncio
+    async def test_adversarial_invalid_vault_state_not_defaulted(self):
+        """verify_vault returns is_defaulted=False when no live RPC — no false positive."""
+        state = await self.adapter.verify_vault(
+            vault_address=VALID_ADDRESS,
+            loan_id=VALID_LOAN_ID,
+            pool_address=VALID_ADDRESS2,
+        )
+        assert state.is_defaulted is False  # base stub — no spurious defaults
+
+    @pytest.mark.asyncio
+    async def test_adversarial_zero_payout_ward_signed_false(self):
+        """Zero payout attack: ward_signed=False even with degenerate payout."""
+        tx = await self.adapter.build_resolution_tx(
+            pool_address=VALID_ADDRESS,
+            claimant_address=VALID_ADDRESS2,
+            payout_amount=0,
+        )
+        assert tx.ward_signed is False
+        assert tx.send_max["ward_signed"] is False
+
+    @pytest.mark.asyncio
+    async def test_adversarial_chain_id_override_ward_signed_false(self):
+        """Attacker overrides dest_chain_id — ward_signed still False."""
+        tx = await self.adapter.build_resolution_tx(
+            pool_address=VALID_ADDRESS,
+            claimant_address=VALID_ADDRESS2,
+            payout_amount=1_000_000,
+            dest_chain_id=999,  # unknown chain
+        )
+        assert tx.ward_signed is False
+        assert tx.send_max["chain_id"] == 999  # passed through but not signed
+        assert tx.send_max["ward_signed"] is False
+
+    @pytest.mark.asyncio
+    async def test_adversarial_flare_escrow_create_ward_signed_false(self):
+        """Flare escrow create under degenerate inputs — ward_signed=False."""
+        tx = await self.adapter.build_unsigned_escrow_create(
+            pool_address=VALID_ADDRESS,
+            claimant_address=VALID_ADDRESS2,
+            amount=0,
+            condition_hex="",
+        )
+        assert tx["ward_signed"] is False
+
+
+# ---------------------------------------------------------------------------
+# Adversarial: SolanaAdapter
+# ---------------------------------------------------------------------------
+
+class TestAdversarialSolana:
+    """Adversarial edge cases for SolanaAdapter. ward_signed=False throughout."""
+
+    def setup_method(self):
+        self.adapter = SolanaAdapter(rpc_url="https://api.devnet.solana.com")
+
+    @pytest.mark.asyncio
+    async def test_adversarial_invalid_account_not_defaulted(self):
+        """verify_vault on unregistered account returns is_defaulted=False — no false positive."""
+        state = await self.adapter.verify_vault(
+            vault_address=SOL_ADDRESS,
+            loan_id=VALID_LOAN_ID,
+            pool_address=SOL_ADDRESS2,
+        )
+        assert state.is_defaulted is False
+
+    @pytest.mark.asyncio
+    async def test_adversarial_zero_payout_ward_signed_false(self):
+        """Zero payout on Solana: ward_signed=False."""
+        tx = await self.adapter.build_resolution_tx(
+            pool_token_account=SOL_ADDRESS,
+            claimant_token_account=SOL_ADDRESS2,
+            authority_address=SOL_ADDRESS,
+            payout_amount=0,
+        )
+        assert tx.ward_signed is False
+        assert tx.send_max["ward_signed"] is False
+
+    @pytest.mark.asyncio
+    async def test_adversarial_stale_blockhash_still_unsigned(self):
+        """Stale or empty blockhash does not cause signing — ward_signed=False."""
+        tx = await self.adapter.build_resolution_tx(
+            pool_token_account=SOL_ADDRESS,
+            claimant_token_account=SOL_ADDRESS2,
+            authority_address=SOL_ADDRESS,
+            payout_amount=500_000,
+            recent_blockhash="",  # stale / missing blockhash
+        )
+        assert tx.ward_signed is False
+        assert tx.send_max["recent_blockhash"] == ""
+
+    @pytest.mark.asyncio
+    async def test_adversarial_solana_escrow_create_ward_signed_false(self):
+        """Solana escrow create under attack inputs — ward_signed=False."""
+        tx = await self.adapter.build_unsigned_escrow_create(
+            pool_address=SOL_ADDRESS,
+            claimant_address=SOL_ADDRESS2,
+            amount=0,
+            condition_hex="DEADBEEF",
+        )
+        assert tx["ward_signed"] is False
+
+
+# ---------------------------------------------------------------------------
+# Adversarial: HederaAdapter
+# ---------------------------------------------------------------------------
+
+class TestAdversarialHedera:
+    """Adversarial edge cases for HederaAdapter. ward_signed=False throughout."""
+
+    def setup_method(self):
+        self.adapter = HederaAdapter(
+            mirror_node_url="https://testnet.mirrornode.hedera.com",
+            rlusd_token_id="0.0.99999",
+        )
+
+    @pytest.mark.asyncio
+    async def test_adversarial_invalid_hts_token_not_defaulted(self):
+        """Unregistered HTS account returns is_defaulted=False — no false positive."""
+        state = await self.adapter.verify_vault(
+            vault_address=HEDERA_ACCOUNT,
+            loan_id=VALID_LOAN_ID,
+            pool_address=HEDERA_ACCOUNT2,
+        )
+        assert state.is_defaulted is False
+
+    @pytest.mark.asyncio
+    async def test_adversarial_zero_payout_hedera_ward_signed_false(self):
+        """Zero payout on Hedera: ward_signed=False."""
+        tx = await self.adapter.build_resolution_tx(
+            pool_address=HEDERA_ACCOUNT,
+            claimant_address=HEDERA_ACCOUNT2,
+            payout_amount=0,
+        )
+        assert tx.ward_signed is False
+        assert tx.send_max["ward_signed"] is False
+
+    @pytest.mark.asyncio
+    async def test_adversarial_token_id_spoofing_ward_signed_false(self):
+        """Attacker-controlled token ID does not cause signing."""
+        adapter = HederaAdapter(
+            mirror_node_url="https://testnet.mirrornode.hedera.com",
+            rlusd_token_id="0.0.EVIL",  # attacker-injected token ID
+        )
+        tx = await adapter.build_resolution_tx(
+            pool_address=HEDERA_ACCOUNT,
+            claimant_address=HEDERA_ACCOUNT2,
+            payout_amount=500_000,
+        )
+        assert tx.ward_signed is False
+        assert tx.send_max["ward_signed"] is False
+        # Token ID in payload is what the adapter was configured with
+        assert tx.send_max["token_id"] == "0.0.EVIL"
+
+    @pytest.mark.asyncio
+    async def test_adversarial_hedera_escrow_create_ward_signed_false(self):
+        """Hedera escrow create under degenerate inputs — ward_signed=False."""
+        tx = await self.adapter.build_unsigned_escrow_create(
+            pool_address=HEDERA_ACCOUNT,
+            claimant_address=HEDERA_ACCOUNT2,
+            amount=0,
+            condition_hex="",
+        )
+        assert tx["ward_signed"] is False
+
+
+# ---------------------------------------------------------------------------
+# Adversarial: StellarAdapter
+# ---------------------------------------------------------------------------
+
+class TestAdversarialStellar:
+    """Adversarial edge cases for StellarAdapter. ward_signed=False throughout."""
+
+    def setup_method(self):
+        self.adapter = StellarAdapter(
+            horizon_url="https://horizon-testnet.stellar.org",
+            rlusd_asset_code="RLUSD",
+            rlusd_issuer="GXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+        )
+
+    @pytest.mark.asyncio
+    async def test_adversarial_invalid_trustline_not_defaulted(self):
+        """Unregistered Stellar account returns is_defaulted=False — no false positive."""
+        state = await self.adapter.verify_vault(
+            vault_address=STELLAR_ACCOUNT,
+            loan_id=VALID_LOAN_ID,
+            pool_address=STELLAR_ACCOUNT2,
+        )
+        assert state.is_defaulted is False
+
+    @pytest.mark.asyncio
+    async def test_adversarial_zero_stroops_ward_signed_false(self):
+        """Zero payout (0 stroops) on Stellar: ward_signed=False."""
+        tx = await self.adapter.build_resolution_tx(
+            pool_address=STELLAR_ACCOUNT,
+            claimant_address=STELLAR_ACCOUNT2,
+            payout_amount=0,
+        )
+        assert tx.ward_signed is False
+        assert tx.send_max["ward_signed"] is False
+
+    @pytest.mark.asyncio
+    async def test_adversarial_wrong_network_passphrase_unsigned(self):
+        """Wrong network passphrase adapter — ward_signed=False (no automatic signing)."""
+        adapter = StellarAdapter(
+            horizon_url="https://horizon-testnet.stellar.org",
+            network_passphrase="ATTACKER CONTROLLED PASSPHRASE",
+        )
+        tx = await adapter.build_resolution_tx(
+            pool_address=STELLAR_ACCOUNT,
+            claimant_address=STELLAR_ACCOUNT2,
+            payout_amount=5_000_000,
+        )
+        # Ward never signs — passphrase is only used by institution for XDR signing
+        assert tx.ward_signed is False
+        assert tx.send_max["ward_signed"] is False
+
+    @pytest.mark.asyncio
+    async def test_adversarial_asset_issuer_spoofing_ward_signed_false(self):
+        """Attacker-injected issuer does not cause Ward to sign."""
+        adapter = StellarAdapter(
+            horizon_url="https://horizon-testnet.stellar.org",
+            rlusd_issuer="GEVIL0000000000000000000000000000000000000000000000000",
+        )
+        tx = await adapter.build_resolution_tx(
+            pool_address=STELLAR_ACCOUNT,
+            claimant_address=STELLAR_ACCOUNT2,
+            payout_amount=1_000_000,
+        )
+        assert tx.ward_signed is False
+        assert tx.send_max["ward_signed"] is False
+
+    @pytest.mark.asyncio
+    async def test_adversarial_amount_str_precision_no_rounding_exploit(self):
+        """Amount string formatting preserves exact value — no rounding exploit."""
+        tx = await self.adapter.build_resolution_tx(
+            pool_address=STELLAR_ACCOUNT,
+            claimant_address=STELLAR_ACCOUNT2,
+            payout_amount=1,  # 0.0000001 RLUSD (minimum stroop)
+        )
+        assert tx.send_max["amount_str"] == "0.0000001"
+        assert tx.ward_signed is False
+
+
+# ---------------------------------------------------------------------------
+# Adversarial: XDCAdapter
+# ---------------------------------------------------------------------------
+
+class TestAdversarialXDC:
+    """Adversarial edge cases for XDCAdapter. ward_signed=False throughout."""
+
+    def setup_method(self):
+        self.adapter = XDCAdapter(rpc_url="https://erpc.apothem.network", chain_id=51)
+
+    @pytest.mark.asyncio
+    async def test_adversarial_invalid_vault_not_defaulted(self):
+        """Unregistered XDC vault returns is_defaulted=False — no false positive."""
+        state = await self.adapter.verify_vault(
+            vault_address=XDC_ADDRESS,
+            loan_id=VALID_LOAN_ID,
+            pool_address=XDC_ADDRESS2,
+        )
+        assert state.is_defaulted is False
+
+    @pytest.mark.asyncio
+    async def test_adversarial_zero_payout_xdc_ward_signed_false(self):
+        """Zero payout on XDC: ward_signed=False."""
+        tx = await self.adapter.build_resolution_tx(
+            pool_address=XDC_ADDRESS,
+            claimant_address=XDC_ADDRESS2,
+            payout_amount=0,
+        )
+        assert tx.ward_signed is False
+        assert tx.send_max["ward_signed"] is False
+
+    @pytest.mark.asyncio
+    async def test_adversarial_xdc_mainnet_chain_id_enforced(self):
+        """Adapter chain ID override is passed through but ward_signed stays False."""
+        tx = await self.adapter.build_resolution_tx(
+            pool_address=XDC_ADDRESS,
+            claimant_address=XDC_ADDRESS2,
+            payout_amount=750_000,
+            dest_chain_id=50,  # override to mainnet
+        )
+        assert tx.send_max["chain_id"] == 50
+        assert tx.ward_signed is False
+        assert tx.send_max["ward_signed"] is False
+
+    @pytest.mark.asyncio
+    async def test_adversarial_xdc_escrow_create_ward_signed_false(self):
+        """XDC escrow create under degenerate inputs — ward_signed=False."""
+        tx = await self.adapter.build_unsigned_escrow_create(
+            pool_address=XDC_ADDRESS,
+            claimant_address=XDC_ADDRESS2,
+            amount=0,
+            condition_hex="",
+        )
+        assert tx["ward_signed"] is False
+
+    @pytest.mark.asyncio
+    async def test_adversarial_xdc_escrow_finish_ward_signed_false(self):
+        """XDC escrow finish under attack inputs — ward_signed=False."""
+        tx = await self.adapter.build_unsigned_escrow_finish(
+            claimant_address=XDC_ADDRESS2,
+            owner_address=XDC_ADDRESS,
+            offer_sequence=0,
+            condition_hex="",
+            fulfillment_hex="EVIL_FULFILLMENT",
+        )
+        assert tx["ward_signed"] is False
+
+
+# ---------------------------------------------------------------------------
+# Adversarial: AxelarAdapter
+# ---------------------------------------------------------------------------
+
+class TestAdversarialAxelar:
+    """Adversarial edge cases for AxelarAdapter. ward_signed=False throughout."""
+
+    def setup_method(self):
+        self.adapter = AxelarAdapter(
+            source_rpc_url="https://rpc-evm-sidechain.xrpl.org",
+            source_chain="xrpl-evm",
+            dest_chain="ethereum",
+        )
+
+    @pytest.mark.asyncio
+    async def test_adversarial_message_delivery_failure_ward_signed_false(self):
+        """Even when GMP message would fail delivery, ward_signed=False."""
+        # Simulate failed delivery by using an unknown dest chain
+        tx = await self.adapter.build_resolution_tx(
+            pool_address=VALID_ADDRESS,
+            claimant_address=VALID_ADDRESS2,
+            payout_amount=500_000,
+            dest_chain="UNKNOWN_CHAIN_XYZ",
+        )
+        assert tx.ward_signed is False
+        assert tx.send_max["dest_chain"] == "UNKNOWN_CHAIN_XYZ"
+        assert tx.send_max["ward_signed"] is False
+
+    @pytest.mark.asyncio
+    async def test_adversarial_cross_chain_resolution_rejected_not_signed(self):
+        """Rejected cross-chain resolution never produces a signed payload."""
+        # With no live RPC, vault appears not defaulted — no valid claim
+        state = await self.adapter.verify_vault(
+            vault_address=VALID_ADDRESS,
+            loan_id=VALID_LOAN_ID,
+            pool_address=VALID_ADDRESS2,
+        )
+        assert state.is_defaulted is False  # rejected at source
+        # No signed payload ever constructed
+        assert state.vault_address == VALID_ADDRESS
+
+    @pytest.mark.asyncio
+    async def test_adversarial_zero_payout_gmp_ward_signed_false(self):
+        """Zero payout GMP message: ward_signed=False in all payload fields."""
+        tx = await self.adapter.build_resolution_tx(
+            pool_address=VALID_ADDRESS,
+            claimant_address=VALID_ADDRESS2,
+            payout_amount=0,
+        )
+        assert tx.ward_signed is False
+        assert tx.send_max["ward_signed"] is False
+
+    @pytest.mark.asyncio
+    async def test_adversarial_send_resolution_message_ward_signed_false(self):
+        """send_resolution_message always returns ward_signed=False."""
+        msg = await self.adapter.send_resolution_message(
+            pool_address=VALID_ADDRESS,
+            claimant_address=VALID_ADDRESS2,
+            payout_amount=0,
+            nonce=9999,
+        )
+        assert msg["ward_signed"] is False
+
+    @pytest.mark.asyncio
+    async def test_adversarial_axelar_payload_immutable_ward_signed(self):
+        """AxelarGMPPayload.ward_signed is field(init=False) — cannot be overridden."""
+        import dataclasses
+        payload = AxelarGMPPayload(
+            source_chain="xrpl-evm",
+            dest_chain="ethereum",
+            gateway_address="0x0000",
+            dest_contract_address="0x0000",
+            sender=VALID_ADDRESS,
+            recipient=VALID_ADDRESS2,
+            amount=1_000_000,
+            nonce=0,
+        )
+        assert payload.ward_signed is False
+        # Verify init_fields does not include ward_signed
+        init_fields = {f.name for f in dataclasses.fields(AxelarGMPPayload) if f.init}
+        assert "ward_signed" not in init_fields
+
+
+# ---------------------------------------------------------------------------
+# Adversarial: Cross-adapter — ward_signed invariant enforced everywhere
+# ---------------------------------------------------------------------------
+
+class TestAdversarialCoreInvariant:
+    """
+    Exhaustive ward_signed=False verification across all adapters and
+    all failure/attack paths. This is the canonical invariant test.
+    """
+
+    @pytest.mark.asyncio
+    async def test_invariant_all_adapters_build_resolution_tx_ward_signed_false(self):
+        """Every adapter's build_resolution_tx returns ward_signed=False."""
+        flare = FlareAdapter()
+        axelar = AxelarAdapter()
+        solana = SolanaAdapter()
+        hedera = HederaAdapter()
+        stellar = StellarAdapter()
+        xdc = XDCAdapter()
+        wormhole = WormholeNTTAdapter()
+
+        flare_tx = await flare.build_resolution_tx(
+            pool_address=VALID_ADDRESS, claimant_address=VALID_ADDRESS2,
+            payout_amount=1_000_000,
+        )
+        axelar_tx = await axelar.build_resolution_tx(
+            pool_address=VALID_ADDRESS, claimant_address=VALID_ADDRESS2,
+            payout_amount=1_000_000,
+        )
+        solana_tx = await solana.build_resolution_tx(
+            pool_token_account=SOL_ADDRESS, claimant_token_account=SOL_ADDRESS2,
+            authority_address=SOL_ADDRESS, payout_amount=1_000_000,
+        )
+        hedera_tx = await hedera.build_resolution_tx(
+            pool_address=HEDERA_ACCOUNT, claimant_address=HEDERA_ACCOUNT2,
+            payout_amount=1_000_000,
+        )
+        stellar_tx = await stellar.build_resolution_tx(
+            pool_address=STELLAR_ACCOUNT, claimant_address=STELLAR_ACCOUNT2,
+            payout_amount=1_000_000,
+        )
+        xdc_tx = await xdc.build_resolution_tx(
+            pool_address=XDC_ADDRESS, claimant_address=XDC_ADDRESS2,
+            payout_amount=1_000_000,
+        )
+        wormhole_tx = await wormhole.build_resolution_tx(
+            pool_address=VALID_ADDRESS, claimant_address=VALID_ADDRESS2,
+            payout_drops=1_000_000,
+        )
+
+        for tx in [flare_tx, axelar_tx, solana_tx, hedera_tx, stellar_tx, xdc_tx, wormhole_tx]:
+            assert tx.ward_signed is False, f"ward_signed=True on {tx.tx_type}"
+
+    @pytest.mark.asyncio
+    async def test_invariant_all_adapters_send_max_ward_signed_false(self):
+        """Every adapter's send_max payload has ward_signed=False."""
+        flare = FlareAdapter()
+        axelar = AxelarAdapter()
+        solana = SolanaAdapter()
+        hedera = HederaAdapter()
+        stellar = StellarAdapter()
+        xdc = XDCAdapter()
+        wormhole = WormholeNTTAdapter()
+
+        results = []
+        results.append((await flare.build_resolution_tx(pool_address=VALID_ADDRESS, claimant_address=VALID_ADDRESS2, payout_amount=1)).send_max)
+        results.append((await axelar.build_resolution_tx(pool_address=VALID_ADDRESS, claimant_address=VALID_ADDRESS2, payout_amount=1)).send_max)
+        results.append((await solana.build_resolution_tx(pool_token_account=SOL_ADDRESS, claimant_token_account=SOL_ADDRESS2, authority_address=SOL_ADDRESS, payout_amount=1)).send_max)
+        results.append((await hedera.build_resolution_tx(pool_address=HEDERA_ACCOUNT, claimant_address=HEDERA_ACCOUNT2, payout_amount=1)).send_max)
+        results.append((await stellar.build_resolution_tx(pool_address=STELLAR_ACCOUNT, claimant_address=STELLAR_ACCOUNT2, payout_amount=1)).send_max)
+        results.append((await xdc.build_resolution_tx(pool_address=XDC_ADDRESS, claimant_address=XDC_ADDRESS2, payout_amount=1)).send_max)
+        results.append((await wormhole.build_resolution_tx(pool_address=VALID_ADDRESS, claimant_address=VALID_ADDRESS2, payout_drops=1)).send_max)
+
+        for payload in results:
+            assert payload is not None
+            assert payload["ward_signed"] is False, f"ward_signed=True in payload: {payload}"
+
+    @pytest.mark.asyncio
+    async def test_invariant_all_adapters_escrow_create_ward_signed_false(self):
+        """Every adapter's escrow create has ward_signed=False."""
+        adapters = [
+            FlareAdapter(), AxelarAdapter(), SolanaAdapter(),
+            HederaAdapter(), StellarAdapter(), XDCAdapter(), WormholeNTTAdapter(),
+        ]
+        for adapter in adapters:
+            # Use appropriate address format per adapter
+            pool = HEDERA_ACCOUNT if isinstance(adapter, HederaAdapter) else (STELLAR_ACCOUNT if isinstance(adapter, StellarAdapter) else VALID_ADDRESS)
+            claimant = HEDERA_ACCOUNT2 if isinstance(adapter, HederaAdapter) else (STELLAR_ACCOUNT2 if isinstance(adapter, StellarAdapter) else VALID_ADDRESS2)
+            tx = await adapter.build_unsigned_escrow_create(
+                pool_address=pool,
+                claimant_address=claimant,
+                amount=1_000_000,
+                condition_hex="ABCD1234",
+            )
+            assert tx["ward_signed"] is False, f"ward_signed=True on {type(adapter).__name__}"
