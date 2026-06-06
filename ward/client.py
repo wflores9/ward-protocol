@@ -329,7 +329,7 @@ class WardClient:
             memos=[premium_memo],
         )
         payment = await autofill(payment, client)
-        unsigned_payment = await build_unsigned_tx(payment, client)
+        await build_unsigned_tx(payment, client)
         # ward_signed = False — institution signs and submits payment_tx
 
         for r in results:

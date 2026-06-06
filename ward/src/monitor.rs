@@ -483,7 +483,7 @@ pub fn validate_xrpl_address(address: &str) -> Result<(), WardError> {
             let checksum = &bytes[bytes.len() - 4..];
             use sha2::{Digest, Sha256};
             let hash1 = Sha256::digest(payload);
-            let hash2 = Sha256::digest(&hash1);
+            let hash2 = Sha256::digest(hash1);
             if &hash2[..4] != checksum {
                 return Err(WardError::AddressError(format!(
                     "XRPL address checksum failed: {}",
