@@ -233,7 +233,7 @@ class EscrowSettlement:
         return {
             "finish_tx": "unsigned",
             "burn_tx": "unsigned",
-            "ward_signed": False,
+            "ward_signed": "false",
         }
 
     async def cancel_escrow(

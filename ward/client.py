@@ -333,7 +333,7 @@ class WardClient:
         # ward_signed = False — institution signs and submits payment_tx
 
         for r in results:
-            r["unsigned_payment_tx"] = unsigned_payment.tx_dict
+            r["unsigned_payment_tx"] = "unsigned"
 
         logger.info(
             len(vault_addresses),
