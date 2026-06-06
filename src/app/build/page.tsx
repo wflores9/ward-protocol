@@ -73,10 +73,10 @@ result = await client.purchase_coverage(
               <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 14, color: 'var(--gold)', letterSpacing: '0.1em', marginBottom: 12 }}>TYPESCRIPT SDK</div>
               <div style={{ background: '#060d1a', border: '1px solid rgba(168,197,232,0.1)', borderRadius: 8, padding: '14px 16px', marginBottom: 16, position: 'relative', overflow: 'hidden' }}>
                 <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 1, background: 'linear-gradient(90deg, transparent, var(--gold), transparent)', opacity: 0.3 }} />
-                <code style={{ fontFamily: 'DM Mono, monospace', fontSize: 14, color: 'var(--ice)' }}>npm install ward-protocol</code>
+                <code style={{ fontFamily: 'DM Mono, monospace', fontSize: 14, color: 'var(--ice)' }}>npm install @wardprotocol/sdk</code>
               </div>
               <div style={{ background: '#060d1a', border: '1px solid rgba(168,197,232,0.08)', borderRadius: 8, padding: '14px 16px', marginBottom: 16 }}>
-                <pre style={{ fontFamily: 'DM Mono, monospace', fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.7, margin: 0, overflowX: 'auto' }}>{`import { WardClient } from 'ward-protocol'
+                <pre style={{ fontFamily: 'DM Mono, monospace', fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.7, margin: 0, overflowX: 'auto' }}>{`import { WardClient } from '@wardprotocol/sdk'
 
 const client = new WardClient({
   api_url: 'https://api.wardprotocol.org',
