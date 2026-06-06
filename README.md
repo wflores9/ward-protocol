@@ -27,7 +27,7 @@ Nine deterministic steps — all state from the XRPL ledger:
 | Step | Check |
 |------|-------|
 | 1 | NFT existence + taxon 281 (XLS-20) |
-| 2 | Policy expiry — ledger `close_time`, never server clock |
+| 2 | Policy validity — ledger `close_time` + matching on-chain premium payment |
 | 3 | Vault address binding — NFT metadata vault == defaulted vault |
 | 4 | `LSF_LOAN_DEFAULT` flag on `LedgerEntry(index=loan_id)` |
 | 5 | Vault loss > 0 drops |
@@ -104,7 +104,8 @@ npm install ward-protocol          # TypeScript SDK
 - `POST /purchase` — unsigned coverage transaction
 
 Full docs: [wardprotocol.org/docs](https://wardprotocol.org/docs)  
-Build guide: [wardprotocol.org/build](https://wardprotocol.org/build)
+Build guide: [wardprotocol.org/build](https://wardprotocol.org/build)  
+Institutional readiness: [docs/institutional-readiness.md](docs/institutional-readiness.md)
 
 ---
 

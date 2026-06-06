@@ -34,6 +34,7 @@ from ward.coverage import get_active_coverage_drops
 from ward.primitives import (
     LedgerError,
     ValidationError,
+    client_context,
     validate_drops_amount,
     validate_xrpl_address,
 )
@@ -129,7 +130,7 @@ class PoolHealthMonitor:
         """
         Fetch on-chain state and return a PoolHealth snapshot.
         """
-        async with AsyncJsonRpcClient(self._url) as client:
+        async with client_context(AsyncJsonRpcClient(self._url)) as client:
             # Step 1: Account info
             resp = await client.request(
                 AccountInfo(account=self._pool_address, ledger_index="validated")

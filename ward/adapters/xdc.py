@@ -26,6 +26,7 @@ import logging
 from dataclasses import dataclass, field
 from typing import Any, Optional
 
+from ward.adapters._config import require_non_placeholder
 from ward.chain import ChainAdapter, PolicyCertificate
 from ward.primitives import UnsignedTransaction
 
@@ -106,7 +107,11 @@ class XDCAdapter(ChainAdapter):
         self._rpc_url = rpc_url
         self._chain_id = chain_id
         self._ward_resolver = ward_resolver
-        self._rlusd_address = rlusd_address
+        self._rlusd_address = require_non_placeholder(
+            rlusd_address,
+            field_name="rlusd_address",
+            invalid_values={_RLUSD_XDC_ADDRESS},
+        )
 
     # ── Ward-specific public interface ───────────────────────────────────────
 

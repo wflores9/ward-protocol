@@ -269,7 +269,7 @@ This document catalogues every attack vector identified during design and implem
 | Risk | Severity | Notes |
 |---|---|---|
 | NFT burn ↔ escrow finish TOCTOU | Medium | ~1–3 ledger close window. Mitigated by rate limiter. Full fix requires XRPL Hooks or atomic multi-tx. |
-| Premium payment not verified on-chain | **High** | Validator checks NFT exists and taxon matches, but does not verify a matching premium Payment tx exists on-chain. A fake NFT minted without paying a premium passes all 9 validation steps. TODO: query `account_tx` on the pool address and confirm a Payment from the claimant exists for the correct amount before approving any claim. Tracked in `validator.py` with `TODO(HIGH)` comment. Documented by `TestPremiumVerificationGap::test_fake_nft_without_premium_is_rejected` (xfail). |
+| Premium payment not verified on-chain | RESOLVED in v0.2.6 | Validator now scans `account_tx` on the pool address and requires a matching premium `Payment` from the claimant with the `ward/policy-premium` memo for the policy NFT and coverage amount before approving any claim. Documented by `TestPremiumVerificationGap::test_fake_nft_without_premium_is_rejected`. |
 | In-memory rate limiter not distributed | Low | Single-process only. Multi-process deployments need shared state. |
 | LoanManage transaction type not in xrpl-py standard | Low | XLS-66 is a draft standard. `LedgerEntry(loan=...)` may not be available in all xrpl-py versions. Test on target network before production. |
 | Anomaly detection threshold is static | Low | Fixed 5/5min threshold may miss slow-drip attacks. Consider adaptive thresholds. |

@@ -17,6 +17,7 @@ from typing import Optional, Tuple
 
 from xrpl.asyncio.clients import AsyncJsonRpcClient
 from xrpl.models import AccountInfo, AccountNFTs, LedgerEntry
+from xrpl.models.requests import AccountTx
 
 from ward.constants import (
     DEFAULT_TESTNET_URL,
@@ -26,11 +27,13 @@ from ward.constants import (
     XRPL_BASE_RESERVE_DROPS,
     XRPL_OWNER_RESERVE_DROPS,
 )
+from ward.coverage import has_matching_premium_payment
 from ward.primitives import (
     LedgerError,
     ValidationError,
     WardError,
     check_rate_limit,
+    client_context,
     get_ledger_close_time,
     validate_loan_id,
     validate_nft_id,
@@ -100,21 +103,7 @@ class ClaimValidator:
         # FIX #14: wrap all ledger I/O so LedgerError/WardError always returns
         # ValidationResult rather than propagating as an unhandled exception.
         try:
-            _raw_client = AsyncJsonRpcClient(self._url)
-            if not hasattr(_raw_client.__class__, "__aenter__"):
-
-                async def _aenter(self):
-                    return self
-
-                async def _aexit(self, *a):
-                    pass
-
-                _raw_client.__class__ = type(
-                    "_CompatClient",
-                    (_raw_client.__class__,),
-                    {"__aenter__": _aenter, "__aexit__": _aexit},
-                )
-            async with _raw_client as client:
+            async with client_context(AsyncJsonRpcClient(self._url)) as client:
                 # Steps 1, 4, pool-info run concurrently.
                 nft_data, (default_flag, vault_loss), pool_info = await asyncio.gather(
                     self._step1_verify_nft_exists(
@@ -143,12 +132,19 @@ class ClaimValidator:
                 expiry_err = await self._step2_check_expiry(client, metadata)
                 if expiry_err:
                     return self._reject(2, expiry_err)
+                coverage_drops = int(
+                    metadata.get("coverage_drops") or metadata.get("c") or 0
+                )
+                premium_err = await self._step2_verify_premium_payment(
+                    client=client,
+                    claimant_address=claimant_address,
+                    pool_address=pool_address,
+                    nft_token_id=nft_token_id,
+                    coverage_drops=coverage_drops,
+                )
+                if premium_err:
+                    return self._reject(2, premium_err)
                 logger.info("Step 2 passed")
-
-                # TODO(HIGH): verify premium payment on-chain for this NFT's token ID.
-                # A fake NFT minted without paying a premium passes all 9 validation
-                # steps. Query account_tx for the pool address to confirm a matching
-                # Payment transaction exists before approving any claim.
 
                 vault_err = self._step3_verify_vault_binding(metadata, defaulted_vault)
                 if vault_err:
@@ -184,10 +180,7 @@ class ClaimValidator:
                     return self._reject(8, step8_err)
                 logger.info("Step 8 passed")
 
-                policy_coverage = int(
-                    metadata.get("coverage_drops") or metadata.get("c") or 0
-                )
-                payout = min(vault_loss, policy_coverage)
+                payout = min(vault_loss, coverage_drops)
 
                 # Step 9: rate-limit per NFT token ID (2.12) then pool solvency.
                 # Rate-limit checked here so steps 1–8 (cheap chain reads) run first
@@ -206,7 +199,7 @@ class ClaimValidator:
                     approved=True,
                     claim_payout_drops=payout,
                     vault_loss_drops=vault_loss,
-                    policy_coverage_drops=policy_coverage,
+                    policy_coverage_drops=coverage_drops,
                     steps_passed=9,
                 )
 
@@ -295,6 +288,57 @@ class ClaimValidator:
             return None
         except LedgerError as exc:
             return f"Ledger time check failed: {exc}"
+
+    async def _step2_verify_premium_payment(
+        self,
+        *,
+        client,
+        claimant_address: str,
+        pool_address: str,
+        nft_token_id: str,
+        coverage_drops: int,
+    ) -> Optional[str]:
+        if coverage_drops <= 0:
+            return "Policy coverage missing or invalid in metadata"
+
+        marker = None
+        while True:
+            try:
+                response = await client.request(
+                    AccountTx(
+                        account=pool_address,
+                        ledger_index_min=-1,
+                        ledger_index_max=-1,
+                        limit=200,
+                        marker=marker,
+                    )
+                )
+            except Exception as exc:
+                logger.error("premium verification error: %s", exc)
+                return f"Premium verification failed: {exc}"
+
+            if not response.is_successful():
+                return "Premium verification failed: AccountTx request unsuccessful"
+
+            transactions = response.result.get("transactions", [])
+            for tx_wrapper in transactions:
+                tx = tx_wrapper if isinstance(tx_wrapper, dict) else {}
+                if has_matching_premium_payment(
+                    tx,
+                    claimant_address=claimant_address,
+                    pool_address=pool_address,
+                    nft_token_id=nft_token_id,
+                    coverage_drops=coverage_drops,
+                ):
+                    return None
+
+            marker = response.result.get("marker")
+            if not marker:
+                break
+
+        return (
+            "Premium payment not found on-chain for this claimant, pool, and policy NFT"
+        )
 
     async def _step4_verify_default_flag(
         self, client, loan_id: str

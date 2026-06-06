@@ -51,8 +51,8 @@ async def register_vault(
 
     async with _registry_lock:
         existing = _registry[key_hash]
-        for entry in existing:
-            if entry["vault_address"] == vault_address:
+        for existing_entry in existing:
+            if existing_entry["vault_address"] == vault_address:
                 raise WardError(
                     f"Vault {vault_address} already registered under this institution key"
                 )

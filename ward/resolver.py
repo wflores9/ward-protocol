@@ -19,7 +19,7 @@ from xrpl.models.currencies import XRP, IssuedCurrency
 from xrpl.models.requests import RipplePathFind
 
 from ward.constants import DEFAULT_TESTNET_URL
-from ward.primitives import UnsignedTransaction
+from ward.primitives import UnsignedTransaction, client_context
 
 logger = logging.getLogger("ward.resolver")
 
@@ -91,7 +91,7 @@ class Resolver:
                 amount_drops=payout_drops,
             )
 
-        async with AsyncJsonRpcClient(self._url) as client:
+        async with client_context(AsyncJsonRpcClient(self._url)) as client:
             paths, send_max = await self._ripple_path_find(
                 client,
                 source_account=pool_address,
