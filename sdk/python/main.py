@@ -146,14 +146,10 @@ def verify_institution_key(x_institution_key: Optional[str]) -> Optional[str]:
       1. ward.keys store — for keys generated via POST /keys/generate
       2. INSTITUTION_API_KEY env var — backward compat for hardcoded keys
 
-    Returns the raw key on success (for Depends() callers), None if auth bypassed.
+    Returns the raw key on success. Raises HTTP 401 if key is missing or invalid. Raises HTTP 503 if server auth is not configured.
     Raises HTTP 401 if a key is required but invalid.
     """
     if not x_institution_key:
-        expected = os.getenv("INSTITUTION_API_KEY")
-        if not expected:
-            logger.warning("INSTITUTION_API_KEY not set in environment — auth bypassed")
-            return None
         raise HTTPException(
             status_code=401,
             detail={
@@ -176,8 +172,14 @@ def verify_institution_key(x_institution_key: Optional[str]) -> Optional[str]:
     # Backward compat — constant-time comparison against env var
     expected = os.getenv("INSTITUTION_API_KEY")
     if not expected:
-        logger.warning("INSTITUTION_API_KEY not set in environment — auth bypassed")
-        return x_institution_key
+        raise HTTPException(
+            status_code=503,
+            detail={
+                "error": "AUTH_NOT_CONFIGURED",
+                "message": "Server authentication is not configured",
+                "ward_signed": False,
+            }
+        )
 
     # Constant-time comparison — prevents timing attacks
     provided = hashlib.sha256(x_institution_key.encode()).digest()
@@ -488,7 +490,7 @@ async def webhook_deregister(
 
 
 @app.post("/keys/generate")
-async def generate_key_endpoint(request: KeyRequestModel):
+async def generate_key_endpoint(request: KeyRequestModel, institution_key: str = Depends(_institution_key_dep)):
     """
     Generate and register a new institution API key.
     The raw key is returned ONCE — it cannot be retrieved again.
