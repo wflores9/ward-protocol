@@ -32,94 +32,20 @@ export default function BuildPage() {
         </div>
       </div>
 
-      {/* Get Started */}
+      {/* GET STARTED — Maintenance Notice */}
       <section style={{ ...S.section, background: 'var(--steel)' }}>
         <div style={S.container}>
-          <span style={S.label}>GET STARTED — FREE</span>
-          <h2 style={S.h2}>Install in 30 seconds.</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px,1fr))', gap: 16, marginTop: 32 }}>
-
-            {/* Python */}
-            <div style={S.card}>
-              <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 14, color: 'var(--gold)', letterSpacing: '0.1em', marginBottom: 12 }}>PYTHON SDK</div>
-              <div style={{ background: '#060d1a', border: '1px solid rgba(168,197,232,0.1)', borderRadius: 8, padding: '14px 16px', marginBottom: 16, position: 'relative', overflow: 'hidden' }}>
-                <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 1, background: 'linear-gradient(90deg, transparent, var(--gold), transparent)', opacity: 0.3 }} />
-                <code style={{ fontFamily: 'DM Mono, monospace', fontSize: 14, color: 'var(--ice)' }}>pip install ward-protocol</code>
-              </div>
-              <div style={{ background: '#060d1a', border: '1px solid rgba(168,197,232,0.08)', borderRadius: 8, padding: '14px 16px', marginBottom: 16 }}>
-                <pre style={{ fontFamily: 'DM Mono, monospace', fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.7, margin: 0, overflowX: 'auto' }}>{`from ward import WardClient, ClaimValidator
-
-client = WardClient(
-  url="https://s.altnet.rippletest.net:51234/"
-)
-
-result = await client.purchase_coverage(
-  wallet=wallet,
-  vault_address=vault_addr,
-  coverage_drops=500_000_000,
-  period_days=30,
-  pool_address=pool_addr,
-)
-# ward_signed = False — always.`}</pre>
-              </div>
-              <a href="https://pypi.org/project/ward-protocol/" target="_blank" rel="noopener noreferrer" className="btn-ghost" style={{ display: 'block', textAlign: 'center', fontSize: 14 }}>
-                View on PyPI →
-              </a>
-            </div>
-
-            {/* TypeScript */}
-            <div style={S.card}>
-              <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 14, color: 'var(--gold)', letterSpacing: '0.1em', marginBottom: 12 }}>TYPESCRIPT SDK</div>
-              <div style={{ background: '#060d1a', border: '1px solid rgba(168,197,232,0.1)', borderRadius: 8, padding: '14px 16px', marginBottom: 16, position: 'relative', overflow: 'hidden' }}>
-                <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 1, background: 'linear-gradient(90deg, transparent, var(--gold), transparent)', opacity: 0.3 }} />
-                <code style={{ fontFamily: 'DM Mono, monospace', fontSize: 14, color: 'var(--ice)' }}>npm install ward-protocol</code>
-              </div>
-              <div style={{ background: '#060d1a', border: '1px solid rgba(168,197,232,0.08)', borderRadius: 8, padding: '14px 16px', marginBottom: 16 }}>
-                <pre style={{ fontFamily: 'DM Mono, monospace', fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.7, margin: 0, overflowX: 'auto' }}>{`import { WardClient } from 'ward-protocol'
-
-const client = new WardClient({
-  url: 'https://s.altnet.rippletest.net:51234/'
-})
-
-const result = await client.validateClaim({
-  claimantAddress: wallet.address,
-  nftTokenId: nftId,
-  defaultedVault: vaultAddr,
-  loanId: loanId,
-  poolAddress: poolAddr,
-})
-// result.approved — true / false`}</pre>
-              </div>
-              <p style={{ textAlign: 'center', fontSize: 13, color: 'var(--text-secondary)', margin: 0 }}>
-                TypeScript SDK — available at PyPI launch
-              </p>
-            </div>
-
-            {/* API */}
-            <div style={S.card}>
-              <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 14, color: 'var(--gold)', letterSpacing: '0.1em', marginBottom: 12 }}>LIVE API</div>
-              <div style={{ marginBottom: 12 }}>
-                <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 6 }}>Base URL</div>
-                <div style={{ background: '#060d1a', border: '1px solid rgba(168,197,232,0.08)', borderRadius: 6, padding: '10px 14px' }}>
-                  <code style={{ fontFamily: 'DM Mono, monospace', fontSize: 14, color: 'var(--ice)' }}>https://api.wardprotocol.org</code>
-                </div>
-              </div>
-              <div style={{ marginBottom: 12 }}>
-                <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 6 }}>Authentication</div>
-                <div style={{ background: '#060d1a', border: '1px solid rgba(168,197,232,0.08)', borderRadius: 6, padding: '10px 14px' }}>
-                  <code style={{ fontFamily: 'DM Mono, monospace', fontSize: 14, color: 'var(--text-secondary)' }}>X-Institution-Key: ward_T_...</code>
-                </div>
-              </div>
-              <div style={{ marginBottom: 20 }}>
-                <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 6 }}>Generate API Key (free)</div>
-                <div style={{ background: '#060d1a', border: '1px solid rgba(168,197,232,0.08)', borderRadius: 6, padding: '10px 14px' }}>
-                  <code style={{ fontFamily: 'DM Mono, monospace', fontSize: 14, color: 'var(--green)' }}>POST /keys/generate</code>
-                </div>
-              </div>
-              <a href="https://api.wardprotocol.org/health" target="_blank" rel="noopener noreferrer" className="btn-ghost" style={{ display: 'block', textAlign: 'center', fontSize: 14 }}>
-                Check API Health →
-              </a>
-            </div>
+          <span style={S.label}>GET STARTED</span>
+          <h2 style={S.h2}>SDK &amp; API Access Coming Soon.</h2>
+          <div style={{ border: '1px solid var(--gold)', borderRadius: 8, padding: '24px 32px', marginTop: 32, background: 'rgba(200,169,74,0.05)', maxWidth: 640 }}>
+            <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 13, color: 'var(--gold)', letterSpacing: '0.1em', marginBottom: 12 }}>SECURITY SPRINT IN PROGRESS</div>
+            <p style={{ fontSize: 15, color: 'var(--text-secondary)', lineHeight: 1.7, margin: '0 0 16px 0' }}>
+              Ward Protocol API and SDK are currently undergoing institutional-grade security hardening. Public access will resume shortly.
+            </p>
+            <p style={{ fontSize: 14, color: 'var(--text-secondary)', margin: 0 }}>
+              For early institutional access contact{' '}
+              <a href="mailto:wflores@wardprotocol.org" style={{ color: 'var(--gold)' }}>wflores@wardprotocol.org</a>
+            </p>
           </div>
         </div>
       </section>
