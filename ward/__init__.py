@@ -56,6 +56,7 @@ from ward.primitives import (
     make_preimage_condition,
     ripple_time_now,
     submit_with_retry,
+    build_unsigned_tx,
     validate_drops,
     validate_drops_amount,
     validate_nft_id,
@@ -107,6 +108,7 @@ __all__ = [
     "get_ledger_close_time",
     "ripple_time_now",
     "submit_with_retry",
+    "build_unsigned_tx",
     # Licensing tier
     "LicenseTier",
     # Network endpoints

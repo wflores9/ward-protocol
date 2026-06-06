@@ -414,6 +414,25 @@ def generate_claim_preimage() -> bytes:
 # ---------------------------------------------------------------------------
 
 
+async def build_unsigned_tx(
+    tx: Transaction,
+    client: AsyncJsonRpcClient,
+) -> UnsignedTransaction:
+    """
+    Autofill a transaction and return it unsigned.
+    ward_signed = False — Ward never signs. Institution signs and submits.
+    """
+    from xrpl.asyncio.transaction import autofill
+    filled = await autofill(tx, client)
+    tx_dict = filled.to_dict()
+    return UnsignedTransaction(
+        tx_type=tx_dict.get("TransactionType", ""),
+        account=tx_dict.get("Account", ""),
+        destination=tx_dict.get("Destination", ""),
+        amount_drops=int(tx_dict.get("Amount", 0) or 0),
+    )
+
+
 async def submit_with_retry(
     tx: Transaction,
     client: AsyncJsonRpcClient,
@@ -422,6 +441,9 @@ async def submit_with_retry(
     base_delay: float = 1.0,
 ) -> object:
     """
+    DEPRECATED — Ward must not sign or submit transactions.
+    Use build_unsigned_tx() instead and return UnsignedTransaction to institution.
+    This function will be removed before mainnet.
     Submit a signed transaction with retry on retryable XRPL engine results.
 
     Retryable results: telINSUF_FEE_P, terRETRY, terQUEUED, terPRE_SEQ.

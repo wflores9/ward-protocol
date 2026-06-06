@@ -513,7 +513,7 @@ class TestWardClientInputValidation:
     async def test_invalid_vault_address_raises(self):
         with pytest.raises(ValidationError, match="vault_address"):
             await self.client.purchase_coverage(
-                wallet=self.wallet,
+                institution_address=VALID_ADDRESS,
                 vault_address="rInvalid",
                 coverage_drops=1_000_000,
                 period_days=30,
@@ -524,7 +524,7 @@ class TestWardClientInputValidation:
     async def test_invalid_pool_address_raises(self):
         with pytest.raises(ValidationError, match="pool_address"):
             await self.client.purchase_coverage(
-                wallet=self.wallet,
+                institution_address=VALID_ADDRESS,
                 vault_address=VALID_ADDRESS,
                 coverage_drops=1_000_000,
                 period_days=30,
@@ -535,7 +535,7 @@ class TestWardClientInputValidation:
     async def test_zero_coverage_drops_raises(self):
         with pytest.raises(ValidationError):
             await self.client.purchase_coverage(
-                wallet=self.wallet,
+                institution_address=VALID_ADDRESS,
                 vault_address=VALID_ADDRESS,
                 coverage_drops=0,
                 period_days=30,
@@ -546,7 +546,7 @@ class TestWardClientInputValidation:
     async def test_zero_period_days_raises(self):
         with pytest.raises(ValidationError):
             await self.client.purchase_coverage(
-                wallet=self.wallet,
+                institution_address=VALID_ADDRESS,
                 vault_address=VALID_ADDRESS,
                 coverage_drops=1_000_000,
                 period_days=0,
@@ -557,7 +557,7 @@ class TestWardClientInputValidation:
     async def test_invalid_premium_rate_raises(self):
         with pytest.raises(ValidationError):
             await self.client.purchase_coverage(
-                wallet=self.wallet,
+                institution_address=VALID_ADDRESS,
                 vault_address=VALID_ADDRESS,
                 coverage_drops=1_000_000,
                 period_days=30,
@@ -569,7 +569,7 @@ class TestWardClientInputValidation:
     async def test_example_vault_address_from_prototype_rejected(self):
         with pytest.raises(ValidationError):
             await self.client.purchase_coverage(
-                wallet=self.wallet,
+                institution_address=VALID_ADDRESS,
                 vault_address="rExampleVaultXXX",
                 coverage_drops=1_000_000,
                 period_days=90,
@@ -594,17 +594,20 @@ class TestWardClientInputValidation:
         with (
             patch("ward.client.AsyncJsonRpcClient", _async_client_factory(AsyncMock())),
             patch("ward.client.autofill", AsyncMock(side_effect=lambda tx, c: tx)),
-            patch("ward.client.submit_with_retry", AsyncMock(return_value=fake_empty_nft_resp)),
+            patch("ward.client.build_unsigned_tx", AsyncMock(return_value=fake_empty_nft_resp)),
             patch("ward.client.get_ledger_close_time", AsyncMock(return_value=800_000_000)),
         ):
-            with pytest.raises(WardError, match="nftoken_id is empty"):
-                await self.client.purchase_coverage(
-                    wallet=real_wallet,
-                    vault_address=VALID_ADDRESS,
-                    coverage_drops=1_000_000,
-                    period_days=30,
-                    pool_address=VALID_ADDRESS2,
-                )
+            # ward_signed = False — Ward returns unsigned tx, NFT ID pending institution signature
+            result = await self.client.purchase_coverage(
+                institution_address=VALID_ADDRESS,
+                vault_address=VALID_ADDRESS,
+                coverage_drops=1_000_000,
+                period_days=30,
+                pool_address=VALID_ADDRESS2,
+            )
+            assert result["nft_token_id"] == "pending_institution_signature"
+            assert "mint_tx" in result
+            assert result.get("ward_signed") is False
 
 
 # ===========================================================================
@@ -1097,8 +1100,8 @@ class TestEscrowSettlement:
         try:
             with pytest.raises(ValidationError, match="dispute window"):
                 await settlement.finish_escrow(
-                    pool_wallet=pool_wallet,
-                    claimant_wallet=claimant_wallet,
+                    pool_address=pool_wallet.classic_address,
+                    claimant_address_signer=claimant_wallet.classic_address,
                     escrow_record=record,
                     fulfillment_hex=fulf,
                 )
@@ -1125,7 +1128,7 @@ class TestEscrowSettlement:
         try:
             with pytest.raises(ValidationError, match="not yet cancellable"):
                 await settlement.cancel_escrow(
-                    pool_wallet=pool_wallet,
+                    pool_address=pool_wallet.classic_address,
                     escrow_record=record,
                     reason="dispute",
                 )
@@ -1139,7 +1142,7 @@ class TestEscrowSettlement:
         try:
             with pytest.raises(ValidationError):
                 await settlement.create_claim_escrow(
-                    pool_wallet=FakeWallet(),
+                    pool_address=VALID_ADDRESS,
                     claimant_address="bad-addr",
                     payout_drops=500_000,
                     condition_hex=cond,
@@ -1533,7 +1536,7 @@ class TestEscrowSettlementAdvanced:
                   _async_client_factory(noop_request)),
             patch("ward.settlement.get_ledger_close_time",
                   AsyncMock(return_value=current_time)),
-            patch("ward.settlement.submit_with_retry",
+            patch("ward.settlement.build_unsigned_tx",
                   AsyncMock(return_value=fake_resp)),
             patch("ward.settlement.autofill",
                   AsyncMock(side_effect=lambda tx, c: tx)),
@@ -1554,7 +1557,7 @@ class TestEscrowSettlementAdvanced:
             p.start()
         try:
             record = await settlement.create_claim_escrow(
-                pool_wallet=pool_wallet,
+                pool_address=pool_wallet.classic_address,
                 claimant_address=VALID_ADDRESS,
                 payout_drops=500_000,
                 condition_hex=cond,
@@ -1585,7 +1588,7 @@ class TestEscrowSettlementAdvanced:
             p.start()
         try:
             record = await settlement.create_claim_escrow(
-                pool_wallet=pool_wallet,
+                pool_address=pool_wallet.classic_address,
                 claimant_address=VALID_ADDRESS,
                 payout_drops=500_000,
                 condition_hex=cond,
@@ -1850,6 +1853,7 @@ async def test_integration_purchase_coverage_testnet():
 
     client = WardClient(xrpl_url="https://s.altnet.rippletest.net:51234/")
     result = await client.purchase_coverage(
+        institution_address=wallet.classic_address,
         wallet=wallet,
         vault_address=VALID_ADDRESS,
         coverage_drops=1_000_000,
@@ -2611,10 +2615,16 @@ class TestCriticalBugFixes:
         async def noop_request(req):
             return _make_success_response({})
 
-        async def track_burn(tx, client, wallet):
+        async def track_burn(tx, client):
             if isinstance(tx, _NFTokenBurn):
-                burn_wallet_addresses.append(wallet.classic_address)
-            return fake_resp
+                burn_wallet_addresses.append(tx.account)
+            from ward.primitives import UnsignedTransaction
+            return UnsignedTransaction(
+                tx_type=tx.__class__.__name__,
+                account=getattr(tx, "account", ""),
+                destination=getattr(tx, "destination", "") or "",
+                amount_drops=0,
+            )
 
         pool_wallet     = _Wallet.create()
         claimant_wallet = _Wallet.create()
@@ -2637,13 +2647,13 @@ class TestCriticalBugFixes:
                    _async_client_factory(noop_request)):
             with patch("ward.settlement.get_ledger_close_time",
                        AsyncMock(return_value=100_000_000)):
-                with patch("ward.settlement.submit_with_retry",
+                with patch("ward.settlement.build_unsigned_tx",
                            AsyncMock(side_effect=track_burn)):
                     with patch("ward.settlement.autofill",
                                AsyncMock(side_effect=lambda tx, c: tx)):
                         await settlement.finish_escrow(
-                            pool_wallet=pool_wallet,
-                            claimant_wallet=claimant_wallet,
+                            pool_address=pool_wallet.classic_address,
+                            claimant_address_signer=claimant_wallet.classic_address,
                             escrow_record=record,
                             fulfillment_hex="F" * 78,
                         )
@@ -2661,8 +2671,8 @@ class TestCriticalBugFixes:
         """FIX 1: finish_escrow must declare claimant_wallet parameter."""
         import inspect
         sig = inspect.signature(EscrowSettlement().finish_escrow)
-        assert "claimant_wallet" in sig.parameters, (
-            "finish_escrow must accept claimant_wallet parameter"
+        assert "claimant_address_signer" in sig.parameters, (
+            "finish_escrow must accept claimant_address_signer parameter"
         )
 
     # ── FIX 2: Steps 7 and 8 real ledger queries ─────────────────────────────
@@ -4711,19 +4721,13 @@ class TestMultiVaultPolicies:
             patch("ward.client.AsyncJsonRpcClient", MagicMock()),
             patch("ward.client.autofill", AsyncMock(side_effect=lambda tx, c: tx)),
             patch(
-                "ward.client.submit_with_retry",
-                AsyncMock(
-                    side_effect=[
-                        _mint_resp(nft_id_a, "MINT_A" + "0" * 58),
-                        _mint_resp(nft_id_b, "MINT_B" + "0" * 58),
-                        payment_resp,
-                    ]
-                ),
+                "ward.client.build_unsigned_tx",
+                AsyncMock(return_value=MagicMock(tx_dict={})),
             ),
             patch("ward.client.get_ledger_close_time", AsyncMock(return_value=800_000_000)),
         ):
             results = await self.client.purchase_multi_vault_coverage(
-                wallet=wallet,
+                institution_address=VALID_ADDRESS,
                 vault_addresses=[vault_a, vault_b],
                 coverage_drops=1_000_000,
                 period_days=30,
@@ -4732,14 +4736,12 @@ class TestMultiVaultPolicies:
 
         assert len(results) == 2
         assert results[0]["vault_address"] == vault_a
-        assert results[0]["nft_token_id"] == nft_id_a
         assert results[1]["vault_address"] == vault_b
-        assert results[1]["nft_token_id"] == nft_id_b
-        # All vaults share one premium transaction
-        assert results[0]["premium_tx"] == premium_hash
-        assert results[1]["premium_tx"] == premium_hash
-        # Each vault gets its own NFT
-        assert results[0]["nft_token_id"] != results[1]["nft_token_id"]
+        # ward_signed = False — NFT IDs pending institution signature
+        assert results[0]["nft_token_id"] == "pending_institution_signature"
+        assert results[1]["nft_token_id"] == "pending_institution_signature"
+        # Unsigned payment tx returned for institution to sign
+        assert "unsigned_payment_tx" in results[0]
         # ward_signed = False: no wallet stored on client
         assert not hasattr(self.client, "_wallet")
 
@@ -4748,7 +4750,7 @@ class TestMultiVaultPolicies:
         """purchase_multi_vault_coverage raises ValidationError on duplicate vault addresses."""
         with pytest.raises(ValidationError, match="duplicate"):
             await self.client.purchase_multi_vault_coverage(
-                wallet=FakeWallet(),
+                institution_address=VALID_ADDRESS, #),
                 vault_addresses=[VALID_ADDRESS, VALID_ADDRESS],
                 coverage_drops=1_000_000,
                 period_days=30,
@@ -4763,7 +4765,7 @@ class TestMultiVaultPolicies:
         vaults = [_Wallet.create().classic_address for _ in range(11)]
         with pytest.raises(ValidationError, match="10"):
             await self.client.purchase_multi_vault_coverage(
-                wallet=FakeWallet(),
+                institution_address=VALID_ADDRESS, #),
                 vault_addresses=vaults,
                 coverage_drops=1_000_000,
                 period_days=30,

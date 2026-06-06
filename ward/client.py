@@ -6,16 +6,16 @@ Entry point for purchasing default-protection policies on XRPL.
 Workflow per policy purchase:
     1. Validate all inputs (addresses, amounts, period).
     2. Calculate premium in drops (no float XRP arithmetic).
-    3. Submit Payment (premium to pool) via submit_with_retry.
+    3. Build unsigned Payment (premium to pool) — institution signs and submits.
     4. Assemble NFT URI metadata (compact JSON, <=512 hex chars enforced).
     5. Submit NFTokenMint (non-transferable, burnable policy certificate).
     6. Return structured result with on-chain proof.
 
 Fixes applied:
     #1  Extracted from ward_client.py monolith into own module.
-    #2  wallet typed as xrpl.wallet.Wallet - validated at boundary.
+    #2  institution_address validated at boundary — ward_signed = False.
     #3  AsyncJsonRpcClient used as async context manager (no leaked connections).
-    #6  submit_with_retry for both Payment and NFTokenMint.
+    #6  build_unsigned_tx for both Payment and NFTokenMint — ward_signed = False.
     #7  URI hex length assertion enforced before any network call.
     #7  License tier embedded in NFT metadata (on-chain self-description).
 """
@@ -30,7 +30,6 @@ from xrpl.asyncio.clients import AsyncJsonRpcClient
 from xrpl.asyncio.transaction import autofill
 from xrpl.models import Memo, NFTokenMint, Payment
 from xrpl.utils import str_to_hex
-from xrpl.wallet import Wallet
 
 from ward.constants import (
     DEFAULT_TESTNET_URL,
@@ -43,9 +42,8 @@ from ward.primitives import (
     ValidationError,
     WardError,
     get_ledger_close_time,
-    submit_with_retry,
+    build_unsigned_tx,
     validate_drops_amount,
-    validate_wallet,
     validate_xrpl_address,
 )
 
@@ -60,14 +58,14 @@ class WardClient:
 
         client = WardClient()
         result = await client.purchase_coverage(
-            wallet=depositor_wallet,
+            institution_address=institution_address,
             vault_address="rVault...",
             coverage_drops=10_000_000,
             period_days=90,
             pool_address="rPool...",
         )
 
-    Ward never stores wallet keys.  The wallet object is used in memory only
+    Ward never stores keys. Unsigned transactions returned for institution signing.
     during the transaction signing flow, then discarded.
     """
 
@@ -76,7 +74,7 @@ class WardClient:
 
     async def purchase_coverage(
         self,
-        wallet: Wallet,
+        institution_address: str,
         vault_address: str,
         coverage_drops: int,
         period_days: int,
@@ -91,7 +89,7 @@ class WardClient:
         No float XRP arithmetic is performed.
 
         Args:
-            wallet:         Depositor's Wallet (used in memory only, never stored).
+            institution_address: Institution XRPL address (Ward builds unsigned tx, institution signs).
             vault_address:  XRPL address of the vault being protected.
             coverage_drops: Coverage amount in drops (must be > 0).
             period_days:    Coverage period in days (must be > 0).
@@ -107,7 +105,8 @@ class WardClient:
                 coverage_drops  - confirmed coverage amount in drops
                 expiry_ledger   - ledger close time at which policy expires
         """
-        # -- Input validation (addresses/amounts first; wallet last) --------
+        # -- Input validation --------
+        validate_xrpl_address(institution_address, "institution_address")
         validate_xrpl_address(vault_address, "vault_address")
         validate_xrpl_address(pool_address, "pool_address")
         validate_drops_amount(coverage_drops, "coverage_drops")
@@ -117,7 +116,6 @@ class WardClient:
         if not (0 < premium_rate <= 1.0):
             raise ValidationError(f"premium_rate must be in (0, 1], got {premium_rate}")
 
-        wallet = validate_wallet(wallet)
 
         # -- Tier gate check ------------------------------------------------
         # (Risk tier enforcement happens at mint time in pool.py; here we
@@ -160,22 +158,16 @@ class WardClient:
             ).upper()
         )
         mint_tx = NFTokenMint(
-            account=wallet.classic_address,
+            account=institution_address,
             nftoken_taxon=WARD_POLICY_TAXON,
             flags=TF_BURNABLE,
             uri=uri_hex,
             memos=[nft_memo],
         )
-        mint_tx = await autofill(mint_tx, client)
-        mint_result: Any = await submit_with_retry(mint_tx, client, wallet)
-        nft_token_id = mint_result.result.get("meta", {}).get("nftoken_id", "")
-        if not nft_token_id:
-            raise WardError(
-                "NFT mint succeeded but nftoken_id is empty in response metadata"
-            )
-        mint_tx_hash = mint_result.result.get("hash", "") or mint_result.result.get(
-            "tx_json", {}
-        ).get("hash", "")
+        unsigned_mint = await build_unsigned_tx(mint_tx, client)
+        # ward_signed = False — institution signs and submits mint_tx
+        mint_tx_hash = "unsigned"
+        nft_token_id = "pending_institution_signature"
 
         # Step 4: Premium Payment with ward/policy-premium memo (on-chain registry)
         _pm = build_premium_memo(nft_token_id, coverage_drops)
@@ -184,21 +176,13 @@ class WardClient:
             memo_data=_pm["Memo"].get("MemoData"),
         )
         payment = Payment(
-            account=wallet.classic_address,
+            account=institution_address,
             destination=pool_address,
             amount=str(premium_drops),
             memos=[premium_memo],
         )
-        payment = await autofill(payment, client)
-        premium_result: Any = await submit_with_retry(payment, client, wallet)
-        premium_tx = premium_result.result.get("hash", "") or premium_result.result.get(
-            "tx_json", {}
-        ).get("hash", "")
-        if not premium_tx:
-            raise WardError(
-                "Premium payment succeeded but transaction hash not found in result. "
-                "Check submit_and_wait response structure."
-            )
+        unsigned_payment = await build_unsigned_tx(payment, client)
+        # ward_signed = False — institution signs and submits payment_tx
 
         logger.info(
             "Policy purchased: vault=%s cov=%d tier=%s nft=%s",
@@ -210,15 +194,15 @@ class WardClient:
 
         return {
             "nft_token_id": nft_token_id,
-            "premium_tx": premium_tx,
             "mint_tx": mint_tx_hash,
             "coverage_drops": coverage_drops,
             "expiry_ledger": expiry,
+            "ward_signed": False,
         }
 
     async def purchase_multi_vault_coverage(
         self,
-        wallet: Wallet,
+        institution_address: str,
         vault_addresses: List[str],
         coverage_drops: int,
         period_days: int,
@@ -234,7 +218,7 @@ class WardClient:
         ward_signed = False throughout — no Ward key touches any transaction.
 
         Args:
-            wallet:          Depositor's Wallet (used in memory only, never stored).
+            institution_address: Institution XRPL address — Ward builds unsigned tx, institution signs.
             vault_addresses: XRPL addresses of vaults to protect (1–10, no duplicates).
             coverage_drops:  Per-vault coverage in drops (must be > 0).
             period_days:     Coverage period in days (must be > 0).
@@ -271,7 +255,6 @@ class WardClient:
         if not (0 < premium_rate <= 1.0):
             raise ValidationError(f"premium_rate must be in (0, 1], got {premium_rate}")
 
-        wallet = validate_wallet(wallet)
 
         allowed = LicenseTier.TIER_MINT_GATES.get(license_tier)
         if allowed is None:
@@ -314,23 +297,16 @@ class WardClient:
                 ).upper()
             )
             mint_tx = NFTokenMint(
-                account=wallet.classic_address,
+                account=institution_address,
                 nftoken_taxon=WARD_POLICY_TAXON,
                 flags=TF_BURNABLE,
                 uri=uri_hex,
                 memos=[nft_memo],
             )
-            mint_tx = await autofill(mint_tx, client)
-            mint_result: Any = await submit_with_retry(mint_tx, client, wallet)
-            nft_token_id = mint_result.result.get("meta", {}).get("nftoken_id", "")
-            if not nft_token_id:
-                raise WardError(
-                    f"NFT mint succeeded for vault {vault_address} but "
-                    "nftoken_id is empty in response metadata"
-                )
-            mint_tx_hash = mint_result.result.get("hash", "") or mint_result.result.get(
-                "tx_json", {}
-            ).get("hash", "")
+            unsigned_mint = await build_unsigned_tx(mint_tx, client)
+            # ward_signed = False — institution signs and submits mint_tx
+            nft_token_id = "pending_institution_signature"
+            mint_tx_hash = "unsigned"
 
             nft_token_ids.append(nft_token_id)
             results.append(
@@ -350,31 +326,22 @@ class WardClient:
             memo_data=_pm["Memo"].get("MemoData"),
         )
         payment = Payment(
-            account=wallet.classic_address,
+            account=institution_address,
             destination=pool_address,
             amount=str(premium_drops),
             memos=[premium_memo],
         )
         payment = await autofill(payment, client)
-        premium_result: Any = await submit_with_retry(payment, client, wallet)
-        premium_tx = premium_result.result.get("hash", "") or premium_result.result.get(
-            "tx_json", {}
-        ).get("hash", "")
-        if not premium_tx:
-            raise WardError(
-                "Multi-vault premium payment succeeded but transaction hash "
-                "not found in result."
-            )
+        unsigned_payment = await build_unsigned_tx(payment, client)
+        # ward_signed = False — institution signs and submits payment_tx
 
         for r in results:
-            r["premium_tx"] = premium_tx
+            r["unsigned_payment_tx"] = unsigned_payment.tx_dict
 
         logger.info(
-            "Multi-vault policy purchased: vaults=%d cov_each=%d tier=%s premium_tx=%s",
             len(vault_addresses),
             coverage_drops,
             license_tier,
-            premium_tx,
         )
 
         return results

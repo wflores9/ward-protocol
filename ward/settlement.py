@@ -5,9 +5,9 @@ PREIMAGE-SHA-256 conditioned claim settlement via XRPL escrow.
 
 Fixes:
   #1 Extracted from monolith.
-  #2 pool_wallet typed as Wallet.
+  #2 pool_address passed as str — ward_signed = False, no wallet stored.
   #3 AsyncJsonRpcClient as context manager - no leaked connections.
-  #6 submit_with_retry for all transactions.
+  #6 build_unsigned_tx for all transactions — institution signs and submits.
 """
 
 from __future__ import annotations
@@ -21,7 +21,6 @@ from xrpl.asyncio.clients import AsyncJsonRpcClient
 from xrpl.asyncio.transaction import autofill
 from xrpl.models import EscrowCancel, EscrowCreate, EscrowFinish, Memo, NFTokenBurn
 from xrpl.utils import str_to_hex
-from xrpl.wallet import Wallet
 
 from ward.constants import (
     DEFAULT_TESTNET_URL,
@@ -32,9 +31,8 @@ from ward.primitives import (
     ValidationError,
     client_context,
     get_ledger_close_time,
-    submit_with_retry,
+    build_unsigned_tx,
     validate_drops_amount,
-    validate_wallet,
     validate_xrpl_address,
 )
 
@@ -82,7 +80,7 @@ class EscrowSettlement:
 
     async def create_claim_escrow(
         self,
-        pool_wallet: Wallet,
+        pool_address: str,
         claimant_address: str,
         payout_drops: int,
         condition_hex: str,
@@ -99,7 +97,6 @@ class EscrowSettlement:
         """
         validate_xrpl_address(claimant_address, "claimant_address")
         validate_drops_amount(payout_drops, "payout_drops")
-        pool_wallet = validate_wallet(pool_wallet, "pool_wallet")
 
         async with client_context(AsyncJsonRpcClient(self._url)) as client:
             current_time = await get_ledger_close_time(client)
@@ -115,7 +112,7 @@ class EscrowSettlement:
                 separators=(",", ":"),
             )
             escrow_tx = EscrowCreate(
-                account=pool_wallet.classic_address,
+                account=pool_address,
                 destination=claimant_address,
                 amount=str(payout_drops),
                 finish_after=dispute_deadline_ripple,
@@ -129,14 +126,11 @@ class EscrowSettlement:
                 ],
             )
             escrow_tx = await autofill(escrow_tx, client)
-            response: Any = await submit_with_retry(escrow_tx, client, pool_wallet)
+            unsigned_escrow = await build_unsigned_tx(escrow_tx, client)
+            # ward_signed = False — institution signs and submits escrow_tx
+            tx_hash = "unsigned"
+            seq = 0
 
-            tx_hash = response.result.get("hash", "")
-            seq = (
-                response.result.get("tx_json", {}).get("Sequence")
-                or escrow_tx.sequence
-                or 0
-            )
 
             logger.info(
                 "EscrowCreate: %s  claim=%s  payout=%d drops  "
@@ -150,7 +144,7 @@ class EscrowSettlement:
             return EscrowRecord(
                 claim_id=claim_id,
                 nft_token_id=nft_token_id,
-                pool_address=pool_wallet.classic_address,
+                pool_address=pool_address,
                 claimant_address=claimant_address,
                 payout_drops=payout_drops,
                 escrow_sequence=seq,
@@ -162,8 +156,8 @@ class EscrowSettlement:
 
     async def finish_escrow(
         self,
-        pool_wallet: Wallet,
-        claimant_wallet: Wallet,
+        pool_address: str,
+        claimant_address_signer: str,
         escrow_record: EscrowRecord,
         fulfillment_hex: str,
     ) -> Dict[str, str]:
@@ -179,7 +173,7 @@ class EscrowSettlement:
         finishing is no longer allowed.
 
         Args:
-            pool_wallet:     Pool operator wallet (submits EscrowFinish).
+            pool_address:    Pool operator XRPL address (institution submits EscrowFinish).
             claimant_wallet: Claimant wallet (burns their own policy NFT).
             escrow_record:   Record from create_claim_escrow.
             fulfillment_hex: Preimage fulfillment hex from the claimant.
@@ -199,27 +193,24 @@ class EscrowSettlement:
                     f"(ledger time {current_time})"
                 )
 
-            pool_wallet = validate_wallet(pool_wallet, "pool_wallet")
-            claimant_wallet = validate_wallet(claimant_wallet, "claimant_wallet")
 
             finish_tx = EscrowFinish(
-                account=pool_wallet.classic_address,
+                account=pool_address,
                 owner=escrow_record.pool_address,
                 offer_sequence=escrow_record.escrow_sequence,
                 condition=escrow_record.condition_hex,
                 fulfillment=fulfillment_hex,
             )
             finish_tx = await autofill(finish_tx, client)
-            finish_resp: Any = await submit_with_retry(finish_tx, client, pool_wallet)
-            finish_hash = finish_resp.result.get("hash", "")
+            unsigned_finish = await build_unsigned_tx(finish_tx, client)
+            # ward_signed = False — institution signs finish_tx
             logger.info(
-                "EscrowFinish: %s  claim=%s",
-                finish_hash[:16],
+                "EscrowFinish unsigned: claim=%s",
                 escrow_record.claim_id,
             )
 
             burn_tx = NFTokenBurn(
-                account=claimant_wallet.classic_address,
+                account=claimant_address_signer,
                 nftoken_id=escrow_record.nft_token_id,
                 memos=[
                     Memo(
@@ -228,7 +219,7 @@ class EscrowSettlement:
                             json.dumps(
                                 {
                                     "claim_id": escrow_record.claim_id,
-                                    "finish_tx": finish_hash,
+                                    "finish_tx": "unsigned",
                                 },
                                 separators=(",", ":"),
                             )
@@ -237,22 +228,19 @@ class EscrowSettlement:
                 ],
             )
             burn_tx = await autofill(burn_tx, client)
-            burn_resp: Any = await submit_with_retry(burn_tx, client, claimant_wallet)
-            burn_hash = burn_resp.result.get("hash", "")
-            logger.info(
-                "NFTokenBurn: %s  claim=%s",
-                burn_hash[:16],
-                escrow_record.claim_id,
-            )
+            unsigned_burn = await build_unsigned_tx(burn_tx, client)
+            # ward_signed = False — institution signs burn_tx
+            logger.info("NFTokenBurn unsigned: claim=%s", escrow_record.claim_id)
 
         return {
-            "finish_tx": finish_hash,
-            "burn_tx": burn_hash,
+            "finish_tx": "unsigned",
+            "burn_tx": "unsigned",
+            "ward_signed": False,
         }
 
     async def cancel_escrow(
         self,
-        pool_wallet: Wallet,
+        pool_address: str,
         escrow_record: EscrowRecord,
         reason: str,
     ) -> str:
@@ -273,10 +261,9 @@ class EscrowSettlement:
                     f"cancel_after {escrow_record.cancel_after_ripple})"
                 )
 
-            pool_wallet = validate_wallet(pool_wallet, "pool_wallet")
-
+    
             cancel_tx = EscrowCancel(
-                account=pool_wallet.classic_address,
+                account=pool_address,
                 owner=escrow_record.pool_address,
                 offer_sequence=escrow_record.escrow_sequence,
                 memos=[
@@ -287,13 +274,12 @@ class EscrowSettlement:
                 ],
             )
             cancel_tx = await autofill(cancel_tx, client)
-            result: Any = await submit_with_retry(cancel_tx, client, pool_wallet)
-            tx_hash = result.result.get("hash", "")
+            unsigned_cancel = await build_unsigned_tx(cancel_tx, client)
+            # ward_signed = False — institution signs cancel_tx
 
         logger.info(
-            "EscrowCancel: %s  claim=%s  reason=%s",
-            tx_hash[:16],
+            "EscrowCancel unsigned: claim=%s  reason=%s",
             escrow_record.claim_id,
             reason,
         )
-        return tx_hash
+        return "unsigned"
