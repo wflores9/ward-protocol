@@ -300,14 +300,12 @@ This document catalogues every attack vector identified during design and implem
 
 **ward_signed = False throughout — Ward cannot exploit this gap.**
 
-## In-Memory Rate Limiting
+## Rate Limiting
 
-**Status:** Known limitation. Production deployment requires replacement.
+**Status:** Redis-backed sliding window — production ready.
 
-**Gap:** `check_rate_limit()` in `ward/primitives.py` uses an in-memory dict per-process. In distributed deployments (multiple API instances), the rate limit is not shared — each process has its own window.
+**Implementation:** `check_rate_limit()` in `ward/primitives.py` uses Redis sorted sets for distributed, persistent rate limiting. Configure via `WARD_REDIS_URL` env var (default: `redis://localhost:6379/0`).
 
-**Impact:** An attacker with access to multiple API endpoints could bypass the 3 claims/NFT/300s limit by routing requests to different instances.
+**Fallback:** In-memory fallback if Redis is unavailable — for dev/test only. Not distributed-safe. Production deployments must have Redis configured.
 
-**Planned fix:** Replace with Redis-backed sliding window or on-chain rate tracking before production deployment.
-
-**Compensating control:** Step 9 pool solvency check still enforces financial limits regardless of rate limit state.
+**Guarantee:** Max 3 claims per NFT per 300 seconds, enforced across all instances.
