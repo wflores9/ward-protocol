@@ -146,14 +146,14 @@ Ward Protocol uses XLS-80 Permissioned Domains for institutional access control:
 
 ### 3.5 API Specification
 
-Production API available at `https://api.wardprotocol.org` with OpenAPI documentation at `/docs`.
+Production API available at `https://api.wardprotocol.org`. OpenAPI documentation is disabled in production — contact wflores@wardprotocol.org for API access.
 
 **Endpoint Categories:**
 - **Public**: Health checks, pool statistics, protocol information
 - **Permissioned Domains**: Domain creation, credential verification, membership management
 - **Admin**: Pool configuration, claim processing, system monitoring
 
-All authenticated endpoints require API key via `X-API-Key` header with tiered rate limiting.
+All authenticated endpoints require `X-Institution-Key` header. Rate limiting enforced per institution key.
 
 ## 4. Security Considerations
 
@@ -178,7 +178,7 @@ All authenticated endpoints require API key via `X-API-Key` header with tiered r
 - Production API live at api.wardprotocol.org
 - XLS-80 Permissioned Domain registered on testnet
 - 60 automated tests, 75% code coverage
-- OpenAPI documentation at /docs and /redoc
+- OpenAPI documentation disabled in production (security hardening)
 - Hardened production infrastructure with automated backups
 
 ## 6. Future Upgrade Path: XLS-104

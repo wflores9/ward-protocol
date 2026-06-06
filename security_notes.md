@@ -284,3 +284,18 @@ This document catalogues every attack vector identified during design and implem
 - XRPL Checks are a viable alternative payout mechanism (claimant cashes, not Ward pushes) but not yet implemented.
 - XRPL multi-sig on pool disbursements is recommended for large payouts (>10% of pool). Not yet implemented — add M-of-N `SignerList` to pool account and require multi-sig for EscrowCreate above threshold.
 - XRPL `asfRequireDest` on the pool account prevents accidental fund loss from transfers without destination tags.
+
+## TOCTOU: EscrowFinish → NFTokenBurn
+
+**Status:** Known, accepted short-term. Documented for auditors.
+
+**Gap:** `finish_escrow()` builds unsigned EscrowFinish and unsigned NFTokenBurn as separate transactions. Between institution signing EscrowFinish and submitting NFTokenBurn, a window exists where the escrow is settled but the NFT is not yet burned.
+
+**Compensating controls:**
+- Rate limit: max 3 claims per NFT per 300 seconds (Step 9)
+- NFT burn-on-settlement enforced at Step 7 on next claim attempt
+- Ward never holds keys — cannot exploit the gap itself
+
+**Planned mitigation:** Atomic multi-transaction batch when XRPL supports it, or redesign settlement around single-transaction atomic claims.
+
+**ward_signed = False throughout — Ward cannot exploit this gap.**
