@@ -246,6 +246,10 @@ def validate_nft_id(nft_id: str, label: str = "NFT token ID") -> None:
 
 _rate_limit_lock: threading.Lock = threading.Lock()
 _rate_limit_windows: dict = {}  # nft_token_id -> deque[float]
+# WARNING: In-memory rate limiter — resets on process restart.
+# Not shared across distributed deployments.
+# Production deployment must replace with Redis or on-chain equivalent.
+# Tracked: https://github.com/wflores9/ward-protocol/issues/rate-limit-durability
 
 _MAX_RATE_LIMIT_ENTRIES: int = 10_000
 _RATE_LIMIT_EVICT_COUNT: int = 1_000

@@ -299,3 +299,15 @@ This document catalogues every attack vector identified during design and implem
 **Planned mitigation:** Atomic multi-transaction batch when XRPL supports it, or redesign settlement around single-transaction atomic claims.
 
 **ward_signed = False throughout — Ward cannot exploit this gap.**
+
+## In-Memory Rate Limiting
+
+**Status:** Known limitation. Production deployment requires replacement.
+
+**Gap:** `check_rate_limit()` in `ward/primitives.py` uses an in-memory dict per-process. In distributed deployments (multiple API instances), the rate limit is not shared — each process has its own window.
+
+**Impact:** An attacker with access to multiple API endpoints could bypass the 3 claims/NFT/300s limit by routing requests to different instances.
+
+**Planned fix:** Replace with Redis-backed sliding window or on-chain rate tracking before production deployment.
+
+**Compensating control:** Step 9 pool solvency check still enforces financial limits regardless of rate limit state.
