@@ -105,6 +105,64 @@ class ChainAdapter(ABC):
         ...
 
     @abstractmethod
+    async def build_unsigned_policy_mint(
+        self,
+        institution_address: str,
+        vault_address: str,
+        coverage_drops: int,
+        period_days: int,
+        pool_address: str,
+        license_tier: str,
+    ) -> dict:
+        """Build unsigned policy NFT mint transaction. ward_signed = False."""
+        ...
+
+    @abstractmethod
+    async def build_unsigned_premium_payment(
+        self,
+        institution_address: str,
+        pool_address: str,
+        premium_drops: int,
+        nft_token_id: str,
+    ) -> dict:
+        """Build unsigned premium payment transaction. ward_signed = False."""
+        ...
+
+    @abstractmethod
+    async def build_unsigned_nft_burn(
+        self,
+        claimant_address: str,
+        nft_token_id: str,
+    ) -> dict:
+        """Build unsigned NFT burn for replay protection. ward_signed = False."""
+        ...
+
+    @abstractmethod
+    async def verify_nft_not_burned(
+        self,
+        claimant_address: str,
+        nft_token_id: str,
+    ) -> bool:
+        """Verify NFT still exists (replay protection check). Returns True if live."""
+        ...
+
+    @abstractmethod
+    async def get_pool_health_ratio(
+        self,
+        pool_address: str,
+    ) -> float:
+        """Return pool health ratio (usable_balance / min_coverage). >= 1.5 required."""
+        ...
+
+    @abstractmethod
+    async def verify_kyc_credential(
+        self,
+        depositor_address: str,
+    ) -> bool:
+        """Verify KYC/domain credential exists for depositor. Returns True if valid."""
+        ...
+
+    @abstractmethod
     async def build_unsigned_escrow_finish(
         self,
         claimant_address: str,

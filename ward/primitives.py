@@ -1,25 +1,17 @@
 """
-Ward Protocol — Shared primitives.
+Ward Protocol — Primitives
 
-Errors, validators, and utilities used by every SDK module.
-Import from here; never duplicate in module files.
+Architecture:
+    Chain-Agnostic section: exceptions, UnsignedTransaction, rate limiting,
+    crypto-conditions, client context. These have no XRPL imports.
 
-Organised into two sections:
+    XRPL-Specific section: address/drops/NFT validation, ledger queries,
+    Ripple epoch time. These import xrpl-py types.
 
-  Chain-Agnostic Primitives
-    Pure cryptographic and business logic. These port verbatim to every chain —
-    generate_claim_preimage, make_preimage_condition, check_rate_limit, and the
-    error hierarchy are identical on Flare, Hedera, Solana, Stellar, and XDC.
+ward_signed = False — Ward never signs. Institutions sign; XRPL settles.
 
-  XRPL-Specific Primitives
-    Functions that depend on xrpl-py types, Ripple epoch time, or the XRPL
-    address/hex encoding scheme. When porting to a new chain, replace these with
-    chain-native equivalents — do NOT import them from this module.
-
-Fixes applied:
-    #4  No long-lived client instance attributes.
-    #6  submit_with_retry handles retryable XRPL engine results.
-    #7  validate_wallet() enforces xrpl.wallet.Wallet at every call boundary.
+Physical split deferred to v0.3.0 when ward/primitives_xrpl.py will be
+introduced. All public symbols remain importable from ward.primitives.
 """
 
 from __future__ import annotations

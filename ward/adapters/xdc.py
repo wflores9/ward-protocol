@@ -272,6 +272,52 @@ class XDCAdapter(ChainAdapter):
             "ward_signed": False,
         }
 
+    async def build_unsigned_policy_mint(
+        self,
+        institution_address,
+        vault_address,
+        coverage_drops,
+        period_days,
+        pool_address,
+        license_tier,
+    ) -> dict:
+        """Stub — not yet implemented for this chain."""
+        raise NotImplementedError(
+            f"{self.__class__.__name__}: build_unsigned_policy_mint not implemented"
+        )
+
+    async def build_unsigned_premium_payment(
+        self, institution_address, pool_address, premium_drops, nft_token_id
+    ) -> dict:
+        """Stub — not yet implemented for this chain."""
+        raise NotImplementedError(
+            f"{self.__class__.__name__}: build_unsigned_premium_payment not implemented"
+        )
+
+    async def build_unsigned_nft_burn(self, claimant_address, nft_token_id) -> dict:
+        """Stub — not yet implemented for this chain."""
+        raise NotImplementedError(
+            f"{self.__class__.__name__}: build_unsigned_nft_burn not implemented"
+        )
+
+    async def verify_nft_not_burned(self, claimant_address, nft_token_id) -> bool:
+        """Stub — not yet implemented for this chain."""
+        raise NotImplementedError(
+            f"{self.__class__.__name__}: verify_nft_not_burned not implemented"
+        )
+
+    async def get_pool_health_ratio(self, pool_address) -> float:
+        """Stub — not yet implemented for this chain."""
+        raise NotImplementedError(
+            f"{self.__class__.__name__}: get_pool_health_ratio not implemented"
+        )
+
+    async def verify_kyc_credential(self, depositor_address) -> bool:
+        """Stub — not yet implemented for this chain."""
+        raise NotImplementedError(
+            f"{self.__class__.__name__}: verify_kyc_credential not implemented"
+        )
+
     async def build_unsigned_escrow_finish(
         self,
         claimant_address: str,
