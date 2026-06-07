@@ -6,8 +6,8 @@ const flows = [
   { code: 'F·02', name: 'Credential Issuance', status: 'LIVE' },
   { code: 'F·03', name: 'Policy Purchase',     status: 'LIVE' },
   { code: 'F·04', name: 'Default Detection',   status: 'LIVE' },
-  { code: 'F·05', name: 'Claim Validation',    status: 'XLS-66 MAINNET' },
-  { code: 'F·06', name: 'Escrow Settlement',   status: 'XLS-66 MAINNET' },
+  { code: 'F·05', name: 'Claim Validation',    status: 'ALTNET LIVE' },
+  { code: 'F·06', name: 'Escrow Settlement',   status: 'ALTNET LIVE' },
 ]
 
 const steps = [
@@ -49,9 +49,10 @@ const faqItems = [
 
 const statusRows: [string, React.ReactNode][] = [
   ['SDK Version', 'v0.2.6'],
+  ['Chains (Testnet)', 'XRPL Altnet · Flare Coston2 · XRPL EVM · XDC Apothem · Polygon Amoy · Stellar · Algorand · Solana'],
   ['Unit Tests', <span key="tests" style={{ color: 'var(--green)' }}>436 Python · 40 Rust · 45 TypeScript</span>],
   ['Coverage', 'chain_reader 100% · monitor 100% · tx_builder 100% · vault_monitor 99%'],
-  ['On-Chain Transactions', '2 confirmed (XRPL Altnet) · F·03—F·05 pending XLS-66 mainnet'],
+  ['On-Chain Transactions', 'E2E verified on XRPL Altnet · 8 chains testnet live'],
   ['External Dependencies', '0 — pure XRPL'],
   ['Ward Holds Keys', 'Never'],
   ['Authoritative State', 'XRPL Ledger'],
@@ -62,9 +63,9 @@ const statusRows: [string, React.ReactNode][] = [
 const txns = [
   { step: '1 — Premium Payment',  type: 'Payment',      proves: 'Premium to pool',               hash: 'B756484C...3B8D7E' },
   { step: '2 — Policy NFT Mint',  type: 'NFTokenMint',  proves: 'Coverage issued (taxon 281)',   hash: '2800219A...E79E2CB' },
-  { step: '3 — Escrow Create',    type: 'EscrowCreate', proves: 'Funds locked PREIMAGE-SHA-256', hash: 'Pending F·05' },
-  { step: '4 — Escrow Finish',    type: 'EscrowFinish', proves: 'Payout released with preimage', hash: 'Pending F·05' },
-  { step: '5 — Policy NFT Burn',  type: 'NFTokenBurn',  proves: 'Replay protection confirmed',  hash: 'Pending F·05' },
+  { step: '3 — Escrow Create',    type: 'EscrowCreate', proves: 'Funds locked PREIMAGE-SHA-256', hash: 'Altnet Verified' },
+  { step: '4 — Escrow Finish',    type: 'EscrowFinish', proves: 'Payout released with preimage', hash: 'Altnet Verified' },
+  { step: '5 — Policy NFT Burn',  type: 'NFTokenBurn',  proves: 'Replay protection confirmed',  hash: 'Altnet Verified' },
 ]
 
 const S = {
@@ -142,7 +143,7 @@ export default function Home() {
 
             {/* Stats */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 8 }}>
-              {[{v:'436/436',l:'TESTS'},{v:'FALSE',l:'WARD_SIGNED'},{v:'3',l:'CONFIRMATION WINDOW'}].map(s => (
+              {[{v:'436/436',l:'TESTS'},{v:'FALSE',l:'WARD_SIGNED'},{v:'3',l:'CONFIRMATION WINDOW'},{v:'8',l:'CHAINS TESTNET'}].map(s => (
                 <div key={s.l} style={{ background: 'rgba(0,0,0,0.2)', borderRadius: 8, padding: '10px 8px', textAlign: 'center' }}>
                   <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 16, fontWeight: 700, color: 'var(--gold)', marginBottom: 4 }}>{s.v}</div>
                   <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 14, color: 'var(--text-tertiary)', letterSpacing: 0 }}>{s.l}</div>
