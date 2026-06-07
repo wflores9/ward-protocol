@@ -1,14 +1,7 @@
-import type { Metadata } from 'next';
-
-export const metadata: Metadata = {
-  title: 'Ward Protocol — Interactive Multi-Chain Demo',
-  description: 'Experience deterministic default resolution live across XRPL, Stellar, Solana, Hedera, and more.',
-};
-
-// Client Component (everything interactive)
 'use client';
 
 import { useState } from 'react';
+import type { Metadata } from 'next';
 import dynamic from 'next/dynamic';
 
 import ChainSelector from '@/components/ChainSelector';
@@ -17,6 +10,11 @@ import FlowRunner from '@/components/FlowRunner';
 
 const WalletConnector = dynamic(() => import('@/components/WalletConnector'), { ssr: false });
 const LiveValidator = dynamic(() => import('@/components/LiveValidator'), { ssr: false });
+
+export const metadata: Metadata = {
+  title: 'Ward Protocol — Interactive Multi-Chain Demo',
+  description: 'Experience deterministic default resolution live across XRPL, Stellar, Solana, Hedera, and more.',
+};
 
 const chains = [
   { id: 'xrpl', name: 'XRPL Altnet', icon: '🌊', status: 'Live' },
@@ -74,7 +72,6 @@ export default function DemoPage() {
           <FlowRunner />
         </section>
 
-        {/* Next Steps */}
         <div className="bg-[#0F172A] rounded-3xl p-10 text-center">
           <h3 className="text-2xl font-semibold mb-4">Ready to Integrate?</h3>
           <p className="text-[#CBD5E1] mb-8 max-w-md mx-auto">
