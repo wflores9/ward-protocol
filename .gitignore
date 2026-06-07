@@ -1,0 +1,94 @@
+# Environment and secrets
+.env
+*.env
+.env.local
+.env.production
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+/build/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+*.cover
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Database
+*.db
+*.sqlite
+
+# Compiled files
+*.pyc
+
+# Rust build artifacts
+ward/target/
+target/
+
+# Test coverage reports
+htmlcov/
+.coverage
+coverage.xml
+*.pyc
+__pycache__/
+sdk/python/.venv/
+
+# Runtime artifacts
+uvicorn.pid
+*.pid
+testnet_run.log
+
+# Legacy untracked directories
+archive/
+
+# Sentinel files (accidental shell redirections)
+=
+testnet_wallets.json
+.vercel
+
+# Local Netlify folder
+.netlify
+
+# Next.js build output
+.next/
+
+# TypeScript incremental build cache
+*.tsbuildinfo
+
+# Node dependencies
+node_modules/
+
+# Rust build artifacts
+target/
+ward/target/
+coverage.xml
+
+artifacts/
+cache/
+*.bak.
+*.bak
+.envgrep
+.npmrc
+sdk/typescript/.npmrc
