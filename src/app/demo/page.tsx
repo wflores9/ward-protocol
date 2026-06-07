@@ -1,45 +1,68 @@
-﻿import type { Metadata } from 'next'
-import FlowRunner from '@/components/FlowRunner'
-import WardChecklist from '@/components/WardChecklist'
-import dynamic from 'next/dynamic'
-const WalletConnector = dynamic(() => import('@/components/WalletConnector'), { ssr: false })
-const LiveValidator = dynamic(() => import('@/components/LiveValidator'), { ssr: false })
+'use client';
 
-export const metadata: Metadata = {
-  title: 'Ward Protocol — Demo & Conformance Checklist',
-  description: 'Interactive 9-step Ward Protocol conformance checklist and Python SDK flow examples.',
-}
+import { useState } from 'react';
+import dynamic from 'next/dynamic';
+
+import ChainSelector from '@/components/ChainSelector';
+import EnhancedWardChecklist from '@/components/EnhancedWardChecklist';
+import FlowRunner from '@/components/FlowRunner';
+
+const WalletConnector = dynamic(() => import('@/components/WalletConnector'), { ssr: false });
+const LiveValidator = dynamic(() => import('@/components/LiveValidator'), { ssr: false });
+
+const chains = [
+  { id: 'xrpl', name: 'XRPL Altnet', icon: '🌊', status: 'Live' },
+  { id: 'stellar', name: 'Stellar Testnet', icon: '⭐', status: 'Live' },
+  { id: 'hedera', name: 'Hedera Testnet', icon: 'HBAR', status: 'Live' },
+  { id: 'solana', name: 'Solana Devnet', icon: '◎', status: 'Live' },
+  { id: 'xdc', name: 'XDC Apothem', icon: 'XDC', status: 'Live' },
+  { id: 'algorand', name: 'Algorand Testnet', icon: 'Algo', status: 'Live' },
+  { id: 'polygon', name: 'Polygon Amoy', icon: 'MATIC', status: 'Live' },
+];
 
 export default function DemoPage() {
+  const [selectedChain, setSelectedChain] = useState(chains[0]);
+
   return (
-    <>
-      {/* Header */}
-      <div className="border-b border-gold/20 bg-white px-6 md:px-12 py-10">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-sm uppercase tracking-[.15em] text-[#c8a94a] mb-2 font-mono">Ward Protocol — Interactive</div>
-          <h1 className="font-condensed font-black text-5xl text-steel mb-3">Demo & Checklist</h1>
-          <p className="text-sm text-sub max-w-2xl mb-6">
-            Verify your integration satisfies all 9 Ward Protocol claim validation steps.
-            All state must be sourced from the XRPL ledger — no off-chain inputs trusted.
+    <div className="min-h-screen bg-[#0A1428] text-white">
+      <div className="border-b border-white/10 bg-[#0F172A] py-12">
+        <div className="max-w-5xl mx-auto px-6 text-center">
+          <div className="text-sm uppercase tracking-widest text-[#D4A017] mb-3">Interactive Demo</div>
+          <h1 className="text-5xl md:text-6xl font-semibold tracking-tight mb-4">
+            Deterministic Default Resolution
+          </h1>
+          <p className="text-xl text-[#CBD5E1] max-w-2xl mx-auto">
+            Try the 9 on-ledger checks live across multiple testnets.
           </p>
+        </div>
+      </div>
+
+      <div className="sticky top-0 z-50 bg-[#0A1428]/95 backdrop-blur border-b border-white/10 py-4">
+        <div className="max-w-5xl mx-auto px-6">
+          <ChainSelector 
+            chains={chains} 
+            selected={selectedChain} 
+            onSelect={setSelectedChain} 
+          />
+        </div>
+      </div>
+
+      <div className="max-w-5xl mx-auto px-6 py-12 space-y-20">
+        <div>
           <WalletConnector />
+          <LiveValidator />
         </div>
-      </div>
-      <LiveValidator />
-      {/* Checklist */}
-      <WardChecklist />
-      {/* Flow examples */}
-      <div className="border-t border-gold/20 bg-white">
-        <div className="max-w-6xl mx-auto px-6 md:px-12 py-12">
-          <div className="text-sm uppercase tracking-[.15em] text-[#c8a94a] mb-2 font-mono">Python SDK — v0.2.4</div>
-          <h2 className="font-condensed font-black text-3xl text-steel mb-2">Integration Flow Examples</h2>
-          <p className="text-sm text-sub mb-6">
-            Five flows from vault registration to escrow settlement.{' '}
-            <span className="ward-gold">ward_signed = False</span> throughout.
-          </p>
+
+        <section>
+          <h2 className="text-3xl font-semibold mb-8">9 On-Ledger Checks — Real-Time Simulation</h2>
+          <EnhancedWardChecklist chain={selectedChain} />
+        </section>
+
+        <section>
+          <h2 className="text-3xl font-semibold mb-6">Integration Flow (F·01 → F·06)</h2>
           <FlowRunner />
-        </div>
+        </section>
       </div>
-    </>
-  )
+    </div>
+  );
 }
