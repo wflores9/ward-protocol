@@ -59,8 +59,8 @@ export default function DemoPage() {
       <div className="max-w-5xl mx-auto px-6 py-12 space-y-20">
         {/* Live Wallet + Validator */}
         <div>
-          <WalletConnector chain={selectedChain} />
-          <LiveValidator chain={selectedChain} />
+          <WalletConnector /> {/* Remove chain prop for now */}
+          <LiveValidator />   {/* Remove chain prop for now */}
         </div>
 
         {/* Enhanced Interactive Checklist */}
@@ -72,7 +72,7 @@ export default function DemoPage() {
         {/* Visual Flow */}
         <section>
           <h2 className="text-3xl font-semibold mb-6">Integration Flow (F·01 → F·06)</h2>
-          <FlowRunner chain={selectedChain} />
+          <FlowRunner /> {/* Remove chain prop for now */}
         </section>
 
         {/* Next Steps */}
