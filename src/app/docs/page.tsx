@@ -85,7 +85,7 @@ export default function DocsPage() {
         {/* Module reference */}
         <section>
           <h2 className="font-condensed font-black text-3xl text-[#c8a94a] mb-2">Module Reference</h2>
-          <p className="text-sm text-sub mb-5">Total nSLOC: ~2,148 Python + ~583 Rust</p>
+          <p className="text-sm text-sub mb-5">Total nSLOC: ~5,282 core protocol + ~1,506 SDK (6,788 total)</p>
           <div className="space-y-3">
             {modules.map(m => (
               <div key={m.name} className="bg-white border border-p2 rounded-md p-4 flex items-start gap-4">
