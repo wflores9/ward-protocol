@@ -56,7 +56,7 @@ const statusRows: [string, React.ReactNode][] = [
   ['External Dependencies', '0 — pure XRPL'],
   ['Ward Holds Keys', 'Never'],
   ['Authoritative State', 'XRPL Ledger'],
-  ['Production Code', '2,148 lines'],
+  ['Production Code', '6,788 lines (core + SDK)'],
   ['XRPLF Standards', 'XLS-66 · XLS-70 · XLS-80 · XLS-20'],
 ]
 
