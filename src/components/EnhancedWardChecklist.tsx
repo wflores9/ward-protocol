@@ -20,19 +20,15 @@ export default function EnhancedWardChecklist({ chain }: { chain: Chain }) {
   const allPassed = checks.every(c => c.passed);
 
   const toggleCheck = (id: number) => {
-    setChecks(checks.map(c => 
-      c.id === id ? { ...c, passed: !c.passed } : c
-    ));
+    setChecks(checks.map(c => c.id === id ? { ...c, passed: !c.passed } : c));
   };
 
   return (
-    <div className="bg-[#0F172A] rounded-3xl p-8 border border-white/10">
+    <div className="bg-[#0F172A] rounded-3xl p-8">
       <div className="flex justify-between items-center mb-8">
         <h3 className="text-2xl font-semibold">9 On-Ledger Checks — {chain.name}</h3>
-        <div className={`px-5 py-2 rounded-full text-sm font-mono ${
-          allPassed ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'
-        }`}>
-          {allPassed ? '✅ ALL CHECKS PASSED' : '⚠️ SIMULATING'}
+        <div className={`px-4 py-1.5 rounded-full text-sm font-mono ${allPassed ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'}`}>
+          {allPassed ? '✅ CONFORMANT' : '⚠️ REVIEW REQUIRED'}
         </div>
       </div>
 
@@ -47,15 +43,19 @@ export default function EnhancedWardChecklist({ chain }: { chain: Chain }) {
                 : 'border-white/10 hover:border-white/30'
             }`}
           >
-            <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-xl flex-shrink-0 ${
-              check.passed ? 'bg-emerald-500 text-black' : 'bg-white/10'
-            }`}>
+            <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-xl flex-shrink-0 ${check.passed ? 'bg-emerald-500 text-black' : 'bg-white/10'}`}>
               {check.passed ? '✓' : '○'}
             </div>
             <span className="text-lg">{check.label}</span>
           </button>
         ))}
       </div>
+
+      {allPassed && (
+        <div className="mt-10 p-6 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl text-center">
+          <p className="text-emerald-400 text-xl">All 9 checks passed! This integration is conformant.</p>
+        </div>
+      )}
     </div>
   );
 }

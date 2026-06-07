@@ -15,19 +15,19 @@ interface ChainSelectorProps {
 
 export default function ChainSelector({ chains, selected, onSelect }: ChainSelectorProps) {
   return (
-    <div className="flex flex-wrap gap-3 justify-center">
+    <div className="flex flex-wrap gap-2 justify-center">
       {chains.map((chain) => (
         <button
           key={chain.id}
           onClick={() => onSelect(chain)}
-          className={`flex items-center gap-3 px-6 py-3.5 rounded-2xl border transition-all text-sm ${
+          className={`flex items-center gap-3 px-5 py-3 rounded-2xl border transition-all ${
             selected.id === chain.id
               ? 'border-[#93C5FD] bg-[#93C5FD]/10 text-white'
-              : 'border-white/10 hover:border-white/30 hover:bg-white/5 text-[#CBD5E1]'
+              : 'border-white/10 hover:border-white/30 text-[#CBD5E1]'
           }`}
         >
           <span className="text-2xl">{chain.icon}</span>
-          <div>
+          <div className="text-left">
             <div className="font-medium">{chain.name}</div>
             <div className="text-xs text-[#64748B]">{chain.status}</div>
           </div>
