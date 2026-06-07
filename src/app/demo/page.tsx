@@ -1,7 +1,14 @@
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Ward Protocol — Interactive Multi-Chain Demo',
+  description: 'Experience deterministic default resolution live across XRPL, Stellar, Solana, Hedera, and more.',
+};
+
+// Client Component (everything interactive)
 'use client';
 
 import { useState } from 'react';
-import type { Metadata } from 'next';
 import dynamic from 'next/dynamic';
 
 import ChainSelector from '@/components/ChainSelector';
@@ -10,11 +17,6 @@ import FlowRunner from '@/components/FlowRunner';
 
 const WalletConnector = dynamic(() => import('@/components/WalletConnector'), { ssr: false });
 const LiveValidator = dynamic(() => import('@/components/LiveValidator'), { ssr: false });
-
-export const metadata: Metadata = {
-  title: 'Ward Protocol — Interactive Multi-Chain Demo',
-  description: 'Experience deterministic default resolution live across XRPL, Stellar, Solana, Hedera, and more.',
-};
 
 const chains = [
   { id: 'xrpl', name: 'XRPL Altnet', icon: '🌊', status: 'Live' },
@@ -57,22 +59,19 @@ export default function DemoPage() {
       </div>
 
       <div className="max-w-5xl mx-auto px-6 py-12 space-y-20">
-        {/* Live Wallet + Validator */}
         <div>
-          <WalletConnector /> {/* Remove chain prop for now */}
-          <LiveValidator />   {/* Remove chain prop for now */}
+          <WalletConnector />
+          <LiveValidator />
         </div>
 
-        {/* Enhanced Interactive Checklist */}
         <section>
           <h2 className="text-3xl font-semibold mb-8">9 On-Ledger Checks — Real-Time Simulation</h2>
           <EnhancedWardChecklist chain={selectedChain} />
         </section>
 
-        {/* Visual Flow */}
         <section>
           <h2 className="text-3xl font-semibold mb-6">Integration Flow (F·01 → F·06)</h2>
-          <FlowRunner /> {/* Remove chain prop for now */}
+          <FlowRunner />
         </section>
 
         {/* Next Steps */}
