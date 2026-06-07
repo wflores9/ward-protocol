@@ -6,8 +6,8 @@ const flows = [
   { code: 'F·02', name: 'Credential Issuance', status: 'LIVE' },
   { code: 'F·03', name: 'Policy Purchase',     status: 'LIVE' },
   { code: 'F·04', name: 'Default Detection',   status: 'LIVE' },
-  { code: 'F·05', name: 'Claim Validation',    status: 'ALTNET LIVE' },
-  { code: 'F·06', name: 'Escrow Settlement',   status: 'ALTNET LIVE' },
+  { code: 'F·05', name: 'Claim Validation',    status: 'LIVE' },
+  { code: 'F·06', name: 'Escrow Settlement',   status: 'LIVE' },
 ]
 
 const steps = [
