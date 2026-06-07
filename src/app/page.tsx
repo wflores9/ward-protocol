@@ -50,7 +50,7 @@ const faqItems = [
 const statusRows: [string, React.ReactNode][] = [
   ['SDK Version', 'v0.2.6'],
   ['Chains (Testnet)', 'XRPL Altnet · Flare Coston2 · XRPL EVM · XDC Apothem · Polygon Amoy · Stellar · Algorand · Solana'],
-  ['Unit Tests', <span key="tests" style={{ color: 'var(--green)' }}>436 Python · 40 Rust · 45 TypeScript</span>],
+  ['Unit Tests', <span key="tests" style={{ color: 'var(--green)' }}>436 Python · 40 Rust · 53 TypeScript</span>],
   ['Coverage', 'chain_reader 100% · monitor 100% · tx_builder 100% · vault_monitor 99%'],
   ['On-Chain Transactions', 'E2E verified on XRPL Altnet · 8 chains testnet live'],
   ['External Dependencies', '0 — pure XRPL'],

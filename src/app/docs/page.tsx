@@ -106,7 +106,7 @@ export default function DocsPage() {
             {testCmd}
           </pre>
           <p className="text-sm text-sub mt-3">
-            436 Python tests + 40 Rust tests + 45 TypeScript tests covering all 9 claim validation steps, all 15 attack vectors, VaultMonitor,
+            436 Python tests + 40 Rust tests + 53 TypeScript tests covering all 9 claim validation steps, all 15 attack vectors, VaultMonitor,
             EscrowSettlement, PoolHealthMonitor, and all primitives.
             Marked <code className="bg-p2 px-1 rounded text-sm">integration</code> tests require XRPL Mainnet access.
           </p>
@@ -131,7 +131,7 @@ export default function DocsPage() {
               version: 'v0.2.4',
               date: 'May 2026',
               changes: [
-                { type: 'Changed', text: 'Test counts corrected — 436/436 Python · 40/40 Rust · 45/45 TypeScript' },
+                { type: 'Changed', text: 'Test counts corrected — 436/436 Python · 40/40 Rust · 45/53 TypeScript' },
                 { type: 'Added', text: 'Coverage sprint — chain_reader 100%, monitor 100%, tx_builder 100%, vault_monitor 99%' },
                 { type: 'Changed', text: 'Python tests: 204/204 → 257/257 (92 new coverage tests)' },
                 { type: 'Fixed', text: 'Headline typo corrected in README and PyPI description' },
