@@ -14,4 +14,4 @@ pub mod escrow;
 
 pub use error::WardError;
 pub use monitor::{VaultMonitor, VerifiedDefault, MonitorConfig};
-pub use escrow::{EscrowTx, EscrowBuilder, EscrowConfig};
+pub use escrow::{EscrowTx, EscrowBuilder, EscrowConfig, validate_condition_hex};
