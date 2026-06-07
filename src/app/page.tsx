@@ -143,7 +143,7 @@ export default function Home() {
 
             {/* Stats */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 8 }}>
-              {[{v:'436/436',l:'TESTS'},{v:'FALSE',l:'WARD_SIGNED'},{v:'3',l:'CONFIRMATION WINDOW'},{v:'8',l:'CHAINS TESTNET'}].map(s => (
+              {[{v:'436/436',l:'TESTS'},{v:'3',l:'CONFIRMATION WINDOW'},{v:'8',l:'CHAINS TESTNET'}].map(s => (
                 <div key={s.l} style={{ background: 'rgba(0,0,0,0.2)', borderRadius: 8, padding: '10px 8px', textAlign: 'center' }}>
                   <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 16, fontWeight: 700, color: 'var(--gold)', marginBottom: 4 }}>{s.v}</div>
                   <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 14, color: 'var(--text-tertiary)', letterSpacing: 0 }}>{s.l}</div>
