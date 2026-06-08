@@ -77,15 +77,15 @@ const LEDGER_CHECKS = [
 
 const CONFORMANCE_MEANING = [
   {
-    title: 'A deterministic evidence standard',
+    title: 'Deterministic evidence standard',
     body: 'Ward Conformance means default resolution is driven by explicit on-ledger evidence gates every time, not by operator discretion, hidden policy logic, or off-chain judgment.',
   },
   {
-    title: 'A preserved institutional boundary',
+    title: 'Preserved institutional boundary',
     body: 'A conformant integration keeps signing authority with the institution, vault operator, or designated counterparty. Ward validates, prepares, and reports, but does not sign or settle.',
   },
   {
-    title: 'A reviewable record for serious partners',
+    title: 'Reviewable by serious partners',
     body: 'The resulting conformance record is designed for engineering, risk, compliance, and capital review. It is a technical assurance surface, not a marketing promise.',
   },
 ] as const;
@@ -137,62 +137,64 @@ export default function ConformancePage() {
     <main className="site-shell text-[#f7f9f7]">
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 grid-overlay opacity-70" />
-        <div className="mx-auto max-w-7xl px-6 pb-20 pt-20 md:px-10 lg:px-12 lg:pt-24">
-          <div className="grid gap-10 lg:grid-cols-[1.02fr_0.98fr]">
-            <div>
+        <div className="site-container pb-28 pt-24 lg:pt-32">
+          <div className="grid gap-16 lg:grid-cols-[1fr_0.92fr] lg:items-center">
+            <div className="max-w-4xl">
               <p className="site-label">Ward Conformance</p>
-              <h1 className="mt-5 text-5xl font-black leading-[1.03] tracking-[-0.03em] text-white md:text-6xl">
-                A technical standard serious institutions can inspect.
+              <h1 className="mt-6 text-5xl font-black leading-[0.98] tracking-[-0.04em] text-white md:text-6xl lg:text-[5rem]">
+                A clean institutional standard for default-resolution integrity.
               </h1>
-              <p className="mt-6 max-w-3xl text-lg leading-8 text-[#d0dde0] md:text-xl">
+              <p className="site-copy mt-8 max-w-3xl text-lg md:text-[1.2rem]">
                 Ward Conformance is the institutional assurance layer for deterministic default resolution. It means a credit product resolves claims through explicit on-ledger checks, preserves the signer boundary, and produces a record partners can review without trusting Ward as a discretionary operator.
               </p>
 
-              <div className="mt-8 flex flex-wrap gap-3 text-sm text-[#d0dde0]">
+              <div className="mt-9 flex flex-wrap gap-3 text-sm text-[#d0dde0]">
                 {[
                   '9 on-ledger checks',
                   'Unsigned settlement instructions',
                   'Reviewable conformance receipt',
-                  'June 2026 hardening completed',
+                  'June 2026 hardening complete',
                 ].map((item) => (
-                  <span key={item} className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 font-mono">
+                  <span key={item} className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 font-mono">
                     {item}
                   </span>
                 ))}
               </div>
 
-              <div className="mt-8 flex flex-wrap gap-3">
+              <div className="mt-10 flex flex-wrap gap-4">
                 <Link
                   href="/spec"
-                  className="inline-flex min-h-12 items-center rounded-full bg-[#f7f9f7] px-6 py-3 text-base font-bold text-[#07131a] transition hover:bg-white"
+                  className="inline-flex min-h-14 items-center rounded-full bg-[#f7f9f7] px-7 py-3 text-base font-bold text-[#07131a] transition hover:bg-white"
                 >
                   Read the specification
                 </Link>
                 <Link
                   href="/demo"
-                  className="inline-flex min-h-12 items-center rounded-full border border-white/12 bg-white/[0.03] px-6 py-3 text-base font-bold text-[#f7f9f7] transition hover:bg-white/[0.06]"
+                  className="inline-flex min-h-14 items-center rounded-full border border-white/12 bg-white/[0.03] px-7 py-3 text-base font-bold text-[#f7f9f7] transition hover:bg-white/[0.06]"
                 >
                   Inspect the demo workflow
                 </Link>
               </div>
             </div>
 
-            <div className="site-panel rounded-[32px] p-6 md:p-8">
+            <div className="site-panel rounded-[38px] p-8 md:p-10">
               <p className="font-mono text-sm font-bold text-[#d4a93e]">Core invariant</p>
-              <h2 className="mt-3 text-3xl font-black text-white md:text-4xl">ward_signed = False - always.</h2>
-              <p className="mt-4 text-base leading-7 text-[#d0dde0]">
+              <h2 className="mt-4 text-3xl font-black tracking-[-0.03em] text-white md:text-4xl">
+                ward_signed = False - always.
+              </h2>
+              <p className="site-copy mt-5">
                 Ward prepares deterministic validation results and unsigned settlement instructions. Institutions sign. The chain settles. Ward never holds private keys, never acts as custodian, and never becomes a transaction signatory.
               </p>
 
-              <div className="mt-6 grid gap-3">
+              <div className="mt-8 grid gap-4">
                 {[
                   ['No Ward custody', 'No wallet storage, no secret handling, and no delegation of signing authority to Ward.'],
                   ['No Ward signature', 'Unsigned packets are prepared for institutional review and execution by the responsible counterparty.'],
                   ['Clean institutional boundary', 'Teams can confirm exactly where Ward stops and institutional authority begins.'],
                 ].map(([title, body]) => (
-                  <article key={title} className="rounded-[24px] border border-white/10 bg-white/[0.03] p-4">
-                    <h3 className="text-lg font-black text-white">{title}</h3>
-                    <p className="mt-2 text-sm leading-6 text-[#d0dde0]">{body}</p>
+                  <article key={title} className="rounded-[24px] border border-white/10 bg-white/[0.03] p-5">
+                    <h3 className="text-xl font-black tracking-[-0.02em] text-white">{title}</h3>
+                    <p className="site-copy-sm mt-3">{body}</p>
                   </article>
                 ))}
               </div>
@@ -202,22 +204,22 @@ export default function ConformancePage() {
       </section>
 
       <section className="site-section">
-        <div className="mx-auto max-w-7xl px-6 py-20 md:px-10 lg:px-12">
+        <div className="site-container py-28">
           <div className="max-w-3xl">
             <p className="site-label">What conformance means</p>
-            <h2 className="mt-4 text-4xl font-black leading-tight text-white md:text-5xl">
+            <h2 className="mt-5 text-4xl font-black leading-tight tracking-[-0.03em] text-white md:text-5xl lg:text-[3.5rem]">
               Conformance is a technical claim about process integrity.
             </h2>
-            <p className="mt-5 text-lg leading-8 text-[#d0dde0]">
+            <p className="site-copy mt-6">
               A Ward-conformant product is not being described as risk-free, underwritten by Ward, or approved by a regulator. It is being described as technically disciplined: the default path is deterministic, the evidence is on ledger, and the signing boundary remains with the institution.
             </p>
           </div>
 
-          <div className="mt-10 grid gap-5 lg:grid-cols-3">
+          <div className="mt-14 grid gap-6 lg:grid-cols-3">
             {CONFORMANCE_MEANING.map((item) => (
-              <article key={item.title} className="site-panel-muted rounded-[28px] p-6">
-                <h3 className="text-2xl font-black text-white">{item.title}</h3>
-                <p className="mt-4 text-base leading-7 text-[#d0dde0]">{item.body}</p>
+              <article key={item.title} className="site-panel-muted rounded-[32px] p-8">
+                <h3 className="text-[1.75rem] font-black tracking-[-0.03em] text-white">{item.title}</h3>
+                <p className="site-copy mt-5">{item.body}</p>
               </article>
             ))}
           </div>
@@ -225,23 +227,23 @@ export default function ConformancePage() {
       </section>
 
       <section className="site-section">
-        <div className="mx-auto max-w-7xl px-6 py-20 md:px-10 lg:px-12">
+        <div className="site-container py-28">
           <div className="max-w-3xl">
             <p className="site-label">On-ledger evidence gates</p>
-            <h2 className="mt-4 text-4xl font-black leading-tight text-white md:text-5xl">
+            <h2 className="mt-5 text-4xl font-black leading-tight tracking-[-0.03em] text-white md:text-5xl">
               The nine checks every conformant default path must satisfy.
             </h2>
-            <p className="mt-5 text-lg leading-8 text-[#d0dde0]">
+            <p className="site-copy mt-6">
               These checks make the decision path inspectable. They are designed to show not just that a claim was accepted or rejected, but which ledger facts justified the outcome.
             </p>
           </div>
 
-          <div className="mt-10 overflow-x-auto rounded-[28px] border border-white/10 bg-white/[0.03]">
-            <table className="w-full min-w-[980px] border-collapse">
+          <div className="mt-14 overflow-x-auto rounded-[34px] border border-white/10 bg-white/[0.03]">
+            <table className="w-full min-w-[1060px] border-collapse">
               <thead className="bg-white/[0.03]">
                 <tr>
                   {['Step', 'Check', 'Ledger evidence', 'Why it matters'].map((header) => (
-                    <th key={header} className="px-5 py-4 text-left font-mono text-xs font-bold uppercase tracking-[0.14em] text-[#9eb0b7]">
+                    <th key={header} className="px-6 py-5 text-left font-mono text-xs font-bold uppercase tracking-[0.16em] text-[#9eb0b7]">
                       {header}
                     </th>
                   ))}
@@ -250,10 +252,10 @@ export default function ConformancePage() {
               <tbody>
                 {LEDGER_CHECKS.map((item) => (
                   <tr key={item.step} className="border-t border-white/10 align-top">
-                    <td className="px-5 py-4 font-mono text-sm font-bold text-[#d4a93e]">{item.step}</td>
-                    <td className="px-5 py-4 text-base font-bold text-white">{item.check}</td>
-                    <td className="px-5 py-4 text-base leading-7 text-[#d0dde0]">{item.evidence}</td>
-                    <td className="px-5 py-4 text-base leading-7 text-[#d0dde0]">{item.whyItMatters}</td>
+                    <td className="px-6 py-5 font-mono text-sm font-bold text-[#d4a93e]">{item.step}</td>
+                    <td className="px-6 py-5 text-base font-bold leading-7 text-white">{item.check}</td>
+                    <td className="px-6 py-5 text-base leading-8 text-[#d0dde0]">{item.evidence}</td>
+                    <td className="px-6 py-5 text-base leading-8 text-[#d0dde0]">{item.whyItMatters}</td>
                   </tr>
                 ))}
               </tbody>
@@ -263,69 +265,65 @@ export default function ConformancePage() {
       </section>
 
       <section className="site-section">
-        <div className="mx-auto grid max-w-7xl gap-10 px-6 py-20 md:px-10 lg:grid-cols-[0.92fr_1.08fr] lg:px-12">
-          <div>
-            <p className="site-label">June 2026 security hardening sprint</p>
-            <h2 className="mt-4 text-4xl font-black leading-tight text-white md:text-5xl">
-              Security maturity was tightened before institutional outreach scaled.
-            </h2>
-            <p className="mt-5 text-lg leading-8 text-[#d0dde0]">
-              The June 2026 sprint focused on closing audit findings, removing unsafe assumptions, and hardening the protocol surface for institutional review. The result was v0.2.6, a stricter implementation of the same conformance model.
-            </p>
-            <p className="mt-5 text-base leading-7 text-[#9eb0b7]">
-              The assurance story now combines protocol design, visible controls, and a clearer institutional-readiness narrative.
-            </p>
-          </div>
-
-          <div className="grid gap-4">
-            {HARDENING_HIGHLIGHTS.map((item) => (
-              <article key={item.label} className="site-panel-muted rounded-[24px] p-5">
-                <p className="font-mono text-sm font-bold text-[#d4a93e]">{item.label}</p>
-                <p className="mt-3 text-base leading-7 text-[#d0dde0]">{item.body}</p>
-              </article>
-            ))}
-            <article className="site-panel rounded-[24px] p-5">
-              <p className="font-mono text-sm font-bold text-[#d4a93e]">Assurance baseline</p>
-              <p className="mt-3 text-base leading-7 text-[#d0dde0]">
-                For serious partners, conformance is not just a statement about product behavior. It is also a statement that the implementation has been hardened to keep the signer boundary and evidence path credible under review.
+        <div className="site-container py-28">
+          <div className="grid gap-14 lg:grid-cols-[0.94fr_1.06fr]">
+            <div className="max-w-2xl">
+              <p className="site-label">June 2026 security hardening sprint</p>
+              <h2 className="mt-5 text-4xl font-black leading-tight tracking-[-0.03em] text-white md:text-5xl">
+                Security maturity was tightened before institutional outreach scaled.
+              </h2>
+              <p className="site-copy mt-6">
+                The June 2026 sprint focused on closing audit findings, removing unsafe assumptions, and hardening the protocol surface for institutional review. The result was v0.2.6, a stricter implementation of the same conformance model.
               </p>
-            </article>
+              <p className="site-copy-sm mt-6 text-[#9eb0b7]">
+                The assurance story now combines protocol design, visible controls, and a clearer institutional-readiness narrative.
+              </p>
+            </div>
+
+            <div className="grid gap-4">
+              {HARDENING_HIGHLIGHTS.map((item) => (
+                <article key={item.label} className="site-panel-muted rounded-[28px] p-6">
+                  <p className="font-mono text-sm font-bold text-[#d4a93e]">{item.label}</p>
+                  <p className="site-copy mt-4">{item.body}</p>
+                </article>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
       <section className="site-section">
-        <div className="mx-auto max-w-7xl px-6 py-20 md:px-10 lg:px-12">
+        <div className="site-container py-28">
           <div className="max-w-3xl">
             <p className="site-label">Verification for partners and institutions</p>
-            <h2 className="mt-4 text-4xl font-black leading-tight text-white md:text-5xl">
+            <h2 className="mt-5 text-4xl font-black leading-tight tracking-[-0.03em] text-white md:text-5xl lg:text-[3.5rem]">
               Conformance should be verifiable, not merely asserted.
             </h2>
-            <p className="mt-5 text-lg leading-8 text-[#d0dde0]">
+            <p className="site-copy mt-6">
               Serious counterparties should be able to inspect the standard, review a conformance record, and confirm the signer boundary without relying on private process or informal assurances.
             </p>
           </div>
 
-          <div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <div className="mt-14 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
             {VERIFICATION_STEPS.map((item) => (
-              <article key={item.step} className="site-panel-muted rounded-[24px] p-5">
+              <article key={item.step} className="site-panel-muted rounded-[30px] p-7 md:min-h-[300px]">
                 <p className="font-mono text-sm font-bold text-[#d4a93e]">{item.step}</p>
-                <h3 className="mt-4 text-xl font-black text-white">{item.title}</h3>
-                <p className="mt-3 text-base leading-7 text-[#d0dde0]">{item.body}</p>
+                <h3 className="mt-5 text-2xl font-black tracking-[-0.03em] text-white">{item.title}</h3>
+                <p className="site-copy mt-5">{item.body}</p>
               </article>
             ))}
           </div>
 
-          <div className="mt-10 flex flex-wrap gap-3">
+          <div className="mt-12 flex flex-wrap gap-4">
             <Link
               href="/spec"
-              className="inline-flex min-h-12 items-center rounded-full bg-[#f7f9f7] px-6 py-3 text-base font-bold text-[#07131a] transition hover:bg-white"
+              className="inline-flex min-h-14 items-center rounded-full bg-[#f7f9f7] px-7 py-3 text-base font-bold text-[#07131a] transition hover:bg-white"
             >
               Review technical spec
             </Link>
             <Link
               href="/demo"
-              className="inline-flex min-h-12 items-center rounded-full border border-white/12 bg-white/[0.03] px-6 py-3 text-base font-bold text-[#f7f9f7] transition hover:bg-white/[0.06]"
+              className="inline-flex min-h-14 items-center rounded-full border border-white/12 bg-white/[0.03] px-7 py-3 text-base font-bold text-[#f7f9f7] transition hover:bg-white/[0.06]"
             >
               Inspect demo workflow
             </Link>

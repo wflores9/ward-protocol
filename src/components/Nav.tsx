@@ -15,7 +15,7 @@ export default function Nav() {
 
   return (
     <nav className="site-nav sticky top-0 z-[100] border-b border-white/10 bg-[#07131a]/88 backdrop-blur-xl">
-      <div className="mx-auto flex h-[76px] max-w-7xl items-center justify-between px-6 md:px-10 lg:px-12">
+      <div className="site-container flex h-[80px] items-center justify-between">
         <Link href="/" onClick={() => setOpen(false)} className="flex items-center gap-4 no-underline">
           <div className="relative flex h-11 w-11 items-center justify-center rounded-full border border-white/12 bg-white/[0.04]">
             <span className="text-xl font-black text-[#f7f9f7]">W</span>
@@ -74,7 +74,7 @@ export default function Nav() {
 
       {open && (
         <div className="border-t border-white/10 bg-[#0a161d]/98 px-6 pb-6 pt-4 md:hidden">
-          <div className="mx-auto max-w-7xl space-y-2">
+          <div className="site-container space-y-2 px-0">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
