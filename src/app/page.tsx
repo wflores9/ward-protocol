@@ -1,11 +1,11 @@
 import Link from 'next/link';
 
 import ChainLogo from '@/components/ChainLogo';
-import { CHAIN_ADAPTERS, ROADMAP_PHASES } from '@/lib/wardPlatform';
+import { CHAIN_ADAPTERS, PILOT_READINESS_PHASES } from '@/lib/wardPlatform';
 import { MARKETING } from '@/lib/marketingContent';
 
 const metrics = [
-  ['8', 'Live testnet rails'],
+  ['8', 'Testnet rails'],
   ['9', 'Deterministic checks'],
   ['529', 'Tests across Python, Rust, and TypeScript'],
   ['06/2026', 'Security hardening sprint'],
@@ -22,7 +22,7 @@ const pillars = [
   },
   {
     title: 'Designed for serious partners',
-    body: 'Receipts, controls, adapter surfaces, and on-ledger checks are packaged so engineering, risk, compliance, and capital teams can inspect the same record.',
+    body: 'Receipts, controls, rail surfaces, and on-ledger checks are packaged so engineering, risk, compliance, and capital teams can inspect the same record.',
   },
 ];
 
@@ -62,7 +62,7 @@ export default function Home() {
               {MARKETING.subheadline}
             </p>
 
-            <div className="mt-8 inline-flex rounded-full border border-[#d4a93e]/18 bg-[#d4a93e]/10 px-5 py-2.5 font-mono text-[11px] font-bold uppercase tracking-[0.18em] text-[#f0d080]">
+            <div className="mt-8 inline-flex rounded-md border border-[#d4a93e]/18 bg-[#d4a93e]/10 px-5 py-2.5 font-mono text-sm font-bold text-[#f0d080]">
               {MARKETING.statusLine}
             </div>
 
@@ -101,7 +101,7 @@ export default function Home() {
                     A default-resolution layer built to be reviewed.
                   </h2>
                 </div>
-                <span className="rounded-full border border-[#00cc66]/20 bg-[#00cc66]/10 px-4 py-2 font-mono text-[11px] font-bold uppercase tracking-[0.16em] text-[#00cc66]">
+                <span className="rounded-md border border-[#00cc66]/20 bg-[#00cc66]/10 px-4 py-2 font-mono text-sm font-bold text-[#00cc66]">
                   v0.2.6 live
                 </span>
               </div>
@@ -113,7 +113,7 @@ export default function Home() {
                   ['Settlement role', 'Unsigned packet returned to the institution'],
                 ].map(([label, value]) => (
                   <div key={label} className="rounded-[24px] border border-white/10 bg-white/[0.03] p-5">
-                    <p className="font-mono text-xs uppercase tracking-[0.16em] text-[#9eb0b7]">{label}</p>
+                    <p className="font-mono text-sm uppercase tracking-[0.12em] text-[#9eb0b7]">{label}</p>
                     <p className="mt-3 text-lg font-bold leading-7 text-white">{value}</p>
                   </div>
                 ))}
@@ -215,11 +215,11 @@ export default function Home() {
             </div>
 
             <div className="grid gap-5 sm:grid-cols-2">
-              {CHAIN_ADAPTERS.slice(0, 4).map((chain) => (
+              {CHAIN_ADAPTERS.map((chain) => (
                 <article key={chain.id} className="site-panel-muted rounded-[30px] p-7">
                   <div className="flex items-start justify-between gap-4">
                     <ChainLogo id={chain.logo} label={`${chain.name} logo`} className="h-14 w-14" />
-                    <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.14em] text-[#9eb0b7]">
+                    <span className="rounded-md border border-white/10 bg-white/[0.04] px-3 py-1.5 font-mono text-sm text-[#9eb0b7]">
                       {chain.status}
                     </span>
                   </div>
@@ -239,12 +239,15 @@ export default function Home() {
             <div className="max-w-3xl">
               <p className="site-label">Execution roadmap</p>
               <h2 className="mt-5 text-4xl font-black leading-tight tracking-[-0.03em] text-white md:text-5xl">
-                From working infrastructure to trusted market standard.
+                Pilot readiness from self-serve review to production certification.
               </h2>
+              <p className="site-copy mt-6">
+                The public site now follows the same path partners will follow: inspect the standard, run the XRPL pilot lane, review cross-chain receipts, then move into mainnet readiness.
+              </p>
             </div>
 
             <div className="mt-14 grid gap-5">
-              {ROADMAP_PHASES.map((phase) => (
+              {PILOT_READINESS_PHASES.map((phase) => (
                 <article
                   key={phase.phase}
                   className="rounded-[30px] border border-white/10 bg-white/[0.03] p-6 md:grid md:grid-cols-[100px_1fr_180px] md:gap-6 md:p-7"
@@ -254,11 +257,10 @@ export default function Home() {
                   </div>
                   <div className="mt-5 md:mt-0">
                     <h3 className="text-2xl font-black tracking-[-0.03em] text-white">{phase.title}</h3>
-                    <p className="site-copy mt-3">{phase.headline}</p>
-                    <p className="mt-4 text-sm leading-7 text-[#9eb0b7]">{phase.proof}</p>
+                    <p className="site-copy mt-3">{phase.body}</p>
                   </div>
-                  <div className="mt-5 self-start rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 font-mono text-xs font-bold uppercase tracking-[0.14em] text-[#f0d080] md:mt-0 md:text-center">
-                    {phase.status}
+                  <div className="mt-5 self-start rounded-md border border-white/10 bg-white/[0.04] px-4 py-2 font-mono text-sm font-bold text-[#f0d080] md:mt-0 md:text-center">
+                    {phase.window}
                   </div>
                 </article>
               ))}

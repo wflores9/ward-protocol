@@ -10,7 +10,7 @@ export const MARKETING = {
   headline: 'Deterministic default-resolution infrastructure for institutional tokenized credit.',
   subheadline:
     'Ward gives lenders, vault operators, and credit protocols a deterministic way to validate defaults, preserve the signer boundary, and export reviewable conformance receipts serious partners can inspect.',
-  statusLine: 'v0.2.6 · 8 live testnet rails · 529 tests across Python, Rust, and TypeScript · June 2026 hardening complete.',
+  statusLine: 'v0.2.6 · 8 testnet rails · 529 tests across Python, Rust, and TypeScript · June 2026 hardening complete.',
 
   // Brand
   tagline: 'Deterministic default-resolution infrastructure for institutional tokenized credit.',

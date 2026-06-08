@@ -8,26 +8,26 @@ type Props = {
 
 const LOGOS: Record<ChainLogoId, { src: string; alt: string; padding: string; background: string }> = {
   xrpl: {
-    src: '/chain-logos/xrpl.png',
+    src: '/chain-logos/xrpl.webp',
     alt: 'XRPL logo',
-    padding: 'p-2',
+    padding: 'p-1',
     background: 'bg-white',
   },
+  flare: {
+    src: '/chain-logos/flare.png',
+    alt: 'Flare logo',
+    padding: 'p-0',
+    background: 'bg-[#e91e63]',
+  },
   xrpl_evm: {
-    src: '/chain-logos/xrpl-evm.png',
+    src: '/chain-logos/xrpl-evm.avif',
     alt: 'XRPL EVM Sidechain logo',
-    padding: 'p-1',
+    padding: 'p-0.5',
     background: 'bg-black',
   },
   stellar: {
     src: '/chain-logos/stellar.png',
     alt: 'Stellar logo',
-    padding: 'p-2',
-    background: 'bg-white',
-  },
-  hedera: {
-    src: '/chain-logos/hedera.png',
-    alt: 'Hedera logo',
     padding: 'p-2',
     background: 'bg-white',
   },

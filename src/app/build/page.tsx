@@ -2,7 +2,8 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 
 import ChainLogo from '@/components/ChainLogo';
-import { CHAIN_ADAPTERS, ROADMAP_PHASES } from '@/lib/wardPlatform';
+import { PILOT_URL } from '@/lib/navigation';
+import { CHAIN_ADAPTERS, PILOT_READINESS_PHASES } from '@/lib/wardPlatform';
 
 export const metadata: Metadata = {
   title: 'Build With Ward | Tokenized Credit Conformance Infrastructure',
@@ -29,7 +30,7 @@ const installBlocks = [
   {
     label: 'TypeScript SDK',
     command: 'npm install @wardprotocol/sdk',
-    body: 'Use the TypeScript SDK for product consoles, dashboards, adapter orchestration, and receipt export.',
+    body: 'Use the TypeScript SDK for product consoles, dashboards, rail orchestration, and receipt export.',
   },
   {
     label: 'Hosted API',
@@ -57,14 +58,14 @@ export default function BuildPage() {
             Make your tokenized credit product Ward-conformant.
           </h1>
           <p className="mt-6 max-w-3xl text-lg leading-8 text-[#d2e1dd] md:text-xl">
-            Ward gives builders the adapter layer, API path, SDK surface, and receipt model needed to ship deterministic default resolution without giving Ward custody or signing authority.
+            Ward gives builders the rail layer, API path, SDK surface, and receipt model needed to ship deterministic default resolution without giving Ward custody or signing authority.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link href="/demo" className="inline-flex min-h-12 items-center rounded-md bg-[#f7faf8] px-6 py-3 text-base font-bold text-[#14242b] transition hover:bg-white">
               Open Integration Console
             </Link>
-            <a href="https://cal.com/wardprotocol/30min" className="inline-flex min-h-12 items-center rounded-md border border-[#b6d7ce]/30 px-6 py-3 text-base font-bold text-[#f7faf8] transition hover:border-[#b6d7ce] hover:bg-[#b6d7ce]/10">
-              Discuss a Pilot
+            <a href={PILOT_URL} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-12 items-center rounded-md border border-[#b6d7ce]/30 px-6 py-3 text-base font-bold text-[#f7faf8] transition hover:border-[#b6d7ce] hover:bg-[#b6d7ce]/10">
+              Discuss a pilot
             </a>
           </div>
         </div>
@@ -107,7 +108,7 @@ export default function BuildPage() {
             {CHAIN_ADAPTERS.map((chain) => (
               <article key={chain.id} className="rounded-lg border border-[#14242b]/10 bg-white p-5">
                 <div className="mb-4 flex items-center gap-4">
-                  <ChainLogo id={chain.logo} label={`${chain.name} adapter`} className="h-12 w-12" />
+                  <ChainLogo id={chain.logo} label={`${chain.name} rail`} className="h-12 w-12" />
                   <div>
                     <h3 className="text-lg font-black text-[#14242b]">{chain.name}</h3>
                     <p className="text-sm leading-5 text-[#52665f]">{chain.status}</p>
@@ -150,17 +151,17 @@ export default function BuildPage() {
             </h2>
           </div>
           <div className="grid gap-4">
-            {ROADMAP_PHASES.map((phase) => (
+            {PILOT_READINESS_PHASES.map((phase) => (
               <article key={phase.phase} className="grid gap-4 rounded-lg border border-[#14242b]/10 bg-[#f6f4ee] p-5 md:grid-cols-[76px_1fr_170px]">
                 <div className="flex h-12 w-12 items-center justify-center rounded-md bg-[#14242b] font-mono text-base font-black text-white">
                   {phase.phase}
                 </div>
                 <div>
                   <h3 className="text-xl font-black text-[#14242b]">{phase.title}</h3>
-                  <p className="mt-2 text-base leading-7 text-[#52665f]">{phase.headline}</p>
+                  <p className="mt-2 text-base leading-7 text-[#52665f]">{phase.body}</p>
                 </div>
                 <p className="self-start rounded-md border border-[#14242b]/10 bg-white px-4 py-2 font-mono text-sm font-bold text-[#3f534d] md:text-center">
-                  {phase.status}
+                  {phase.window}
                 </p>
               </article>
             ))}
