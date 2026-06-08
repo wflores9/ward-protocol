@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Ward Protocol Specification',
     description: 'The technical basis for deterministic default resolution in tokenized credit.',
-    images: [{ url: '/brand/ward-banner.png', width: 1920, height: 480 }],
+    images: [{ url: '/og-image.png', width: 1200, height: 630 }],
   },
   twitter: {
     card: 'summary_large_image',
@@ -146,7 +146,7 @@ export default function SpecPage() {
           </p>
           <div className="flex gap-3 mt-5">
             <span className="text-sm bg-[#fdf8ed] text-[#c8a94a] border border-gold/30 px-2.5 py-1 rounded font-mono font-bold">
-              436/436 Python · 40/40 Rust · 45/53 TypeScript
+              436/436 Python · 40/40 Rust · 53/53 TypeScript
             </span>
             <span className="text-sm bg-panel border border-border text-sub px-2.5 py-1 rounded font-mono">
               SDK v0.2.6
@@ -174,7 +174,7 @@ export default function SpecPage() {
           </ul>
           <div className="mt-6 pt-6 border-t border-p2">
             <Link href="/demo" className="text-sm text-ice2 hover:text-steel transition-colors no-underline">
-              → Try Checklist
+              Open Console
             </Link>
           </div>
         </nav>

@@ -7,16 +7,16 @@ import { CHAIN_ADAPTERS, CONFORMANCE_CHECKS } from '@/lib/wardPlatform';
 export const metadata: Metadata = {
   title: 'Ward Docs | Conformance Integration Guide',
   description:
-    'Developer documentation for Ward Protocol: SDK setup, adapter lanes, nine-check conformance validation, unsigned settlement packets, and receipt export.',
+    'Developer documentation for Ward Protocol: SDK setup, integration rails, nine-check conformance validation, unsigned settlement packets, and receipt export.',
   openGraph: {
     title: 'Ward Protocol Developer Docs',
     description: 'Integrate deterministic default resolution into tokenized credit products.',
-    images: [{ url: '/brand/ward-banner.png', width: 1920, height: 480 }],
+    images: [{ url: '/og-image.png', width: 1200, height: 630 }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Ward Protocol Developer Docs',
-    description: 'SDK setup, chain adapters, conformance validation, and receipt export.',
+    description: 'SDK setup, integration rails, conformance validation, and receipt export.',
   },
 };
 
@@ -60,9 +60,8 @@ export default function DocsPage() {
   return (
     <main className="bg-[#f6f4ee] text-[#14242b]">
       <section className="relative overflow-hidden bg-[#14242b] px-6 py-20 text-[#f7faf8] md:px-10 lg:px-12">
-        <img src="/brand/ward-banner.png" alt="Ward Protocol documentation" className="absolute inset-0 h-full w-full object-cover opacity-25" />
-        <div className="absolute inset-0 bg-[#14242b]/90" />
-        <div className="absolute inset-0 grid-overlay" />
+        <div className="absolute inset-0 grid-overlay opacity-80" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_16%_18%,rgba(182,215,206,0.10),transparent_32%),radial-gradient(circle_at_84%_12%,rgba(212,169,62,0.08),transparent_34%)]" />
         <div className="relative mx-auto max-w-6xl">
           <p className="font-mono text-sm font-bold text-[#d4a93e]">Developer Documentation</p>
           <h1 className="mt-4 max-w-4xl text-4xl font-black leading-tight md:text-6xl">
@@ -122,12 +121,12 @@ export default function DocsPage() {
       <section className="bg-[#14242b] py-16 text-[#f7faf8]">
         <div className="mx-auto grid max-w-7xl gap-8 px-6 md:px-10 lg:grid-cols-[0.85fr_1.15fr] lg:px-12">
           <div>
-            <p className="font-mono text-sm font-bold text-[#d4a93e]">Adapter matrix</p>
+            <p className="font-mono text-sm font-bold text-[#d4a93e]">Integration rail matrix</p>
             <h2 className="mt-3 text-3xl font-black leading-tight md:text-5xl">
               Pick the chain lane. Keep the Ward invariant.
             </h2>
             <p className="mt-5 text-lg leading-8 text-[#d2e1dd]">
-              Each adapter translates a chain-native primitive into the same conformance result: approved, rejected, evidence, and unsigned settlement instructions.
+              Each rail translates a chain-native primitive into the same conformance result: approved, rejected, evidence, and unsigned settlement instructions.
             </p>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
@@ -140,8 +139,8 @@ export default function DocsPage() {
                     <p className="text-sm leading-5 text-[#a9bdb8]">{chain.network}</p>
                   </div>
                 </div>
-                <p className="font-mono text-sm leading-6 text-[#d2e1dd]">{chain.endpoint}</p>
-                <p className="mt-3 text-base leading-7 text-[#d2e1dd]">{chain.primitive}</p>
+                <p className="font-mono text-sm leading-6 text-[#d2e1dd]">{chain.status}</p>
+                <p className="mt-3 text-base leading-7 text-[#d2e1dd]">{chain.proof}</p>
               </article>
             ))}
           </div>

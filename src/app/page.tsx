@@ -6,7 +6,7 @@ import { MARKETING } from '@/lib/marketingContent';
 
 const metrics = [
   ['436+', 'Python tests passing'],
-  ['7', 'Chain adapter lanes'],
+  ['8', 'Testnet rails'],
   ['9', 'On-ledger checks'],
   ['0', 'Ward signing keys'],
 ];
@@ -45,13 +45,8 @@ export default function Home() {
   return (
     <main className="bg-[#f6f4ee] text-[#14242b]">
       <section className="relative overflow-hidden bg-[#14242b] text-[#f7faf8]">
-        <img
-          src="/brand/ward-banner.png"
-          alt="Ward Protocol conformance infrastructure"
-          className="absolute inset-0 h-full w-full object-cover opacity-30"
-        />
-        <div className="absolute inset-0 bg-[#14242b]/80" />
-        <div className="absolute inset-0 grid-overlay" />
+        <div className="absolute inset-0 grid-overlay opacity-80" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(182,215,206,0.10),transparent_32%),radial-gradient(circle_at_84%_12%,rgba(212,169,62,0.08),transparent_34%)]" />
 
         <div className="relative mx-auto grid min-h-[720px] max-w-7xl items-center gap-12 px-6 py-16 md:grid-cols-[1.05fr_0.95fr] md:px-10 lg:px-12">
           <div>
@@ -155,9 +150,9 @@ export default function Home() {
         <div className="mx-auto max-w-7xl px-6 md:px-10 lg:px-12">
           <div className="mb-10 flex flex-wrap items-end justify-between gap-6">
             <div className="max-w-3xl">
-              <p className="font-mono text-sm font-bold text-[#d4a93e]">Multi-chain conformance lanes</p>
+              <p className="font-mono text-sm font-bold text-[#d4a93e]">Multi-chain testnet rails</p>
               <h2 className="mt-3 text-3xl font-black leading-tight md:text-5xl">
-                One Ward result across chain-native primitives.
+                One conformance model across eight testnet rails.
               </h2>
             </div>
             <Link href="/demo" className="inline-flex min-h-12 items-center rounded-md bg-[#f7faf8] px-6 py-3 text-base font-bold text-[#14242b] transition hover:bg-white">
@@ -165,13 +160,18 @@ export default function Home() {
             </Link>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-7">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {CHAIN_ADAPTERS.map((chain) => (
-              <article key={chain.id} className="rounded-lg border border-[#b6d7ce]/20 bg-[#f7faf8]/10 p-4">
-                <ChainLogo id={chain.logo} label={`${chain.name} adapter`} className="h-12 w-12" />
-                <h3 className="mt-4 text-lg font-black text-[#f7faf8]">{chain.name}</h3>
-                <p className="mt-2 text-sm leading-6 text-[#a9bdb8]">{chain.status}</p>
-                <p className="mt-3 text-sm leading-6 text-[#d2e1dd]">{chain.primitiveRef}</p>
+              <article key={chain.id} className="rounded-lg border border-[#b6d7ce]/20 bg-[#f7faf8]/10 p-5">
+                <div className="mb-5 flex items-center justify-between gap-4">
+                  <ChainLogo id={chain.logo} label={`${chain.name} logo`} className="h-14 w-14" />
+                  <span className="rounded-md border border-[#b6d7ce]/20 px-3 py-1.5 font-mono text-sm font-bold text-[#d4a93e]">
+                    {chain.status}
+                  </span>
+                </div>
+                <h3 className="text-xl font-black text-[#f7faf8]">{chain.name}</h3>
+                <p className="mt-2 text-base leading-7 text-[#d2e1dd]">{chain.network}</p>
+                <p className="mt-3 text-sm leading-6 text-[#a9bdb8]">{chain.proof}</p>
               </article>
             ))}
           </div>
@@ -186,7 +186,7 @@ export default function Home() {
               The demo is now an integration console, not a button animation.
             </h2>
             <p className="mt-5 text-lg leading-8 text-[#3f534d]">
-              Create a sandbox wallet, attach a chain adapter, choose a project profile, run the conformance engine, and export the receipt. It shows how Ward plugs into a real credit product.
+              Create a sandbox wallet, select an integration rail, choose a project profile, run the conformance engine, and export the receipt. It shows how Ward plugs into a real credit product.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link href="/demo" className="inline-flex min-h-12 items-center rounded-md bg-[#14242b] px-6 py-3 text-base font-bold text-white transition hover:bg-[#1d3035]">
