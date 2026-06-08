@@ -50,7 +50,7 @@ signer_boundary: institution
 ward_signed: false`;
 
 const docsSections = [
-  ['Adapter setup', 'Select a chain lane and bind Ward to the project primitive your credit product already uses.'],
+  ['Rail setup', 'Select a chain lane and bind Ward to the project primitive your credit product already uses.'],
   ['Conformance payload', 'Send the policy reference, claimant, vault, and default context to the Ward validation engine.'],
   ['Validation response', 'Receive approved or rejected status, check-level evidence, and a deterministic reason.'],
   ['Settlement packet', 'Use the unsigned packet to preserve custody and signing authority inside your institution.'],
@@ -68,7 +68,7 @@ export default function DocsPage() {
             Integrate the Ward conformance engine into your credit product.
           </h1>
           <p className="mt-6 max-w-3xl text-lg leading-8 text-[#d2e1dd] md:text-xl">
-            These docs show how to attach adapters, run nine on-ledger checks, preserve the signer boundary, and export receipts for institutional review.
+            These docs show how to select integration rails, run nine on-ledger checks, preserve the signer boundary, and export receipts for institutional review.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link href="/demo" className="inline-flex min-h-12 items-center rounded-md bg-[#f7faf8] px-6 py-3 text-base font-bold text-[#14242b] transition hover:bg-white">
@@ -133,7 +133,7 @@ export default function DocsPage() {
             {CHAIN_ADAPTERS.map((chain) => (
               <article key={chain.id} className="rounded-lg border border-[#b6d7ce]/20 bg-[#f7faf8]/10 p-5">
                 <div className="mb-4 flex items-center gap-4">
-                  <ChainLogo id={chain.logo} label={`${chain.name} adapter`} className="h-12 w-12" />
+                  <ChainLogo id={chain.logo} label={`${chain.name} rail`} className="h-12 w-12" />
                   <div>
                     <h3 className="text-lg font-black text-[#f7faf8]">{chain.name}</h3>
                     <p className="text-sm leading-5 text-[#a9bdb8]">{chain.network}</p>

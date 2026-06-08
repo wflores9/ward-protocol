@@ -138,7 +138,7 @@ export default function SpecPage() {
                   ['Primary assurance surface', 'Nine-step claim validation'],
                 ].map(([label, value]) => (
                   <div key={label} className="rounded-[24px] border border-white/10 bg-white/[0.03] p-5">
-                    <p className="font-mono text-xs uppercase tracking-[0.16em] text-[#9eb0b7]">{label}</p>
+                    <p className="font-mono text-sm uppercase tracking-[0.12em] text-[#9eb0b7]">{label}</p>
                     <p className="mt-3 text-lg font-bold leading-7 text-white">{value}</p>
                   </div>
                 ))}
@@ -160,7 +160,7 @@ export default function SpecPage() {
           <div className="mt-14 grid gap-6 lg:grid-cols-5">
             {ARCHITECTURE.map(([step, title, body]) => (
               <article key={title} className="site-panel-muted rounded-[30px] p-6 lg:min-h-[260px]">
-                <p className="font-mono text-xs font-bold uppercase tracking-[0.16em] text-[#d4a93e]">{step}</p>
+                <p className="font-mono text-sm font-bold uppercase tracking-[0.12em] text-[#d4a93e]">{step}</p>
                 <h3 className="mt-4 text-2xl font-black tracking-[-0.03em] text-white">{title}</h3>
                 <p className="site-copy-sm mt-4">{body}</p>
               </article>
@@ -185,7 +185,7 @@ export default function SpecPage() {
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {CLAIM_STEPS.map((step, index) => (
                 <article key={step} className="site-panel rounded-[28px] p-5">
-                  <p className="font-mono text-xs font-bold uppercase tracking-[0.16em] text-[#d4a93e]">
+                  <p className="font-mono text-sm font-bold uppercase tracking-[0.12em] text-[#d4a93e]">
                     Step {index + 1}
                   </p>
                   <p className="mt-4 text-base leading-7 text-[#d0dde0]">{step}</p>
@@ -240,8 +240,8 @@ export default function SpecPage() {
                   <table className="w-full border-collapse">
                     <thead>
                       <tr className="border-b border-white/10">
-                        <th className="px-0 py-3 text-left font-mono text-xs uppercase tracking-[0.16em] text-[#9eb0b7]">Constant</th>
-                        <th className="px-0 py-3 text-left font-mono text-xs uppercase tracking-[0.16em] text-[#9eb0b7]">Value</th>
+                        <th className="px-0 py-3 text-left font-mono text-sm uppercase tracking-[0.12em] text-[#9eb0b7]">Constant</th>
+                        <th className="px-0 py-3 text-left font-mono text-sm uppercase tracking-[0.12em] text-[#9eb0b7]">Value</th>
                       </tr>
                     </thead>
                     <tbody>

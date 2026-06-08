@@ -3,13 +3,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 
-const navLinks = [
-  { label: 'Use Cases', href: '/use-cases' },
-  { label: 'Conformance', href: '/conformance' },
-  { label: 'Demo', href: '/demo' },
-  { label: 'Protocol', href: '/spec' },
-  { label: 'Build', href: '/build' },
-];
+import { PILOT_URL, SITE_NAVIGATION } from '@/lib/navigation';
 
 export default function Nav() {
   const [open, setOpen] = useState(false);
@@ -23,13 +17,13 @@ export default function Nav() {
             <div className="absolute bottom-2 left-1/2 h-0.5 w-4 -translate-x-1/2 rounded bg-[#d4a93e]" />
           </div>
           <div className="flex flex-col">
-            <span className="text-[15px] font-black tracking-[0.16em] text-[#f7f9f7]">WARD</span>
-            <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-[#9eb0b7]">Protocol</span>
+            <span className="text-base font-black tracking-[0.14em] text-[#f7f9f7]">WARD</span>
+            <span className="font-mono text-sm uppercase tracking-[0.12em] text-[#9eb0b7]">Protocol</span>
           </div>
         </Link>
 
         <div className="hidden items-center gap-2 md:flex">
-          {navLinks.map((link) => (
+          {SITE_NAVIGATION.map((link) => (
             <Link
               key={link.href}
               href={link.href}
@@ -39,7 +33,7 @@ export default function Nav() {
             </Link>
           ))}
           <a
-            href="https://tally.so/r/VLDbBE"
+            href={PILOT_URL}
             target="_blank"
             rel="noopener noreferrer"
             className="ml-3 inline-flex min-h-10 items-center rounded-full border border-[#d4a93e]/30 bg-[#d4a93e] px-5 py-2 text-sm font-bold text-[#07131a] transition hover:brightness-105"
@@ -51,7 +45,7 @@ export default function Nav() {
         <div className="flex items-center gap-3 md:hidden">
           <Link
             href="/demo"
-            className="rounded-full border border-white/10 px-3 py-2 font-mono text-xs uppercase tracking-[0.12em] text-[#d0dde0]"
+            className="rounded-full border border-white/10 px-3 py-2 font-mono text-sm uppercase tracking-[0.08em] text-[#d0dde0]"
           >
             Demo
           </Link>
@@ -65,18 +59,10 @@ export default function Nav() {
         </div>
       </div>
 
-      <button
-        className="hidden"
-        onClick={() => setOpen(o => !o)}
-        aria-label={open ? 'Close menu' : 'Open menu'}
-      >
-        {open ? '✕' : '≡'}
-      </button>
-
       {open && (
         <div className="border-t border-white/10 bg-[#0a161d]/98 px-6 pb-6 pt-4 md:hidden">
           <div className="site-container space-y-2 px-0">
-            {navLinks.map((link) => (
+            {SITE_NAVIGATION.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
@@ -86,15 +72,8 @@ export default function Nav() {
                 {link.label}
               </Link>
             ))}
-            <Link
-              href="/use-cases"
-              onClick={() => setOpen(false)}
-              className="block rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-3 text-base font-semibold text-[#f7f9f7]"
-            >
-              Use Cases
-            </Link>
             <a
-              href="https://tally.so/r/VLDbBE"
+              href={PILOT_URL}
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => setOpen(false)}

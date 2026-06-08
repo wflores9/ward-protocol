@@ -166,13 +166,13 @@ export default function ConformancePage() {
                   href="/spec"
                   className="inline-flex min-h-14 items-center rounded-full bg-[#f7f9f7] px-7 py-3 text-base font-bold text-[#07131a] transition hover:bg-white"
                 >
-                  Read the specification
+                  Review Specification
                 </Link>
                 <Link
                   href="/demo"
                   className="inline-flex min-h-14 items-center rounded-full border border-white/12 bg-white/[0.03] px-7 py-3 text-base font-bold text-[#f7f9f7] transition hover:bg-white/[0.06]"
                 >
-                  Inspect the demo workflow
+                  Inspect Demo Workflow
                 </Link>
               </div>
             </div>
@@ -243,7 +243,7 @@ export default function ConformancePage() {
               <thead className="bg-white/[0.03]">
                 <tr>
                   {['Step', 'Check', 'Ledger evidence', 'Why it matters'].map((header) => (
-                    <th key={header} className="px-6 py-5 text-left font-mono text-xs font-bold uppercase tracking-[0.16em] text-[#9eb0b7]">
+                    <th key={header} className="px-6 py-5 text-left font-mono text-sm font-bold uppercase tracking-[0.12em] text-[#9eb0b7]">
                       {header}
                     </th>
                   ))}
@@ -319,13 +319,13 @@ export default function ConformancePage() {
               href="/spec"
               className="inline-flex min-h-14 items-center rounded-full bg-[#f7f9f7] px-7 py-3 text-base font-bold text-[#07131a] transition hover:bg-white"
             >
-              Review technical spec
+              Review Specification
             </Link>
             <Link
               href="/demo"
               className="inline-flex min-h-14 items-center rounded-full border border-white/12 bg-white/[0.03] px-7 py-3 text-base font-bold text-[#f7f9f7] transition hover:bg-white/[0.06]"
             >
-              Inspect demo workflow
+              Inspect Demo Workflow
             </Link>
           </div>
         </div>

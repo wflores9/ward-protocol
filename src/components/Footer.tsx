@@ -2,6 +2,8 @@
 
 import Link from 'next/link';
 
+import { PILOT_URL, SITE_NAVIGATION } from '@/lib/navigation';
+
 export default function Footer() {
   return (
     <footer className="border-t border-white/10 bg-[#061118]">
@@ -13,8 +15,8 @@ export default function Footer() {
               <div className="absolute bottom-2 left-1/2 h-0.5 w-4 -translate-x-1/2 rounded bg-[#d4a93e]" />
             </div>
             <div>
-              <div className="text-[15px] font-black tracking-[0.16em] text-[#f7f9f7]">WARD</div>
-              <div className="font-mono text-[11px] uppercase tracking-[0.16em] text-[#9eb0b7]">Protocol</div>
+              <div className="text-base font-black tracking-[0.14em] text-[#f7f9f7]">WARD</div>
+              <div className="font-mono text-sm uppercase tracking-[0.12em] text-[#9eb0b7]">Protocol</div>
             </div>
           </Link>
 
@@ -28,25 +30,27 @@ export default function Footer() {
         </div>
 
         <div>
-          <p className="font-mono text-xs font-bold uppercase tracking-[0.16em] text-[#9eb0b7]">Explore</p>
+          <p className="font-mono text-sm font-bold uppercase tracking-[0.12em] text-[#9eb0b7]">Navigation</p>
           <div className="mt-5 grid gap-3 text-sm text-[#d0dde0]">
-            <Link href="/use-cases" className="transition hover:text-white">Use cases</Link>
-            <Link href="/conformance" className="transition hover:text-white">Conformance</Link>
-            <Link href="/demo" className="transition hover:text-white">Demo workspace</Link>
-            <Link href="/spec" className="transition hover:text-white">Protocol specification</Link>
-            <Link href="/build" className="transition hover:text-white">Build with Ward</Link>
+            {SITE_NAVIGATION.map((link) => (
+              <Link key={link.href} href={link.href} className="transition hover:text-white">
+                {link.label}
+              </Link>
+            ))}
+            <a href={PILOT_URL} target="_blank" rel="noopener noreferrer" className="transition hover:text-white">
+              Discuss a pilot
+            </a>
           </div>
         </div>
 
         <div>
-          <p className="font-mono text-xs font-bold uppercase tracking-[0.16em] text-[#9eb0b7]">Resources</p>
+          <p className="font-mono text-sm font-bold uppercase tracking-[0.12em] text-[#9eb0b7]">Resources</p>
           <div className="mt-5 grid gap-3 text-sm text-[#d0dde0]">
             <Link href="/docs" className="transition hover:text-white">Docs</Link>
             <Link href="/privacy" className="transition hover:text-white">Privacy</Link>
             <Link href="/terms" className="transition hover:text-white">Terms</Link>
             <a href="https://pypi.org/project/ward-protocol/" target="_blank" rel="noopener noreferrer" className="transition hover:text-white">PyPI</a>
             <a href="https://github.com/wflores9/ward-protocol" target="_blank" rel="noopener noreferrer" className="transition hover:text-white">GitHub</a>
-            <a href="https://tally.so/r/VLDbBE" target="_blank" rel="noopener noreferrer" className="transition hover:text-white">Discuss a pilot</a>
             <a href="mailto:wflores@wardprotocol.org" className="transition hover:text-white">wflores@wardprotocol.org</a>
           </div>
         </div>
