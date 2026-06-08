@@ -41,8 +41,8 @@ body {
   background: var(--steel);
   color: var(--text-primary);
   font-family: "DM Sans", sans-serif;
-  font-size: 17px;
-  line-height: 1.65;
+  font-size: 18px;
+  line-height: 1.72;
   min-height: 100vh;
 }
 
@@ -116,22 +116,31 @@ a { color: inherit; }
 
 .site-shell {
   background:
-    radial-gradient(circle at top left, rgba(212,169,62,0.10), transparent 32%),
-    radial-gradient(circle at top right, rgba(112, 146, 161, 0.12), transparent 26%),
-    linear-gradient(180deg, #07131a 0%, #09161d 46%, #0b1921 100%);
+    radial-gradient(circle at top left, rgba(212,169,62,0.10), transparent 28%),
+    radial-gradient(circle at 88% 10%, rgba(112, 146, 161, 0.14), transparent 24%),
+    radial-gradient(circle at 50% 100%, rgba(212,169,62,0.06), transparent 30%),
+    linear-gradient(180deg, #07131a 0%, #09161d 42%, #0b1921 100%);
+}
+
+.site-container {
+  width: 100%;
+  max-width: 92rem;
+  margin: 0 auto;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
 }
 
 .site-panel {
   border: 1px solid var(--border);
-  background: rgba(13, 25, 33, 0.84);
-  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.22);
-  backdrop-filter: blur(16px);
+  background: rgba(13, 25, 33, 0.82);
+  box-shadow: 0 30px 110px rgba(0, 0, 0, 0.24);
+  backdrop-filter: blur(18px);
 }
 
 .site-panel-muted {
   border: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.035);
-  backdrop-filter: blur(14px);
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(16px);
 }
 
 .site-section {
@@ -145,6 +154,23 @@ a { color: inherit; }
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--gold);
+}
+
+.site-copy {
+  color: var(--text-secondary);
+  font-size: 1.05rem;
+  line-height: 1.9;
+}
+
+.site-copy-sm {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.75;
+}
+
+.site-card-grid {
+  display: grid;
+  gap: 1.5rem;
 }
 
 .btn-primary {
@@ -330,6 +356,20 @@ a { color: inherit; }
 @media (max-width: 640px) {
   .site-nav {
     padding: 0 24px !important;
+  }
+}
+
+@media (min-width: 768px) {
+  .site-container {
+    padding-left: 2.5rem;
+    padding-right: 2.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .site-container {
+    padding-left: 3rem;
+    padding-right: 3rem;
   }
 }
 
