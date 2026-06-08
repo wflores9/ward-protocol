@@ -28,6 +28,11 @@ type ConsoleEvent = {
 const nowStamp = () => new Date().toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
 const makeSessionId = () => `WARD-${Math.random().toString(16).slice(2, 8).toUpperCase()}`;
 const makeWallet = (chain: ChainAdapter) => `${chain.sampleAddress}-${Math.random().toString(16).slice(2, 6).toUpperCase()}`;
+const WORKFLOW_STEPS = [
+  ['01', 'Select a rail', 'Pick the network lane your team wants to inspect.'],
+  ['02', 'Configure the scenario', 'Choose a project profile and bind the active rail into the sandbox session.'],
+  ['03', 'Run and review', 'Execute conformance and inspect the resulting evidence gates and receipt.'],
+] as const;
 
 function buildPayload(chain: ChainAdapter, profile: IntegrationProfile, walletAddress: string | null) {
   return JSON.stringify(
@@ -103,7 +108,7 @@ export default function DemoClient() {
   }, [selectedChain.id]);
 
   const addEvent = (label: string, tone: ConsoleEvent['tone'] = 'info') => {
-    setConsoleEvents((current) => [...current.slice(-11), { time: nowStamp(), label, tone }]);
+    setConsoleEvents((current) => [...current.slice(-7), { time: nowStamp(), label, tone }]);
   };
 
   const provisionWallet = () => {
@@ -133,6 +138,11 @@ export default function DemoClient() {
       const nextWallet = makeWallet(selectedChain);
       setWalletAddress(nextWallet);
       addEvent(`Sandbox institution wallet created: ${nextWallet}`, 'success');
+    }
+
+    if (workspaceState === 'empty' || workspaceState === 'wallet-ready') {
+      setWorkspaceState('adapter-ready');
+      addEvent(`${selectedChain.shortName} rail bound to ${selectedChain.network}`, 'success');
     }
 
     setWorkspaceState('running');
@@ -254,6 +264,16 @@ export default function DemoClient() {
 
       <section className="site-section">
         <div className="site-container py-24">
+          <div className="mb-8 grid gap-4 lg:grid-cols-3">
+            {WORKFLOW_STEPS.map(([step, title, body]) => (
+              <article key={step} className="rounded-[26px] border border-white/10 bg-white/[0.03] p-5">
+                <p className="font-mono text-xs font-bold uppercase tracking-[0.16em] text-[#d4a93e]">{step}</p>
+                <h3 className="mt-4 text-xl font-black tracking-[-0.02em] text-white">{title}</h3>
+                <p className="site-copy-sm mt-3">{body}</p>
+              </article>
+            ))}
+          </div>
+
           <div className="site-panel rounded-[40px] p-8 md:p-10 lg:p-12">
             <div className="flex flex-wrap items-end justify-between gap-6">
               <div className="max-w-3xl">
@@ -329,15 +349,15 @@ export default function DemoClient() {
               <div className="site-panel rounded-[34px] p-6 md:p-8">
                 <div className="mb-5 flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-5">
                   <div>
-                    <p className="font-mono text-sm text-[#d4a93e]">Rail terminal</p>
-                    <h2 className="mt-2 text-3xl font-black tracking-[-0.03em] text-white">Conformance job trace</h2>
+                    <p className="font-mono text-sm text-[#d4a93e]">Conformance trace</p>
+                    <h2 className="mt-2 text-3xl font-black tracking-[-0.03em] text-white">Focused session log</h2>
                   </div>
                   <span className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 font-mono text-[11px] uppercase tracking-[0.16em] text-[#d0dde0]">
                     {selectedChain.endpoint}
                   </span>
                 </div>
 
-                <div className="min-h-[320px] space-y-3 font-mono text-sm leading-7">
+                <div className="min-h-[240px] space-y-3 font-mono text-sm leading-7">
                   {consoleEvents.map((event, index) => (
                     <div key={`${event.time}-${index}`} className="grid grid-cols-[78px_1fr] gap-4">
                       <span className="text-[#9eb0b7]">{event.time}</span>
@@ -369,7 +389,7 @@ export default function DemoClient() {
               <div className="grid gap-6 lg:grid-cols-2">
                 <div className="site-panel-muted rounded-[32px] p-6">
                   <p className="font-mono text-sm font-bold text-[#d4a93e]">API payload</p>
-                  <pre className="mt-5 max-h-[420px] overflow-x-auto rounded-[24px] border border-white/10 bg-[#07131a]/70 p-5 font-mono text-sm leading-7 text-[#d0dde0]">
+                  <pre className="mt-5 max-h-[420px] overflow-hidden whitespace-pre-wrap break-all rounded-[24px] border border-white/10 bg-[#07131a]/70 p-5 font-mono text-sm leading-7 text-[#d0dde0]">
                     <code>{payload}</code>
                   </pre>
                 </div>
@@ -490,7 +510,7 @@ export default function DemoClient() {
 
               <div className="site-panel rounded-[34px] p-6">
                 <p className="font-mono text-sm font-bold text-[#d4a93e]">Receipt preview</p>
-                <pre className="mt-5 overflow-x-auto whitespace-pre-wrap rounded-[24px] border border-white/10 bg-[#07131a]/70 p-5 font-mono text-sm leading-7 text-[#d0dde0]">
+                <pre className="mt-5 overflow-hidden whitespace-pre-wrap break-all rounded-[24px] border border-white/10 bg-[#07131a]/70 p-5 font-mono text-sm leading-7 text-[#d0dde0]">
                   {receipt}
                 </pre>
               </div>

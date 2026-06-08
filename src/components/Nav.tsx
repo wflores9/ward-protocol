@@ -4,10 +4,11 @@ import Link from 'next/link';
 import { useState } from 'react';
 
 const navLinks = [
+  { label: 'Use Cases', href: '/use-cases' },
   { label: 'Conformance', href: '/conformance' },
+  { label: 'Demo', href: '/demo' },
   { label: 'Protocol', href: '/spec' },
   { label: 'Build', href: '/build' },
-  { label: 'Demo', href: '/demo' },
 ];
 
 export default function Nav() {
