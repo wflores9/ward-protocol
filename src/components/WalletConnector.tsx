@@ -70,7 +70,7 @@ export default function WalletConnector() {
           <span className="font-mono text-sm text-steel">
             {accountInfo.address.slice(0, 8)}...{accountInfo.address.slice(-6)}
           </span>
-          <span className="text-sm text-sub uppercase tracking-wider ml-1">
+          <span className="text-sm text-sub uppercase ml-1">
             {accountInfo.walletName}
           </span>
         </div>
@@ -97,7 +97,7 @@ export default function WalletConnector() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
           <div className="bg-white rounded-xl border border-gray-200 shadow-xl p-6 w-80">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-condensed font-black text-lg text-steel">Select Wallet</h3>
+              <h3 className="font-sans font-black text-lg text-steel">Select Wallet</h3>
               <button
                 onClick={() => { setShowPicker(false); setError(null) }}
                 className="text-sub hover:text-steel text-lg leading-none"
