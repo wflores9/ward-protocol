@@ -1,16 +1,17 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Ward Integration Console | Multi-Chain Conformance Demo',
-  description: 'Self-demo Ward as a real integration console: provision a sandbox wallet, select an integration rail, run nine on-ledger checks, and export a conformance receipt.',
+  title: 'Ward Conformance Workspace | Multi-Chain Demo',
+  description:
+    'Run Ward’s multi-chain conformance workspace: select a live testnet rail, execute deterministic default-resolution checks, and export an institutional receipt with ward_signed = False.',
   openGraph: {
-    title: 'Ward Integration Console',
-    description: 'Run the conformance and default-resolution layer for tokenized credit across eight testnet rails.',
+    title: 'Ward Conformance Workspace',
+    description: 'Run deterministic default-resolution infrastructure for tokenized credit across eight live testnet rails.',
     images: [{ url: '/og-image.png', width: 1200, height: 630 }],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Ward Integration Console',
-    description: 'Provision a sandbox wallet, select a testnet rail, and export a Ward conformance receipt.',
+    title: 'Ward Conformance Workspace',
+    description: 'Select a live testnet rail, run conformance, and export a Ward receipt with ward_signed = False.',
   },
 };

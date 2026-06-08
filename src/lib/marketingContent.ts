@@ -6,18 +6,20 @@
 
 export const MARKETING = {
   // Hero
-  eyebrow: 'TOKENIZED CREDIT · CONFORMANCE · DEFAULT RESOLUTION',
-  headline: 'The conformance and default-resolution layer for tokenized credit.',
-  subheadline: 'Ward lets institutions, lending vaults, and credit protocols resolve defaults deterministically, on-ledger, without Ward signing or deciding outcomes.',
-  statusLine: 'Security-hardened, testnet-proven infrastructure moving toward mainnet pilots.',
+  eyebrow: 'INSTITUTIONAL TOKENIZED CREDIT · CONFORMANCE STANDARD',
+  headline: 'Deterministic default-resolution infrastructure for institutional tokenized credit.',
+  subheadline:
+    'Ward gives lenders, vault operators, and credit protocols a deterministic way to validate defaults, preserve the signer boundary, and export reviewable conformance receipts serious partners can inspect.',
+  statusLine: 'v0.2.6 · 8 live testnet rails · 529 tests across Python, Rust, and TypeScript · June 2026 hardening complete.',
 
   // Brand
-  tagline: 'Conformance and default-resolution infrastructure for tokenized credit.',
+  tagline: 'Deterministic default-resolution infrastructure for institutional tokenized credit.',
   invariant: 'ward_signed = False — always.',
 
   // Meta
-  metaTitle: 'Ward Protocol - Conformance and Default Resolution for Tokenized Credit',
-  metaDescription: 'Ward Protocol is the conformance and default-resolution layer for tokenized credit. Defaults resolve deterministically, on-ledger, without Ward signing or deciding outcomes.',
+  metaTitle: 'Ward Protocol | Deterministic Default-Resolution Infrastructure',
+  metaDescription:
+    'Ward Protocol is deterministic default-resolution infrastructure for institutional tokenized credit: reviewable conformance, unsigned settlement packets, and ward_signed = False.',
 
   // Status
   version: 'v0.2.6',
