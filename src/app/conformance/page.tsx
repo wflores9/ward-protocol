@@ -1,6 +1,9 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 
+import { PILOT_URL } from '@/lib/navigation';
+import { PILOT_READINESS_PHASES } from '@/lib/wardPlatform';
+
 export const metadata: Metadata = {
   title: 'Ward Conformance | Institutional Default-Resolution Standard',
   description:
@@ -174,6 +177,12 @@ export default function ConformancePage() {
                 >
                   Inspect Demo Workflow
                 </Link>
+                <Link
+                  href="/build"
+                  className="inline-flex min-h-14 items-center rounded-full border border-white/12 bg-white/[0.03] px-7 py-3 text-base font-bold text-[#f7f9f7] transition hover:bg-white/[0.06]"
+                >
+                  Build With Ward
+                </Link>
               </div>
             </div>
 
@@ -295,6 +304,40 @@ export default function ConformancePage() {
       <section className="site-section">
         <div className="site-container py-28">
           <div className="max-w-3xl">
+            <p className="site-label">Pilot readiness timetable</p>
+            <h2 className="mt-5 text-4xl font-black leading-tight tracking-[-0.03em] text-white md:text-5xl">
+              Four visible phases from technical review to production certification.
+            </h2>
+            <p className="site-copy mt-6">
+              Partners should be able to see where the current program sits, what evidence is expected next, and how Ward moves from self-serve review into pilot and mainnet readiness.
+            </p>
+          </div>
+
+          <div className="mt-14 grid gap-5">
+            {PILOT_READINESS_PHASES.slice(0, 4).map((phase) => (
+              <article
+                key={phase.phase}
+                className="rounded-[30px] border border-white/10 bg-white/[0.03] p-6 md:grid md:grid-cols-[110px_1fr_200px] md:gap-6 md:p-7"
+              >
+                <div className="flex h-16 w-16 items-center justify-center rounded-[20px] bg-[#d4a93e] font-mono text-lg font-black text-[#07131a]">
+                  {phase.phase}
+                </div>
+                <div className="mt-5 md:mt-0">
+                  <h3 className="text-2xl font-black tracking-[-0.03em] text-white">{phase.title}</h3>
+                  <p className="site-copy mt-3">{phase.body}</p>
+                </div>
+                <div className="mt-5 self-start rounded-md border border-white/10 bg-white/[0.04] px-4 py-2 font-mono text-sm font-bold text-[#f0d080] md:mt-0 md:text-center">
+                  {phase.window}
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="site-section">
+        <div className="site-container py-28">
+          <div className="max-w-3xl">
             <p className="site-label">Verification for partners and institutions</p>
             <h2 className="mt-5 text-4xl font-black leading-tight tracking-[-0.03em] text-white md:text-5xl lg:text-[3.5rem]">
               Conformance should be verifiable, not merely asserted.
@@ -327,6 +370,20 @@ export default function ConformancePage() {
             >
               Inspect Demo Workflow
             </Link>
+            <Link
+              href="/build"
+              className="inline-flex min-h-14 items-center rounded-full border border-white/12 bg-white/[0.03] px-7 py-3 text-base font-bold text-[#f7f9f7] transition hover:bg-white/[0.06]"
+            >
+              Build With Ward
+            </Link>
+            <a
+              href={PILOT_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex min-h-14 items-center rounded-full bg-[#d4a93e] px-7 py-3 text-base font-bold text-[#07131a] transition hover:brightness-105"
+            >
+              Discuss a Pilot
+            </a>
           </div>
         </div>
       </section>

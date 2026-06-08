@@ -65,18 +65,18 @@ export default function WalletConnector() {
   if (isConnected && accountInfo) {
     return (
       <div className="flex items-center gap-3">
-        <div className="flex items-center gap-2 bg-[#f0fff8] border border-green rounded-md px-3 py-2">
+        <div className="flex items-center gap-2 rounded-full border border-[#00cc66]/25 bg-[#00cc66]/10 px-4 py-2">
           <div className="w-2 h-2 rounded-full bg-[#00cc66]" />
-          <span className="font-mono text-sm text-steel">
+          <span className="font-mono text-sm text-[#f7f9f7]">
             {accountInfo.address.slice(0, 8)}...{accountInfo.address.slice(-6)}
           </span>
-          <span className="text-sm text-sub uppercase ml-1">
+          <span className="ml-1 text-sm uppercase text-[#9eb0b7]">
             {accountInfo.walletName}
           </span>
         </div>
         <button
           onClick={disconnect}
-          className="text-sm text-sub hover:text-steel border border-border rounded-md px-3 py-2 transition-colors"
+          className="rounded-full border border-white/12 bg-white/[0.03] px-4 py-2 text-sm font-bold text-[#d0dde0] transition hover:bg-white/[0.06] hover:text-white"
         >
           Disconnect
         </button>
@@ -88,24 +88,24 @@ export default function WalletConnector() {
     <div className="relative">
       <button
         onClick={() => setShowPicker(true)}
-        className="inline-flex items-center gap-2 bg-steel text-ice px-5 py-2.5 rounded-md text-sm font-mono hover:bg-[#122030] transition-colors"
+        className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.04] px-5 py-3 text-sm font-bold text-[#f7f9f7] transition hover:bg-white/[0.08]"
       >
         Connect Wallet
       </button>
 
       {showPicker && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-xl border border-gray-200 shadow-xl p-6 w-80">
+          <div className="w-80 rounded-[28px] border border-white/10 bg-[#07131a] p-6 shadow-2xl shadow-black/40">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-sans font-black text-lg text-steel">Select Wallet</h3>
+              <h3 className="font-sans text-lg font-black text-white">Select Wallet</h3>
               <button
                 onClick={() => { setShowPicker(false); setError(null) }}
-                className="text-sub hover:text-steel text-lg leading-none"
+                className="text-lg leading-none text-[#9eb0b7] hover:text-white"
               >
                 ×
               </button>
             </div>
-            <p className="text-sm text-sub mb-4 font-mono">
+            <p className="mb-4 font-mono text-sm text-[#9eb0b7]">
               Verify wallet ownership — no transaction submitted. ward_signed = False.
             </p>
             <div className="flex flex-col gap-2">
@@ -114,20 +114,20 @@ export default function WalletConnector() {
                   key={w.id}
                   onClick={() => connect(w.id)}
                   disabled={loading !== null}
-                  className="flex items-center justify-between px-4 py-3 border border-gray-200 rounded-lg hover:border-[#c8a94a] hover:bg-[#fffdf5] transition-colors disabled:opacity-50"
+                  className="flex items-center justify-between rounded-[18px] border border-white/10 bg-white/[0.03] px-4 py-3 transition hover:border-[#d4a93e]/40 hover:bg-white/[0.06] disabled:opacity-50"
                 >
                   <div className="text-left">
-                    <div className="text-sm font-bold text-steel">{w.label}</div>
-                    <div className="text-sm text-sub">{w.desc}</div>
+                    <div className="text-sm font-bold text-white">{w.label}</div>
+                    <div className="text-sm text-[#9eb0b7]">{w.desc}</div>
                   </div>
                   {loading === w.id && (
-                    <span className="w-4 h-4 border border-steel border-t-transparent rounded-full animate-spin" />
+                    <span className="h-4 w-4 animate-spin rounded-full border border-[#f7f9f7] border-t-transparent" />
                   )}
                 </button>
               ))}
             </div>
             {error && (
-              <p className="mt-3 text-sm text-red-500 font-mono">{error}</p>
+              <p className="mt-3 font-mono text-sm text-red-400">{error}</p>
             )}
           </div>
         </div>
