@@ -29,7 +29,7 @@ export default function ChainSelector({ chains, selected, onSelect }: ChainSelec
           <span className="text-2xl">{chain.icon}</span>
           <div className="text-left">
             <div className="font-medium">{chain.name}</div>
-            <div className="text-xs text-[#64748B]">{chain.status}</div>
+            <div className="text-sm text-[#64748B]">{chain.status}</div>
           </div>
         </button>
       ))}

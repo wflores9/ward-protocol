@@ -133,7 +133,7 @@ export default function FlowRunner() {
 
       {/* Content */}
       <div className="p-5">
-        <h3 className="font-condensed font-black text-xl text-steel mb-1">{flow.title}</h3>
+        <h3 className="font-sans font-black text-xl text-steel mb-1">{flow.title}</h3>
         <p className="text-sm text-sub mb-4">{flow.desc}</p>
         <pre className="bg-steel rounded-md p-4 text-sm text-ice leading-relaxed overflow-x-auto font-mono whitespace-pre">
           {flow.code}

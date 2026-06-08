@@ -115,7 +115,7 @@ export default function LiveValidator() {
 
   return (
     <div className="max-w-4xl mx-auto px-6 md:px-12 py-8 border-b border-gold/20">
-      <div className="text-sm uppercase tracking-[.15em] text-[#c8a94a] mb-2 font-mono">
+      <div className="text-sm uppercase text-[#c8a94a] mb-2 font-mono">
         Live Validation — {accountInfo.address.slice(0, 8)}...{accountInfo.address.slice(-6)}
       </div>
 
