@@ -352,7 +352,7 @@ export default function DemoClient() {
             ))}
           </div>
 
-          <div className="site-panel rounded-[40px] p-8 md:p-10 lg:p-12">
+          <div className="site-panel rounded-[40px] p-8 md:p-12 lg:p-14">
             <div className="flex flex-wrap items-end justify-between gap-6">
               <div className="max-w-3xl">
                 <p className="site-label">Rail selection</p>
@@ -368,7 +368,7 @@ export default function DemoClient() {
               </span>
             </div>
 
-            <div className="mt-10">
+            <div className="mt-12">
               <ChainSelector chains={CHAIN_ADAPTERS} selected={selectedChain} onSelect={setSelectedChain} />
             </div>
           </div>
@@ -377,7 +377,7 @@ export default function DemoClient() {
 
       <section className="site-section">
         <div className="site-container py-24">
-          <div className="mb-8 flex flex-wrap items-center justify-between gap-4 rounded-[26px] border border-white/10 bg-white/[0.04] px-6 py-5">
+          <div className="mb-10 flex flex-wrap items-center justify-between gap-4 rounded-[26px] border border-white/10 bg-white/[0.04] px-7 py-6">
             <div>
               <p className="font-mono text-sm font-bold text-[#d4a93e]">Session control plane</p>
               <p className="site-copy-sm mt-2">
@@ -389,10 +389,10 @@ export default function DemoClient() {
             </p>
           </div>
 
-          <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
-            <section className="space-y-6">
-              <div className="site-panel rounded-[34px] p-6 md:p-8">
-                <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-5">
+          <div className="grid gap-8 xl:grid-cols-[1.2fr_0.8fr]">
+            <section className="space-y-8">
+              <div className="site-panel rounded-[34px] p-6 md:p-10">
+                <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-6">
                   <div>
                     <p className="font-mono text-sm text-[#d4a93e]">Project profile</p>
                     <h2 className="mt-2 text-3xl font-black tracking-[-0.03em] text-white">Sandbox configuration</h2>
@@ -406,7 +406,7 @@ export default function DemoClient() {
                   </button>
                 </div>
 
-                <div className="mt-7 grid gap-4 lg:grid-cols-3">
+                <div className="mt-8 grid gap-4 sm:grid-cols-3">
                   {INTEGRATION_PROFILES.map((profile) => (
                     <button
                       key={profile.id}
@@ -426,8 +426,8 @@ export default function DemoClient() {
                 </div>
               </div>
 
-              <div className="site-panel rounded-[34px] p-6 md:p-8">
-                <div className="mb-5 flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-5">
+              <div className="site-panel rounded-[34px] p-6 md:p-10">
+                <div className="mb-6 flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-6">
                   <div>
                     <p className="font-mono text-sm text-[#d4a93e]">Evidence workflow</p>
                     <h2 className="mt-2 text-3xl font-black tracking-[-0.03em] text-white">Session activity</h2>
@@ -466,68 +466,71 @@ export default function DemoClient() {
                 </div>
               </div>
 
-              <div className="grid gap-6 lg:grid-cols-2">
-                <div className="site-panel-muted rounded-[32px] p-6">
+              <div className="site-panel rounded-[34px] p-6 md:p-10">
+                <div className="border-b border-white/10 pb-6">
                   <p className="font-mono text-sm font-bold text-[#d4a93e]">API payload</p>
-                  <pre className="mt-5 max-h-[420px] overflow-hidden whitespace-pre-wrap break-all rounded-[24px] border border-white/10 bg-[#07131a]/70 p-5 font-mono text-sm leading-7 text-[#d0dde0]">
-                    <code>{payload}</code>
-                  </pre>
+                  <h3 className="mt-2 text-2xl font-black tracking-[-0.03em] text-white">Conformance request body</h3>
+                </div>
+                <pre className="mt-6 rounded-[20px] border border-white/10 bg-[#07131a]/80 p-5 font-mono text-sm leading-7 text-[#d0dde0] whitespace-pre-wrap break-words">
+                  <code>{payload}</code>
+                </pre>
+              </div>
+
+              <div className="site-panel rounded-[34px] p-6 md:p-10">
+                <div className="border-b border-white/10 pb-6">
+                  <p className="font-mono text-sm font-bold text-[#d4a93e]">Integration surface</p>
+                  <h3 className="mt-2 text-2xl font-black tracking-[-0.03em] text-white">{selectedProfile.name}</h3>
+                  <p className="site-copy-sm mt-3">{selectedProfile.integrationGoal}</p>
                 </div>
 
-                <div className="site-panel-muted rounded-[32px] p-6">
-                  <p className="font-mono text-sm font-bold text-[#d4a93e]">Integration surface</p>
-                  <h3 className="mt-4 text-3xl font-black tracking-[-0.03em] text-white">{selectedProfile.name}</h3>
-                  <p className="site-copy mt-4">{selectedProfile.integrationGoal}</p>
-
-                  <div className="mt-6 grid gap-3">
-                    {INTEGRATION_ACTIONS.map((action) => (
-                      <article key={action.label} className="rounded-[22px] border border-white/10 bg-white/[0.03] p-4">
-                        <div className="flex flex-wrap items-center justify-between gap-3">
-                          <span className="text-base font-black text-white">{action.label}</span>
-                          <span className="rounded-md bg-[#07131a]/70 px-3 py-1 font-mono text-sm text-[#d4a93e]">
-                            {integrationCopied === action.label ? 'Copied' : 'Ready'}
-                          </span>
-                        </div>
-                        <span className="mt-3 block font-mono text-sm leading-7 text-[#d0dde0]">{action.command}</span>
-                        <span className="mt-2 block text-sm leading-7 text-[#9eb0b7]">{action.body}</span>
-
-                        <div className="mt-4 flex flex-wrap gap-3">
-                          <button
-                            onClick={() => copyIntegrationAction(action.label, action.command)}
-                            className="rounded-full bg-[#f7f9f7] px-4 py-2.5 text-sm font-bold text-[#07131a] transition hover:bg-white"
-                          >
-                            {integrationCopied === action.label ? 'Command Copied' : `Copy ${action.label}`}
-                          </button>
-                          <Link
-                            href={action.href}
-                            className="rounded-full border border-white/12 bg-white/[0.03] px-4 py-2.5 text-sm font-bold text-[#f7f9f7] transition hover:bg-white/[0.06]"
-                          >
-                            Open Build Guide
-                          </Link>
-                        </div>
-                      </article>
-                    ))}
-                  </div>
-
-                  <div className="mt-6 grid gap-3">
-                    {[
-                      ['Sector', selectedProfile.sector],
-                      ['Vault', selectedProfile.vault],
-                      ['Claim', selectedProfile.claim],
-                      ['Capacity', selectedProfile.value],
-                    ].map(([label, value]) => (
-                      <div key={label} className="rounded-[22px] border border-white/10 bg-white/[0.03] p-4">
-                        <p className="font-mono text-sm uppercase tracking-[0.12em] text-[#9eb0b7]">{label}</p>
-                        <p className="mt-3 text-base font-bold leading-7 text-white">{value}</p>
+                <div className="mt-6 grid gap-4">
+                  {INTEGRATION_ACTIONS.map((action) => (
+                    <article key={action.label} className="rounded-[22px] border border-white/10 bg-white/[0.03] p-5">
+                      <div className="flex flex-wrap items-center justify-between gap-3">
+                        <span className="text-base font-black text-white">{action.label}</span>
+                        <span className="rounded-md bg-[#07131a]/70 px-3 py-1 font-mono text-sm text-[#d4a93e]">
+                          {integrationCopied === action.label ? 'Copied' : 'Ready'}
+                        </span>
                       </div>
-                    ))}
-                  </div>
+                      <span className="mt-3 block font-mono text-sm leading-7 text-[#d0dde0] break-words">{action.command}</span>
+                      <span className="mt-2 block text-sm leading-7 text-[#9eb0b7]">{action.body}</span>
+
+                      <div className="mt-4 flex flex-wrap gap-3">
+                        <button
+                          onClick={() => copyIntegrationAction(action.label, action.command)}
+                          className="rounded-full bg-[#f7f9f7] px-4 py-2.5 text-sm font-bold text-[#07131a] transition hover:bg-white"
+                        >
+                          {integrationCopied === action.label ? 'Command Copied' : `Copy ${action.label}`}
+                        </button>
+                        <Link
+                          href={action.href}
+                          className="rounded-full border border-white/12 bg-white/[0.03] px-4 py-2.5 text-sm font-bold text-[#f7f9f7] transition hover:bg-white/[0.06]"
+                        >
+                          Open Build Guide
+                        </Link>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+
+                <div className="mt-6 grid gap-3 sm:grid-cols-2">
+                  {[
+                    ['Sector', selectedProfile.sector],
+                    ['Vault', selectedProfile.vault],
+                    ['Claim', selectedProfile.claim],
+                    ['Capacity', selectedProfile.value],
+                  ].map(([label, value]) => (
+                    <div key={label} className="rounded-[22px] border border-white/10 bg-white/[0.03] p-4">
+                      <p className="font-mono text-sm uppercase tracking-[0.12em] text-[#9eb0b7]">{label}</p>
+                      <p className="mt-3 text-base font-bold leading-7 text-white">{value}</p>
+                    </div>
+                  ))}
                 </div>
               </div>
             </section>
 
-            <aside className="space-y-6">
-              <div className="site-panel rounded-[34px] p-6 md:p-7">
+            <aside className="space-y-8">
+              <div className="site-panel rounded-[34px] p-6 md:p-8">
                 <div className="flex items-start justify-between gap-4 border-b border-white/10 pb-5">
                   <div>
                     <p className="font-mono text-sm font-bold text-[#d4a93e]">Sandbox controls</p>
@@ -604,11 +607,11 @@ export default function DemoClient() {
                 </div>
               </div>
 
-              <div className="site-panel-muted rounded-[34px] p-6">
-                <div className="mb-5 flex items-center justify-between gap-3">
+              <div className="site-panel rounded-[34px] p-6 md:p-8">
+                <div className="mb-6 flex items-center justify-between gap-3 border-b border-white/10 pb-6">
                   <div>
                     <p className="font-mono text-sm font-bold text-[#d4a93e]">Conformance receipt</p>
-                    <h2 className="mt-2 text-3xl font-black tracking-[-0.03em] text-white">Evidence gates</h2>
+                    <h2 className="mt-2 text-2xl font-black tracking-[-0.03em] text-white">Evidence gates</h2>
                   </div>
                   <span className="rounded-md border border-white/10 bg-[#07131a]/55 px-4 py-2 font-mono text-sm text-[#d0dde0]">
                     9 / 9
@@ -648,9 +651,12 @@ export default function DemoClient() {
                 </button>
               </div>
 
-              <div className="site-panel rounded-[34px] p-6">
-                <p className="font-mono text-sm font-bold text-[#d4a93e]">Receipt preview</p>
-                <pre className="mt-5 overflow-hidden whitespace-pre-wrap break-all rounded-[24px] border border-white/10 bg-[#07131a]/70 p-5 font-mono text-sm leading-7 text-[#d0dde0]">
+              <div className="site-panel rounded-[34px] p-6 md:p-8">
+                <div className="border-b border-white/10 pb-6">
+                  <p className="font-mono text-sm font-bold text-[#d4a93e]">Receipt preview</p>
+                  <h3 className="mt-2 text-2xl font-black tracking-[-0.03em] text-white">Exported text record</h3>
+                </div>
+                <pre className="mt-6 whitespace-pre-wrap break-words rounded-[24px] border border-white/10 bg-[#07131a]/70 p-5 font-mono text-sm leading-7 text-[#d0dde0]">
                   {receipt}
                 </pre>
               </div>
