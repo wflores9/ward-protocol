@@ -1,6 +1,6 @@
-export type ChainId = 'xrpl' | 'flare' | 'xrpl_evm' | 'xdc' | 'polygon' | 'stellar' | 'hedera' | 'algorand' | 'solana';
+export type ChainId = 'xrpl' | 'flare' | 'xrpl_evm' | 'xdc' | 'polygon' | 'stellar' | 'algorand' | 'solana';
 export type ChainStatus = 'E2E verified' | 'Contract deployed' | 'Account funded' | 'Testnet-ready';
-export type ChainLogoId = 'xrpl' | 'flare' | 'xrpl_evm' | 'xdc' | 'polygon' | 'stellar' | 'hedera' | 'algorand' | 'solana';
+export type ChainLogoId = 'xrpl' | 'flare' | 'xrpl_evm' | 'xdc' | 'polygon' | 'stellar' | 'algorand' | 'solana';
 
 export type ChainAction = {
   label: string;
@@ -230,33 +230,6 @@ export const CHAIN_ADAPTERS: ChainAdapter[] = [
     liveMode: 'testnet-surface',
     accent: '#86efac',
     accentSoft: 'rgba(134,239,172,0.16)',
-  },
-  {
-    id: 'hedera',
-    logo: 'hedera',
-    name: 'Hedera',
-    shortName: 'Hedera',
-    network: 'Testnet',
-    status: 'Account funded',
-    wallet: 'HashPack, Blade, WalletConnect',
-    primitive: 'HTS policy token plus smart-contract vault state',
-    primitiveRef: 'Hedera policy token',
-    proof: 'Testnet account funded',
-    endpoint: '/conformance/hedera/run',
-    finality: 'consensus finality read',
-    integrationSurface: '@wardprotocol/sdk / hedera',
-    sampleAddress: '0.0.5924811',
-    deploymentRef: '0.0.5924811',
-    policyArtifact: 'Hedera policy token',
-    policyPrefix: 'HBAR-POLICY',
-    walletActions: [
-      { label: 'HashPack', href: 'https://www.hashpack.app/' },
-      { label: 'Portal', href: 'https://www.portalhq.io/' },
-      { label: 'HashScan testnet', href: 'https://hashscan.io/testnet' },
-    ],
-    liveMode: 'testnet-surface',
-    accent: '#8ff3d8',
-    accentSoft: 'rgba(143,243,216,0.18)',
   },
   {
     id: 'solana',
