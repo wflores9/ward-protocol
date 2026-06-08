@@ -35,7 +35,7 @@ function buildPayload(chain: ChainAdapter, profile: IntegrationProfile, walletAd
     {
       chain: chain.id,
       network: chain.network,
-      adapter: chain.adapterPackage,
+      integration_surface: chain.integrationSurface,
       project: profile.id,
       wallet_address: walletAddress || 'provision_sandbox_wallet_first',
       policy_ref: chain.primitiveRef,
@@ -74,7 +74,7 @@ export default function DemoClient() {
   const [activeEvent, setActiveEvent] = useState(-1);
   const [passedChecks, setPassedChecks] = useState<string[]>([]);
   const [consoleEvents, setConsoleEvents] = useState<ConsoleEvent[]>([
-    { time: nowStamp(), label: 'Console ready. Select a chain adapter and provision a sandbox wallet.', tone: 'info' },
+    { time: nowStamp(), label: 'Console ready. Select an integration rail and provision a sandbox wallet.', tone: 'info' },
   ]);
   const [receiptCopied, setReceiptCopied] = useState(false);
 
@@ -97,7 +97,7 @@ export default function DemoClient() {
     setConsoleEvents([
       {
         time: nowStamp(),
-        label: `${selectedChain.name} adapter selected. Workspace reset for a clean conformance session.`,
+        label: `${selectedChain.name} rail selected. Workspace reset for a clean conformance session.`,
         tone: 'info',
       },
     ]);
@@ -124,7 +124,7 @@ export default function DemoClient() {
     setPassedChecks([]);
     setActiveEvent(-1);
     setReceiptCopied(false);
-    addEvent(`${selectedChain.adapterPackage} attached to ${selectedChain.network}`, 'success');
+    addEvent(`${selectedChain.shortName} rail bound to ${selectedChain.network}`, 'success');
   };
 
   const runConformance = async () => {
@@ -179,18 +179,17 @@ export default function DemoClient() {
   return (
     <main className="bg-[#f6f4ee] text-[#14242b]">
       <section className="relative overflow-hidden bg-[#14242b] text-[#f7faf8]">
-        <img src="/brand/ward-banner.png" alt="Ward Protocol integration console" className="absolute inset-0 h-full w-full object-cover opacity-30" />
-        <div className="absolute inset-0 bg-[#14242b]/80" />
-        <div className="absolute inset-0 grid-overlay" />
+        <div className="absolute inset-0 grid-overlay opacity-80" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_16%_18%,rgba(182,215,206,0.10),transparent_32%),radial-gradient(circle_at_84%_12%,rgba(212,169,62,0.08),transparent_34%)]" />
 
-        <div className="relative mx-auto grid min-h-[620px] max-w-7xl items-center gap-10 px-6 py-16 md:grid-cols-[0.95fr_1.05fr] md:px-10 lg:px-12">
+        <div className="relative mx-auto grid min-h-[620px] max-w-[1500px] items-center gap-10 px-6 py-16 md:grid-cols-[0.95fr_1.05fr] md:px-10 lg:px-12">
           <div>
             <p className="font-mono text-sm font-bold text-[#d4a93e]">Ward Integration Console</p>
             <h1 className="mt-4 text-4xl font-black leading-tight md:text-5xl lg:text-6xl">
               Self-demo Ward like an infrastructure integration, not a slideshow.
             </h1>
             <p className="mt-6 max-w-2xl text-lg leading-8 text-[#d2e1dd] md:text-xl">
-              Provision a sandbox wallet, attach a chain adapter, run deterministic conformance, and export a receipt that proves Ward never signs or decides outcomes.
+              Provision a sandbox wallet, select an integration rail, run deterministic conformance, and export a receipt that proves Ward never signs or decides outcomes.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <button
@@ -214,7 +213,7 @@ export default function DemoClient() {
               <div className="flex items-center gap-4">
                 <ChainLogo id={selectedChain.logo} label={`${selectedChain.name} selected`} className="h-14 w-14" />
                 <div>
-                  <p className="font-mono text-sm text-[#a9bdb8]">Selected adapter</p>
+                  <p className="font-mono text-sm text-[#a9bdb8]">Selected rail</p>
                   <h2 className="text-2xl font-black text-[#f7faf8]">{selectedChain.name}</h2>
                 </div>
               </div>
@@ -241,32 +240,33 @@ export default function DemoClient() {
       </section>
 
       <section className="sticky top-0 z-40 border-b border-[#14242b]/10 bg-[#f6f4ee]/95 backdrop-blur">
-        <div className="mx-auto max-w-7xl px-6 py-4 md:px-10 lg:px-12">
+        <div className="mx-auto max-w-[1500px] px-6 py-4 md:px-10 lg:px-12">
           <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-            <p className="text-base font-black text-[#14242b]">Chain adapter lanes</p>
+            <p className="text-base font-black text-[#14242b]">Eight testnet rails</p>
             <p className="font-mono text-sm text-[#52665f]">Session: {sessionId}</p>
           </div>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-7">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {CHAIN_ADAPTERS.map((chain) => {
               const isSelected = selectedChain.id === chain.id;
               return (
                 <button
                   key={chain.id}
                   onClick={() => setSelectedChain(chain)}
-                  className="min-h-[132px] rounded-lg border bg-white p-4 text-left transition hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(20,36,43,0.12)]"
+                  className="min-h-[148px] rounded-lg border bg-white p-4 text-left transition hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(20,36,43,0.12)]"
                   style={{
                     borderColor: isSelected ? chain.accent : 'rgba(20,36,43,0.14)',
                     boxShadow: isSelected ? `0 0 0 3px ${chain.accentSoft}` : undefined,
                   }}
                 >
                   <div className="mb-3 flex items-start justify-between gap-3">
-                    <ChainLogo id={chain.logo} label={`${chain.name} logo`} className="h-11 w-11" />
+                    <ChainLogo id={chain.logo} label={`${chain.name} logo`} className="h-12 w-12" />
                     <span className="rounded-md border border-[#14242b]/10 bg-[#f6f4ee] px-2 py-1 font-mono text-sm font-bold text-[#3f534d]">
                       {chain.status}
                     </span>
                   </div>
                   <p className="text-base font-black leading-5 text-[#14242b]">{chain.name}</p>
-                  <p className="mt-2 text-sm leading-5 text-[#52665f]">{chain.wallet}</p>
+                  <p className="mt-2 text-sm leading-5 text-[#52665f]">{chain.network}</p>
+                  <p className="mt-2 text-sm leading-5 text-[#52665f]">{chain.proof}</p>
                 </button>
               );
             })}
@@ -275,7 +275,7 @@ export default function DemoClient() {
       </section>
 
       <section className="bg-[#f6f4ee] py-14">
-        <div className="mx-auto grid max-w-7xl gap-6 px-6 md:px-10 lg:grid-cols-[330px_1fr_380px] lg:px-12">
+        <div className="mx-auto grid max-w-[1500px] gap-6 px-6 md:px-10 lg:grid-cols-[350px_1fr_420px] lg:px-12">
           <aside className="space-y-4">
             <div className="rounded-lg border border-[#14242b]/10 bg-white p-5">
               <p className="font-mono text-sm font-bold text-[#9b6d13]">Project profile</p>
@@ -304,7 +304,7 @@ export default function DemoClient() {
                   Create Demo Wallet
                 </button>
                 <button onClick={attachAdapter} className="w-full rounded-md border border-[#14242b]/20 px-4 py-3 text-base font-bold text-[#14242b] transition hover:border-[#14242b]/40 hover:bg-[#14242b]/5">
-                  Attach Adapter
+                  Bind Rail
                 </button>
                 <button
                   onClick={runConformance}
@@ -327,11 +327,11 @@ export default function DemoClient() {
             <div className="rounded-lg border border-[#14242b]/10 bg-[#101d23] p-5 text-[#f7faf8]">
               <div className="mb-4 flex items-center justify-between gap-4 border-b border-[#b6d7ce]/10 pb-4">
                 <div>
-                  <p className="font-mono text-sm text-[#d4a93e]">Adapter terminal</p>
-                  <h2 className="mt-1 text-2xl font-black">Live-style integration trace</h2>
+                  <p className="font-mono text-sm text-[#d4a93e]">Rail terminal</p>
+                  <h2 className="mt-1 text-2xl font-black">Conformance job trace</h2>
                 </div>
                 <span className="rounded-md border border-[#b6d7ce]/20 px-3 py-1.5 font-mono text-sm text-[#d2e1dd]">
-                  {selectedChain.adapterPackage}
+                  {selectedChain.integrationSurface}
                 </span>
               </div>
 
@@ -448,7 +448,7 @@ export default function DemoClient() {
       <section id="live-playground" className="border-y border-[#b6d7ce]/10 bg-[#14242b] py-14 text-[#f7faf8]">
         <div className="mx-auto max-w-7xl px-6 md:px-10 lg:px-12">
           <div className="mb-8 max-w-3xl">
-            <p className="font-mono text-sm font-bold text-[#d4a93e]">Live adapter lane</p>
+            <p className="font-mono text-sm font-bold text-[#d4a93e]">Live rail</p>
             <h2 className="mt-3 text-3xl font-black leading-tight md:text-5xl">
               XRPL can connect to live Altnet wallet validation. Other lanes show integration readiness.
             </h2>
@@ -472,11 +472,11 @@ export default function DemoClient() {
                   <ChainLogo id={selectedChain.logo} label={`${selectedChain.name} adapter`} className="h-14 w-14" />
                   <div>
                     <p className="font-mono text-sm text-[#d4a93e]">{selectedChain.status}</p>
-                    <h3 className="text-2xl font-black text-[#f7faf8]">{selectedChain.name} adapter path</h3>
+                    <h3 className="text-2xl font-black text-[#f7faf8]">{selectedChain.name} rail path</h3>
                   </div>
                 </div>
                 <p className="max-w-2xl text-base leading-7 text-[#d2e1dd]">
-                  {selectedChain.wallet} integration uses the same conformance payload and receipt model while production wallet submission is finalized for this lane.
+                  {selectedChain.wallet} integration uses the same conformance payload and receipt model while production wallet submission is finalized for this rail.
                 </p>
               </div>
             </div>

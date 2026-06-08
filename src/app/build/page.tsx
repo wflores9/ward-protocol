@@ -7,16 +7,16 @@ import { CHAIN_ADAPTERS, ROADMAP_PHASES } from '@/lib/wardPlatform';
 export const metadata: Metadata = {
   title: 'Build With Ward | Tokenized Credit Conformance Infrastructure',
   description:
-    'Integrate Ward Protocol into tokenized credit products with chain adapters, SDKs, APIs, conformance receipts, and pilot readiness paths.',
+    'Integrate Ward Protocol into tokenized credit products with integration rails, SDKs, APIs, conformance receipts, and pilot readiness paths.',
   openGraph: {
     title: 'Build With Ward',
     description: 'Integrate the conformance and default-resolution layer for tokenized credit.',
-    images: [{ url: '/brand/ward-banner.png', width: 1920, height: 480 }],
+    images: [{ url: '/og-image.png', width: 1200, height: 630 }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Build With Ward',
-    description: 'SDKs, chain adapters, conformance receipts, and pilot readiness for serious credit products.',
+    description: 'SDKs, integration rails, conformance receipts, and pilot readiness for serious credit products.',
   },
 };
 
@@ -39,7 +39,7 @@ const installBlocks = [
 ];
 
 const buildSteps = [
-  ['01', 'Attach adapter', 'Choose the chain lane and bind Ward to the project primitive your vault already uses.'],
+  ['01', 'Select rail', 'Choose the chain lane and bind Ward to the project primitive your vault already uses.'],
   ['02', 'Register policy reference', 'Map the policy artifact, vault state, claimant identity, and settlement boundary.'],
   ['03', 'Run conformance', 'Execute the nine deterministic checks against authoritative ledger state.'],
   ['04', 'Export receipt', 'Share the validation result with engineering, risk, compliance, and capital partners.'],
@@ -49,9 +49,8 @@ export default function BuildPage() {
   return (
     <main className="bg-[#f6f4ee] text-[#14242b]">
       <section className="relative overflow-hidden bg-[#14242b] px-6 py-20 text-[#f7faf8] md:px-10 lg:px-12">
-        <img src="/brand/ward-banner.png" alt="Ward Protocol builder infrastructure" className="absolute inset-0 h-full w-full object-cover opacity-25" />
-        <div className="absolute inset-0 bg-[#14242b]/90" />
-        <div className="absolute inset-0 grid-overlay" />
+        <div className="absolute inset-0 grid-overlay opacity-80" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_16%_18%,rgba(182,215,206,0.10),transparent_32%),radial-gradient(circle_at_84%_12%,rgba(212,169,62,0.08),transparent_34%)]" />
         <div className="relative mx-auto max-w-6xl">
           <p className="font-mono text-sm font-bold text-[#d4a93e]">Build With Ward</p>
           <h1 className="mt-4 max-w-4xl text-4xl font-black leading-tight md:text-6xl">
@@ -96,12 +95,12 @@ export default function BuildPage() {
       <section className="bg-[#f6f4ee] py-16">
         <div className="mx-auto grid max-w-7xl gap-10 px-6 md:px-10 lg:grid-cols-[0.85fr_1.15fr] lg:px-12">
           <div>
-            <p className="font-mono text-sm font-bold text-[#9b6d13]">Adapter catalog</p>
+            <p className="font-mono text-sm font-bold text-[#9b6d13]">Integration rail catalog</p>
             <h2 className="mt-3 text-3xl font-black leading-tight text-[#14242b] md:text-5xl">
-              Chain-native primitives. One Ward result.
+              Chain-native rails. One conformance result.
             </h2>
             <p className="mt-5 text-lg leading-8 text-[#3f534d]">
-              Each adapter maps the local chain primitive into Ward's conformance engine. Your product keeps its settlement rail. Ward standardizes the resolution path.
+              Each rail maps the local chain primitive into Ward's conformance engine. Your product keeps its settlement rail. Ward standardizes the resolution path.
             </p>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
@@ -114,8 +113,8 @@ export default function BuildPage() {
                     <p className="text-sm leading-5 text-[#52665f]">{chain.status}</p>
                   </div>
                 </div>
-                <p className="font-mono text-sm leading-6 text-[#3f534d]">{chain.adapterPackage}</p>
-                <p className="mt-3 text-base leading-7 text-[#52665f]">{chain.primitive}</p>
+                <p className="font-mono text-sm leading-6 text-[#3f534d]">{chain.integrationSurface}</p>
+                <p className="mt-3 text-base leading-7 text-[#52665f]">{chain.proof}</p>
               </article>
             ))}
           </div>

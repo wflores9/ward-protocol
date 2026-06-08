@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Ward Conformance',
     description: 'Technical certification for deterministic default resolution in tokenized credit.',
-    images: [{ url: '/brand/ward-banner.png', width: 1920, height: 480 }],
+    images: [{ url: '/og-image.png', width: 1200, height: 630 }],
   },
   twitter: {
     card: 'summary_large_image',
@@ -49,9 +49,8 @@ export default function CertifiedPage() {
   return (
     <main className="bg-[#f6f4ee] text-[#14242b]">
       <section className="relative overflow-hidden bg-[#14242b] px-6 py-20 text-[#f7faf8] md:px-10 lg:px-12">
-        <img src="/brand/ward-banner.png" alt="Ward Conformance registry" className="absolute inset-0 h-full w-full object-cover opacity-25" />
-        <div className="absolute inset-0 bg-[#14242b]/90" />
-        <div className="absolute inset-0 grid-overlay" />
+        <div className="absolute inset-0 grid-overlay opacity-80" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_16%_18%,rgba(182,215,206,0.10),transparent_32%),radial-gradient(circle_at_84%_12%,rgba(212,169,62,0.08),transparent_34%)]" />
         <div className="relative mx-auto max-w-6xl">
           <p className="font-mono text-sm font-bold text-[#d4a93e]">Ward Conformance</p>
           <h1 className="mt-4 max-w-4xl text-4xl font-black leading-tight md:text-6xl">

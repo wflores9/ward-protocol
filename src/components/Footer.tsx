@@ -30,7 +30,7 @@ export default function Footer() {
             </div>
           </Link>
           <p style={{ fontSize: 14, color: '#aec0bc', lineHeight: 1.7, marginBottom: 8, maxWidth: 260 }}>
-            Deterministic default resolution for on-chain lending.
+            Conformance and default-resolution infrastructure for tokenized credit.
           </p>
           <p style={{ fontFamily: 'DM Mono, monospace', fontSize: 14, color: '#d4a93e', marginTop: 12 }}>
             ward_signed = False — always.
