@@ -5,7 +5,7 @@ import { CHAIN_ADAPTERS, PILOT_READINESS_PHASES } from '@/lib/wardPlatform';
 import { MARKETING } from '@/lib/marketingContent';
 
 const metrics = [
-  ['8', 'Testnet rails'],
+  ['9', 'Testnet rails'],
   ['9', 'Deterministic checks'],
   ['529', 'Tests across Python, Rust, and TypeScript'],
   ['06/2026', 'Security hardening sprint'],
@@ -81,13 +81,13 @@ export default function Home() {
                 href="/demo"
                 className="inline-flex min-h-14 items-center rounded-full bg-[#f7f9f7] px-7 py-3 text-base font-bold text-[#07131a] transition hover:bg-white"
               >
-                Open demo workspace
+                Open Demo Workspace
               </Link>
               <Link
                 href="/conformance"
                 className="inline-flex min-h-14 items-center rounded-full border border-white/12 bg-white/[0.03] px-7 py-3 text-base font-bold text-[#f7f9f7] transition hover:bg-white/[0.06]"
               >
-                Review Ward Conformance
+                Review Conformance
               </Link>
             </div>
           </div>
@@ -209,7 +209,7 @@ export default function Home() {
                   href="/build"
                   className="inline-flex min-h-14 items-center rounded-full border border-white/12 bg-white/[0.03] px-7 py-3 text-base font-bold text-[#f7f9f7] transition hover:bg-white/[0.06]"
                 >
-                  Build with Ward
+                  Build With Ward
                 </Link>
               </div>
             </div>

@@ -43,12 +43,6 @@ export default function Nav() {
         </div>
 
         <div className="flex items-center gap-3 md:hidden">
-          <Link
-            href="/demo"
-            className="rounded-full border border-white/10 px-3 py-2 font-mono text-sm uppercase tracking-[0.08em] text-[#d0dde0]"
-          >
-            Demo
-          </Link>
           <button
             onClick={() => setOpen((current) => !current)}
             aria-label={open ? 'Close menu' : 'Open menu'}

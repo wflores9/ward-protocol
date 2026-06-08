@@ -24,7 +24,7 @@ export default function Footer() {
             Deterministic default-resolution infrastructure for institutional tokenized credit.
           </p>
           <p className="mt-4 max-w-sm text-sm leading-6 text-[#9eb0b7]">
-            Reviewable conformance, unsigned settlement instructions, and a preserved institutional signer boundary.
+            Reviewable conformance, unsigned settlement instructions, and a preserved institutional signer boundary for serious partners.
           </p>
           <p className="mt-5 font-mono text-sm font-bold text-[#d4a93e]">ward_signed = False - always.</p>
         </div>

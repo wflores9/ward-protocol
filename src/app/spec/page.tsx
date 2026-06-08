@@ -117,13 +117,19 @@ export default function SpecPage() {
                   href="/demo"
                   className="inline-flex min-h-14 items-center rounded-full bg-[#f7f9f7] px-7 py-3 text-base font-bold text-[#07131a] transition hover:bg-white"
                 >
-                  Open demo workspace
+                  Open Demo Workspace
+                </Link>
+                <Link
+                  href="/conformance"
+                  className="inline-flex min-h-14 items-center rounded-full border border-white/12 bg-white/[0.03] px-7 py-3 text-base font-bold text-[#f7f9f7] transition hover:bg-white/[0.06]"
+                >
+                  Review Conformance
                 </Link>
                 <Link
                   href="/build"
                   className="inline-flex min-h-14 items-center rounded-full border border-white/12 bg-white/[0.03] px-7 py-3 text-base font-bold text-[#f7f9f7] transition hover:bg-white/[0.06]"
                 >
-                  Build with Ward
+                  Build With Ward
                 </Link>
               </div>
             </div>
@@ -262,6 +268,43 @@ export default function SpecPage() {
                   </p>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="site-section">
+        <div className="site-container py-28">
+          <div className="site-panel rounded-[38px] p-8 md:p-10 lg:p-12">
+            <div className="max-w-3xl">
+              <p className="site-label">Navigation flow</p>
+              <h2 className="mt-5 text-4xl font-black leading-tight tracking-[-0.03em] text-white md:text-5xl">
+                Move from the protocol reference into review, sandbox, and integration.
+              </h2>
+              <p className="site-copy mt-6">
+                The spec should feed directly into a conformance review, a live sandbox run, or an implementation surface. No dead ends, no broken buttons, and no ambiguity about the next institutional step.
+              </p>
+            </div>
+
+            <div className="mt-10 flex flex-wrap gap-4">
+              <Link
+                href="/conformance"
+                className="inline-flex min-h-14 items-center rounded-full bg-[#f7f9f7] px-7 py-3 text-base font-bold text-[#07131a] transition hover:bg-white"
+              >
+                Review Conformance
+              </Link>
+              <Link
+                href="/demo"
+                className="inline-flex min-h-14 items-center rounded-full border border-white/12 bg-white/[0.03] px-7 py-3 text-base font-bold text-[#f7f9f7] transition hover:bg-white/[0.06]"
+              >
+                Open Demo Workspace
+              </Link>
+              <Link
+                href="/build"
+                className="inline-flex min-h-14 items-center rounded-full border border-white/12 bg-white/[0.03] px-7 py-3 text-base font-bold text-[#f7f9f7] transition hover:bg-white/[0.06]"
+              >
+                Build With Ward
+              </Link>
             </div>
           </div>
         </div>

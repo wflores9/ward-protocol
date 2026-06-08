@@ -23,148 +23,220 @@ export const metadata: Metadata = {
 
 const installBlocks = [
   {
+    id: 'python-sdk',
     label: 'Python SDK',
     command: 'pip install ward-protocol==0.2.6',
     body: 'Use the Python SDK for validator services, vault monitors, conformance jobs, and institutional backend flows.',
   },
   {
+    id: 'typescript-sdk',
     label: 'TypeScript SDK',
     command: 'npm install @wardprotocol/sdk',
     body: 'Use the TypeScript SDK for product consoles, dashboards, rail orchestration, and receipt export.',
   },
   {
+    id: 'hosted-api',
     label: 'Hosted API',
-    command: 'https://api.wardprotocol.org',
+    command: 'POST https://api.wardprotocol.org/conformance/run',
     body: 'Use the hosted API for pilot integrations where teams want Ward-managed infrastructure and enterprise onboarding.',
   },
-];
+] as const;
 
 const buildSteps = [
   ['01', 'Select rail', 'Choose the chain lane and bind Ward to the project primitive your vault already uses.'],
   ['02', 'Register policy reference', 'Map the policy artifact, vault state, claimant identity, and settlement boundary.'],
   ['03', 'Run conformance', 'Execute the nine deterministic checks against authoritative ledger state.'],
   ['04', 'Export receipt', 'Share the validation result with engineering, risk, compliance, and capital partners.'],
-];
+] as const;
 
 export default function BuildPage() {
   return (
-    <main className="bg-[#f6f4ee] text-[#14242b]">
-      <section className="relative overflow-hidden bg-[#14242b] px-6 py-20 text-[#f7faf8] md:px-10 lg:px-12">
-        <div className="absolute inset-0 grid-overlay opacity-80" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_16%_18%,rgba(182,215,206,0.10),transparent_32%),radial-gradient(circle_at_84%_12%,rgba(212,169,62,0.08),transparent_34%)]" />
-        <div className="relative mx-auto max-w-6xl">
-          <p className="font-mono text-sm font-bold text-[#d4a93e]">Build With Ward</p>
-          <h1 className="mt-4 max-w-4xl text-4xl font-black leading-tight md:text-6xl">
-            Make your tokenized credit product Ward-conformant.
-          </h1>
-          <p className="mt-6 max-w-3xl text-lg leading-8 text-[#d2e1dd] md:text-xl">
-            Ward gives builders the rail layer, API path, SDK surface, and receipt model needed to ship deterministic default resolution without giving Ward custody or signing authority.
-          </p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Link href="/demo" className="inline-flex min-h-12 items-center rounded-md bg-[#f7faf8] px-6 py-3 text-base font-bold text-[#14242b] transition hover:bg-white">
-              Open Integration Console
-            </Link>
-            <a href={PILOT_URL} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-12 items-center rounded-md border border-[#b6d7ce]/30 px-6 py-3 text-base font-bold text-[#f7faf8] transition hover:border-[#b6d7ce] hover:bg-[#b6d7ce]/10">
-              Discuss a pilot
-            </a>
+    <main className="site-shell text-[#f7f9f7]">
+      <section className="relative overflow-hidden">
+        <div className="absolute inset-0 grid-overlay opacity-70" />
+        <div className="site-container pb-28 pt-24 lg:pt-32">
+          <div className="grid gap-14 lg:grid-cols-[1fr_0.94fr] lg:items-center">
+            <div className="max-w-4xl">
+              <p className="site-label">Build</p>
+              <h1 className="mt-6 text-5xl font-black leading-[0.98] tracking-[-0.04em] text-white md:text-6xl lg:text-[5rem]">
+                Build a Ward-conformant product without giving up the signer boundary.
+              </h1>
+              <p className="site-copy mt-8 max-w-3xl text-lg md:text-[1.2rem]">
+                Ward gives builders the SDK surface, API path, chain adapters, and receipt model needed to ship deterministic default resolution without giving Ward custody or signing authority.
+              </p>
+
+              <div className="mt-9 flex flex-wrap gap-3 text-sm text-[#d0dde0]">
+                {['Python SDK', 'TypeScript SDK', 'Hosted API', 'Unsigned settlement packets'].map((item) => (
+                  <span key={item} className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 font-mono">
+                    {item}
+                  </span>
+                ))}
+              </div>
+
+              <div className="mt-10 flex flex-wrap gap-4">
+                <Link
+                  href="/demo"
+                  className="inline-flex min-h-14 items-center rounded-full bg-[#f7f9f7] px-7 py-3 text-base font-bold text-[#07131a] transition hover:bg-white"
+                >
+                  Open Demo Workspace
+                </Link>
+                <Link
+                  href="/spec"
+                  className="inline-flex min-h-14 items-center rounded-full border border-white/12 bg-white/[0.03] px-7 py-3 text-base font-bold text-[#f7f9f7] transition hover:bg-white/[0.06]"
+                >
+                  Review Protocol
+                </Link>
+                <a
+                  href={PILOT_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex min-h-14 items-center rounded-full bg-[#d4a93e] px-7 py-3 text-base font-bold text-[#07131a] transition hover:brightness-105"
+                >
+                  Discuss a Pilot
+                </a>
+              </div>
+            </div>
+
+            <div className="site-panel rounded-[38px] p-8 md:p-10">
+              <p className="font-mono text-sm font-bold text-[#d4a93e]">Builder snapshot</p>
+              <div className="mt-6 grid gap-4">
+                {[
+                  ['Policy path', 'Create or map the policy artifact, then run the same conformance engine every time.'],
+                  ['Settlement path', 'Ward returns unsigned packets only. The institution signs.'],
+                  ['Review artifact', 'Receipts are designed for engineering, compliance, and partner review.'],
+                  ['Pilot path', 'Move from self-serve evaluation to a visible Phase 1-4 timetable.'],
+                ].map(([label, value]) => (
+                  <div key={label} className="rounded-[24px] border border-white/10 bg-white/[0.03] p-5">
+                    <p className="font-mono text-sm uppercase tracking-[0.12em] text-[#9eb0b7]">{label}</p>
+                    <p className="mt-3 text-lg font-bold leading-7 text-white">{value}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      <section className="bg-white py-16">
-        <div className="mx-auto max-w-7xl px-6 md:px-10 lg:px-12">
-          <div className="mb-10 max-w-3xl">
-            <p className="font-mono text-sm font-bold text-[#9b6d13]">Integration surface</p>
-            <h2 className="mt-3 text-3xl font-black leading-tight text-[#14242b] md:text-5xl">
+      <section className="site-section">
+        <div className="site-container py-28">
+          <div className="max-w-3xl">
+            <p className="site-label">Integration surface</p>
+            <h2 className="mt-5 text-4xl font-black leading-tight tracking-[-0.03em] text-white md:text-5xl">
               Start with the SDK. Finish with a conformance receipt.
             </h2>
           </div>
-          <div className="grid gap-5 lg:grid-cols-3">
+
+          <div className="mt-14 grid gap-6 lg:grid-cols-3">
             {installBlocks.map((block) => (
-              <article key={block.label} className="rounded-lg border border-[#14242b]/10 bg-[#f6f4ee] p-6">
-                <p className="font-mono text-sm font-bold text-[#9b6d13]">{block.label}</p>
-                <pre className="mt-4 overflow-x-auto rounded-md bg-[#101d23] p-4 font-mono text-sm leading-7 text-[#d2e1dd]">
+              <article key={block.id} id={block.id} className="site-panel-muted rounded-[32px] p-7 scroll-mt-28">
+                <p className="font-mono text-sm font-bold text-[#d4a93e]">{block.label}</p>
+                <pre className="mt-5 overflow-hidden whitespace-pre-wrap break-all rounded-[24px] border border-white/10 bg-[#07131a]/70 p-5 font-mono text-sm leading-7 text-[#d0dde0]">
                   <code>{block.command}</code>
                 </pre>
-                <p className="mt-4 text-base leading-7 text-[#52665f]">{block.body}</p>
+                <p className="site-copy mt-5">{block.body}</p>
               </article>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="bg-[#f6f4ee] py-16">
-        <div className="mx-auto grid max-w-7xl gap-10 px-6 md:px-10 lg:grid-cols-[0.85fr_1.15fr] lg:px-12">
-          <div>
-            <p className="font-mono text-sm font-bold text-[#9b6d13]">Integration rail catalog</p>
-            <h2 className="mt-3 text-3xl font-black leading-tight text-[#14242b] md:text-5xl">
-              Chain-native rails. One conformance result.
-            </h2>
-            <p className="mt-5 text-lg leading-8 text-[#3f534d]">
-              Each rail maps the local chain primitive into Ward's conformance engine. Your product keeps its settlement rail. Ward standardizes the resolution path.
-            </p>
-          </div>
-          <div className="grid gap-3 sm:grid-cols-2">
-            {CHAIN_ADAPTERS.map((chain) => (
-              <article key={chain.id} className="rounded-lg border border-[#14242b]/10 bg-white p-5">
-                <div className="mb-4 flex items-center gap-4">
-                  <ChainLogo id={chain.logo} label={`${chain.name} rail`} className="h-12 w-12" />
-                  <div>
-                    <h3 className="text-lg font-black text-[#14242b]">{chain.name}</h3>
-                    <p className="text-sm leading-5 text-[#52665f]">{chain.status}</p>
+      <section className="site-section">
+        <div className="site-container py-28">
+          <div className="grid gap-14 lg:grid-cols-[0.88fr_1.12fr] lg:items-start">
+            <div className="max-w-2xl">
+              <p className="site-label">Chain adapter catalog</p>
+              <h2 className="mt-5 text-4xl font-black leading-tight tracking-[-0.03em] text-white md:text-5xl">
+                Chain-native rails. One conformance result.
+              </h2>
+              <p className="site-copy mt-6">
+                Each rail maps the local chain primitive into Ward&apos;s conformance engine. Your product keeps its settlement rail. Ward standardizes the resolution path and the institutional review surface.
+              </p>
+            </div>
+
+            <div className="grid gap-5 sm:grid-cols-2">
+              {CHAIN_ADAPTERS.map((chain) => (
+                <article key={chain.id} className="site-panel-muted rounded-[30px] p-6">
+                  <div className="flex items-start justify-between gap-4">
+                    <ChainLogo id={chain.logo} label={`${chain.name} rail`} className="h-14 w-14" />
+                    <span className="rounded-md border border-white/10 bg-white/[0.04] px-3 py-1.5 font-mono text-sm text-[#9eb0b7]">
+                      {chain.status}
+                    </span>
                   </div>
-                </div>
-                <p className="font-mono text-sm leading-6 text-[#3f534d]">{chain.integrationSurface}</p>
-                <p className="mt-3 text-base leading-7 text-[#52665f]">{chain.proof}</p>
-              </article>
-            ))}
+                  <h3 className="mt-5 text-2xl font-black tracking-[-0.03em] text-white">{chain.name}</h3>
+                  <p className="mt-3 font-mono text-sm leading-6 text-[#d0dde0]">{chain.integrationSurface}</p>
+                  <p className="mt-4 text-sm leading-7 text-[#9eb0b7]">{chain.proof}</p>
+                </article>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
-      <section className="bg-[#14242b] py-16 text-[#f7faf8]">
-        <div className="mx-auto max-w-7xl px-6 md:px-10 lg:px-12">
-          <div className="mb-10 max-w-3xl">
-            <p className="font-mono text-sm font-bold text-[#d4a93e]">Implementation path</p>
-            <h2 className="mt-3 text-3xl font-black leading-tight md:text-5xl">
+      <section className="site-section">
+        <div className="site-container py-28">
+          <div className="max-w-3xl">
+            <p className="site-label">Implementation path</p>
+            <h2 className="mt-5 text-4xl font-black leading-tight tracking-[-0.03em] text-white md:text-5xl">
               Four steps from integration to institutional review.
             </h2>
           </div>
-          <div className="grid gap-4 md:grid-cols-4">
+
+          <div className="mt-14 grid gap-5 md:grid-cols-4">
             {buildSteps.map(([step, title, body]) => (
-              <article key={step} className="rounded-lg border border-[#b6d7ce]/20 bg-[#f7faf8]/10 p-5">
+              <article key={step} className="site-panel rounded-[28px] p-6">
                 <p className="font-mono text-sm font-bold text-[#d4a93e]">{step}</p>
-                <h3 className="mt-4 text-xl font-black text-[#f7faf8]">{title}</h3>
-                <p className="mt-3 text-base leading-7 text-[#d2e1dd]">{body}</p>
+                <h3 className="mt-4 text-2xl font-black tracking-[-0.03em] text-white">{title}</h3>
+                <p className="site-copy-sm mt-4">{body}</p>
               </article>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="bg-white py-16">
-        <div className="mx-auto max-w-7xl px-6 md:px-10 lg:px-12">
-          <div className="mb-10 max-w-3xl">
-            <p className="font-mono text-sm font-bold text-[#9b6d13]">Pilot readiness</p>
-            <h2 className="mt-3 text-3xl font-black leading-tight text-[#14242b] md:text-5xl">
-              Ward is moving from testnet-proven infrastructure into pilots and mainnet readiness.
-            </h2>
-          </div>
-          <div className="grid gap-4">
-            {PILOT_READINESS_PHASES.map((phase) => (
-              <article key={phase.phase} className="grid gap-4 rounded-lg border border-[#14242b]/10 bg-[#f6f4ee] p-5 md:grid-cols-[76px_1fr_170px]">
-                <div className="flex h-12 w-12 items-center justify-center rounded-md bg-[#14242b] font-mono text-base font-black text-white">
-                  {phase.phase}
-                </div>
-                <div>
-                  <h3 className="text-xl font-black text-[#14242b]">{phase.title}</h3>
-                  <p className="mt-2 text-base leading-7 text-[#52665f]">{phase.body}</p>
-                </div>
-                <p className="self-start rounded-md border border-[#14242b]/10 bg-white px-4 py-2 font-mono text-sm font-bold text-[#3f534d] md:text-center">
-                  {phase.window}
-                </p>
-              </article>
-            ))}
+      <section className="site-section">
+        <div className="site-container py-28">
+          <div className="site-panel rounded-[38px] p-8 md:p-10 lg:p-12">
+            <div className="max-w-3xl">
+              <p className="site-label">Pilot readiness timetable</p>
+              <h2 className="mt-5 text-4xl font-black leading-tight tracking-[-0.03em] text-white md:text-5xl">
+                Visible Phase 1-4 movement from self-serve review to production certification.
+              </h2>
+            </div>
+
+            <div className="mt-14 grid gap-5">
+              {PILOT_READINESS_PHASES.slice(0, 4).map((phase) => (
+                <article
+                  key={phase.phase}
+                  className="rounded-[30px] border border-white/10 bg-white/[0.03] p-6 md:grid md:grid-cols-[100px_1fr_180px] md:gap-6 md:p-7"
+                >
+                  <div className="flex h-16 w-16 items-center justify-center rounded-[20px] bg-[#d4a93e] font-mono text-lg font-black text-[#07131a]">
+                    {phase.phase}
+                  </div>
+                  <div className="mt-5 md:mt-0">
+                    <h3 className="text-2xl font-black tracking-[-0.03em] text-white">{phase.title}</h3>
+                    <p className="site-copy mt-3">{phase.body}</p>
+                  </div>
+                  <div className="mt-5 self-start rounded-md border border-white/10 bg-white/[0.04] px-4 py-2 font-mono text-sm font-bold text-[#f0d080] md:mt-0 md:text-center">
+                    {phase.window}
+                  </div>
+                </article>
+              ))}
+            </div>
+
+            <div className="mt-10 flex flex-wrap gap-4">
+              <Link
+                href="/conformance"
+                className="inline-flex min-h-14 items-center rounded-full bg-[#f7f9f7] px-7 py-3 text-base font-bold text-[#07131a] transition hover:bg-white"
+              >
+                Review Conformance
+              </Link>
+              <Link
+                href="/demo"
+                className="inline-flex min-h-14 items-center rounded-full border border-white/12 bg-white/[0.03] px-7 py-3 text-base font-bold text-[#f7f9f7] transition hover:bg-white/[0.06]"
+              >
+                Open Demo Workspace
+              </Link>
+            </div>
           </div>
         </div>
       </section>

@@ -1,10 +1,11 @@
 'use client';
 
 import dynamic from 'next/dynamic';
+import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 
-import ChainSelector from '@/components/ChainSelector';
 import ChainLogo from '@/components/ChainLogo';
+import ChainSelector from '@/components/ChainSelector';
 import {
   CHAIN_ADAPTERS,
   CONFORMANCE_CHECKS,
@@ -25,14 +26,16 @@ type ConsoleEvent = {
   tone: 'info' | 'success' | 'warning';
 };
 
-const nowStamp = () => new Date().toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+const nowStamp = () =>
+  new Date().toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
 const makeSessionId = () => `WARD-${Math.random().toString(16).slice(2, 8).toUpperCase()}`;
 const makeWallet = (chain: ChainAdapter) => `${chain.sampleAddress}-${Math.random().toString(16).slice(2, 6).toUpperCase()}`;
 const makePolicyId = (chain: ChainAdapter) => `${chain.policyPrefix}-${Math.random().toString(16).slice(2, 8).toUpperCase()}`;
+
 const WORKFLOW_STEPS = [
   ['01', 'Select a rail', 'Pick the network lane your team wants to inspect.'],
-  ['02', 'Create the policy artifact', 'Generate a demo policy NFT, contract reference, asset, or mint for the selected rail.'],
-  ['03', 'Run and review', 'Execute conformance and inspect the resulting evidence gates and receipt.'],
+  ['02', 'Create the policy artifact', 'Provision a test policy artifact for the selected rail. No wallet-held NFT is required for the sandbox path.'],
+  ['03', 'Run and review', 'Execute conformance and inspect the resulting evidence gates, receipt, and signer boundary.'],
 ] as const;
 
 const INTEGRATION_ACTIONS = [
@@ -40,16 +43,19 @@ const INTEGRATION_ACTIONS = [
     label: 'Python SDK',
     command: 'pip install ward-protocol==0.2.6',
     body: 'Backend validators, vault monitors, conformance jobs, and receipt export.',
+    href: '/build#python-sdk',
   },
   {
     label: 'TypeScript SDK',
     command: 'npm install @wardprotocol/sdk',
     body: 'Product consoles, wallet flows, selected-rail orchestration, and dashboards.',
+    href: '/build#typescript-sdk',
   },
   {
     label: 'Hosted API',
     command: 'POST https://api.wardprotocol.org/conformance/run',
     body: 'Pilot integrations that need Ward-managed infrastructure and enterprise onboarding.',
+    href: '/build#hosted-api',
   },
 ] as const;
 
@@ -100,18 +106,18 @@ export default function DemoClient() {
   const [activeEvent, setActiveEvent] = useState(-1);
   const [passedChecks, setPassedChecks] = useState<string[]>([]);
   const [consoleEvents, setConsoleEvents] = useState<ConsoleEvent[]>([
-    { time: nowStamp(), label: 'Workspace ready. Select a rail, create a sandbox wallet, and run conformance.', tone: 'info' },
+    { time: nowStamp(), label: 'Workspace ready. Select a rail, create a demo policy artifact, and run conformance.', tone: 'info' },
   ]);
   const [receiptCopied, setReceiptCopied] = useState(false);
   const [integrationCopied, setIntegrationCopied] = useState<string | null>(null);
 
   const payload = useMemo(
     () => buildPayload(selectedChain, selectedProfile, walletAddress, policyId),
-    [selectedChain, selectedProfile, walletAddress, policyId],
+    [policyId, selectedChain, selectedProfile, walletAddress],
   );
   const receipt = useMemo(
     () => buildReceipt(selectedChain, selectedProfile, sessionId, walletAddress, policyId),
-    [selectedChain, selectedProfile, sessionId, walletAddress, policyId],
+    [policyId, selectedChain, selectedProfile, sessionId, walletAddress],
   );
 
   useEffect(() => {
@@ -137,6 +143,8 @@ export default function DemoClient() {
   };
 
   const provisionWallet = () => {
+    if (workspaceState === 'running') return walletAddress;
+
     const nextWallet = makeWallet(selectedChain);
     setWalletAddress(nextWallet);
     setWorkspaceState('wallet-ready');
@@ -150,6 +158,7 @@ export default function DemoClient() {
   };
 
   const createPolicyArtifact = (ensureWallet = true) => {
+    if (workspaceState === 'running') return policyId;
     if (ensureWallet && !walletAddress) provisionWallet();
 
     const nextPolicy = makePolicyId(selectedChain);
@@ -164,6 +173,7 @@ export default function DemoClient() {
   };
 
   const attachAdapter = () => {
+    if (workspaceState === 'running') return;
     if (!walletAddress) provisionWallet();
     if (!policyId) createPolicyArtifact(false);
 
@@ -207,34 +217,39 @@ export default function DemoClient() {
     addEvent(`Conformance receipt ${sessionId} issued for ${runWallet} with 9/9 checks passed`, 'success');
   };
 
+  const helloConformance = async () => {
+    if (workspaceState === 'running') return;
+    addEvent(`Hello Conformance started for ${selectedChain.shortName}`, 'info');
+    await runConformance();
+  };
+
   const copyReceipt = async () => {
-    if (navigator.clipboard) {
-      await navigator.clipboard.writeText(receipt);
-      setReceiptCopied(true);
-      addEvent('Receipt copied for engineering, compliance, and partner review', 'success');
-    }
+    if (!navigator.clipboard) return;
+    await navigator.clipboard.writeText(receipt);
+    setReceiptCopied(true);
+    addEvent('Receipt copied for engineering, compliance, and partner review', 'success');
   };
 
   const copyIntegrationAction = async (label: string, command: string) => {
-    if (navigator.clipboard) {
-      await navigator.clipboard.writeText(command);
-      setIntegrationCopied(label);
-      addEvent(`${label} integration command copied`, 'success');
-    }
+    if (!navigator.clipboard) return;
+    await navigator.clipboard.writeText(command);
+    setIntegrationCopied(label);
+    addEvent(`${label} integration command copied`, 'success');
   };
 
+  const isRunning = workspaceState === 'running';
   const stateLabel =
     workspaceState === 'receipt-ready'
       ? 'Conformant'
-        : workspaceState === 'running'
-          ? 'Running'
+      : workspaceState === 'running'
+        ? 'Running'
         : workspaceState === 'rail-ready'
           ? 'Rail bound'
           : workspaceState === 'policy-ready'
             ? 'Policy ready'
-          : workspaceState === 'wallet-ready'
-            ? 'Wallet ready'
-            : 'Workspace ready';
+            : workspaceState === 'wallet-ready'
+              ? 'Wallet ready'
+              : 'Workspace ready';
 
   return (
     <main className="site-shell text-[#f7f9f7]">
@@ -253,7 +268,7 @@ export default function DemoClient() {
 
               <div className="mt-8 flex flex-wrap gap-3 text-sm">
                 {[
-                  '8 testnet rails',
+                  `${CHAIN_ADAPTERS.length} testnet rails`,
                   '9 deterministic checks',
                   'Unsigned settlement packet',
                   'ward_signed = False',
@@ -266,19 +281,31 @@ export default function DemoClient() {
 
               <div className="mt-10 flex flex-wrap gap-4">
                 <button
+                  onClick={helloConformance}
+                  disabled={isRunning}
+                  className="inline-flex min-h-14 items-center rounded-full bg-[#d4a93e] px-7 py-3 text-base font-bold text-[#07131a] transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  Hello Conformance
+                </button>
+                <button
                   onClick={() => createPolicyArtifact()}
-                  className="inline-flex min-h-14 items-center rounded-full bg-[#f7f9f7] px-7 py-3 text-base font-bold text-[#07131a] transition hover:bg-white"
+                  disabled={isRunning}
+                  className="inline-flex min-h-14 items-center rounded-full bg-[#f7f9f7] px-7 py-3 text-base font-bold text-[#07131a] transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   Create Demo Policy NFT
                 </button>
                 <button
                   onClick={runConformance}
-                  disabled={workspaceState === 'running'}
+                  disabled={isRunning}
                   className="inline-flex min-h-14 items-center rounded-full border border-white/12 bg-white/[0.03] px-7 py-3 text-base font-bold text-[#f7f9f7] transition hover:bg-white/[0.06] disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  Run conformance
+                  Run Conformance
                 </button>
               </div>
+
+              <p className="site-copy-sm mt-5 max-w-3xl text-[#9eb0b7]">
+                The sandbox can mint a test policy artifact for the selected rail, so teams can review the full conformance flow without bringing a pre-existing policy NFT into the session.
+              </p>
             </div>
 
             <div className="site-panel rounded-[38px] p-8 md:p-10">
@@ -372,9 +399,10 @@ export default function DemoClient() {
                   </div>
                   <button
                     onClick={attachAdapter}
-                    className="rounded-full border border-white/12 bg-white/[0.03] px-5 py-3 text-sm font-bold text-[#f7f9f7] transition hover:bg-white/[0.06]"
+                    disabled={isRunning}
+                    className="rounded-full border border-white/12 bg-white/[0.03] px-5 py-3 text-sm font-bold text-[#f7f9f7] transition hover:bg-white/[0.06] disabled:cursor-not-allowed disabled:opacity-60"
                   >
-                    Bind selected rail
+                    Bind Selected Rail
                   </button>
                 </div>
 
@@ -383,7 +411,8 @@ export default function DemoClient() {
                     <button
                       key={profile.id}
                       onClick={() => setSelectedProfile(profile)}
-                      className="rounded-[26px] border p-6 text-left transition"
+                      disabled={isRunning}
+                      className="rounded-[26px] border p-6 text-left transition disabled:cursor-not-allowed disabled:opacity-60"
                       style={{
                         borderColor: selectedProfile.id === profile.id ? '#d4a93e' : 'rgba(255,255,255,0.10)',
                         background: selectedProfile.id === profile.id ? 'rgba(212,169,62,0.12)' : 'rgba(255,255,255,0.03)',
@@ -446,26 +475,37 @@ export default function DemoClient() {
                 </div>
 
                 <div className="site-panel-muted rounded-[32px] p-6">
-                  <p className="font-mono text-sm font-bold text-[#d4a93e]">Project integration</p>
+                  <p className="font-mono text-sm font-bold text-[#d4a93e]">Integration surface</p>
                   <h3 className="mt-4 text-3xl font-black tracking-[-0.03em] text-white">{selectedProfile.name}</h3>
                   <p className="site-copy mt-4">{selectedProfile.integrationGoal}</p>
 
                   <div className="mt-6 grid gap-3">
                     {INTEGRATION_ACTIONS.map((action) => (
-                      <button
-                        key={action.label}
-                        onClick={() => copyIntegrationAction(action.label, action.command)}
-                        className="rounded-[22px] border border-white/10 bg-white/[0.03] p-4 text-left transition hover:border-[#d4a93e]/40 hover:bg-white/[0.06]"
-                      >
-                        <span className="flex flex-wrap items-center justify-between gap-3">
+                      <article key={action.label} className="rounded-[22px] border border-white/10 bg-white/[0.03] p-4">
+                        <div className="flex flex-wrap items-center justify-between gap-3">
                           <span className="text-base font-black text-white">{action.label}</span>
                           <span className="rounded-md bg-[#07131a]/70 px-3 py-1 font-mono text-sm text-[#d4a93e]">
-                            {integrationCopied === action.label ? 'Copied' : 'Copy'}
+                            {integrationCopied === action.label ? 'Copied' : 'Ready'}
                           </span>
-                        </span>
+                        </div>
                         <span className="mt-3 block font-mono text-sm leading-7 text-[#d0dde0]">{action.command}</span>
                         <span className="mt-2 block text-sm leading-7 text-[#9eb0b7]">{action.body}</span>
-                      </button>
+
+                        <div className="mt-4 flex flex-wrap gap-3">
+                          <button
+                            onClick={() => copyIntegrationAction(action.label, action.command)}
+                            className="rounded-full bg-[#f7f9f7] px-4 py-2.5 text-sm font-bold text-[#07131a] transition hover:bg-white"
+                          >
+                            {integrationCopied === action.label ? 'Command Copied' : `Copy ${action.label}`}
+                          </button>
+                          <Link
+                            href={action.href}
+                            className="rounded-full border border-white/12 bg-white/[0.03] px-4 py-2.5 text-sm font-bold text-[#f7f9f7] transition hover:bg-white/[0.06]"
+                          >
+                            Open Build Guide
+                          </Link>
+                        </div>
+                      </article>
                     ))}
                   </div>
 
@@ -499,21 +539,40 @@ export default function DemoClient() {
                 </div>
 
                 <div className="mt-6 grid gap-3">
-                  <button onClick={provisionWallet} className="rounded-full bg-[#f7f9f7] px-5 py-3.5 text-base font-bold text-[#07131a] transition hover:bg-white">
-                    Create sandbox wallet
+                  <button
+                    onClick={helloConformance}
+                    disabled={isRunning}
+                    className="rounded-full bg-[#d4a93e] px-5 py-3.5 text-base font-bold text-[#07131a] transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    Hello Conformance
                   </button>
-                  <button onClick={() => createPolicyArtifact()} className="rounded-full border border-white/12 bg-white/[0.03] px-5 py-3.5 text-base font-bold text-[#f7f9f7] transition hover:bg-white/[0.06]">
+                  <button
+                    onClick={provisionWallet}
+                    disabled={isRunning}
+                    className="rounded-full bg-[#f7f9f7] px-5 py-3.5 text-base font-bold text-[#07131a] transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    Create Sandbox Wallet
+                  </button>
+                  <button
+                    onClick={() => createPolicyArtifact()}
+                    disabled={isRunning}
+                    className="rounded-full border border-white/12 bg-white/[0.03] px-5 py-3.5 text-base font-bold text-[#f7f9f7] transition hover:bg-white/[0.06] disabled:cursor-not-allowed disabled:opacity-60"
+                  >
                     Create Demo Policy NFT
                   </button>
-                  <button onClick={attachAdapter} className="rounded-full border border-white/12 bg-white/[0.03] px-5 py-3.5 text-base font-bold text-[#f7f9f7] transition hover:bg-white/[0.06]">
-                    Bind selected rail
+                  <button
+                    onClick={attachAdapter}
+                    disabled={isRunning}
+                    className="rounded-full border border-white/12 bg-white/[0.03] px-5 py-3.5 text-base font-bold text-[#f7f9f7] transition hover:bg-white/[0.06] disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    Bind Selected Rail
                   </button>
                   <button
                     onClick={runConformance}
-                    disabled={workspaceState === 'running'}
-                    className="rounded-full bg-[#d4a93e] px-5 py-3.5 text-base font-bold text-[#07131a] transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
+                    disabled={isRunning}
+                    className="rounded-full border border-white/12 bg-white/[0.03] px-5 py-3.5 text-base font-bold text-[#f7f9f7] transition hover:bg-white/[0.06] disabled:cursor-not-allowed disabled:opacity-60"
                   >
-                    Run conformance
+                    Run Conformance
                   </button>
                 </div>
 
@@ -525,9 +584,9 @@ export default function DemoClient() {
                 </div>
 
                 <div className="mt-4 rounded-[24px] border border-white/10 bg-white/[0.03] p-5">
-                  <p className="font-mono text-sm uppercase tracking-[0.12em] text-[#9eb0b7]">Demo policy artifact</p>
+                  <p className="font-mono text-sm uppercase tracking-[0.12em] text-[#9eb0b7]">{selectedChain.policyArtifact}</p>
                   <p className="mt-3 break-words font-mono text-sm font-bold leading-7 text-white">
-                    {policyId || `${selectedChain.policyArtifact} not created`}
+                    {policyId || 'No demo policy artifact created yet'}
                   </p>
                 </div>
 
@@ -585,7 +644,7 @@ export default function DemoClient() {
                   disabled={workspaceState !== 'receipt-ready'}
                   className="mt-5 w-full rounded-full bg-[#d4a93e] px-5 py-3.5 text-base font-bold text-[#07131a] transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-55"
                 >
-                  {receiptCopied ? 'Receipt copied' : 'Copy receipt'}
+                  {receiptCopied ? 'Receipt Copied' : 'Copy Receipt'}
                 </button>
               </div>
 
@@ -603,9 +662,9 @@ export default function DemoClient() {
       <section id="live-playground" className="site-section">
         <div className="site-container py-24">
           <div className="mb-10 max-w-3xl">
-            <p className="site-label">Live rail validation</p>
+            <p className="site-label">Optional wallet validation</p>
             <h2 className="mt-5 text-4xl font-black leading-tight tracking-[-0.03em] text-white md:text-5xl">
-              XRPL runs live Altnet wallet validation. Every other rail stays aligned to the same conformance model.
+              XRPL supports live Altnet wallet validation. Every other rail remains aligned to the same conformance model.
             </h2>
           </div>
 
@@ -614,7 +673,10 @@ export default function DemoClient() {
               <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
                 <div>
                   <p className="font-mono text-sm font-bold text-[#d4a93e]">XRPL Altnet wallet connect</p>
-                  <h3 className="mt-3 text-3xl font-black tracking-[-0.03em] text-white">Run against Ward policy NFTs</h3>
+                  <h3 className="mt-3 text-3xl font-black tracking-[-0.03em] text-white">Run live validation against wallet-held policy NFTs</h3>
+                  <p className="site-copy-sm mt-3 max-w-2xl text-[#9eb0b7]">
+                    This section is optional. The sandbox above can create a demo policy artifact without requiring a pre-existing wallet-held NFT.
+                  </p>
                   <div className="mt-4 flex flex-wrap gap-3">
                     {selectedChain.walletActions.map((action) => (
                       <a
