@@ -1,197 +1,105 @@
-﻿'use client';
-import { useState } from 'react';
+'use client';
+
 import Link from 'next/link';
+import { useState } from 'react';
 
 const navLinks = [
-  { label: 'Protocol',  href: '/spec'      },
-  { label: 'Use Cases', href: '/use-cases' },
-  { label: 'Build',     href: '/build'     },
-  { label: 'Demo',      href: '/demo'      },
+  { label: 'Conformance', href: '/conformance' },
+  { label: 'Protocol', href: '/spec' },
+  { label: 'Build', href: '/build' },
+  { label: 'Demo', href: '/demo' },
 ];
 
 export default function Nav() {
   const [open, setOpen] = useState(false);
 
   return (
-    <nav className="site-nav" style={{
-      position: 'sticky', top: 0, zIndex: 100,
-      height: 76,
-      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      padding: '0 40px',
-      background: 'rgba(248,250,252,0.92)',
-      backdropFilter: 'blur(20px)',
-      WebkitBackdropFilter: 'blur(20px)',
-      borderBottom: '1px solid rgba(15,34,54,0.1)',
-      boxShadow: '0 10px 30px rgba(15,34,54,0.08)',
-    }}>
+    <nav className="site-nav sticky top-0 z-[100] border-b border-white/10 bg-[#07131a]/88 backdrop-blur-xl">
+      <div className="mx-auto flex h-[76px] max-w-7xl items-center justify-between px-6 md:px-10 lg:px-12">
+        <Link href="/" onClick={() => setOpen(false)} className="flex items-center gap-4 no-underline">
+          <div className="relative flex h-11 w-11 items-center justify-center rounded-full border border-white/12 bg-white/[0.04]">
+            <span className="text-xl font-black text-[#f7f9f7]">W</span>
+            <div className="absolute bottom-2 left-1/2 h-0.5 w-4 -translate-x-1/2 rounded bg-[#d4a93e]" />
+          </div>
+          <div className="flex flex-col">
+            <span className="text-[15px] font-black tracking-[0.16em] text-[#f7f9f7]">WARD</span>
+            <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-[#9eb0b7]">Protocol</span>
+          </div>
+        </Link>
 
-      {/* Brand */}
-      <Link href="/" onClick={() => setOpen(false)}
-        style={{ display: 'flex', alignItems: 'center', gap: 14, textDecoration: 'none' }}>
-        <div style={{
-          width: 46, height: 46, borderRadius: '50%',
-          background: '#102235',
-          border: '1px solid rgba(15,34,54,0.2)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          position: 'relative',
-        }}>
-          <span style={{
-            fontFamily: 'DM Sans, sans-serif', fontWeight: 900,
-            fontSize: 22, color: '#e8edf5', letterSpacing: 0,
-          }}>W</span>
-          <div style={{
-            position: 'absolute', bottom: 8, left: '50%',
-            transform: 'translateX(-50%)',
-            width: 16, height: 2, background: '#d4a93e', borderRadius: 1,
-          }} />
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-          <span style={{
-            fontFamily: 'DM Sans, sans-serif', fontWeight: 900,
-            fontSize: 16, color: '#102235', letterSpacing: 0,
-            lineHeight: 1.05,
-          }}>WARD</span>
-          <span style={{
-            fontFamily: 'DM Sans, sans-serif', fontWeight: 400,
-            fontSize: 14, color: '#5c7184', letterSpacing: 0,
-            lineHeight: 1.2, textTransform: 'uppercase',
-          }}>Protocol</span>
-        </div>
-      </Link>
-
-      {/* Desktop Navigation */}
-      <ul style={{
-        alignItems: 'center', gap: 8,
-        listStyle: 'none', margin: 0, padding: 0,
-      }} className="hidden md:flex">
-        {navLinks.map(l => (
-          <li key={l.href}>
+        <div className="hidden items-center gap-2 md:flex">
+          {navLinks.map((link) => (
             <Link
-              href={l.href}
-              style={{
-                color: '#40596f',
-                fontSize: 15,
-                fontWeight: 650,
-                textDecoration: 'none',
-                padding: '10px 14px',
-                borderRadius: 8,
-                letterSpacing: 0,
-                transition: 'color 0.15s',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.color = '#102235';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.color = '#40596f';
-              }}
+              key={link.href}
+              href={link.href}
+              className="rounded-full px-4 py-2 text-sm font-semibold text-[#d0dde0] transition hover:bg-white/[0.04] hover:text-white"
             >
-              {l.label}
+              {link.label}
             </Link>
-          </li>
-        ))}
-
-        <li style={{ marginLeft: 8 }}>
+          ))}
           <a
             href="https://tally.so/r/VLDbBE"
             target="_blank"
             rel="noopener noreferrer"
-            style={{
-              background: '#d4a93e',
-              color: '#102235',
-              padding: '10px 20px',
-              borderRadius: 8,
-              fontWeight: 700,
-              fontSize: 14,
-              textDecoration: 'none',
-              letterSpacing: 0,
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 4,
-              transition: 'all 0.15s',
-            }}
-            onMouseEnter={(e) => {
-              const el = e.currentTarget as HTMLElement;
-              el.style.background = '#e5bd55';
-              el.style.transform = 'translateY(-1px)';
-            }}
-            onMouseLeave={(e) => {
-              const el = e.currentTarget as HTMLElement;
-              el.style.background = '#d4a93e';
-              el.style.transform = 'translateY(0)';
-            }}
+            className="ml-3 inline-flex min-h-10 items-center rounded-full border border-[#d4a93e]/30 bg-[#d4a93e] px-5 py-2 text-sm font-bold text-[#07131a] transition hover:brightness-105"
           >
-            Get Started →
+            Discuss a pilot
           </a>
-        </li>
-      </ul>
+        </div>
 
-      {/* Mobile hamburger */}
+        <div className="flex items-center gap-3 md:hidden">
+          <Link
+            href="/demo"
+            className="rounded-full border border-white/10 px-3 py-2 font-mono text-xs uppercase tracking-[0.12em] text-[#d0dde0]"
+          >
+            Demo
+          </Link>
+          <button
+            onClick={() => setOpen((current) => !current)}
+            aria-label={open ? 'Close menu' : 'Open menu'}
+            className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-xl text-[#f7f9f7]"
+          >
+            {open ? '×' : '≡'}
+          </button>
+        </div>
+      </div>
+
       <button
-        className="md:hidden"
+        className="hidden"
         onClick={() => setOpen(o => !o)}
         aria-label={open ? 'Close menu' : 'Open menu'}
-        style={{
-          background: 'none',
-          border: 'none',
-          cursor: 'pointer',
-          color: '#102235',
-          fontSize: 28,
-          padding: 10,
-        }}
       >
         {open ? '✕' : '≡'}
       </button>
 
-      {/* Mobile Menu */}
       {open && (
-        <div className="md:hidden" style={{
-          position: 'absolute',
-          top: 76,
-          left: 0,
-          right: 0,
-          zIndex: 50,
-          background: 'rgba(248,250,252,0.98)',
-          backdropFilter: 'blur(20px)',
-          borderBottom: '1px solid rgba(15,34,54,0.1)',
-          display: 'flex',
-          flexDirection: 'column',
-        }}>
-          {navLinks.map(l => (
+        <div className="border-t border-white/10 bg-[#0a161d]/98 px-6 pb-6 pt-4 md:hidden">
+          <div className="mx-auto max-w-7xl space-y-2">
+            {navLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={() => setOpen(false)}
+                className="block rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-3 text-base font-semibold text-[#f7f9f7]"
+              >
+                {link.label}
+              </Link>
+            ))}
             <Link
-              key={l.href}
-              href={l.href}
+              href="/use-cases"
               onClick={() => setOpen(false)}
-              style={{
-                padding: '18px 28px',
-                color: '#102235',
-                fontSize: 17,
-                fontWeight: 650,
-                textDecoration: 'none',
-                borderBottom: '1px solid rgba(15,34,54,0.08)',
-              }}
+              className="block rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-3 text-base font-semibold text-[#f7f9f7]"
             >
-              {l.label}
+              Use Cases
             </Link>
-          ))}
-          <div style={{ padding: '16px 24px' }}>
             <a
               href="https://tally.so/r/VLDbBE"
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => setOpen(false)}
-              style={{
-                display: 'block',
-                textAlign: 'center',
-                background: '#c8a94a',
-              color: '#102235',
-              padding: '14px 24px',
-                borderRadius: 8,
-                fontWeight: 700,
-              fontSize: 16,
-                textDecoration: 'none',
-              }}
+              className="mt-4 block rounded-full bg-[#d4a93e] px-5 py-3 text-center text-sm font-bold text-[#07131a]"
             >
-              Get Started →
+              Discuss a pilot
             </a>
           </div>
         </div>

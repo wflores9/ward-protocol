@@ -5,27 +5,27 @@
 @tailwind utilities;
 
 :root {
-  --steel: #14242b;
-  --steel-2: #1d3035;
-  --steel-3: #284047;
-  --paper: #f6f4ee;
-  --mist: #edf4f1;
-  --surface: rgba(255,255,255,0.055);
-  --surface-2: rgba(255,255,255,0.09);
-  --border: rgba(182,215,206,0.12);
-  --border-2: rgba(182,215,206,0.22);
+  --steel: #07131a;
+  --steel-2: #0c1820;
+  --steel-3: #10212a;
+  --paper: #f5f3ee;
+  --mist: #edf2ef;
+  --surface: rgba(255,255,255,0.045);
+  --surface-2: rgba(255,255,255,0.075);
+  --border: rgba(171, 191, 199, 0.13);
+  --border-2: rgba(171, 191, 199, 0.24);
   --gold: #d4a93e;
   --gold-dim: rgba(212,169,62,0.16);
-  --ice: #b6d7ce;
-  --ice-dim: rgba(182,215,206,0.14);
+  --ice: #b7c8cd;
+  --ice-dim: rgba(183, 200, 205, 0.12);
   --green: #00cc66;
   --green-dim: rgba(0,204,102,0.12);
   --red: #ef4444;
-  --text-primary: #f7faf8;
-  --text-secondary: #d2e1dd;
-  --text-tertiary: #a9bdb8;
+  --text-primary: #f7f9f7;
+  --text-secondary: #d0dde0;
+  --text-tertiary: #9eb0b7;
   --glow-gold: 0 0 60px rgba(212,169,62,0.14);
-  --glow-ice: 0 0 60px rgba(182,215,206,0.1);
+  --glow-ice: 0 0 60px rgba(183, 200, 205, 0.08);
   --glow-green: 0 0 40px rgba(0,204,102,0.15);
 }
 
@@ -43,6 +43,7 @@ body {
   font-family: "DM Sans", sans-serif;
   font-size: 17px;
   line-height: 1.65;
+  min-height: 100vh;
 }
 
 h1, h2, h3, h4 {
@@ -53,6 +54,7 @@ h1, h2, h3, h4 {
 }
 
 code, pre, .font-mono { font-family: "DM Mono", monospace; }
+a { color: inherit; }
 
 .gradient-text {
   background: linear-gradient(135deg, #a8c5e8 0%, #e8edf5 50%, #a8c5e8 100%);
@@ -110,6 +112,39 @@ code, pre, .font-mono { font-family: "DM Mono", monospace; }
     linear-gradient(rgba(168,197,232,0.03) 1px, transparent 1px),
     linear-gradient(90deg, rgba(168,197,232,0.03) 1px, transparent 1px);
   background-size: 64px 64px;
+}
+
+.site-shell {
+  background:
+    radial-gradient(circle at top left, rgba(212,169,62,0.10), transparent 32%),
+    radial-gradient(circle at top right, rgba(112, 146, 161, 0.12), transparent 26%),
+    linear-gradient(180deg, #07131a 0%, #09161d 46%, #0b1921 100%);
+}
+
+.site-panel {
+  border: 1px solid var(--border);
+  background: rgba(13, 25, 33, 0.84);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(16px);
+}
+
+.site-panel-muted {
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.035);
+  backdrop-filter: blur(14px);
+}
+
+.site-section {
+  border-top: 1px solid rgba(171, 191, 199, 0.1);
+}
+
+.site-label {
+  font-family: "DM Mono", monospace;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold);
 }
 
 .btn-primary {

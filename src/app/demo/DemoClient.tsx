@@ -3,6 +3,7 @@
 import dynamic from 'next/dynamic';
 import { useEffect, useMemo, useState } from 'react';
 
+import ChainSelector from '@/components/ChainSelector';
 import ChainLogo from '@/components/ChainLogo';
 import {
   CHAIN_ADAPTERS,
@@ -25,9 +26,7 @@ type ConsoleEvent = {
 };
 
 const nowStamp = () => new Date().toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
-
 const makeSessionId = () => `WARD-${Math.random().toString(16).slice(2, 8).toUpperCase()}`;
-
 const makeWallet = (chain: ChainAdapter) => `${chain.sampleAddress}-${Math.random().toString(16).slice(2, 6).toUpperCase()}`;
 
 function buildPayload(chain: ChainAdapter, profile: IntegrationProfile, walletAddress: string | null) {
@@ -74,7 +73,7 @@ export default function DemoClient() {
   const [activeEvent, setActiveEvent] = useState(-1);
   const [passedChecks, setPassedChecks] = useState<string[]>([]);
   const [consoleEvents, setConsoleEvents] = useState<ConsoleEvent[]>([
-    { time: nowStamp(), label: 'Console ready. Select an integration rail and provision a sandbox wallet.', tone: 'info' },
+    { time: nowStamp(), label: 'Workspace ready. Select a rail, create a sandbox wallet, and run conformance.', tone: 'info' },
   ]);
   const [receiptCopied, setReceiptCopied] = useState(false);
 
@@ -97,14 +96,14 @@ export default function DemoClient() {
     setConsoleEvents([
       {
         time: nowStamp(),
-        label: `${selectedChain.name} rail selected. Workspace reset for a clean conformance session.`,
+        label: `${selectedChain.name} rail selected. Workspace reset for a clean institutional review path.`,
         tone: 'info',
       },
     ]);
   }, [selectedChain.id]);
 
   const addEvent = (label: string, tone: ConsoleEvent['tone'] = 'info') => {
-    setConsoleEvents((current) => [...current.slice(-9), { time: nowStamp(), label, tone }]);
+    setConsoleEvents((current) => [...current.slice(-11), { time: nowStamp(), label, tone }]);
   };
 
   const provisionWallet = () => {
@@ -161,7 +160,7 @@ export default function DemoClient() {
     if (navigator.clipboard) {
       await navigator.clipboard.writeText(receipt);
       setReceiptCopied(true);
-      addEvent('Receipt copied for risk, compliance, and engineering review', 'success');
+      addEvent('Receipt copied for engineering, compliance, and partner review', 'success');
     }
   };
 
@@ -174,308 +173,320 @@ export default function DemoClient() {
           ? 'Adapter attached'
           : workspaceState === 'wallet-ready'
             ? 'Wallet ready'
-            : 'Workspace empty';
+            : 'Workspace ready';
 
   return (
-    <main className="bg-[#f6f4ee] text-[#14242b]">
-      <section className="relative overflow-hidden bg-[#14242b] text-[#f7faf8]">
-        <div className="absolute inset-0 grid-overlay opacity-80" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_16%_18%,rgba(182,215,206,0.10),transparent_32%),radial-gradient(circle_at_84%_12%,rgba(212,169,62,0.08),transparent_34%)]" />
+    <main className="site-shell text-[#f7f9f7]">
+      <section className="relative overflow-hidden">
+        <div className="absolute inset-0 grid-overlay opacity-70" />
+        <div className="mx-auto max-w-7xl px-6 pb-16 pt-20 md:px-10 lg:px-12 lg:pt-24">
+          <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr]">
+            <div>
+              <p className="site-label">Ward conformance workspace</p>
+              <h1 className="mt-5 text-5xl font-black leading-[1.03] tracking-[-0.03em] text-white md:text-6xl">
+                A demo environment institutions can actually inspect.
+              </h1>
+              <p className="mt-6 max-w-2xl text-lg leading-8 text-[#d0dde0] md:text-xl">
+                Select a live testnet rail, create a sandbox institution wallet, run deterministic conformance, and export a receipt that preserves the signer boundary from start to finish.
+              </p>
 
-        <div className="relative mx-auto grid min-h-[620px] max-w-[1500px] items-center gap-10 px-6 py-16 md:grid-cols-[0.95fr_1.05fr] md:px-10 lg:px-12">
-          <div>
-            <p className="font-mono text-sm font-bold text-[#d4a93e]">Ward Integration Console</p>
-            <h1 className="mt-4 text-4xl font-black leading-tight md:text-5xl lg:text-6xl">
-              Self-demo Ward like an infrastructure integration, not a slideshow.
-            </h1>
-            <p className="mt-6 max-w-2xl text-lg leading-8 text-[#d2e1dd] md:text-xl">
-              Provision a sandbox wallet, select an integration rail, run deterministic conformance, and export a receipt that proves Ward never signs or decides outcomes.
-            </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <button
-                onClick={provisionWallet}
-                className="inline-flex min-h-12 items-center rounded-md bg-[#f7faf8] px-6 py-3 text-base font-bold text-[#14242b] transition hover:bg-white"
-              >
-                Create Sandbox Wallet
-              </button>
-              <button
-                onClick={runConformance}
-                disabled={workspaceState === 'running'}
-                className="inline-flex min-h-12 items-center rounded-md border border-[#b6d7ce]/30 px-6 py-3 text-base font-bold text-[#f7faf8] transition hover:border-[#b6d7ce] hover:bg-[#b6d7ce]/10 disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                Run Conformance Session
-              </button>
-            </div>
-          </div>
-
-          <div className="rounded-lg border border-[#b6d7ce]/20 bg-[#0f1f25]/90 p-5 shadow-[0_28px_90px_rgba(0,0,0,0.34)]">
-            <div className="mb-5 flex flex-wrap items-center justify-between gap-4 border-b border-[#b6d7ce]/10 pb-4">
-              <div className="flex items-center gap-4">
-                <ChainLogo id={selectedChain.logo} label={`${selectedChain.name} selected`} className="h-14 w-14" />
-                <div>
-                  <p className="font-mono text-sm text-[#a9bdb8]">Selected rail</p>
-                  <h2 className="text-2xl font-black text-[#f7faf8]">{selectedChain.name}</h2>
-                </div>
-              </div>
-              <span className="rounded-md border border-[#d4a93e]/30 bg-[#d4a93e]/10 px-3 py-1.5 font-mono text-sm font-bold text-[#d4a93e]">
-                {stateLabel}
-              </span>
-            </div>
-
-            <div className="grid gap-3 md:grid-cols-2">
-              {[
-                ['Wallet lane', selectedChain.wallet],
-                ['Primitive', selectedChain.primitive],
-                ['Finality', selectedChain.finality],
-                ['Endpoint', selectedChain.endpoint],
-              ].map(([label, value]) => (
-                <div key={label} className="rounded-md border border-[#b6d7ce]/20 bg-[#f7faf8]/10 p-4">
-                  <p className="font-mono text-sm text-[#a9bdb8]">{label}</p>
-                  <p className="mt-2 text-base font-bold leading-6 text-[#f7faf8]">{value}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="sticky top-0 z-40 border-b border-[#14242b]/10 bg-[#f6f4ee]/95 backdrop-blur">
-        <div className="mx-auto max-w-[1500px] px-6 py-4 md:px-10 lg:px-12">
-          <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-            <p className="text-base font-black text-[#14242b]">Eight testnet rails</p>
-            <p className="font-mono text-sm text-[#52665f]">Session: {sessionId}</p>
-          </div>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            {CHAIN_ADAPTERS.map((chain) => {
-              const isSelected = selectedChain.id === chain.id;
-              return (
-                <button
-                  key={chain.id}
-                  onClick={() => setSelectedChain(chain)}
-                  className="min-h-[148px] rounded-lg border bg-white p-4 text-left transition hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(20,36,43,0.12)]"
-                  style={{
-                    borderColor: isSelected ? chain.accent : 'rgba(20,36,43,0.14)',
-                    boxShadow: isSelected ? `0 0 0 3px ${chain.accentSoft}` : undefined,
-                  }}
-                >
-                  <div className="mb-3 flex items-start justify-between gap-3">
-                    <ChainLogo id={chain.logo} label={`${chain.name} logo`} className="h-12 w-12" />
-                    <span className="rounded-md border border-[#14242b]/10 bg-[#f6f4ee] px-2 py-1 font-mono text-sm font-bold text-[#3f534d]">
-                      {chain.status}
-                    </span>
-                  </div>
-                  <p className="text-base font-black leading-5 text-[#14242b]">{chain.name}</p>
-                  <p className="mt-2 text-sm leading-5 text-[#52665f]">{chain.network}</p>
-                  <p className="mt-2 text-sm leading-5 text-[#52665f]">{chain.proof}</p>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      <section className="bg-[#f6f4ee] py-14">
-        <div className="mx-auto grid max-w-[1500px] gap-6 px-6 md:px-10 lg:grid-cols-[350px_1fr_420px] lg:px-12">
-          <aside className="space-y-4">
-            <div className="rounded-lg border border-[#14242b]/10 bg-white p-5">
-              <p className="font-mono text-sm font-bold text-[#9b6d13]">Project profile</p>
-              <div className="mt-4 grid gap-3">
-                {INTEGRATION_PROFILES.map((profile) => (
-                  <button
-                    key={profile.id}
-                    onClick={() => setSelectedProfile(profile)}
-                    className="rounded-md border p-4 text-left transition hover:border-[#14242b]/40"
-                    style={{
-                      borderColor: selectedProfile.id === profile.id ? '#d4a93e' : 'rgba(20,36,43,0.12)',
-                      background: selectedProfile.id === profile.id ? 'rgba(212,169,62,0.12)' : '#ffffff',
-                    }}
-                  >
-                    <p className="text-base font-black text-[#14242b]">{profile.name}</p>
-                    <p className="mt-1 text-sm leading-5 text-[#52665f]">{profile.value}</p>
-                  </button>
+              <div className="mt-7 flex flex-wrap gap-3 text-sm">
+                {[
+                  '8 live testnet rails',
+                  '9 deterministic checks',
+                  'Unsigned settlement packet',
+                  'ward_signed = False',
+                ].map((item) => (
+                  <span key={item} className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 font-mono text-[#d0dde0]">
+                    {item}
+                  </span>
                 ))}
               </div>
-            </div>
 
-            <div className="rounded-lg border border-[#14242b]/10 bg-white p-5">
-              <p className="font-mono text-sm font-bold text-[#9b6d13]">Sandbox controls</p>
-              <div className="mt-4 space-y-3">
-                <button onClick={provisionWallet} className="w-full rounded-md bg-[#14242b] px-4 py-3 text-base font-bold text-white transition hover:bg-[#1d3035]">
-                  Create Demo Wallet
-                </button>
-                <button onClick={attachAdapter} className="w-full rounded-md border border-[#14242b]/20 px-4 py-3 text-base font-bold text-[#14242b] transition hover:border-[#14242b]/40 hover:bg-[#14242b]/5">
-                  Bind Rail
+              <div className="mt-8 flex flex-wrap gap-3">
+                <button
+                  onClick={provisionWallet}
+                  className="inline-flex min-h-12 items-center rounded-full bg-[#f7f9f7] px-6 py-3 text-base font-bold text-[#07131a] transition hover:bg-white"
+                >
+                  Create sandbox wallet
                 </button>
                 <button
                   onClick={runConformance}
                   disabled={workspaceState === 'running'}
-                  className="w-full rounded-md bg-[#d4a93e] px-4 py-3 text-base font-bold text-[#14242b] transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="inline-flex min-h-12 items-center rounded-full border border-white/12 bg-white/[0.03] px-6 py-3 text-base font-bold text-[#f7f9f7] transition hover:bg-white/[0.06] disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  Run Conformance
+                  Run conformance
                 </button>
               </div>
-              <div className="mt-5 rounded-md border border-[#14242b]/10 bg-[#f6f4ee] p-4">
-                <p className="font-mono text-sm text-[#52665f]">Demo wallet</p>
-                <p className="mt-2 break-words font-mono text-sm font-bold leading-6 text-[#14242b]">
-                  {walletAddress || 'Not provisioned'}
-                </p>
-              </div>
             </div>
-          </aside>
 
-          <section className="space-y-4">
-            <div className="rounded-lg border border-[#14242b]/10 bg-[#101d23] p-5 text-[#f7faf8]">
-              <div className="mb-4 flex items-center justify-between gap-4 border-b border-[#b6d7ce]/10 pb-4">
-                <div>
-                  <p className="font-mono text-sm text-[#d4a93e]">Rail terminal</p>
-                  <h2 className="mt-1 text-2xl font-black">Conformance job trace</h2>
+            <div className="site-panel rounded-[32px] p-6 md:p-8">
+              <div className="flex flex-wrap items-start justify-between gap-4 border-b border-white/10 pb-5">
+                <div className="flex items-center gap-4">
+                  <ChainLogo id={selectedChain.logo} label={`${selectedChain.name} selected`} className="h-14 w-14" />
+                  <div>
+                    <p className="font-mono text-sm text-[#9eb0b7]">Active rail</p>
+                    <h2 className="text-2xl font-black text-white">{selectedChain.name}</h2>
+                  </div>
                 </div>
-                <span className="rounded-md border border-[#b6d7ce]/20 px-3 py-1.5 font-mono text-sm text-[#d2e1dd]">
-                  {selectedChain.integrationSurface}
+                <span className="rounded-full border border-[#d4a93e]/20 bg-[#d4a93e]/10 px-3 py-1.5 font-mono text-xs font-bold uppercase tracking-[0.14em] text-[#f0d080]">
+                  {stateLabel}
                 </span>
               </div>
 
-              <div className="min-h-[320px] space-y-2 font-mono text-sm leading-6">
-                {consoleEvents.map((event, index) => (
-                  <div key={`${event.time}-${index}`} className="grid grid-cols-[76px_1fr] gap-3">
-                    <span className="text-[#a9bdb8]">{event.time}</span>
-                    <span className={event.tone === 'success' ? 'text-[#00cc66]' : event.tone === 'warning' ? 'text-[#d4a93e]' : 'text-[#d2e1dd]'}>
-                      {event.label}
-                    </span>
+              <div className="mt-6 grid gap-3 sm:grid-cols-2">
+                {[
+                  ['Network', selectedChain.network],
+                  ['Primitive', selectedChain.primitive],
+                  ['Finality', selectedChain.finality],
+                  ['Integration surface', selectedChain.integrationSurface],
+                ].map(([label, value]) => (
+                  <div key={label} className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+                    <p className="font-mono text-xs uppercase tracking-[0.14em] text-[#9eb0b7]">{label}</p>
+                    <p className="mt-2 text-base font-bold leading-6 text-white">{value}</p>
                   </div>
                 ))}
               </div>
 
-              <div className="mt-4 grid gap-2">
-                {DEMO_EVENTS.map((event, index) => (
-                  <div key={event} className="flex items-center gap-3 rounded-md border border-[#b6d7ce]/10 bg-[#f7faf8]/10 px-3 py-2">
-                    <span
-                      className="flex h-7 w-7 items-center justify-center rounded-md font-mono text-sm font-bold"
-                      style={{
-                        background: activeEvent >= index ? '#00cc66' : 'rgba(247,250,248,0.08)',
-                        color: activeEvent >= index ? '#07130d' : '#d2e1dd',
-                      }}
-                    >
-                      {index + 1}
-                    </span>
-                    <span className="text-sm leading-6 text-[#d2e1dd]">{event}</span>
+              <div className="mt-6 rounded-[28px] border border-white/10 bg-white/[0.03] p-5">
+                <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <p className="font-mono text-sm font-bold text-[#d4a93e]">Choose a live testnet rail</p>
+                    <p className="mt-1 max-w-2xl text-sm leading-6 text-[#d0dde0]">
+                      The same default-resolution workflow runs across every supported rail. Select the environment your team wants to inspect.
+                    </p>
                   </div>
-                ))}
+                  <span className="rounded-full border border-white/10 bg-[#07131a]/70 px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.12em] text-[#d0dde0]">
+                    {CHAIN_ADAPTERS.length} rails
+                  </span>
+                </div>
+                <ChainSelector chains={CHAIN_ADAPTERS} selected={selectedChain} onSelect={setSelectedChain} />
               </div>
             </div>
+          </div>
+        </div>
+      </section>
 
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="rounded-lg border border-[#14242b]/10 bg-white p-5">
-                <p className="font-mono text-sm font-bold text-[#9b6d13]">API payload</p>
-                <pre className="mt-4 max-h-[420px] overflow-x-auto rounded-md bg-[#101d23] p-4 font-mono text-sm leading-7 text-[#d2e1dd]">
-                  <code>{payload}</code>
-                </pre>
+      <section className="site-section">
+        <div className="mx-auto max-w-7xl px-6 py-16 md:px-10 lg:px-12">
+          <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-[24px] border border-white/10 bg-white/[0.04] px-5 py-4">
+            <div>
+              <p className="font-mono text-sm font-bold text-[#d4a93e]">Session control plane</p>
+              <p className="mt-1 text-sm leading-6 text-[#d0dde0]">
+                Current session is pinned to <span className="font-bold text-white">{selectedChain.name}</span> for deterministic conformance review.
+              </p>
+            </div>
+            <p className="rounded-full border border-white/10 bg-[#07131a]/55 px-3 py-1.5 font-mono text-xs uppercase tracking-[0.12em] text-[#d0dde0]">
+              Session {sessionId}
+            </p>
+          </div>
+
+          <div className="grid gap-6 xl:grid-cols-[320px_minmax(0,1fr)_360px]">
+            <aside className="space-y-4">
+              <div className="site-panel-muted rounded-[28px] p-5">
+                <p className="font-mono text-sm font-bold text-[#d4a93e]">Project profile</p>
+                <div className="mt-4 grid gap-3">
+                  {INTEGRATION_PROFILES.map((profile) => (
+                    <button
+                      key={profile.id}
+                      onClick={() => setSelectedProfile(profile)}
+                      className="rounded-[20px] border p-4 text-left transition"
+                      style={{
+                        borderColor: selectedProfile.id === profile.id ? '#d4a93e' : 'rgba(255,255,255,0.10)',
+                        background: selectedProfile.id === profile.id ? 'rgba(212,169,62,0.12)' : 'rgba(255,255,255,0.03)',
+                      }}
+                    >
+                      <p className="text-base font-black text-white">{profile.name}</p>
+                      <p className="mt-1 text-sm leading-6 text-[#d0dde0]">{profile.value}</p>
+                    </button>
+                  ))}
+                </div>
               </div>
 
-              <div className="rounded-lg border border-[#14242b]/10 bg-white p-5">
-                <p className="font-mono text-sm font-bold text-[#9b6d13]">Project integration</p>
-                <h3 className="mt-3 text-2xl font-black text-[#14242b]">{selectedProfile.name}</h3>
-                <p className="mt-3 text-base leading-7 text-[#52665f]">{selectedProfile.integrationGoal}</p>
-                <div className="mt-5 grid gap-3">
-                  {[
-                    ['Sector', selectedProfile.sector],
-                    ['Vault', selectedProfile.vault],
-                    ['Claim', selectedProfile.claim],
-                    ['Capacity', selectedProfile.value],
-                  ].map(([label, value]) => (
-                    <div key={label} className="rounded-md border border-[#14242b]/10 bg-[#f6f4ee] p-3">
-                      <p className="font-mono text-sm text-[#52665f]">{label}</p>
-                      <p className="mt-1 text-base font-bold leading-6 text-[#14242b]">{value}</p>
+              <div className="site-panel-muted rounded-[28px] p-5">
+                <p className="font-mono text-sm font-bold text-[#d4a93e]">Workspace controls</p>
+                <div className="mt-4 grid gap-3">
+                  <button onClick={provisionWallet} className="rounded-full bg-[#f7f9f7] px-4 py-3 text-base font-bold text-[#07131a] transition hover:bg-white">
+                    Create demo wallet
+                  </button>
+                  <button onClick={attachAdapter} className="rounded-full border border-white/12 bg-white/[0.03] px-4 py-3 text-base font-bold text-[#f7f9f7] transition hover:bg-white/[0.06]">
+                    Bind rail
+                  </button>
+                  <button
+                    onClick={runConformance}
+                    disabled={workspaceState === 'running'}
+                    className="rounded-full bg-[#d4a93e] px-4 py-3 text-base font-bold text-[#07131a] transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    Run conformance
+                  </button>
+                </div>
+
+                <div className="mt-5 rounded-[20px] border border-white/10 bg-[#07131a]/55 p-4">
+                  <p className="font-mono text-xs uppercase tracking-[0.14em] text-[#9eb0b7]">Sandbox wallet</p>
+                  <p className="mt-2 break-words font-mono text-sm font-bold leading-6 text-white">
+                    {walletAddress || 'Not provisioned'}
+                  </p>
+                </div>
+              </div>
+            </aside>
+
+            <section className="space-y-4">
+              <div className="site-panel rounded-[28px] p-5 md:p-6">
+                <div className="mb-4 flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-4">
+                  <div>
+                    <p className="font-mono text-sm text-[#d4a93e]">Rail terminal</p>
+                    <h2 className="mt-1 text-2xl font-black text-white">Conformance job trace</h2>
+                  </div>
+                  <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 font-mono text-xs uppercase tracking-[0.12em] text-[#d0dde0]">
+                    {selectedChain.endpoint}
+                  </span>
+                </div>
+
+                <div className="min-h-[280px] space-y-2 font-mono text-sm leading-6">
+                  {consoleEvents.map((event, index) => (
+                    <div key={`${event.time}-${index}`} className="grid grid-cols-[74px_1fr] gap-3">
+                      <span className="text-[#9eb0b7]">{event.time}</span>
+                      <span className={event.tone === 'success' ? 'text-[#00cc66]' : event.tone === 'warning' ? 'text-[#f0d080]' : 'text-[#d0dde0]'}>
+                        {event.label}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-5 grid gap-2">
+                  {DEMO_EVENTS.map((event, index) => (
+                    <div key={event} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2">
+                      <span
+                        className="flex h-8 w-8 items-center justify-center rounded-xl font-mono text-sm font-bold"
+                        style={{
+                          background: activeEvent >= index ? '#00cc66' : 'rgba(255,255,255,0.07)',
+                          color: activeEvent >= index ? '#07130d' : '#d0dde0',
+                        }}
+                      >
+                        {index + 1}
+                      </span>
+                      <span className="text-sm leading-6 text-[#d0dde0]">{event}</span>
                     </div>
                   ))}
                 </div>
               </div>
-            </div>
-          </section>
 
-          <aside className="space-y-4">
-            <div className="rounded-lg border border-[#14242b]/10 bg-white p-5">
-              <div className="mb-4 flex items-center justify-between gap-3">
-                <div>
-                  <p className="font-mono text-sm font-bold text-[#9b6d13]">Conformance receipt</p>
-                  <h2 className="mt-1 text-2xl font-black text-[#14242b]">{stateLabel}</h2>
+              <div className="grid gap-4 lg:grid-cols-2">
+                <div className="site-panel-muted rounded-[28px] p-5">
+                  <p className="font-mono text-sm font-bold text-[#d4a93e]">API payload</p>
+                  <pre className="mt-4 max-h-[420px] overflow-x-auto rounded-[20px] border border-white/10 bg-[#07131a]/70 p-4 font-mono text-sm leading-7 text-[#d0dde0]">
+                    <code>{payload}</code>
+                  </pre>
                 </div>
-                <span className="rounded-md border border-[#14242b]/10 bg-[#f6f4ee] px-3 py-1.5 font-mono text-sm font-bold text-[#3f534d]">
-                  9 / 9
-                </span>
-              </div>
 
-              <div className="grid gap-2">
-                {CONFORMANCE_CHECKS.map((check) => {
-                  const passed = passedChecks.includes(check.id);
-                  return (
-                    <div key={check.id} className="grid grid-cols-[38px_1fr] gap-3 rounded-md border border-[#14242b]/10 bg-[#f6f4ee] p-3">
-                      <span
-                        className="flex h-8 w-8 items-center justify-center rounded-md font-mono text-sm font-bold"
-                        style={{
-                          background: passed ? '#00cc66' : '#ffffff',
-                          color: passed ? '#07130d' : '#52665f',
-                        }}
-                      >
-                        {passed ? 'OK' : check.id}
-                      </span>
-                      <div>
-                        <p className="text-sm font-black leading-5 text-[#14242b]">{check.label}</p>
-                        <p className="mt-1 text-sm leading-5 text-[#52665f]">{check.description}</p>
+                <div className="site-panel-muted rounded-[28px] p-5">
+                  <p className="font-mono text-sm font-bold text-[#d4a93e]">Project integration</p>
+                  <h3 className="mt-3 text-2xl font-black text-white">{selectedProfile.name}</h3>
+                  <p className="mt-3 text-base leading-7 text-[#d0dde0]">{selectedProfile.integrationGoal}</p>
+                  <div className="mt-5 grid gap-3">
+                    {[
+                      ['Sector', selectedProfile.sector],
+                      ['Vault', selectedProfile.vault],
+                      ['Claim', selectedProfile.claim],
+                      ['Capacity', selectedProfile.value],
+                    ].map(([label, value]) => (
+                      <div key={label} className="rounded-[20px] border border-white/10 bg-white/[0.03] p-3">
+                        <p className="font-mono text-xs uppercase tracking-[0.14em] text-[#9eb0b7]">{label}</p>
+                        <p className="mt-2 text-base font-bold leading-6 text-white">{value}</p>
                       </div>
-                    </div>
-                  );
-                })}
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <aside className="space-y-4">
+              <div className="site-panel-muted rounded-[28px] p-5">
+                <div className="mb-4 flex items-center justify-between gap-3">
+                  <div>
+                    <p className="font-mono text-sm font-bold text-[#d4a93e]">Conformance receipt</p>
+                    <h2 className="mt-1 text-2xl font-black text-white">{stateLabel}</h2>
+                  </div>
+                  <span className="rounded-full border border-white/10 bg-[#07131a]/55 px-3 py-1.5 font-mono text-xs uppercase tracking-[0.12em] text-[#d0dde0]">
+                    9 / 9
+                  </span>
+                </div>
+
+                <div className="grid gap-2">
+                  {CONFORMANCE_CHECKS.map((check) => {
+                    const passed = passedChecks.includes(check.id);
+
+                    return (
+                      <div key={check.id} className="grid grid-cols-[38px_1fr] gap-3 rounded-[18px] border border-white/10 bg-white/[0.03] p-3">
+                        <span
+                          className="flex h-8 w-8 items-center justify-center rounded-xl font-mono text-sm font-bold"
+                          style={{
+                            background: passed ? '#00cc66' : 'rgba(255,255,255,0.08)',
+                            color: passed ? '#07130d' : '#d0dde0',
+                          }}
+                        >
+                          {passed ? 'OK' : check.id}
+                        </span>
+                        <div>
+                          <p className="text-sm font-black leading-5 text-white">{check.label}</p>
+                          <p className="mt-1 text-sm leading-5 text-[#d0dde0]">{check.description}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <button
+                  onClick={copyReceipt}
+                  disabled={workspaceState !== 'receipt-ready'}
+                  className="mt-4 w-full rounded-full bg-[#d4a93e] px-4 py-3 text-base font-bold text-[#07131a] transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-55"
+                >
+                  {receiptCopied ? 'Receipt copied' : 'Copy receipt'}
+                </button>
               </div>
 
-              <button
-                onClick={copyReceipt}
-                disabled={workspaceState !== 'receipt-ready'}
-                className="mt-4 w-full rounded-md bg-[#14242b] px-4 py-3 text-base font-bold text-white transition hover:bg-[#1d3035] disabled:cursor-not-allowed disabled:opacity-55"
-              >
-                {receiptCopied ? 'Receipt Copied' : 'Copy Receipt'}
-              </button>
-            </div>
-
-            <div className="rounded-lg border border-[#14242b]/10 bg-[#101d23] p-5 text-[#f7faf8]">
-              <p className="font-mono text-sm font-bold text-[#d4a93e]">Receipt preview</p>
-              <pre className="mt-4 overflow-x-auto whitespace-pre-wrap font-mono text-sm leading-7 text-[#d2e1dd]">{receipt}</pre>
-            </div>
-          </aside>
+              <div className="site-panel rounded-[28px] p-5">
+                <p className="font-mono text-sm font-bold text-[#d4a93e]">Receipt preview</p>
+                <pre className="mt-4 overflow-x-auto whitespace-pre-wrap rounded-[20px] border border-white/10 bg-[#07131a]/70 p-4 font-mono text-sm leading-7 text-[#d0dde0]">
+                  {receipt}
+                </pre>
+              </div>
+            </aside>
+          </div>
         </div>
       </section>
 
-      <section id="live-playground" className="border-y border-[#b6d7ce]/10 bg-[#14242b] py-14 text-[#f7faf8]">
-        <div className="mx-auto max-w-7xl px-6 md:px-10 lg:px-12">
+      <section id="live-playground" className="site-section">
+        <div className="mx-auto max-w-7xl px-6 py-16 md:px-10 lg:px-12">
           <div className="mb-8 max-w-3xl">
-            <p className="font-mono text-sm font-bold text-[#d4a93e]">Live rail</p>
-            <h2 className="mt-3 text-3xl font-black leading-tight md:text-5xl">
-              XRPL can connect to live Altnet wallet validation. Other lanes show integration readiness.
+            <p className="site-label">Live rail validation</p>
+            <h2 className="mt-4 text-4xl font-black leading-tight text-white md:text-5xl">
+              XRPL runs live Altnet wallet validation. Every other rail stays aligned to the same conformance model.
             </h2>
           </div>
 
           {selectedChain.id === 'xrpl' ? (
-            <div className="rounded-lg border border-[#b6d7ce]/20 bg-[#f7faf8] p-5 text-[#14242b]">
+            <div className="site-panel rounded-[32px] p-5 text-[#f7f9f7] md:p-6">
               <div className="mb-5 flex flex-wrap items-center justify-between gap-4">
                 <div>
-                  <p className="font-mono text-sm font-bold text-[#9b6d13]">XRPL Altnet wallet connect</p>
-                  <h3 className="mt-2 text-2xl font-black">Run against Ward policy NFTs</h3>
+                  <p className="font-mono text-sm font-bold text-[#d4a93e]">XRPL Altnet wallet connect</p>
+                  <h3 className="mt-2 text-2xl font-black text-white">Run against Ward policy NFTs</h3>
                 </div>
                 <WalletConnector />
               </div>
               <LiveValidator />
             </div>
           ) : (
-            <div className="rounded-lg border border-[#b6d7ce]/20 bg-[#f7faf8]/10 p-5">
+            <div className="site-panel-muted rounded-[32px] p-5 md:p-6">
               <div className="flex flex-wrap items-center justify-between gap-5">
                 <div className="flex items-center gap-4">
                   <ChainLogo id={selectedChain.logo} label={`${selectedChain.name} adapter`} className="h-14 w-14" />
                   <div>
                     <p className="font-mono text-sm text-[#d4a93e]">{selectedChain.status}</p>
-                    <h3 className="text-2xl font-black text-[#f7faf8]">{selectedChain.name} rail path</h3>
+                    <h3 className="text-2xl font-black text-white">{selectedChain.name} rail path</h3>
                   </div>
                 </div>
-                <p className="max-w-2xl text-base leading-7 text-[#d2e1dd]">
+                <p className="max-w-2xl text-base leading-7 text-[#d0dde0]">
                   {selectedChain.wallet} integration uses the same conformance payload and receipt model while production wallet submission is finalized for this rail.
                 </p>
               </div>
