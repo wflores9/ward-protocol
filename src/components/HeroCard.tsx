@@ -22,7 +22,7 @@ export default function HeroCard() {
     <div className="flex flex-col gap-6">
       {/* Install card */}
       <div className="bg-steel rounded-md p-5 font-mono text-sm">
-        <div className="text-dim text-sm uppercase tracking-widest mb-3">Install</div>
+        <div className="text-dim text-sm uppercase mb-3">Install</div>
         <div className="flex items-center justify-between gap-3">
           <code className="text-ice text-sm">pip install ward-protocol==0.2.6</code>
           <button
@@ -46,7 +46,7 @@ export default function HeroCard() {
       <div className="grid grid-cols-2 gap-3">
         {stats.map(s => (
           <div key={s.label} className="bg-white border border-p2 rounded-md p-4 text-center">
-            <div className={`font-condensed font-black text-2xl leading-none mb-1 ${s.green ? 'text-green' : 'text-steel'}`}>
+            <div className={`font-sans font-black text-2xl leading-none mb-1 ${s.green ? 'text-green' : 'text-steel'}`}>
               {s.val}
             </div>
             <div className="text-sm text-sub leading-tight">{s.label}</div>

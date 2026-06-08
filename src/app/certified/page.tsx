@@ -1,239 +1,160 @@
-﻿import type { Metadata } from 'next'
-import Link from 'next/link'
+import type { Metadata } from 'next';
+import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'Ward Certified',
+  title: 'Ward Conformance | Certification for Tokenized Credit',
   description:
-    'Public registry of vaults certified to implement the Ward Protocol specification correctly. Ward Certified is a technical conformance designation — not a financial guarantee.',
-}
-
-const vaults = [
-  {
-    id: 'WP-2026-001',
-    address: 'rWardAltnet...001',
-    institution: 'Ward Protocol',
-    certDate: 'May 2026',
-    validUntil: 'May 2027',
-    sdkVersion: 'v0.2.4',
-    specVersion: 'WARD.SPEC v0.2.4',
-    status: 'Active' as const,
-    network: 'Altnet' as const,
+    'Ward Conformance is the technical certification path for tokenized credit products that need deterministic default resolution, nine on-ledger checks, and signer-boundary proof.',
+  openGraph: {
+    title: 'Ward Conformance',
+    description: 'Technical certification for deterministic default resolution in tokenized credit.',
+    images: [{ url: '/brand/ward-banner.png', width: 1920, height: 480 }],
   },
-]
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Ward Conformance',
+    description: 'Certification for tokenized credit products integrating Ward Protocol.',
+  },
+};
 
-type Status = 'Active' | 'Review Due' | 'Revoked'
+const registry = [
+  {
+    id: 'WARD-CONF-2026-001',
+    product: 'Ward Protocol Reference Vault',
+    network: 'XRPL Altnet',
+    status: 'Reference',
+    checks: '9/9',
+    signerBoundary: 'Institution signs',
+    version: 'v0.2.6',
+  },
+];
 
-const statusStyles: Record<Status, { badge: string; dot: string }> = {
-  Active: { badge: 'bg-emerald-50 text-emerald-700', dot: 'bg-emerald-500' },
-  'Review Due': { badge: 'bg-amber-50 text-amber-700', dot: 'bg-amber-500' },
-  Revoked: { badge: 'bg-slate-100 text-slate-500', dot: 'bg-slate-400' },
-}
+const covers = [
+  'Chain primitive maps correctly into the Ward conformance engine',
+  'Nine deterministic checks are executed before settlement instructions are produced',
+  'Policy reference, vault binding, claimant ownership, and pool solvency are reviewable',
+  'Settlement packet remains unsigned by Ward',
+  'Receipt can be exported for engineering, risk, and compliance review',
+];
+
+const doesNotCover = [
+  'Credit quality of the borrower or institution',
+  'Investment performance or repayment guarantee',
+  'Regulatory approval in any jurisdiction',
+  'Settlement actions after the institution signs',
+  'Third-party audit replacement before mainnet launch',
+];
 
 export default function CertifiedPage() {
   return (
-    <>
-      {/* HERO */}
-      <div className="bg-navy px-12 py-24 text-center">
-        <p className="text-sm text-white/40 mb-5">
-          <Link href="/" className="text-white/40 no-underline hover:text-white/70">
-            Home
-          </Link>
-          {' / Ward Certified'}
-        </p>
-        <h1 className="text-[52px] font-bold text-white tracking-tight leading-tight mb-5">
-          Ward Certified
-        </h1>
-        <p className="text-[19px] text-white/65 max-w-2xl mx-auto mb-4">
-          Vaults verified to implement the Ward Protocol specification correctly.
-        </p>
-        <p className="text-[14px] text-white/35 max-w-xl mx-auto">
-          Ward Certified is a technical conformance designation — not a financial guarantee.
-        </p>
-      </div>
-
-      {/* WHAT IT MEANS */}
-      <section className="bg-slate-50 px-12 py-16">
-        <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
-          {[
-            {
-              icon: '⚙ï¸',
-              title: 'Technical Review',
-              desc: 'Ward verifies the vault implementation against the full 9-step specification.',
-            },
-            {
-              icon: 'ðŸ"‹',
-              title: 'Public Record',
-              desc: 'Each certification has a unique ID, spec version, and expiry date — permanently on record.',
-            },
-            {
-              icon: 'ðŸ"„',
-              title: 'Annual Recertification',
-              desc: 'Certified vaults are reviewed annually and when major SDK versions are released.',
-            },
-          ].map((item) => (
-            <div key={item.title} className="bg-white border border-slate-100 rounded-xl p-7">
-              <div className="text-3xl mb-4 w-fit border border-[#c8a94a]/20 rounded-lg p-1">{item.icon}</div>
-              <div className="text-[17px] font-bold text-slate-900 mb-2">{item.title}</div>
-              <div className="text-[15px] text-slate-500 leading-relaxed">{item.desc}</div>
-            </div>
-          ))}
+    <main className="bg-[#f6f4ee] text-[#14242b]">
+      <section className="relative overflow-hidden bg-[#14242b] px-6 py-20 text-[#f7faf8] md:px-10 lg:px-12">
+        <img src="/brand/ward-banner.png" alt="Ward Conformance registry" className="absolute inset-0 h-full w-full object-cover opacity-25" />
+        <div className="absolute inset-0 bg-[#14242b]/90" />
+        <div className="absolute inset-0 grid-overlay" />
+        <div className="relative mx-auto max-w-6xl">
+          <p className="font-mono text-sm font-bold text-[#d4a93e]">Ward Conformance</p>
+          <h1 className="mt-4 max-w-4xl text-4xl font-black leading-tight md:text-6xl">
+            Certification for the default-resolution layer institutions need to trust.
+          </h1>
+          <p className="mt-6 max-w-3xl text-lg leading-8 text-[#d2e1dd] md:text-xl">
+            Ward Conformance verifies that a tokenized credit product implements deterministic default resolution, preserves the signer boundary, and can produce a reviewable receipt.
+          </p>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Link href="/demo" className="inline-flex min-h-12 items-center rounded-md bg-[#f7faf8] px-6 py-3 text-base font-bold text-[#14242b] transition hover:bg-white">
+              Run Console
+            </Link>
+            <a href="mailto:wflores@wardprotocol.org?subject=Ward%20Conformance%20Review" className="inline-flex min-h-12 items-center rounded-md border border-[#b6d7ce]/30 px-6 py-3 text-base font-bold text-[#f7faf8] transition hover:border-[#b6d7ce] hover:bg-[#b6d7ce]/10">
+              Request Review
+            </a>
+          </div>
         </div>
       </section>
 
-      {/* REGISTRY */}
-      <section className="bg-white px-12 py-20">
-        <div className="max-w-5xl mx-auto">
-          <span className="eyebrow" style={{ color: '#c8a94a' }}>Public Registry</span>
-          <h2 className="text-[40px] font-bold text-slate-900 tracking-tight leading-tight mb-4">
-            Certified Vaults
-          </h2>
-          <p className="text-[18px] text-slate-500 leading-relaxed mb-12">
-            All Ward Certified vaults are listed here. Certification records are permanent —
-            revoked entries remain visible with updated status.
-          </p>
+      <section className="bg-white py-16">
+        <div className="mx-auto max-w-7xl px-6 md:px-10 lg:px-12">
+          <div className="mb-10 max-w-3xl">
+            <p className="font-mono text-sm font-bold text-[#9b6d13]">Public registry</p>
+            <h2 className="mt-3 text-3xl font-black leading-tight text-[#14242b] md:text-5xl">
+              Conformance records make the default path inspectable.
+            </h2>
+          </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse bg-white border border-slate-100 rounded-xl overflow-hidden mb-6">
-              <thead>
-                <tr className="bg-slate-50">
-                  {[
-                    'Cert ID',
-                    'Vault Address',
-                    'Institution',
-                    'Certified',
-                    'Valid Until',
-                    'Spec Version',
-                    'Status',
-                  ].map((h) => (
-                    <th
-                      key={h}
-                      className="text-left px-5 py-3.5 text-sm font-semibold text-slate-400 uppercase tracking-wider whitespace-nowrap"
-                    >
-                      {h}
+          <div className="overflow-x-auto rounded-lg border border-[#14242b]/10 bg-white">
+            <table className="w-full min-w-[900px] border-collapse">
+              <thead className="bg-[#f6f4ee]">
+                <tr>
+                  {['Record', 'Product', 'Network', 'Status', 'Checks', 'Signer Boundary', 'Version'].map((header) => (
+                    <th key={header} className="px-5 py-4 text-left font-mono text-sm font-bold text-[#52665f]">
+                      {header}
                     </th>
                   ))}
                 </tr>
               </thead>
               <tbody>
-                {vaults.map((v) => {
-                  const s = statusStyles[v.status]
-                  return (
-                    <tr key={v.id} className="border-t border-slate-100">
-                      <td className="px-5 py-4 font-mono text-sm text-[#c8a94a] whitespace-nowrap">
-                        {v.id}
-                      </td>
-                      <td className="px-5 py-4 font-mono text-sm text-blue-600 whitespace-nowrap">
-                        {v.address}
-                      </td>
-                      <td className="px-5 py-4 text-[14px] text-slate-700 whitespace-nowrap">
-                        {v.institution}
-                        {v.network === 'Altnet' && (
-                          <span className="ml-2 text-sm bg-amber-50 text-amber-600 border border-amber-200 px-1.5 py-0.5 rounded font-semibold">
-                            ALTNET
-                          </span>
-                        )}
-                      </td>
-                      <td className="px-5 py-4 text-[14px] text-slate-500 whitespace-nowrap">
-                        {v.certDate}
-                      </td>
-                      <td className="px-5 py-4 text-[14px] text-slate-500 whitespace-nowrap">
-                        {v.validUntil}
-                      </td>
-                      <td className="px-5 py-4 font-mono text-sm text-slate-400 whitespace-nowrap">
-                        {v.specVersion}
-                      </td>
-                      <td className="px-5 py-4 whitespace-nowrap">
-                        <span
-                          className={`inline-flex items-center gap-1.5 text-sm font-semibold px-2.5 py-1 rounded-full ${s.badge}`}
-                        >
-                          <span className={`w-1.5 h-1.5 rounded-full ${s.dot}`} />
-                          {v.status}
-                        </span>
-                      </td>
-                    </tr>
-                  )
-                })}
+                {registry.map((item) => (
+                  <tr key={item.id} className="border-t border-[#14242b]/10">
+                    <td className="px-5 py-4 font-mono text-sm font-bold text-[#9b6d13]">{item.id}</td>
+                    <td className="px-5 py-4 text-base font-bold text-[#14242b]">{item.product}</td>
+                    <td className="px-5 py-4 text-base text-[#52665f]">{item.network}</td>
+                    <td className="px-5 py-4">
+                      <span className="rounded-md border border-[#00cc66]/30 bg-[#00cc66]/10 px-3 py-1.5 font-mono text-sm font-bold text-[#116c3b]">
+                        {item.status}
+                      </span>
+                    </td>
+                    <td className="px-5 py-4 font-mono text-sm font-bold text-[#14242b]">{item.checks}</td>
+                    <td className="px-5 py-4 text-base text-[#52665f]">{item.signerBoundary}</td>
+                    <td className="px-5 py-4 font-mono text-sm text-[#52665f]">{item.version}</td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
-
-          <p className="text-sm text-slate-400 italic">
-            Mainnet certifications will appear here when XLS-66 goes live on XRPL mainnet.
-            The current entry is an Altnet development certification.
+          <p className="mt-4 text-sm leading-6 text-[#52665f]">
+            Mainnet production certifications will appear after the external audit path and mainnet launch readiness are complete.
           </p>
         </div>
       </section>
 
-      {/* WHAT WARD DOES NOT CERTIFY */}
-      <section className="bg-slate-50 px-12 py-16">
-        <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div>
-            <h3 className="text-[20px] font-bold text-slate-900 mb-5">
-              What Ward Certified covers
-            </h3>
-            <ul className="space-y-3">
-              {[
-                'Vault exists as a valid XLS-66 object on ledger',
-                'Policy NFT correctly minted — taxon=281, tfBurnable, not transferable',
-                'KYC credential valid — XLS-70, taxon=282',
-                'Ward SDK version current and correctly integrated',
-                '3-ledger confirmation window correctly implemented',
-                'Escrow settlement using PREIMAGE-SHA-256',
-                'ward_signed=False enforced throughout',
-              ].map((item) => (
-                <li key={item} className="flex items-start gap-3 text-[15px] text-slate-700">
-                  <span className="text-emerald-500 font-bold mt-0.5 flex-shrink-0">✓</span>
+      <section className="bg-[#f6f4ee] py-16">
+        <div className="mx-auto grid max-w-7xl gap-8 px-6 md:px-10 lg:grid-cols-2 lg:px-12">
+          <article className="rounded-lg border border-[#14242b]/10 bg-white p-6">
+            <p className="font-mono text-sm font-bold text-[#9b6d13]">What conformance covers</p>
+            <h2 className="mt-3 text-3xl font-black text-[#14242b]">Technical default-resolution readiness.</h2>
+            <div className="mt-6 grid gap-3">
+              {covers.map((item) => (
+                <div key={item} className="rounded-md border border-[#14242b]/10 bg-[#f6f4ee] p-4 text-base leading-7 text-[#52665f]">
                   {item}
-                </li>
+                </div>
               ))}
-            </ul>
-          </div>
-          <div>
-            <h3 className="text-[20px] font-bold text-slate-900 mb-5">
-              What Ward Certified does not cover
-            </h3>
-            <ul className="space-y-3">
-              {[
-                'Vault collateral quality or solvency',
-                'Institution creditworthiness or regulatory status',
-                'Whether the preimage holder will submit EscrowFinish',
-                'XLS-66 ledger behavior — the XRPL enforces that',
-                'Any outcome after the 9-step validation completes',
-              ].map((item) => (
-                <li key={item} className="flex items-start gap-3 text-[15px] text-slate-700">
-                  <span className="text-slate-300 font-bold mt-0.5 flex-shrink-0">·</span>
+            </div>
+          </article>
+
+          <article className="rounded-lg border border-[#14242b]/10 bg-white p-6">
+            <p className="font-mono text-sm font-bold text-[#9b6d13]">What it does not cover</p>
+            <h2 className="mt-3 text-3xl font-black text-[#14242b]">No financial guarantee, no custody promise.</h2>
+            <div className="mt-6 grid gap-3">
+              {doesNotCover.map((item) => (
+                <div key={item} className="rounded-md border border-[#14242b]/10 bg-[#f6f4ee] p-4 text-base leading-7 text-[#52665f]">
                   {item}
-                </li>
+                </div>
               ))}
-            </ul>
-          </div>
+            </div>
+          </article>
         </div>
       </section>
 
-      {/* APPLY CTA */}
-      <section className="bg-white border-t border-gold/20 px-12 py-24 text-center">
-        <h2 className="text-[40px] font-bold text-navy tracking-tight leading-tight mb-5">
-          Apply for Ward Certified
-        </h2>
-        <p className="text-[18px] text-navy/65 max-w-xl mx-auto mb-10 leading-relaxed">
-          Ward Certified is available for institutions integrating Ward Protocol into XLS-66
-          lending vaults. Each vault is certified individually.
-        </p>
-        <a
-          href="mailto:wflores@wardprotocol.org?subject=Ward%20Certified%20Application"
-          className="inline-block bg-navy text-white px-10 py-4 rounded-lg font-semibold text-base hover:bg-[#162d47] transition-colors no-underline"
-        >
-          Apply for Certification →
-        </a>
-        <p className="text-sm text-navy/50 mt-6 max-w-lg mx-auto">
-          Ward Certified is a technical conformance designation — not a financial guarantee.
-          See{' '}
-          <Link href="/terms" className="text-navy/60 hover:text-navy/80 underline">
-            Terms & Conditions
-          </Link>
-          .
-        </p>
+      <section className="bg-[#14242b] py-16 text-center text-[#f7faf8]">
+        <div className="mx-auto max-w-4xl px-6">
+          <p className="font-mono text-sm font-bold text-[#d4a93e]">Pre-mainnet assurance path</p>
+          <h2 className="mt-3 text-3xl font-black leading-tight md:text-5xl">
+            Ward Conformance is the bridge between a working integration and institutional confidence.
+          </h2>
+          <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-[#d2e1dd]">
+            The next unlock is third-party review, production pilots, and mainnet-ready certification once the underlying lending primitives are live.
+          </p>
+        </div>
       </section>
-    </>
-  )
+    </main>
+  );
 }

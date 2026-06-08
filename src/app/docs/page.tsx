@@ -1,213 +1,176 @@
-﻿import type { Metadata } from 'next'
-import Link from 'next/link'
+import type { Metadata } from 'next';
+import Link from 'next/link';
+
+import ChainLogo from '@/components/ChainLogo';
+import { CHAIN_ADAPTERS, CONFORMANCE_CHECKS } from '@/lib/wardPlatform';
 
 export const metadata: Metadata = {
-  title: 'Ward Protocol — Documentation',
-  description: 'SDK documentation, API reference, and integration guides for Ward Protocol v0.2.6.',
-}
+  title: 'Ward Docs | Conformance Integration Guide',
+  description:
+    'Developer documentation for Ward Protocol: SDK setup, adapter lanes, nine-check conformance validation, unsigned settlement packets, and receipt export.',
+  openGraph: {
+    title: 'Ward Protocol Developer Docs',
+    description: 'Integrate deterministic default resolution into tokenized credit products.',
+    images: [{ url: '/brand/ward-banner.png', width: 1920, height: 480 }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Ward Protocol Developer Docs',
+    description: 'SDK setup, chain adapters, conformance validation, and receipt export.',
+  },
+};
 
-const modules = [
-  { name: 'WardClient',        file: 'ward/client.py',        nsloc: '~100', desc: 'High-level SDK entrypoint. No wallet stored as instance attribute.' },
-  { name: 'VaultMonitor',      file: 'ward/vault_monitor.py', nsloc: '~240', desc: 'WebSocket default detection. 3-ledger confirmation. Heartbeat reconnect.' },
-  { name: 'ClaimValidator',    file: 'ward/validator.py',     nsloc: '~220', desc: '9-step on-chain claim validation. All state from XRPL ledger.' },
-  { name: 'EscrowSettlement',  file: 'ward/settlement.py',    nsloc: '~160', desc: 'PREIMAGE-SHA-256 escrow lifecycle. Ward never receives preimage.' },
-  { name: 'PoolHealthMonitor', file: 'ward/pool.py',          nsloc: '~175', desc: 'Coverage ratio enforcement. XRPL reserve accounting.' },
-  { name: 'primitives',        file: 'ward/primitives.py',    nsloc: '~220', desc: 'validate_drops(), check_rate_limit(), make_preimage_condition(), submit_with_retry().' },
-  { name: 'constants',         file: 'ward/constants.py',     nsloc: '~95',  desc: 'Single source of truth for all protocol constants. 100% test coverage.' },
-]
+const quickstart = `import { WardClient } from '@wardprotocol/sdk'
 
-const quickstart = `# Install
-pip install ward-protocol==0.2.6
+const ward = new WardClient({
+  chain: 'xrpl',
+  network: 'altnet',
+  institutionKey: process.env.WARD_INSTITUTION_KEY,
+})
 
-# Validate a claim (9 steps, all on-chain)
-from ward import ClaimValidator
+const result = await ward.runConformance({
+  policyRef: 'NFTokenTaxon=281',
+  claimantAddress: wallet.address,
+  vaultId: vault.id,
+  claimContext: defaultEvent.id,
+})
 
-validator = ClaimValidator(url="https://s.altnet.rippletest.net:51234/")
+if (result.conformant) {
+  // Ward returns an unsigned settlement packet.
+  // Your institution signs. The chain settles.
+  assert(result.wardSigned === false)
+}`;
 
-result = await validator.validate_claim(
-    claimant_address="rClaimantXXX...",
-    nft_token_id="A" * 64,
-    defaulted_vault="rVaultXXX...",
-    loan_id="B" * 64,
-    pool_address="rPoolXXX...",
-)
+const receiptPreview = `receipt_id: WARD-7A21F0
+result: WARD_CONFORMANT
+checks_passed: 9/9
+decision_source: on_ledger_state
+settlement_packet: unsigned
+signer_boundary: institution
+ward_signed: false`;
 
-print(result.approved)            # True
-print(result.steps_passed)        # 9
-print(result.claim_payout_drops)  # min(vault_loss, policy_coverage)`
-
-const testCmd = `# Run test suite (436/436 Python passing)
-pip install -r requirements.txt
-python -m pytest test_ward.py -m "not integration" -v
-
-# Rust modules
-cd ward && cargo test`
+const docsSections = [
+  ['Adapter setup', 'Select a chain lane and bind Ward to the project primitive your credit product already uses.'],
+  ['Conformance payload', 'Send the policy reference, claimant, vault, and default context to the Ward validation engine.'],
+  ['Validation response', 'Receive approved or rejected status, check-level evidence, and a deterministic reason.'],
+  ['Settlement packet', 'Use the unsigned packet to preserve custody and signing authority inside your institution.'],
+];
 
 export default function DocsPage() {
   return (
-    <>
-      {/* Header */}
-      <div className="border-b border-gold/20 bg-white px-6 md:px-12 py-10">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-sm uppercase tracking-[.15em] text-ice2 mb-2 font-mono">Ward Protocol SDK — v0.2.6</div>
-          <h1 className="font-condensed font-black text-5xl text-steel mb-3">Documentation</h1>
-          <p className="text-sm text-sub max-w-2xl">
-            SDK reference, module overview, and integration guides. All modules are independently auditable.
+    <main className="bg-[#f6f4ee] text-[#14242b]">
+      <section className="relative overflow-hidden bg-[#14242b] px-6 py-20 text-[#f7faf8] md:px-10 lg:px-12">
+        <img src="/brand/ward-banner.png" alt="Ward Protocol documentation" className="absolute inset-0 h-full w-full object-cover opacity-25" />
+        <div className="absolute inset-0 bg-[#14242b]/90" />
+        <div className="absolute inset-0 grid-overlay" />
+        <div className="relative mx-auto max-w-6xl">
+          <p className="font-mono text-sm font-bold text-[#d4a93e]">Developer Documentation</p>
+          <h1 className="mt-4 max-w-4xl text-4xl font-black leading-tight md:text-6xl">
+            Integrate the Ward conformance engine into your credit product.
+          </h1>
+          <p className="mt-6 max-w-3xl text-lg leading-8 text-[#d2e1dd] md:text-xl">
+            These docs show how to attach adapters, run nine on-ledger checks, preserve the signer boundary, and export receipts for institutional review.
           </p>
-          <div className="flex gap-3 mt-5">
-            <span className="text-sm bg-[#fdf8ed] text-[#c8a94a] border border-gold/30 px-2.5 py-1 rounded font-mono font-bold">436/436 Tests</span>
-            <span className="text-sm bg-panel border border-border text-sub px-2.5 py-1 rounded font-mono">Python 3.11+</span>
-            <span className="text-sm bg-panel border border-border text-sub px-2.5 py-1 rounded font-mono">MIT License</span>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Link href="/demo" className="inline-flex min-h-12 items-center rounded-md bg-[#f7faf8] px-6 py-3 text-base font-bold text-[#14242b] transition hover:bg-white">
+              Open Console
+            </Link>
+            <Link href="/spec" className="inline-flex min-h-12 items-center rounded-md border border-[#b6d7ce]/30 px-6 py-3 text-base font-bold text-[#f7faf8] transition hover:border-[#b6d7ce] hover:bg-[#b6d7ce]/10">
+              Read Spec
+            </Link>
           </div>
         </div>
-      </div>
+      </section>
 
-      <div className="max-w-4xl mx-auto px-6 md:px-12 py-12 space-y-12">
-
-        {/* Use Cases callout */}
-        <div className="bg-[#eff6ff] border border-blue-200 rounded-md p-4 mb-8 flex items-center justify-between gap-4">
-          <p className="text-sm text-blue-800 m-0">
-            New to Ward Protocol? Start with the Use Cases — plain English scenarios showing Ward in action.
-          </p>
-          <Link href="/use-cases" className="text-sm text-blue-700 font-semibold hover:text-blue-900 transition-colors whitespace-nowrap no-underline">
-            View Use Cases →
-          </Link>
-        </div>
-
-        {/* Quickstart */}
-        <section>
-          <h2 className="font-condensed font-black text-3xl text-[#c8a94a] mb-4">Quickstart</h2>
-          <pre className="bg-steel text-ice text-sm leading-relaxed rounded-md p-5 overflow-x-auto font-mono whitespace-pre">
-            {quickstart}
+      <section className="bg-white py-16">
+        <div className="mx-auto grid max-w-7xl gap-8 px-6 md:px-10 lg:grid-cols-[0.95fr_1.05fr] lg:px-12">
+          <div>
+            <p className="font-mono text-sm font-bold text-[#9b6d13]">Quickstart</p>
+            <h2 className="mt-3 text-3xl font-black leading-tight text-[#14242b] md:text-5xl">
+              One call returns the evidence your product needs.
+            </h2>
+            <p className="mt-5 text-lg leading-8 text-[#3f534d]">
+              Ward does not replace your protocol. It gives your protocol a deterministic default-resolution path that serious counterparties can inspect.
+            </p>
+          </div>
+          <pre className="overflow-x-auto rounded-lg border border-[#14242b]/20 bg-[#101d23] p-5 font-mono text-sm leading-7 text-[#d2e1dd]">
+            <code>{quickstart}</code>
           </pre>
-        </section>
+        </div>
+      </section>
 
-        {/* Module reference */}
-        <section>
-          <h2 className="font-condensed font-black text-3xl text-[#c8a94a] mb-2">Module Reference</h2>
-          <p className="text-sm text-sub mb-5">Total nSLOC: ~5,282 core protocol + ~1,506 SDK (6,788 total)</p>
-          <div className="space-y-3">
-            {modules.map(m => (
-              <div key={m.name} className="bg-white border border-p2 rounded-md p-4 flex items-start gap-4">
-                <code className="text-sm font-bold text-steel shrink-0 w-44 border-l-2 border-[#c8a94a] pl-2">{m.name}</code>
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm text-ice2 font-mono mb-1">{m.file} · {m.nsloc} nSLOC</div>
-                  <div className="text-sm text-sub">{m.desc}</div>
+      <section className="bg-[#f6f4ee] py-16">
+        <div className="mx-auto max-w-7xl px-6 md:px-10 lg:px-12">
+          <div className="mb-10 max-w-3xl">
+            <p className="font-mono text-sm font-bold text-[#9b6d13]">Documentation map</p>
+            <h2 className="mt-3 text-3xl font-black leading-tight text-[#14242b] md:text-5xl">
+              Build the integration in four reviewable surfaces.
+            </h2>
+          </div>
+          <div className="grid gap-4 md:grid-cols-4">
+            {docsSections.map(([title, body], index) => (
+              <article key={title} className="rounded-lg border border-[#14242b]/10 bg-white p-5">
+                <p className="font-mono text-sm font-bold text-[#9b6d13]">{String(index + 1).padStart(2, '0')}</p>
+                <h3 className="mt-4 text-xl font-black text-[#14242b]">{title}</h3>
+                <p className="mt-3 text-base leading-7 text-[#52665f]">{body}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-[#14242b] py-16 text-[#f7faf8]">
+        <div className="mx-auto grid max-w-7xl gap-8 px-6 md:px-10 lg:grid-cols-[0.85fr_1.15fr] lg:px-12">
+          <div>
+            <p className="font-mono text-sm font-bold text-[#d4a93e]">Adapter matrix</p>
+            <h2 className="mt-3 text-3xl font-black leading-tight md:text-5xl">
+              Pick the chain lane. Keep the Ward invariant.
+            </h2>
+            <p className="mt-5 text-lg leading-8 text-[#d2e1dd]">
+              Each adapter translates a chain-native primitive into the same conformance result: approved, rejected, evidence, and unsigned settlement instructions.
+            </p>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {CHAIN_ADAPTERS.map((chain) => (
+              <article key={chain.id} className="rounded-lg border border-[#b6d7ce]/20 bg-[#f7faf8]/10 p-5">
+                <div className="mb-4 flex items-center gap-4">
+                  <ChainLogo id={chain.logo} label={`${chain.name} adapter`} className="h-12 w-12" />
+                  <div>
+                    <h3 className="text-lg font-black text-[#f7faf8]">{chain.name}</h3>
+                    <p className="text-sm leading-5 text-[#a9bdb8]">{chain.network}</p>
+                  </div>
                 </div>
-              </div>
+                <p className="font-mono text-sm leading-6 text-[#d2e1dd]">{chain.endpoint}</p>
+                <p className="mt-3 text-base leading-7 text-[#d2e1dd]">{chain.primitive}</p>
+              </article>
             ))}
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* Testing */}
-        <section>
-          <h2 className="font-condensed font-black text-3xl text-[#c8a94a] mb-4">Testing</h2>
-          <pre className="bg-steel text-ice text-sm leading-relaxed rounded-md p-5 overflow-x-auto font-mono whitespace-pre">
-            {testCmd}
-          </pre>
-          <p className="text-sm text-sub mt-3">
-            436 Python tests + 40 Rust tests + 53 TypeScript tests covering all 9 claim validation steps, all 15 attack vectors, VaultMonitor,
-            EscrowSettlement, PoolHealthMonitor, and all primitives.
-            Marked <code className="bg-p2 px-1 rounded text-sm">integration</code> tests require XRPL Mainnet access.
-          </p>
-        </section>
-
-        {/* Changelog */}
-        <section>
-          <h2 className="font-condensed font-black text-3xl text-[#c8a94a] mb-4">Changelog</h2>
-          {[
-            {
-              version: 'v0.2.6',
-              date: 'June 2026',
-              changes: [
-                { type: 'Added', text: 'MultiInstitutionPool — shared capital, pro-rata loss distribution, admin access control' },
-                { type: 'Added', text: 'register_pool_member() — unsigned AccountSet tx, ward_signed=False in memo payload' },
-                { type: 'Changed', text: 'Step 6 now rejects when pool usable balance < vault loss (min_balance enforcement)' },
-                { type: 'Fixed', text: 'asyncio.get_event_loop().run_until_complete() → asyncio.run() (pytest-asyncio 1.4.0 compatibility)' },
-                { type: 'Changed', text: 'Python tests: 436/436 passing across Python 3.10 · 3.11 · 3.12' },
-              ],
-            },
-            {
-              version: 'v0.2.4',
-              date: 'May 2026',
-              changes: [
-                { type: 'Changed', text: 'Test counts corrected — 436/436 Python · 40/40 Rust · 45/53 TypeScript' },
-                { type: 'Added', text: 'Coverage sprint — chain_reader 100%, monitor 100%, tx_builder 100%, vault_monitor 99%' },
-                { type: 'Changed', text: 'Python tests: 204/204 → 257/257 (92 new coverage tests)' },
-                { type: 'Fixed', text: 'Headline typo corrected in README and PyPI description' },
-              ],
-            },
-            {
-              version: 'v0.2.3',
-              date: 'May 2026',
-              changes: [
-                { type: 'Fixed', text: '11 code review findings — NFTokenBurn permission, Steps 7+8 real ledger queries, TxBuilder condition fields' },
-                { type: 'Fixed', text: 'Coverage tracking redesigned — _coverage_registry with register/deregister methods' },
-                { type: 'Fixed', text: 'loan_id 64-hex validation at validate_claim input boundary' },
-                { type: 'Fixed', text: 'Rust health ratio hardcoded proxy removed — returns error when XLS-66 fields absent' },
-                { type: 'Fixed', text: 'Rate limit dict eviction — empty entries cleaned up, 10K entry cap' },
-                { type: 'Fixed', text: 'WardError raised on empty premium tx hash' },
-                { type: 'Added', text: 'Rust EscrowBuilder audit memos — ward/claim-escrow format matching Python' },
-                { type: 'Changed', text: 'xrpl-py updated to 4.5.0' },
-                { type: 'Changed', text: 'Python tests: 165/165 → 204/204 → 257/257 · Rust tests: 40/40' },
-              ],
-            },
-            {
-              version: 'v0.2.2',
-              date: 'May 2026',
-              changes: [
-                { type: 'Added', text: 'Rust VaultMonitor and EscrowSettlement modules' },
-                { type: 'Added', text: '15 attack-vector mitigations (AV 2.1—2.15)' },
-                { type: 'Added', text: 'Code4rena audit scope documentation' },
-              ],
-            },
-          ].map(entry => (
-            <div key={entry.version} className="mb-8 border border-p2 bg-white rounded-md p-5">
-              <div className="flex items-center gap-3 mb-3">
-                <span className="font-condensed font-black text-xl text-[#c8a94a]">{entry.version}</span>
-                <span className="text-sm text-sub font-mono">{entry.date}</span>
-              </div>
-              <ul className="space-y-1.5">
-                {entry.changes.map((c, i) => (
-                  <li key={i} className="flex items-start gap-2 text-sm">
-                    <span className={`shrink-0 font-mono text-sm px-1.5 py-0.5 rounded ${
-                      c.type === 'Fixed' ? 'bg-[#fff3e0] text-[#b45309]' :
-                      c.type === 'Added' ? 'bg-[#e8fff3] text-[#00994d]' :
-                      'bg-panel text-sub'
-                    }`}>{c.type}</span>
-                    <span className="text-sub">{c.text}</span>
-                  </li>
-                ))}
-              </ul>
+      <section className="bg-white py-16">
+        <div className="mx-auto grid max-w-7xl gap-8 px-6 md:px-10 lg:grid-cols-[1fr_380px] lg:px-12">
+          <div>
+            <p className="font-mono text-sm font-bold text-[#9b6d13]">Nine-check conformance</p>
+            <h2 className="mt-3 text-3xl font-black leading-tight text-[#14242b] md:text-5xl">
+              The validation engine is explainable at check level.
+            </h2>
+            <div className="mt-8 grid gap-3 md:grid-cols-3">
+              {CONFORMANCE_CHECKS.map((check) => (
+                <article key={check.id} className="rounded-lg border border-[#14242b]/10 bg-[#f6f4ee] p-4">
+                  <p className="font-mono text-sm font-bold text-[#9b6d13]">{check.id}</p>
+                  <h3 className="mt-3 text-lg font-black leading-6 text-[#14242b]">{check.label}</h3>
+                  <p className="mt-2 text-sm leading-6 text-[#52665f]">{check.description}</p>
+                </article>
+              ))}
             </div>
-          ))}
-        </section>
-
-        {/* Links */}
-        <section>
-          <h2 className="font-condensed font-black text-3xl text-[#c8a94a] mb-4">Resources</h2>
-          <div className="grid sm:grid-cols-2 gap-3">
-            {[
-              { label: 'GitHub Repository',    href: 'https://github.com/wflores9/ward-protocol', ext: true },
-              { label: 'PyPI Package',         href: 'https://pypi.org/project/ward-protocol/', ext: true },
-              { label: 'Protocol Spec',        href: '/spec', ext: false },
-              { label: 'Demo & Checklist',     href: '/demo', ext: false },
-              { label: 'Code4rena Scope',      href: 'https://github.com/wflores9/ward-protocol/blob/main/docs/code4rena-scope.md', ext: true },
-              { label: 'XRPL Standards',       href: 'https://github.com/XRPLF/XRPL-Standards', ext: true },
-            ].map(l => (
-              <a
-                key={l.label}
-                href={l.href}
-                target={l.ext ? '_blank' : undefined}
-                rel={l.ext ? 'noopener noreferrer' : undefined}
-                className="flex items-center gap-2 text-sm text-sub hover:text-steel border border-p2 bg-white rounded-md px-4 py-3 transition-colors no-underline"
-              >
-                <span className="text-ice2">↗</span> {l.label}
-              </a>
-            ))}
           </div>
-        </section>
-      </div>
-    </>
-  )
+          <div className="rounded-lg border border-[#14242b]/20 bg-[#101d23] p-5 text-[#f7faf8]">
+            <p className="font-mono text-sm font-bold text-[#d4a93e]">Receipt shape</p>
+            <pre className="mt-5 whitespace-pre-wrap font-mono text-sm leading-7 text-[#d2e1dd]">{receiptPreview}</pre>
+          </div>
+        </div>
+      </section>
+    </main>
+  );
 }

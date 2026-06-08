@@ -198,7 +198,7 @@ const ESCROW_STATUS_STYLES: Record<EscrowStatus, string> = {
 
 function StatusBadge({ status }: { status: ClaimStatus }) {
   return (
-    <span className={`inline-block px-2 py-0.5 rounded text-sm font-mono font-semibold tracking-wider ${STATUS_STYLES[status]}`}>
+    <span className={`inline-block px-2 py-0.5 rounded text-sm font-mono font-semibold ${STATUS_STYLES[status]}`}>
       {status}
     </span>
   )
@@ -206,7 +206,7 @@ function StatusBadge({ status }: { status: ClaimStatus }) {
 
 function EscrowBadge({ status }: { status: EscrowStatus }) {
   return (
-    <span className={`inline-block px-2 py-0.5 rounded text-sm font-mono font-semibold tracking-wider ${ESCROW_STATUS_STYLES[status]}`}>
+    <span className={`inline-block px-2 py-0.5 rounded text-sm font-mono font-semibold ${ESCROW_STATUS_STYLES[status]}`}>
       {status}
     </span>
   )
@@ -262,11 +262,11 @@ export default function DashboardClient() {
       <header className="border-b border-white/10 bg-mid/80 backdrop-blur-sm sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-6">
-            <span className="font-condensed text-xl font-bold tracking-widest text-ice uppercase">
+            <span className="font-sans text-xl font-bold text-ice uppercase">
               Ward Protocol
             </span>
             <span className="text-dim text-sm">"º</span>
-            <span className="text-sm text-white/60 font-condensed uppercase tracking-wider">
+            <span className="text-sm text-white/60 font-sans uppercase">
               Claim Dispute Dashboard
             </span>
           </div>
@@ -299,8 +299,8 @@ export default function DashboardClient() {
             { label: 'Expiring Windows', value: expiringCount, accent: 'text-red-400' },
           ].map(({ label, value, accent }) => (
             <div key={label} className="bg-mid border border-white/10 rounded-lg px-4 py-4">
-              <div className={`text-2xl font-bold font-condensed ${accent}`}>{value}</div>
-              <div className="text-sm text-dim mt-1 uppercase tracking-wider">{label}</div>
+              <div className={`text-2xl font-bold font-sans ${accent}`}>{value}</div>
+              <div className="text-sm text-dim mt-1 uppercase">{label}</div>
             </div>
           ))}
         </div>
@@ -308,7 +308,7 @@ export default function DashboardClient() {
         {/* Active Claims panel */}
         <section>
           <div className="flex items-center justify-between mb-3">
-            <h2 className="font-condensed text-lg font-bold uppercase tracking-widest text-ice">
+            <h2 className="font-sans text-lg font-bold uppercase text-ice">
               Active Claims
             </h2>
             <span className="text-sm text-dim">{MOCK_CLAIMS.length} total</span>
@@ -316,7 +316,7 @@ export default function DashboardClient() {
           <div className="bg-mid border border-white/10 rounded-lg overflow-hidden">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-white/10 text-dim text-sm uppercase tracking-wider">
+                <tr className="border-b border-white/10 text-dim text-sm uppercase">
                   <th className="text-left px-4 py-3">NFT / Vault</th>
                   <th className="text-left px-4 py-3 hidden md:table-cell">Claimant</th>
                   <th className="text-right px-4 py-3">Coverage</th>
@@ -375,7 +375,7 @@ export default function DashboardClient() {
           {/* Dispute Window tracker */}
           <section>
             <div className="flex items-center justify-between mb-3">
-              <h2 className="font-condensed text-lg font-bold uppercase tracking-widest text-ice">
+              <h2 className="font-sans text-lg font-bold uppercase text-ice">
                 Dispute Windows
               </h2>
               <span className="text-sm text-dim">48h PREIMAGE-SHA-256</span>
@@ -422,7 +422,7 @@ export default function DashboardClient() {
           {/* Policy Registry panel */}
           <section>
             <div className="flex items-center justify-between mb-3">
-              <h2 className="font-condensed text-lg font-bold uppercase tracking-widest text-ice">
+              <h2 className="font-sans text-lg font-bold uppercase text-ice">
                 Policy Registry
               </h2>
               <span className="text-sm text-dim">
@@ -433,7 +433,7 @@ export default function DashboardClient() {
               {Object.entries(depositorGroups).map(([depositor, policies]) => (
                 <div key={depositor} className="px-4 py-4">
                   <div className="flex items-center gap-2 mb-3">
-                    <span className="text-sm text-dim uppercase tracking-wider">Depositor</span>
+                    <span className="text-sm text-dim uppercase">Depositor</span>
                     <span className="text-white/70 text-sm font-mono">{fmtAddr(depositor)}</span>
                     {policies.some((p) => p.is_multi_vault) && (
                       <span className="text-sm text-gold bg-gold/10 border border-gold/20 px-1.5 py-0.5 rounded font-mono">
