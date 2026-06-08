@@ -6,18 +6,18 @@
 
 export const MARKETING = {
   // Hero
-  eyebrow: 'DETERMINISTIC · ON-CHAIN · ORACLE-FREE',
-  headline: 'Deterministic default resolution for on-chain lending.',
-  subheadline: 'When a borrower defaults, Ward Protocol defines exactly what happens. Nine on-ledger checks. No oracle. No human judgment. No Ward signature — ever.',
-  statusLine: 'Built on XRPL. Mainnet-ready at XLS-66 launch.',
+  eyebrow: 'TOKENIZED CREDIT · CONFORMANCE · DEFAULT RESOLUTION',
+  headline: 'The conformance and default-resolution layer for tokenized credit.',
+  subheadline: 'Ward lets institutions, lending vaults, and credit protocols resolve defaults deterministically, on-ledger, without Ward signing or deciding outcomes.',
+  statusLine: 'Security-hardened, testnet-proven infrastructure moving toward mainnet pilots.',
 
   // Brand
-  tagline: 'Deterministic default resolution for on-chain lending.',
+  tagline: 'Conformance and default-resolution infrastructure for tokenized credit.',
   invariant: 'ward_signed = False — always.',
 
   // Meta
-  metaTitle: 'Ward Protocol — Deterministic Default Resolution for On-Chain Lending',
-  metaDescription: 'Deterministic default resolution for on-chain lending. Built on XRPL. Mainnet-ready at XLS-66 launch. ward_signed = False — always.',
+  metaTitle: 'Ward Protocol - Conformance and Default Resolution for Tokenized Credit',
+  metaDescription: 'Ward Protocol is the conformance and default-resolution layer for tokenized credit. Defaults resolve deterministically, on-ledger, without Ward signing or deciding outcomes.',
 
   // Status
   version: 'v0.2.6',

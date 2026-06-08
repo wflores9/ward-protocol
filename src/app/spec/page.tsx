@@ -2,8 +2,18 @@
 import Link from 'next/link'
 
 export const metadata: Metadata = {
-  title: 'Ward Protocol — Specification',
-  description: 'Technical specification for Ward Protocol: 9-step claim validation, VaultMonitor, EscrowSettlement, and all 15 attack-vector mitigations.',
+  title: 'Ward Protocol Specification | Deterministic Default Resolution',
+  description: 'Technical specification for Ward Protocol: conformance architecture, nine on-ledger checks, signer-boundary guarantees, settlement packets, and attack-vector mitigations.',
+  openGraph: {
+    title: 'Ward Protocol Specification',
+    description: 'The technical basis for deterministic default resolution in tokenized credit.',
+    images: [{ url: '/brand/ward-banner.png', width: 1920, height: 480 }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Ward Protocol Specification',
+    description: 'Nine on-ledger checks, unsigned settlement packets, and signer-boundary proof.',
+  },
 }
 
 const CLAIM_STEPS = [
@@ -128,11 +138,11 @@ export default function SpecPage() {
       {/* Header */}
       <div className="border-b border-gold/20 bg-white px-6 md:px-12 py-10">
         <div className="max-w-4xl mx-auto">
-          <div className="text-sm uppercase tracking-[.15em] text-ice2 mb-2 font-mono">Ward Protocol v0.2.6</div>
-          <h1 className="font-condensed font-black text-5xl text-steel mb-3">Protocol Specification</h1>
+          <div className="text-sm uppercase text-ice2 mb-2 font-mono">Ward Protocol v0.2.6</div>
+          <h1 className="font-sans font-black text-5xl text-steel mb-3">Protocol Specification</h1>
           <p className="text-sm text-sub max-w-2xl">
-            Technical reference for Ward Protocol: architecture, 9-step claim validation,
-            VaultMonitor, escrow settlement, and all 15 attack-vector mitigations.
+            Technical reference for Ward Protocol: conformance architecture, 9-step claim validation,
+            unsigned settlement packets, signer-boundary guarantees, and all 15 attack-vector mitigations.
           </p>
           <div className="flex gap-3 mt-5">
             <span className="text-sm bg-[#fdf8ed] text-[#c8a94a] border border-gold/30 px-2.5 py-1 rounded font-mono font-bold">
@@ -152,7 +162,7 @@ export default function SpecPage() {
       <div className="max-w-4xl mx-auto px-6 md:px-12 py-12 grid md:grid-cols-[200px_1fr] gap-10 items-start">
         {/* TOC */}
         <nav className="sticky top-20 hidden md:block">
-          <div className="text-sm uppercase tracking-widest text-sub mb-3">Contents</div>
+          <div className="text-sm uppercase text-sub mb-3">Contents</div>
           <ul className="space-y-1.5">
             {sections.map(s => (
               <li key={s.id}>
@@ -173,7 +183,7 @@ export default function SpecPage() {
         <div className="space-y-10">
           {sections.map(s => (
             <section key={s.id} id={s.id}>
-              <h2 className={`font-condensed font-black text-2xl mb-3 ${s.gold ? 'text-[#c8a94a]' : 'text-steel'}`}>
+              <h2 className={`font-sans font-black text-2xl mb-3 ${s.gold ? 'text-[#c8a94a]' : 'text-steel'}`}>
                 {s.title}
               </h2>
               {s.id === 'claim-validation' ? (
@@ -204,7 +214,7 @@ export default function SpecPage() {
           ))}
 
           <section id="links">
-            <h2 className="font-condensed font-black text-2xl text-steel mb-3">8. Resources</h2>
+            <h2 className="font-sans font-black text-2xl text-steel mb-3">8. Resources</h2>
             <div className="grid sm:grid-cols-2 gap-3">
               {[
                 ['GitHub Repository',      'https://github.com/wflores9/ward-protocol'],
