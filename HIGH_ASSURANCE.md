@@ -52,6 +52,28 @@ Required properties:
 - Rate limits, replay protection, solvency checks, and signer-boundary checks must operate independently.
 - Unsafe defaults must fail closed.
 
+### Algorithmic Rigor and Formal Methods
+
+Ward should prefer algorithms and protocol integrations with clear mathematical properties, deterministic behavior, and reviewable failure modes. Routing, payment, and settlement-support logic must be treated with the same rigor as claim validation.
+
+XRPL pathfinding is relevant for premium payments, collateral movement, and multi-asset settlement support, but it must not become claim-decision authority. The XRPL `path_find` and `ripple_path_find` APIs can return possible payment paths, but pathfinding results can become stale, may not be globally optimal, and must be treated carefully when returned by untrusted servers.
+
+Required properties:
+
+- Pathfinding output is a route proposal, not an authoritative Ward decision.
+- Ward must never sign automatically because a path was found.
+- Ward must verify the final payment or settlement result from authoritative ledger state.
+- Path-related validation must be deterministic, free of floating-point ambiguity, and reproducible from receipt evidence.
+- Critical route assumptions should be covered by property-based tests and, where feasible, formal specification.
+- Integrations should compare or constrain pathfinding output when route quality, cost, issuer, or liquidity source matters to institutional risk.
+
+Target invariants:
+
+- A route can support a transaction, but it cannot approve a claim.
+- Claim conformance still requires all nine Ward checks.
+- Premium or settlement payment status must be proven by ledger state, not by a pathfinding response.
+- Slippage, fees, delivered amount, issuer, and destination must be bounded before a route-dependent payment is considered acceptable.
+
 ## Priority Module Improvements
 
 ### 1. Validator and Resolver
