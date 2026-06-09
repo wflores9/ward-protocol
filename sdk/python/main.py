@@ -151,6 +151,7 @@ def verify_institution_key(x_institution_key: Optional[str]) -> Optional[str]:
     Checks in order:
       1. ward.keys store — for keys generated via POST /keys/generate
       2. INSTITUTION_API_KEY env var — backward compat for hardcoded keys
+      3. DEMO_INSTITUTION_KEY env var — persistent demo key, survives restarts
 
     Returns the raw key on success. Raises HTTP 401 if key is missing or invalid. Raises HTTP 503 if server auth is not configured.
     Raises HTTP 401 if a key is required but invalid.
@@ -191,6 +192,11 @@ def verify_institution_key(x_institution_key: Optional[str]) -> Optional[str]:
     provided = hashlib.sha256(x_institution_key.encode()).digest()
     expected_hash = hashlib.sha256(expected.encode()).digest()
     if provided != expected_hash:
+        # Demo key check — plain equality is acceptable here since demo keys
+        # are intentionally low-privilege and publicly shared in env config.
+        demo_key = os.getenv("DEMO_INSTITUTION_KEY")
+        if demo_key and x_institution_key == demo_key:
+            return x_institution_key
         raise HTTPException(
             status_code=401,
             detail={
