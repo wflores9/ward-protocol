@@ -112,6 +112,26 @@ jobs:
         working-directory: ward
         run: cargo clippy
 
+  signing-boundary-check:
+    name: Signing Boundary Check (INV-003)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Run signing boundary static check
+        run: python3 scripts/check_signing_boundary.py
+
   test-typescript:
     name: Test (TypeScript)
     runs-on: ubuntu-latest
