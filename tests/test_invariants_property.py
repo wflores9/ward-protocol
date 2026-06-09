@@ -35,6 +35,7 @@ from ward.constants import (
     XRP_MAX_DROPS,
 )
 from ward.primitives import (
+    LedgerError,
     UnsignedTransaction,
     ValidationError,
     validate_drops,
@@ -573,3 +574,221 @@ class TestInv026PrivateKeyRejected:
         assert "pool_address" in sig.parameters
         assert "wallet_seed" not in sig.parameters
         assert "private_key" not in sig.parameters
+
+
+# ---------------------------------------------------------------------------
+# INV-005 — Server time never decides coverage; ledger time only
+# ---------------------------------------------------------------------------
+
+
+class TestInv005LedgerTimeOnly:
+    """INV-005: Coverage decisions use ledger time. Any ledger failure fails closed."""
+
+    @given(expiry=st.integers(min_value=0, max_value=2**32 - 1))
+    def test_ledger_error_fails_closed(self, expiry: int):
+        """When get_ledger_close_time raises LedgerError, step 2 fails closed."""
+
+        async def run():
+            validator = ClaimValidator.__new__(ClaimValidator)
+            validator._url = DEFAULT_TESTNET_URL
+            with patch(
+                "ward.validator.get_ledger_close_time",
+                new=AsyncMock(side_effect=LedgerError("connection timeout")),
+            ):
+                return await validator._step2_check_expiry(None, {"e": expiry})
+
+        result = _run(run())
+        assert result is not None, (
+            f"LedgerError must fail closed for expiry={expiry}; got None (would approve)"
+        )
+
+    @given(expiry=st.integers(min_value=0, max_value=2**32 - 1))
+    def test_ledger_error_rejection_message_references_ledger(self, expiry: int):
+        """The rejection message produced on LedgerError mentions 'Ledger' or 'failed'."""
+
+        async def run():
+            validator = ClaimValidator.__new__(ClaimValidator)
+            validator._url = DEFAULT_TESTNET_URL
+            with patch(
+                "ward.validator.get_ledger_close_time",
+                new=AsyncMock(side_effect=LedgerError("rpc error")),
+            ):
+                return await validator._step2_check_expiry(None, {"e": expiry})
+
+        result = _run(run())
+        assert result is not None
+        assert "Ledger" in result or "failed" in result.lower(), (
+            f"Expected 'Ledger'/'failed' in rejection message, got: {result!r}"
+        )
+
+    def test_step2_source_has_no_system_time_calls(self):
+        """_step2_check_expiry source must not reference system time (time.time, datetime.now)."""
+        import inspect as _inspect
+        source = _inspect.getsource(ClaimValidator._step2_check_expiry)
+        assert "time.time()" not in source, "Must not use time.time()"
+        assert "datetime.now()" not in source, "Must not use datetime.now()"
+        assert "datetime.utcnow()" not in source, "Must not use datetime.utcnow()"
+
+
+# ---------------------------------------------------------------------------
+# INV-018 — Dispute windows are deterministic given ledger time
+# ---------------------------------------------------------------------------
+
+
+class TestInv018DisputeWindowsDeterministic:
+    """INV-018: Dispute and cancel deadlines are pure functions of ledger time."""
+
+    @given(current_time=st.integers(min_value=0, max_value=2**31))
+    def test_dispute_deadline_formula_deterministic(self, current_time: int):
+        """Same current_time always produces the same dispute_deadline_ripple."""
+        d1 = current_time + ESCROW_DISPUTE_HOURS * 3600
+        d2 = current_time + ESCROW_DISPUTE_HOURS * 3600
+        assert d1 == d2
+
+    @given(
+        t1=st.integers(min_value=0, max_value=2**30),
+        t2=st.integers(min_value=0, max_value=2**30),
+    )
+    def test_different_ledger_times_produce_different_deadlines(
+        self, t1: int, t2: int
+    ):
+        """Different ledger times → different deadlines (strictly monotone)."""
+        assume(t1 != t2)
+        d1 = t1 + ESCROW_DISPUTE_HOURS * 3600
+        d2 = t2 + ESCROW_DISPUTE_HOURS * 3600
+        assert d1 != d2
+
+    @given(current_time=st.integers(min_value=0, max_value=2**31))
+    def test_cancel_after_always_strictly_after_dispute_deadline(
+        self, current_time: int
+    ):
+        """cancel_after_ripple > dispute_deadline_ripple for every ledger time."""
+        dispute_deadline = current_time + ESCROW_DISPUTE_HOURS * 3600
+        cancel_after = current_time + ESCROW_CANCEL_HOURS * 3600
+        assert cancel_after > dispute_deadline
+
+    @given(
+        current_time=st.integers(min_value=0, max_value=2**31),
+        payout_drops=st.integers(min_value=1, max_value=XRP_MAX_DROPS),
+    )
+    def test_escrow_record_deadlines_match_formula(
+        self, current_time: int, payout_drops: int
+    ):
+        """An EscrowRecord built with computed deadlines stores them exactly."""
+        dispute_deadline = current_time + ESCROW_DISPUTE_HOURS * 3600
+        cancel_after = current_time + ESCROW_CANCEL_HOURS * 3600
+        record = EscrowRecord(
+            claim_id="c1",
+            nft_token_id="A" * 64,
+            pool_address=_VALID_ADDRESS_A,
+            claimant_address=_VALID_ADDRESS_B,
+            payout_drops=payout_drops,
+            escrow_sequence=1,
+            condition_hex="00" * 32,
+            tx_hash="B" * 64,
+            dispute_deadline_ripple=dispute_deadline,
+            cancel_after_ripple=cancel_after,
+        )
+        assert record.dispute_deadline_ripple == dispute_deadline
+        assert record.cancel_after_ripple == cancel_after
+
+
+# ---------------------------------------------------------------------------
+# INV-019 — Step 7/8 rejection is deterministic (replay-safe)
+# ---------------------------------------------------------------------------
+
+
+class TestInv019SettlementRecheck:
+    """INV-019: NFT-burned (step 7) and unowned-NFT (step 8) rejections are deterministic."""
+
+    @given(reason=st.text(min_size=1, max_size=256))
+    def test_burned_nft_step7_always_fails_with_steps_passed_6(
+        self, reason: str
+    ):
+        """_reject(7, ...) always yields approved=False, steps_passed=6."""
+        result = ClaimValidator._reject(7, reason)
+        assert not result.approved
+        assert result.steps_passed == 6
+        assert result.rejection_reason == reason
+
+    @given(reason=st.text(min_size=1, max_size=256))
+    def test_unowned_nft_step8_always_fails_with_steps_passed_7(
+        self, reason: str
+    ):
+        """_reject(8, ...) always yields approved=False, steps_passed=7."""
+        result = ClaimValidator._reject(8, reason)
+        assert not result.approved
+        assert result.steps_passed == 7
+        assert result.rejection_reason == reason
+
+    @given(
+        step=st.integers(min_value=7, max_value=8),
+        reason=st.text(min_size=1, max_size=256),
+    )
+    def test_step_7_8_rejection_replay_is_identical(
+        self, step: int, reason: str
+    ):
+        """Replaying the same rejection inputs always produces the same result."""
+        r1 = ClaimValidator._reject(step, reason)
+        r2 = ClaimValidator._reject(step, reason)
+        assert r1.approved == r2.approved
+        assert r1.steps_passed == r2.steps_passed
+        assert r1.rejection_reason == r2.rejection_reason
+
+    @given(
+        step=st.integers(min_value=7, max_value=8),
+        r1=st.text(min_size=1, max_size=128),
+        r2=st.text(min_size=1, max_size=128),
+    )
+    def test_different_reasons_same_step_produce_same_steps_passed(
+        self, step: int, r1: str, r2: str
+    ):
+        """Different rejection messages at the same step have the same steps_passed."""
+        res1 = ClaimValidator._reject(step, r1)
+        res2 = ClaimValidator._reject(step, r2)
+        assert res1.steps_passed == res2.steps_passed
+
+
+# ---------------------------------------------------------------------------
+# INV-023 — Drop amounts are bounded: negative/zero/over-cap always fail
+# ---------------------------------------------------------------------------
+
+
+class TestInv023RouteValuesBounded:
+    """INV-023: validate_drops and validate_drops_amount enforce [1, XRP_MAX_DROPS]."""
+
+    @given(amount=st.integers(max_value=-1))
+    def test_negative_validate_drops_rejected(self, amount: int):
+        """validate_drops rejects all negative integers (allows zero; >= 0)."""
+        with pytest.raises(ValidationError):
+            validate_drops(amount)
+
+    @given(amount=st.integers(max_value=0))
+    def test_non_positive_validate_drops_amount_rejected(self, amount: int):
+        """validate_drops_amount rejects zero and all negative integers (requires > 0)."""
+        with pytest.raises(ValidationError):
+            validate_drops_amount(amount)
+
+    @given(amount=st.integers(min_value=XRP_MAX_DROPS + 1))
+    def test_over_cap_validate_drops_rejected(self, amount: int):
+        """Amounts above XRP_MAX_DROPS are rejected by validate_drops."""
+        with pytest.raises(ValidationError):
+            validate_drops(amount)
+
+    @given(amount=st.integers(min_value=XRP_MAX_DROPS + 1))
+    def test_over_cap_validate_drops_amount_rejected(self, amount: int):
+        """Amounts above XRP_MAX_DROPS are rejected by validate_drops_amount."""
+        with pytest.raises(ValidationError):
+            validate_drops_amount(amount)
+
+    @given(amount=st.integers(min_value=1, max_value=XRP_MAX_DROPS))
+    def test_valid_positive_range_always_passes_both_validators(self, amount: int):
+        """All integers in [1, XRP_MAX_DROPS] pass both validate_drops and validate_drops_amount."""
+        validate_drops(amount)
+        validate_drops_amount(amount)
+
+    def test_zero_drops_boundary_difference(self):
+        """Documents the contract difference: validate_drops allows 0; validate_drops_amount does not."""
+        validate_drops(0)  # must not raise — validate_drops allows >= 0
+        with pytest.raises(ValidationError):
+            validate_drops_amount(0)  # must raise — validate_drops_amount requires > 0

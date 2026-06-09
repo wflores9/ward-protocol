@@ -489,7 +489,7 @@ async def submit_with_retry(
 
     for attempt in range(1, max_attempts + 1):
         try:
-            response = await submit_and_wait(tx, client, wallet)
+            response = await submit_and_wait(tx, client, wallet)  # ward-signing-permitted
         except Exception as exc:
             last_exc = exc
             logger.warning("submit attempt %d raised: %s", attempt, exc)
