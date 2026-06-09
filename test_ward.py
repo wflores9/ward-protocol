@@ -512,74 +512,69 @@ class TestWardClientInputValidation:
     @pytest.mark.asyncio
     async def test_invalid_vault_address_raises(self):
         with pytest.raises(ValidationError, match="vault_address"):
-    result = await client.purchase_coverage(
-        institution_address="rsJgwZd8DNedfPCeVieWyGMoLtFZVaQyog",
-        vault_address="rE43j9LAUicHzvRcgJMqryfJBjsQksvjYs",
-        coverage_drops=1000000000,
-        period_days=30,
-        pool_address="rJEriryY7h4ymmF9GMxKP6LxaRZPfY3isG",
-        premium_rate=0.01
-    )
+            await self.client.purchase_coverage(
+                institution_address=VALID_ADDRESS,
+                vault_address="rInvalid",
+                coverage_drops=1_000_000,
+                period_days=30,
+                pool_address=VALID_ADDRESS2,
+            )
 
     @pytest.mark.asyncio
     async def test_invalid_pool_address_raises(self):
         with pytest.raises(ValidationError, match="pool_address"):
-    result = await client.purchase_coverage(
-        institution_address="rsJgwZd8DNedfPCeVieWyGMoLtFZVaQyog",
-        vault_address="rE43j9LAUicHzvRcgJMqryfJBjsQksvjYs",
-        coverage_drops=1000000000,
-        period_days=30,
-        pool_address="rJEriryY7h4ymmF9GMxKP6LxaRZPfY3isG",
-        premium_rate=0.01
-    )
+            await self.client.purchase_coverage(
+                institution_address=VALID_ADDRESS,
+                vault_address=VALID_ADDRESS,
+                coverage_drops=1_000_000,
+                period_days=30,
+                pool_address="not-an-address",
+            )
 
     @pytest.mark.asyncio
     async def test_zero_coverage_drops_raises(self):
         with pytest.raises(ValidationError):
-    result = await client.purchase_coverage(
-        institution_address="rsJgwZd8DNedfPCeVieWyGMoLtFZVaQyog",
-        vault_address="rE43j9LAUicHzvRcgJMqryfJBjsQksvjYs",
-        coverage_drops=1000000000,
-        period_days=30,
-        pool_address="rJEriryY7h4ymmF9GMxKP6LxaRZPfY3isG",
-        premium_rate=0.01
-    )
+            await self.client.purchase_coverage(
+                institution_address=VALID_ADDRESS,
+                vault_address=VALID_ADDRESS,
+                coverage_drops=0,
+                period_days=30,
+                pool_address=VALID_ADDRESS2,
+            )
 
     @pytest.mark.asyncio
     async def test_zero_period_days_raises(self):
         with pytest.raises(ValidationError):
-    result = await client.purchase_coverage(
-        institution_address="rsJgwZd8DNedfPCeVieWyGMoLtFZVaQyog",
-        vault_address="rE43j9LAUicHzvRcgJMqryfJBjsQksvjYs",
-        coverage_drops=1000000000,
-        period_days=30,
-        pool_address="rJEriryY7h4ymmF9GMxKP6LxaRZPfY3isG",
-        premium_rate=0.01
-    )
+            await self.client.purchase_coverage(
+                institution_address=VALID_ADDRESS,
+                vault_address=VALID_ADDRESS,
+                coverage_drops=1_000_000,
+                period_days=0,
+                pool_address=VALID_ADDRESS2,
+            )
 
     @pytest.mark.asyncio
     async def test_invalid_premium_rate_raises(self):
         with pytest.raises(ValidationError):
-    result = await client.purchase_coverage(
-        institution_address="rsJgwZd8DNedfPCeVieWyGMoLtFZVaQyog",
-        vault_address="rE43j9LAUicHzvRcgJMqryfJBjsQksvjYs",
-        coverage_drops=1000000000,
-        period_days=30,
-        pool_address="rJEriryY7h4ymmF9GMxKP6LxaRZPfY3isG",
-        premium_rate=0.01
-    )
+            await self.client.purchase_coverage(
+                institution_address=VALID_ADDRESS,
+                vault_address=VALID_ADDRESS,
+                coverage_drops=1_000_000,
+                period_days=30,
+                pool_address=VALID_ADDRESS2,
+                premium_rate=1.5,
+            )
 
     @pytest.mark.asyncio
     async def test_example_vault_address_from_prototype_rejected(self):
         with pytest.raises(ValidationError):
-    result = await client.purchase_coverage(
-        institution_address="rsJgwZd8DNedfPCeVieWyGMoLtFZVaQyog",
-        vault_address="rE43j9LAUicHzvRcgJMqryfJBjsQksvjYs",
-        coverage_drops=1000000000,
-        period_days=30,
-        pool_address="rJEriryY7h4ymmF9GMxKP6LxaRZPfY3isG",
-        premium_rate=0.01
-    )
+            await self.client.purchase_coverage(
+                institution_address=VALID_ADDRESS,
+                vault_address="rExampleVaultXXX",
+                coverage_drops=1_000_000,
+                period_days=90,
+                pool_address="rPoolAddressXXX",
+            )
 
     def test_nft_flag_constant_is_burnable_not_transferable(self):
         assert TF_BURNABLE == 0x00000001
@@ -603,14 +598,13 @@ class TestWardClientInputValidation:
             patch("ward.client.get_ledger_close_time", AsyncMock(return_value=800_000_000)),
         ):
             # ward_signed = False — Ward returns unsigned tx, NFT ID pending institution signature
-    result = await client.purchase_coverage(
-        institution_address="rsJgwZd8DNedfPCeVieWyGMoLtFZVaQyog",
-        vault_address="rE43j9LAUicHzvRcgJMqryfJBjsQksvjYs",
-        coverage_drops=1000000000,
-        period_days=30,
-        pool_address="rJEriryY7h4ymmF9GMxKP6LxaRZPfY3isG",
-        premium_rate=0.01
-    )
+            result = await self.client.purchase_coverage(
+                institution_address=VALID_ADDRESS,
+                vault_address=VALID_ADDRESS,
+                coverage_drops=1_000_000,
+                period_days=30,
+                pool_address=VALID_ADDRESS2,
+            )
             assert result["nft_token_id"] == "pending_institution_signature"
             assert "mint_tx" in result
             assert result.get("ward_signed") is False
@@ -1858,13 +1852,13 @@ async def test_integration_purchase_coverage_testnet():
     wallet = await _gfw(rpc, debug=False)
 
     client = WardClient(url="https://s.altnet.rippletest.net:51234/")
-        result = await client.purchase_coverage(
-        institution_address="rsJgwZd8DNedfPCeVieWyGMoLtFZVaQyog",
-        vault_address="rE43j9LAUicHzvRcgJMqryfJBjsQksvjYs",
-        coverage_drops=1000000000,
-        period_days=30,
-        pool_address="rJEriryY7h4ymmF9GMxKP6LxaRZPfY3isG",
-        premium_rate=0.01
+    result = await client.purchase_coverage(
+        institution_address=wallet.classic_address,
+        vault_address=VALID_ADDRESS,
+        coverage_drops=1_000_000,
+        period_days=7,
+        pool_address=pool_address,
+        premium_rate=0.01,
     )
 
     assert result["status"] == "active"
@@ -3747,16 +3741,16 @@ class TestWardMonitorConstruction:
         with pytest.raises(SecurityError, match="ws://"):
             with _warnings_module.catch_warnings():
                 _warnings_module.simplefilter("ignore", DeprecationWarning)
-                WardMonitor(url="ws://plaintext.example.com")
+                WardMonitor(xrpl_url="ws://plaintext.example.com")
 
     def test_emits_deprecation_warning(self):
         with pytest.warns(DeprecationWarning, match="deprecated"):
-            WardMonitor(url="wss://xrplcluster.com")
+            WardMonitor(xrpl_url="wss://xrplcluster.com")
 
     def test_default_vault_list_is_empty(self):
         with _warnings_module.catch_warnings():
             _warnings_module.simplefilter("ignore", DeprecationWarning)
-            m = WardMonitor(url="wss://xrplcluster.com")
+            m = WardMonitor(xrpl_url="wss://xrplcluster.com")
         assert m._vault_addresses == []
 
     def test_vault_addresses_passed_in(self):
@@ -3764,7 +3758,7 @@ class TestWardMonitorConstruction:
             _warnings_module.simplefilter("ignore", DeprecationWarning)
             m = WardMonitor(
                 vault_addresses=[VALID_ADDRESS],
-                url="wss://xrplcluster.com",
+                xrpl_url="wss://xrplcluster.com",
             )
         assert VALID_ADDRESS in m._vault_addresses
 
@@ -3773,7 +3767,7 @@ class TestWardMonitorAddRemoveVault:
     def _make(self):
         with _warnings_module.catch_warnings():
             _warnings_module.simplefilter("ignore", DeprecationWarning)
-            return WardMonitor(url="wss://xrplcluster.com")
+            return WardMonitor(xrpl_url="wss://xrplcluster.com")
 
     def test_add_vault(self):
         m = self._make()
@@ -3807,7 +3801,7 @@ class TestWardMonitorStop:
     def test_stop_sets_running_false(self):
         with _warnings_module.catch_warnings():
             _warnings_module.simplefilter("ignore", DeprecationWarning)
-            m = WardMonitor(url="wss://xrplcluster.com")
+            m = WardMonitor(xrpl_url="wss://xrplcluster.com")
         m._running = True
         m.stop()
         assert m._running is False
@@ -3819,7 +3813,7 @@ class TestWardMonitorPollLoop:
             _warnings_module.simplefilter("ignore", DeprecationWarning)
             return WardMonitor(
                 vault_addresses=[VALID_ADDRESS],
-                url="wss://xrplcluster.com",
+                xrpl_url="wss://xrplcluster.com",
                 poll_interval_seconds=poll_interval,
             )
 
@@ -3957,7 +3951,7 @@ class TestWardMonitorFetchBalance:
             _warnings_module.simplefilter("ignore", DeprecationWarning)
             m = WardMonitor(
                 vault_addresses=[VALID_ADDRESS],
-                url="wss://xrplcluster.com",
+                xrpl_url="wss://xrplcluster.com",
             )
 
         mock_resp = _make_success_response(
@@ -3978,7 +3972,7 @@ class TestWardMonitorFetchBalance:
             _warnings_module.simplefilter("ignore", DeprecationWarning)
             m = WardMonitor(
                 vault_addresses=[VALID_ADDRESS],
-                url="wss://xrplcluster.com",
+                xrpl_url="wss://xrplcluster.com",
             )
 
         mock_resp = _make_fail_response("actNOT_FOUND")

@@ -40,11 +40,11 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install xrpl-py pydantic httpx pytest pytest-asyncio pytest-cov anyio[trio]
+          pip install xrpl-py pydantic httpx pytest pytest-asyncio pytest-cov anyio[trio] "hypothesis>=6.0.0,<7.0.0"
 
       - name: Run unit tests with coverage
         run: |
-          pytest test_ward.py -v -m "not integration" \
+          pytest test_ward.py tests/test_invariants_property.py -v -m "not integration" \
             --tb=short \
             --cov=ward \
             --cov-report=xml \
