@@ -565,10 +565,11 @@ class TestInv026PrivateKeyRejected:
         assert "seed" not in sig.parameters
         assert "private_key" not in sig.parameters
 
-    def test_escrow_settlement_wallet_param_required(self):
-        """EscrowSettlement.create_claim_escrow requires an xrpl.wallet.Wallet."""
+    def test_escrow_settlement_no_raw_wallet_param(self):
+        """EscrowSettlement.create_claim_escrow uses pool_address (str), not a raw wallet."""
         from ward.settlement import EscrowSettlement
         sig = inspect.signature(EscrowSettlement.create_claim_escrow)
-        # The wallet param is named pool_wallet
-        assert "pool_wallet" in sig.parameters
-        # It accepts xrpl.wallet.Wallet (validated at runtime, not at type level)
+        # Ward builds unsigned escrows from an address — no signing key required
+        assert "pool_address" in sig.parameters
+        assert "wallet_seed" not in sig.parameters
+        assert "private_key" not in sig.parameters
