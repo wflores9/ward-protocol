@@ -50,7 +50,8 @@ thiserror = "1"
 anyhow    = "1"
 
 [dev-dependencies]
-tokio = { version = "1", features = ["full", "test-util"] }
+tokio    = { version = "1", features = ["full", "test-util"] }
+proptest = "1"
 
 [profile.release]
 opt-level = 3
