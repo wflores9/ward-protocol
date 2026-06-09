@@ -1,27 +1,19 @@
 'use client';
 
-import dynamic from 'next/dynamic';
-import Link from 'next/link';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 
-const WARD_API = 'https://api.wardprotocol.org';
-const DEMO_KEY = process.env.NEXT_PUBLIC_WARD_DEMO_KEY ?? '';
-
-import ChainLogo from '@/components/ChainLogo';
 import ChainSelector from '@/components/ChainSelector';
 import {
   CHAIN_ADAPTERS,
   CONFORMANCE_CHECKS,
   DEMO_EVENTS,
-  INTEGRATION_PROFILES,
   type ChainAdapter,
-  type IntegrationProfile,
 } from '@/lib/wardPlatform';
 
-const WalletConnector = dynamic(() => import('@/components/WalletConnector'), { ssr: false });
-const LiveValidator = dynamic(() => import('@/components/LiveValidator'), { ssr: false });
+const WARD_API = 'https://api.wardprotocol.org';
+const DEMO_KEY = process.env.NEXT_PUBLIC_WARD_DEMO_KEY ?? '';
 
-type WorkspaceState = 'empty' | 'wallet-ready' | 'policy-ready' | 'rail-ready' | 'running' | 'receipt-ready';
+type WorkspaceState = 'idle' | 'running' | 'done';
 
 type ConsoleEvent = {
   time: string;
@@ -39,188 +31,66 @@ type ApiResult = {
 
 const nowStamp = () =>
   new Date().toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
 const makeSessionId = () => `WARD-${Math.random().toString(16).slice(2, 8).toUpperCase()}`;
-const makeWallet = (chain: ChainAdapter) => `${chain.sampleAddress}-${Math.random().toString(16).slice(2, 6).toUpperCase()}`;
-const makePolicyId = (chain: ChainAdapter) => `${chain.policyPrefix}-${Math.random().toString(16).slice(2, 8).toUpperCase()}`;
 
-const WORKFLOW_STEPS = [
-  ['01', 'Select a rail', 'Pick the network lane your team wants to inspect.'],
-  ['02', 'Create the policy artifact', 'Provision a test policy artifact for the selected rail. No wallet-held NFT is required for the sandbox path.'],
-  ['03', 'Run and review', 'Execute conformance and inspect the resulting evidence gates, receipt, and signer boundary.'],
-] as const;
-
-const INTEGRATION_ACTIONS = [
-  {
-    label: 'Python SDK',
-    command: 'pip install ward-protocol==0.2.6',
-    body: 'Backend validators, vault monitors, conformance jobs, and receipt export.',
-    href: '/build#python-sdk',
-  },
-  {
-    label: 'TypeScript SDK',
-    command: 'npm install @wardprotocol/sdk',
-    body: 'Product consoles, wallet flows, selected-rail orchestration, and dashboards.',
-    href: '/build#typescript-sdk',
-  },
-  {
-    label: 'Hosted API',
-    command: 'POST https://api.wardprotocol.org/conformance/run',
-    body: 'Pilot integrations that need Ward-managed infrastructure and enterprise onboarding.',
-    href: '/build#hosted-api',
-  },
-] as const;
-
-function buildPayload(chain: ChainAdapter, profile: IntegrationProfile, walletAddress: string | null, policyId: string | null) {
-  return JSON.stringify(
-    {
-      chain: chain.id,
-      network: chain.network,
-      integration_surface: chain.integrationSurface,
-      project: profile.id,
-      wallet_address: walletAddress || 'provision_sandbox_wallet_first',
-      policy_artifact: chain.policyArtifact,
-      policy_ref: policyId || 'create_demo_policy_artifact_first',
-      vault: profile.vault,
-      claim_context: profile.claim,
-      signer_boundary: 'institution',
-      ward_signed: false,
-    },
-    null,
-    2,
-  );
-}
-
-function buildReceipt(chain: ChainAdapter, profile: IntegrationProfile, sessionId: string, walletAddress: string | null, policyId: string | null, apiResult?: ApiResult | null) {
+function buildReceipt(chain: ChainAdapter, sessionId: string, apiResult: ApiResult | null): string {
   const lines = [
-    `receipt_id: ${sessionId}`,
-    `chain: ${chain.name}`,
-    `network: ${chain.network}`,
-    `project: ${profile.name}`,
-    `vault: ${profile.vault}`,
-    `wallet: ${walletAddress || 'sandbox wallet pending'}`,
-    `policy_artifact: ${policyId || 'demo policy pending'}`,
-    `result: ${apiResult ? (apiResult.approved ? 'WARD_CONFORMANT' : 'WARD_REJECTED') : 'WARD_CONFORMANT'}`,
+    `receipt_id:    ${sessionId}`,
+    `chain:         ${chain.name}`,
+    `network:       ${chain.network}`,
+    `result:        ${apiResult ? (apiResult.approved ? 'WARD_CONFORMANT' : 'WARD_REJECTED') : 'WARD_CONFORMANT'}`,
     `checks_passed: ${apiResult ? `${apiResult.checks_passed}/9` : '9/9'}`,
-    'ward_signed: false',
-    'settlement_packet: unsigned',
-    'signer_boundary: institution',
-    `source: ${apiResult?.source ?? 'simulation'}`,
+    `ward_signed:   false`,
+    `settlement:    unsigned packet returned to institution`,
+    `source:        ${apiResult?.source ?? 'simulation'}`,
   ];
   if (apiResult?.rejection_reason) {
-    lines.push(`rejection_reason: ${apiResult.rejection_reason}`);
+    lines.push(`rejection:     ${apiResult.rejection_reason}`);
   }
   return lines.join('\n');
 }
 
 export default function DemoClient() {
   const [selectedChain, setSelectedChain] = useState<ChainAdapter>(CHAIN_ADAPTERS[0]);
-  const [selectedProfile, setSelectedProfile] = useState<IntegrationProfile>(INTEGRATION_PROFILES[0]);
-  const [workspaceState, setWorkspaceState] = useState<WorkspaceState>('empty');
-  const [walletAddress, setWalletAddress] = useState<string | null>(null);
-  const [policyId, setPolicyId] = useState<string | null>(null);
+  const [state, setState] = useState<WorkspaceState>('idle');
   const [sessionId, setSessionId] = useState(makeSessionId());
   const [activeEvent, setActiveEvent] = useState(-1);
   const [passedChecks, setPassedChecks] = useState<string[]>([]);
   const [consoleEvents, setConsoleEvents] = useState<ConsoleEvent[]>([
-    { time: nowStamp(), label: 'Workspace ready. Select a rail, create a demo policy artifact, and run conformance.', tone: 'info' },
+    { time: nowStamp(), label: 'Ready. Select a chain and run conformance.', tone: 'info' },
   ]);
   const [receiptCopied, setReceiptCopied] = useState(false);
-  const [integrationCopied, setIntegrationCopied] = useState<string | null>(null);
   const [apiResult, setApiResult] = useState<ApiResult | null>(null);
 
-  const payload = useMemo(
-    () => buildPayload(selectedChain, selectedProfile, walletAddress, policyId),
-    [policyId, selectedChain, selectedProfile, walletAddress],
-  );
-  const receipt = useMemo(
-    () => buildReceipt(selectedChain, selectedProfile, sessionId, walletAddress, policyId, apiResult),
-    [policyId, selectedChain, selectedProfile, sessionId, walletAddress, apiResult],
-  );
+  const receipt = buildReceipt(selectedChain, sessionId, apiResult);
 
   useEffect(() => {
-    setWorkspaceState('empty');
-    setWalletAddress(null);
-    setPolicyId(null);
+    setState('idle');
     setSessionId(makeSessionId());
     setActiveEvent(-1);
     setPassedChecks([]);
     setReceiptCopied(false);
-    setIntegrationCopied(null);
     setApiResult(null);
-    setConsoleEvents([
-      {
-        time: nowStamp(),
-        label: `${selectedChain.name} rail selected. Workspace reset for a clean institutional review path.`,
-        tone: 'info',
-      },
-    ]);
+    setConsoleEvents([{ time: nowStamp(), label: `${selectedChain.name} rail selected.`, tone: 'info' }]);
   }, [selectedChain.id]);
 
   const addEvent = (label: string, tone: ConsoleEvent['tone'] = 'info') => {
-    setConsoleEvents((current) => [...current.slice(-7), { time: nowStamp(), label, tone }]);
-  };
-
-  const provisionWallet = () => {
-    if (workspaceState === 'running') return walletAddress;
-
-    const nextWallet = makeWallet(selectedChain);
-    setWalletAddress(nextWallet);
-    setWorkspaceState('wallet-ready');
-    setSessionId(makeSessionId());
-    setPassedChecks([]);
-    setActiveEvent(-1);
-    setReceiptCopied(false);
-    setIntegrationCopied(null);
-    addEvent(`Sandbox institution wallet created: ${nextWallet}`, 'success');
-    return nextWallet;
-  };
-
-  const createPolicyArtifact = (ensureWallet = true) => {
-    if (workspaceState === 'running') return policyId;
-    if (ensureWallet && !walletAddress) provisionWallet();
-
-    const nextPolicy = makePolicyId(selectedChain);
-    setPolicyId(nextPolicy);
-    setWorkspaceState('policy-ready');
-    setPassedChecks([]);
-    setActiveEvent(-1);
-    setReceiptCopied(false);
-    setIntegrationCopied(null);
-    addEvent(`${selectedChain.policyArtifact} created for ${selectedChain.shortName}: ${nextPolicy}`, 'success');
-    return nextPolicy;
-  };
-
-  const attachAdapter = () => {
-    if (workspaceState === 'running') return;
-    if (!walletAddress) provisionWallet();
-    if (!policyId) createPolicyArtifact(false);
-
-    setWorkspaceState('rail-ready');
-    setPassedChecks([]);
-    setActiveEvent(-1);
-    setReceiptCopied(false);
-    setIntegrationCopied(null);
-    addEvent(`${selectedChain.shortName} rail bound to ${selectedChain.network} with policy evidence`, 'success');
+    setConsoleEvents((prev) => [...prev.slice(-9), { time: nowStamp(), label, tone }]);
   };
 
   const runConformance = async () => {
-    if (workspaceState === 'running') return;
+    if (state === 'running') return;
 
-    const runWallet = walletAddress || provisionWallet();
-    const runPolicy = policyId || createPolicyArtifact(false);
-
-    if (workspaceState === 'empty' || workspaceState === 'wallet-ready' || workspaceState === 'policy-ready') {
-      setWorkspaceState('rail-ready');
-      addEvent(`${selectedChain.shortName} rail bound to ${selectedChain.network} with ${runPolicy}`, 'success');
-    }
-
-    setWorkspaceState('running');
+    const sid = makeSessionId();
+    setState('running');
     setPassedChecks([]);
     setActiveEvent(-1);
     setReceiptCopied(false);
     setApiResult(null);
+    setSessionId(sid);
 
-    // Health check — determine whether real API is reachable
+    // Health check
     let apiAvailable = false;
     if (DEMO_KEY) {
       try {
@@ -232,38 +102,27 @@ export default function DemoClient() {
     }
 
     if (!apiAvailable) {
-      addEvent('API unavailable — simulated flow', 'warning');
+      addEvent('API unavailable — running simulation', 'warning');
     }
 
     // Real validate call for XRPL; simulation notice for other chains
     let realResult: ApiResult | null = null;
 
     if (selectedChain.id === 'xrpl' && apiAvailable && DEMO_KEY) {
-      addEvent('Calling POST /validate — live XRPL Altnet conformance', 'info');
+      addEvent('POST /validate — live XRPL Altnet', 'info');
       try {
-        const vaultId = 'rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh';
-        const loanId = '0000000000000000000000000000000000000000000000000000000000000001';
-        const poolAddress = 'rU6K7V3Po4snVhBBaU29sesqs2qTQJWDw1';
-        const claimantAddress = runWallet && /^r[1-9A-HJ-NP-Za-km-z]{24,34}$/.test(runWallet)
-          ? runWallet
-          : 'rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh';
-        const policyNftId = runPolicy && /^[0-9a-fA-F]{64}$/.test(runPolicy)
-          ? runPolicy
-          : '0000000000000000000000000000000000000000000000000000000000000001';
-
         const resp = await fetch(`${WARD_API}/validate`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'X-Institution-Key': DEMO_KEY },
           body: JSON.stringify({
-            vault_id: vaultId,
-            policy_nft_id: policyNftId,
-            claimant_address: claimantAddress,
-            loan_id: loanId,
-            pool_address: poolAddress,
+            vault_id: 'rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh',
+            policy_nft_id: '0000000000000000000000000000000000000000000000000000000000000001',
+            claimant_address: 'rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh',
+            loan_id: '0000000000000000000000000000000000000000000000000000000000000001',
+            pool_address: 'rU6K7V3Po4snVhBBaU29sesqs2qTQJWDw1',
           }),
           signal: AbortSignal.timeout(15000),
         });
-
         const data = await resp.json();
         realResult = {
           checks_passed: typeof data.checks_passed === 'number' ? data.checks_passed : 0,
@@ -273,281 +132,133 @@ export default function DemoClient() {
           source: 'api',
         };
         addEvent(
-          `API response: ${realResult.checks_passed}/9 checks passed${realResult.rejection_reason ? ` — ${realResult.rejection_reason}` : ''}`,
+          `${realResult.checks_passed}/9 checks passed${realResult.rejection_reason ? ` — ${realResult.rejection_reason}` : ''}`,
           realResult.approved ? 'success' : 'warning',
         );
       } catch {
-        addEvent('Real API call failed — falling back to simulation', 'warning');
-        realResult = null;
+        addEvent('API call failed — falling back to simulation', 'warning');
       }
     } else if (selectedChain.id !== 'xrpl') {
-      addEvent(`${selectedChain.shortName} adapter in development — showing simulated conformance flow`, 'info');
+      addEvent(`${selectedChain.shortName} — simulated conformance flow`, 'info');
     }
 
-    // Visual conformance animation — always runs
-    for (let index = 0; index < DEMO_EVENTS.length; index += 1) {
-      await new Promise((resolve) => setTimeout(resolve, 330));
-      setActiveEvent(index);
+    // Visual animation — always runs
+    for (let i = 0; i < DEMO_EVENTS.length; i++) {
+      await new Promise((r) => setTimeout(r, 330));
+      setActiveEvent(i);
       if (!realResult) {
-        addEvent(DEMO_EVENTS[index], index === DEMO_EVENTS.length - 1 ? 'success' : 'info');
+        addEvent(DEMO_EVENTS[i], i === DEMO_EVENTS.length - 1 ? 'success' : 'info');
       }
     }
 
     for (const check of CONFORMANCE_CHECKS) {
-      await new Promise((resolve) => setTimeout(resolve, 150));
-      setPassedChecks((current) => [...current, check.id]);
+      await new Promise((r) => setTimeout(r, 150));
+      setPassedChecks((prev) => [...prev, check.id]);
     }
 
-    await new Promise((resolve) => setTimeout(resolve, 260));
-
-    if (realResult) {
-      setApiResult(realResult);
-    }
-
-    setWorkspaceState('receipt-ready');
+    await new Promise((r) => setTimeout(r, 260));
+    if (realResult) setApiResult(realResult);
+    setState('done');
     const checksDisplay = realResult ? `${realResult.checks_passed}/9` : '9/9';
-    addEvent(`Conformance receipt ${sessionId} issued for ${runWallet} with ${checksDisplay} checks passed`, 'success');
-  };
-
-  const helloConformance = async () => {
-    if (workspaceState === 'running') return;
-    addEvent(`Hello Conformance started for ${selectedChain.shortName}`, 'info');
-    await runConformance();
+    addEvent(`Receipt ${sid} — ${checksDisplay} checks passed`, 'success');
   };
 
   const copyReceipt = async () => {
     if (!navigator.clipboard) return;
     await navigator.clipboard.writeText(receipt);
     setReceiptCopied(true);
-    addEvent('Receipt copied for engineering, compliance, and partner review', 'success');
+    addEvent('Receipt copied', 'success');
   };
 
-  const copyIntegrationAction = async (label: string, command: string) => {
-    if (!navigator.clipboard) return;
-    await navigator.clipboard.writeText(command);
-    setIntegrationCopied(label);
-    addEvent(`${label} integration command copied`, 'success');
-  };
-
-  const isRunning = workspaceState === 'running';
-  const stateLabel =
-    workspaceState === 'receipt-ready'
-      ? 'Conformant'
-      : workspaceState === 'running'
-        ? 'Running'
-        : workspaceState === 'rail-ready'
-          ? 'Rail bound'
-          : workspaceState === 'policy-ready'
-            ? 'Policy ready'
-            : workspaceState === 'wallet-ready'
-              ? 'Wallet ready'
-              : 'Workspace ready';
+  const isRunning = state === 'running';
 
   return (
     <main className="site-shell text-[#f7f9f7]">
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 grid-overlay opacity-70" />
-        <div className="site-container pb-20 pt-24 lg:pt-32">
-          <div className="grid gap-16 lg:grid-cols-[0.98fr_1.02fr] lg:items-center">
-            <div className="max-w-3xl">
+        <div className="site-container pb-28 pt-24 lg:pt-32">
+          <div className="grid gap-14 lg:grid-cols-[1fr_1fr] lg:items-start">
+            <div>
               <p className="site-label">Ward conformance workspace</p>
-              <h1 className="mt-6 text-5xl font-black leading-[0.98] tracking-[-0.04em] text-white md:text-6xl lg:text-[5rem]">
-                A premium sandbox for institutional default-resolution review.
+              <h1 className="mt-6 text-5xl font-black leading-[0.98] tracking-[-0.04em] text-white md:text-6xl">
+                Run deterministic conformance on any supported chain.
               </h1>
-              <p className="site-copy mt-8 text-lg md:text-[1.2rem]">
-                Select a testnet rail, create a demo policy artifact, run deterministic conformance, and export a receipt that preserves the signer boundary from start to finish.
+              <p className="site-copy mt-6 max-w-xl text-lg">
+                Select a testnet rail and run Ward's nine-check conformance engine. XRPL Altnet runs against the live API. All other chains show the simulation flow.
               </p>
-
-              <div className="mt-8 flex flex-wrap gap-3 text-sm">
-                {[
-                  `${CHAIN_ADAPTERS.length} testnet rails`,
-                  '9 deterministic checks',
-                  'Unsigned settlement packet',
-                  'ward_signed = False',
-                ].map((item) => (
-                  <span key={item} className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 font-mono text-[#d0dde0]">
-                    {item}
-                  </span>
-                ))}
+              <div className="mt-10">
+                <ChainSelector chains={CHAIN_ADAPTERS} selected={selectedChain} onSelect={setSelectedChain} />
               </div>
+            </div>
 
-              <div className="mt-10 flex flex-wrap gap-4">
-                <button
-                  onClick={helloConformance}
-                  disabled={isRunning}
-                  className="inline-flex min-h-14 items-center rounded-full bg-[#d4a93e] px-7 py-3 text-base font-bold text-[#07131a] transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  Hello Conformance
-                </button>
-                <button
-                  onClick={() => createPolicyArtifact()}
-                  disabled={isRunning}
-                  className="inline-flex min-h-14 items-center rounded-full bg-[#f7f9f7] px-7 py-3 text-base font-bold text-[#07131a] transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  Create Demo Policy NFT
-                </button>
+            <div className="space-y-5">
+              <div className="site-panel rounded-[34px] p-8">
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <p className="font-mono text-sm text-[#9eb0b7]">Session</p>
+                    <p className="mt-1 font-mono text-sm font-bold text-white">{sessionId}</p>
+                  </div>
+                  <span className="rounded-md border border-[#d4a93e]/20 bg-[#d4a93e]/10 px-4 py-2 font-mono text-sm text-[#f0d080]">
+                    {state === 'done' ? 'Complete' : state === 'running' ? 'Running…' : 'Ready'}
+                  </span>
+                </div>
                 <button
                   onClick={runConformance}
                   disabled={isRunning}
-                  className="inline-flex min-h-14 items-center rounded-full border border-white/12 bg-white/[0.03] px-7 py-3 text-base font-bold text-[#f7f9f7] transition hover:bg-white/[0.06] disabled:cursor-not-allowed disabled:opacity-60"
+                  className="mt-6 w-full rounded-full bg-[#d4a93e] px-7 py-4 text-base font-bold text-[#07131a] transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  Run Conformance
+                  {isRunning ? 'Running…' : 'Run Conformance'}
                 </button>
               </div>
 
-              <p className="site-copy-sm mt-5 max-w-3xl text-[#9eb0b7]">
-                The sandbox can mint a test policy artifact for the selected rail, so teams can review the full conformance flow without bringing a pre-existing policy NFT into the session.
-              </p>
-            </div>
-
-            <div className="site-panel rounded-[38px] p-8 md:p-10">
-              <div className="flex flex-wrap items-start justify-between gap-5 border-b border-white/10 pb-6">
-                <div className="flex items-center gap-4">
-                  <ChainLogo id={selectedChain.logo} label={`${selectedChain.name} selected`} className="h-16 w-16" />
-                  <div>
-                    <p className="font-mono text-sm text-[#9eb0b7]">Active rail</p>
-                    <h2 className="mt-2 text-3xl font-black tracking-[-0.03em] text-white">{selectedChain.name}</h2>
-                  </div>
-                </div>
-                <span className="rounded-md border border-[#d4a93e]/20 bg-[#d4a93e]/10 px-4 py-2 font-mono text-sm font-bold text-[#f0d080]">
-                  {stateLabel}
-                </span>
-              </div>
-
-              <div className="mt-8 grid gap-4 sm:grid-cols-2">
-                {[
-                  ['Network', selectedChain.network],
-                  ['Primitive', selectedChain.primitive],
-                  ['Finality', selectedChain.finality],
-                  ['Integration surface', selectedChain.integrationSurface],
-                ].map(([label, value]) => (
-                  <div key={label} className="rounded-[24px] border border-white/10 bg-white/[0.03] p-5">
-                    <p className="font-mono text-sm uppercase tracking-[0.12em] text-[#9eb0b7]">{label}</p>
-                    <p className="mt-3 text-lg font-bold leading-7 text-white">{value}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="site-section">
-        <div className="site-container py-24">
-          <div className="mb-8 grid gap-4 lg:grid-cols-3">
-            {WORKFLOW_STEPS.map(([step, title, body]) => (
-              <article key={step} className="rounded-[26px] border border-white/10 bg-white/[0.03] p-5">
-                <p className="font-mono text-sm font-bold uppercase tracking-[0.12em] text-[#d4a93e]">{step}</p>
-                <h3 className="mt-4 text-xl font-black tracking-[-0.02em] text-white">{title}</h3>
-                <p className="site-copy-sm mt-3">{body}</p>
-              </article>
-            ))}
-          </div>
-
-          <div className="site-panel rounded-[40px] p-8 md:p-12 lg:p-14">
-            <div className="flex flex-wrap items-end justify-between gap-6">
-              <div className="max-w-3xl">
-                <p className="site-label">Rail selection</p>
-                <h2 className="mt-5 text-4xl font-black leading-tight tracking-[-0.03em] text-white md:text-5xl">
-                  Choose the environment your team wants to inspect.
-                </h2>
-                <p className="site-copy mt-5">
-                  The same default-resolution workflow runs across every supported rail. The selector is intentionally prominent because the sandbox starts with the chain lane, not with a checklist.
-                </p>
-              </div>
-              <span className="rounded-md border border-white/10 bg-white/[0.04] px-4 py-2 font-mono text-sm text-[#d0dde0]">
-                {CHAIN_ADAPTERS.length} testnet rails
-              </span>
-            </div>
-
-            <div className="mt-12">
-              <ChainSelector chains={CHAIN_ADAPTERS} selected={selectedChain} onSelect={setSelectedChain} />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="site-section">
-        <div className="site-container py-24">
-          <div className="mb-10 flex flex-wrap items-center justify-between gap-4 rounded-[26px] border border-white/10 bg-white/[0.04] px-7 py-6">
-            <div>
-              <p className="font-mono text-sm font-bold text-[#d4a93e]">Session control plane</p>
-              <p className="site-copy-sm mt-2">
-                Current sandbox is pinned to <span className="font-bold text-white">{selectedChain.name}</span> for deterministic conformance review.
-              </p>
-            </div>
-            <p className="rounded-md border border-white/10 bg-[#07131a]/55 px-4 py-2 font-mono text-sm text-[#d0dde0]">
-              Session {sessionId}
-            </p>
-          </div>
-
-          <div className="grid gap-8 xl:grid-cols-[1.2fr_0.8fr]">
-            <section className="space-y-8">
-              <div className="site-panel rounded-[34px] p-6 md:p-10">
-                <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-6">
-                  <div>
-                    <p className="font-mono text-sm text-[#d4a93e]">Project profile</p>
-                    <h2 className="mt-2 text-3xl font-black tracking-[-0.03em] text-white">Sandbox configuration</h2>
-                  </div>
-                  <button
-                    onClick={attachAdapter}
-                    disabled={isRunning}
-                    className="rounded-full border border-white/12 bg-white/[0.03] px-5 py-3 text-sm font-bold text-[#f7f9f7] transition hover:bg-white/[0.06] disabled:cursor-not-allowed disabled:opacity-60"
-                  >
-                    Bind Selected Rail
-                  </button>
-                </div>
-
-                <div className="mt-8 grid gap-4 sm:grid-cols-3">
-                  {INTEGRATION_PROFILES.map((profile) => (
-                    <button
-                      key={profile.id}
-                      onClick={() => setSelectedProfile(profile)}
-                      disabled={isRunning}
-                      className="rounded-[26px] border p-6 text-left transition disabled:cursor-not-allowed disabled:opacity-60"
-                      style={{
-                        borderColor: selectedProfile.id === profile.id ? '#d4a93e' : 'rgba(255,255,255,0.10)',
-                        background: selectedProfile.id === profile.id ? 'rgba(212,169,62,0.12)' : 'rgba(255,255,255,0.03)',
-                      }}
-                    >
-                      <p className="text-lg font-black tracking-[-0.02em] text-white">{profile.name}</p>
-                      <p className="mt-2 text-sm leading-7 text-[#d0dde0]">{profile.value}</p>
-                      <p className="mt-4 text-sm leading-7 text-[#9eb0b7]">{profile.integrationGoal}</p>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="site-panel rounded-[34px] p-6 md:p-10">
-                <div className="mb-6 flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-6">
-                  <div>
-                    <p className="font-mono text-sm text-[#d4a93e]">Evidence workflow</p>
-                    <h2 className="mt-2 text-3xl font-black tracking-[-0.03em] text-white">Session activity</h2>
-                  </div>
-                  <span className="rounded-md border border-white/10 bg-white/[0.04] px-4 py-2 font-mono text-sm text-[#d0dde0]">
-                    {selectedChain.endpoint}
-                  </span>
-                </div>
-
-                <div className="min-h-[240px] space-y-3 font-mono text-sm leading-7">
+              <div className="site-panel rounded-[34px] p-6">
+                <p className="font-mono text-sm font-bold text-[#d4a93e]">Console</p>
+                <div className="mt-4 min-h-[200px] space-y-2 rounded-[20px] border border-white/10 bg-[#07131a]/70 p-5 font-mono text-sm leading-7">
                   {consoleEvents.map((event, index) => (
-                    <div key={`${event.time}-${index}`} className="grid grid-cols-[78px_1fr] gap-4">
+                    <div key={`${event.time}-${index}`} className="grid grid-cols-[78px_1fr] gap-3">
                       <span className="text-[#9eb0b7]">{event.time}</span>
-                      <span className={event.tone === 'success' ? 'text-[#00cc66]' : event.tone === 'warning' ? 'text-[#f0d080]' : 'text-[#d0dde0]'}>
+                      <span
+                        className={
+                          event.tone === 'success'
+                            ? 'text-[#00cc66]'
+                            : event.tone === 'warning'
+                              ? 'text-[#f0d080]'
+                              : 'text-[#d0dde0]'
+                        }
+                      >
                         {event.label}
                       </span>
                     </div>
                   ))}
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
-                <div className="mt-8 grid gap-3">
+      <section className="site-section">
+        <div className="site-container py-32">
+          <div className="grid gap-8 xl:grid-cols-[1.3fr_0.7fr]">
+            <div className="space-y-6">
+              <div className="site-panel rounded-[34px] p-6 md:p-8">
+                <div className="mb-6 flex items-center justify-between border-b border-white/10 pb-5">
+                  <p className="font-mono text-sm font-bold text-[#d4a93e]">Conformance steps</p>
+                  <span className="rounded-md border border-white/10 bg-white/[0.04] px-4 py-2 font-mono text-sm text-[#d0dde0]">
+                    {selectedChain.endpoint}
+                  </span>
+                </div>
+                <div className="space-y-3">
                   {DEMO_EVENTS.map((event, index) => (
-                    <div key={event} className="flex items-center gap-4 rounded-[22px] border border-white/10 bg-white/[0.03] px-4 py-3">
+                    <div
+                      key={event}
+                      className="flex items-center gap-4 rounded-[20px] border border-white/10 bg-white/[0.03] px-4 py-3"
+                    >
                       <span
-                        className="flex h-10 w-10 items-center justify-center rounded-[14px] font-mono text-sm font-bold"
+                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[12px] font-mono text-sm font-bold"
                         style={{
                           background: activeEvent >= index ? '#00cc66' : 'rgba(255,255,255,0.07)',
-                          color: activeEvent >= index ? '#07130d' : '#d0dde0',
+                          color: activeEvent >= index ? '#07130d' : '#9eb0b7',
                         }}
                       >
                         {index + 1}
@@ -558,164 +269,21 @@ export default function DemoClient() {
                 </div>
               </div>
 
-              <div className="site-panel rounded-[34px] p-6 md:p-10">
-                <div className="border-b border-white/10 pb-6">
-                  <p className="font-mono text-sm font-bold text-[#d4a93e]">API payload</p>
-                  <h3 className="mt-2 text-2xl font-black tracking-[-0.03em] text-white">Conformance request body</h3>
-                </div>
-                <pre className="mt-6 rounded-[20px] border border-white/10 bg-[#07131a]/80 p-5 font-mono text-sm leading-7 text-[#d0dde0] whitespace-pre-wrap break-words">
-                  <code>{payload}</code>
-                </pre>
-              </div>
-
-              <div className="site-panel rounded-[34px] p-6 md:p-10">
-                <div className="border-b border-white/10 pb-6">
-                  <p className="font-mono text-sm font-bold text-[#d4a93e]">Integration surface</p>
-                  <h3 className="mt-2 text-2xl font-black tracking-[-0.03em] text-white">{selectedProfile.name}</h3>
-                  <p className="site-copy-sm mt-3">{selectedProfile.integrationGoal}</p>
-                </div>
-
-                <div className="mt-6 grid gap-4">
-                  {INTEGRATION_ACTIONS.map((action) => (
-                    <article key={action.label} className="rounded-[22px] border border-white/10 bg-white/[0.03] p-5">
-                      <div className="flex flex-wrap items-center justify-between gap-3">
-                        <span className="text-base font-black text-white">{action.label}</span>
-                        <span className="rounded-md bg-[#07131a]/70 px-3 py-1 font-mono text-sm text-[#d4a93e]">
-                          {integrationCopied === action.label ? 'Copied' : 'Ready'}
-                        </span>
-                      </div>
-                      <span className="mt-3 block font-mono text-sm leading-7 text-[#d0dde0] break-words">{action.command}</span>
-                      <span className="mt-2 block text-sm leading-7 text-[#9eb0b7]">{action.body}</span>
-
-                      <div className="mt-4 flex flex-wrap gap-3">
-                        <button
-                          onClick={() => copyIntegrationAction(action.label, action.command)}
-                          className="rounded-full bg-[#f7f9f7] px-4 py-2.5 text-sm font-bold text-[#07131a] transition hover:bg-white"
-                        >
-                          {integrationCopied === action.label ? 'Command Copied' : `Copy ${action.label}`}
-                        </button>
-                        <Link
-                          href={action.href}
-                          className="rounded-full border border-white/12 bg-white/[0.03] px-4 py-2.5 text-sm font-bold text-[#f7f9f7] transition hover:bg-white/[0.06]"
-                        >
-                          Open Build Guide
-                        </Link>
-                      </div>
-                    </article>
-                  ))}
-                </div>
-
-                <div className="mt-6 grid gap-3 sm:grid-cols-2">
-                  {[
-                    ['Sector', selectedProfile.sector],
-                    ['Vault', selectedProfile.vault],
-                    ['Claim', selectedProfile.claim],
-                    ['Capacity', selectedProfile.value],
-                  ].map(([label, value]) => (
-                    <div key={label} className="rounded-[22px] border border-white/10 bg-white/[0.03] p-4">
-                      <p className="font-mono text-sm uppercase tracking-[0.12em] text-[#9eb0b7]">{label}</p>
-                      <p className="mt-3 text-base font-bold leading-7 text-white">{value}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </section>
-
-            <aside className="space-y-8">
               <div className="site-panel rounded-[34px] p-6 md:p-8">
-                <div className="flex items-start justify-between gap-4 border-b border-white/10 pb-5">
-                  <div>
-                    <p className="font-mono text-sm font-bold text-[#d4a93e]">Sandbox controls</p>
-                    <h2 className="mt-2 text-3xl font-black tracking-[-0.03em] text-white">Session status</h2>
-                  </div>
-                  <span className="rounded-md border border-[#d4a93e]/20 bg-[#d4a93e]/10 px-4 py-2 font-mono text-sm text-[#f0d080]">
-                    {stateLabel}
-                  </span>
-                </div>
-
-                <div className="mt-6 grid gap-3">
-                  <button
-                    onClick={helloConformance}
-                    disabled={isRunning}
-                    className="rounded-full bg-[#d4a93e] px-5 py-3.5 text-base font-bold text-[#07131a] transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
-                  >
-                    Hello Conformance
-                  </button>
-                  <button
-                    onClick={provisionWallet}
-                    disabled={isRunning}
-                    className="rounded-full bg-[#f7f9f7] px-5 py-3.5 text-base font-bold text-[#07131a] transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-60"
-                  >
-                    Create Sandbox Wallet
-                  </button>
-                  <button
-                    onClick={() => createPolicyArtifact()}
-                    disabled={isRunning}
-                    className="rounded-full border border-white/12 bg-white/[0.03] px-5 py-3.5 text-base font-bold text-[#f7f9f7] transition hover:bg-white/[0.06] disabled:cursor-not-allowed disabled:opacity-60"
-                  >
-                    Create Demo Policy NFT
-                  </button>
-                  <button
-                    onClick={attachAdapter}
-                    disabled={isRunning}
-                    className="rounded-full border border-white/12 bg-white/[0.03] px-5 py-3.5 text-base font-bold text-[#f7f9f7] transition hover:bg-white/[0.06] disabled:cursor-not-allowed disabled:opacity-60"
-                  >
-                    Bind Selected Rail
-                  </button>
-                  <button
-                    onClick={runConformance}
-                    disabled={isRunning}
-                    className="rounded-full border border-white/12 bg-white/[0.03] px-5 py-3.5 text-base font-bold text-[#f7f9f7] transition hover:bg-white/[0.06] disabled:cursor-not-allowed disabled:opacity-60"
-                  >
-                    Run Conformance
-                  </button>
-                </div>
-
-                <div className="mt-6 rounded-[24px] border border-white/10 bg-white/[0.03] p-5">
-                  <p className="font-mono text-sm uppercase tracking-[0.12em] text-[#9eb0b7]">Sandbox wallet</p>
-                  <p className="mt-3 break-words font-mono text-sm font-bold leading-7 text-white">
-                    {walletAddress || 'Not provisioned'}
-                  </p>
-                </div>
-
-                <div className="mt-4 rounded-[24px] border border-white/10 bg-white/[0.03] p-5">
-                  <p className="font-mono text-sm uppercase tracking-[0.12em] text-[#9eb0b7]">{selectedChain.policyArtifact}</p>
-                  <p className="mt-3 break-words font-mono text-sm font-bold leading-7 text-white">
-                    {policyId || 'No demo policy artifact created yet'}
-                  </p>
-                </div>
-
-                <div className="mt-4 grid gap-3">
-                  {[
-                    ['Selected rail', selectedChain.name],
-                    ['Settlement model', 'Unsigned packet returned to institution'],
-                    ['Evidence result', `${passedChecks.length}/9 checks completed`],
-                  ].map(([label, value]) => (
-                    <div key={label} className="rounded-[22px] border border-white/10 bg-white/[0.03] p-4">
-                      <p className="font-mono text-sm uppercase tracking-[0.12em] text-[#9eb0b7]">{label}</p>
-                      <p className="mt-3 text-base font-bold leading-7 text-white">{value}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="site-panel rounded-[34px] p-6 md:p-8">
-                <div className="mb-6 flex items-center justify-between gap-3 border-b border-white/10 pb-6">
-                  <div>
-                    <p className="font-mono text-sm font-bold text-[#d4a93e]">Conformance receipt</p>
-                    <h2 className="mt-2 text-2xl font-black tracking-[-0.03em] text-white">Evidence gates</h2>
-                  </div>
+                <div className="mb-6 flex items-center justify-between border-b border-white/10 pb-5">
+                  <p className="font-mono text-sm font-bold text-[#d4a93e]">Evidence gates</p>
                   <span className="rounded-md border border-white/10 bg-[#07131a]/55 px-4 py-2 font-mono text-sm text-[#d0dde0]">
-                    {apiResult ? `${apiResult.checks_passed} / 9` : '9 / 9'}
+                    {apiResult ? `${apiResult.checks_passed} / 9` : `${passedChecks.length} / 9`}
                   </span>
                 </div>
-
                 <div className="grid gap-3">
                   {CONFORMANCE_CHECKS.map((check) => {
                     const passed = passedChecks.includes(check.id);
-
                     return (
-                      <div key={check.id} className="grid grid-cols-[42px_1fr] gap-4 rounded-[20px] border border-white/10 bg-white/[0.03] p-4">
+                      <div
+                        key={check.id}
+                        className="grid grid-cols-[42px_1fr] gap-4 rounded-[20px] border border-white/10 bg-white/[0.03] p-4"
+                      >
                         <span
                           className="flex h-10 w-10 items-center justify-center rounded-[14px] font-mono text-sm font-bold"
                           style={{
@@ -733,103 +301,25 @@ export default function DemoClient() {
                     );
                   })}
                 </div>
+              </div>
+            </div>
 
+            <aside>
+              <div className="site-panel rounded-[34px] p-6 md:p-8">
+                <p className="font-mono text-sm font-bold text-[#d4a93e]">Conformance receipt</p>
+                <pre className="mt-5 whitespace-pre-wrap break-words rounded-[20px] border border-white/10 bg-[#07131a]/70 p-5 font-mono text-sm leading-7 text-[#d0dde0]">
+                  {receipt}
+                </pre>
                 <button
                   onClick={copyReceipt}
-                  disabled={workspaceState !== 'receipt-ready'}
+                  disabled={state !== 'done'}
                   className="mt-5 w-full rounded-full bg-[#d4a93e] px-5 py-3.5 text-base font-bold text-[#07131a] transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-55"
                 >
                   {receiptCopied ? 'Receipt Copied' : 'Copy Receipt'}
                 </button>
               </div>
-
-              <div className="site-panel rounded-[34px] p-6 md:p-8">
-                <div className="border-b border-white/10 pb-6">
-                  <p className="font-mono text-sm font-bold text-[#d4a93e]">Receipt preview</p>
-                  <h3 className="mt-2 text-2xl font-black tracking-[-0.03em] text-white">Exported text record</h3>
-                </div>
-                <pre className="mt-6 whitespace-pre-wrap break-words rounded-[24px] border border-white/10 bg-[#07131a]/70 p-5 font-mono text-sm leading-7 text-[#d0dde0]">
-                  {receipt}
-                </pre>
-              </div>
             </aside>
           </div>
-        </div>
-      </section>
-
-      <section id="live-playground" className="site-section">
-        <div className="site-container py-24">
-          <div className="mb-10 max-w-3xl">
-            <p className="site-label">Optional wallet validation</p>
-            <h2 className="mt-5 text-4xl font-black leading-tight tracking-[-0.03em] text-white md:text-5xl">
-              XRPL supports live Altnet wallet validation. Every other rail remains aligned to the same conformance model.
-            </h2>
-          </div>
-
-          {selectedChain.id === 'xrpl' ? (
-            <div className="site-panel rounded-[38px] p-6 text-[#f7f9f7] md:p-8">
-              <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-                <div>
-                  <p className="font-mono text-sm font-bold text-[#d4a93e]">XRPL Altnet wallet connect</p>
-                  <h3 className="mt-3 text-3xl font-black tracking-[-0.03em] text-white">Run live validation against wallet-held policy NFTs</h3>
-                  <p className="site-copy-sm mt-3 max-w-2xl text-[#9eb0b7]">
-                    This section is optional. The sandbox above can create a demo policy artifact without requiring a pre-existing wallet-held NFT.
-                  </p>
-                  <div className="mt-4 flex flex-wrap gap-3">
-                    {selectedChain.walletActions.map((action) => (
-                      <a
-                        key={action.href}
-                        href={action.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="rounded-md border border-white/10 bg-white/[0.04] px-4 py-2 text-sm font-bold text-[#d0dde0] transition hover:bg-white/[0.07] hover:text-white"
-                      >
-                        {action.label}
-                      </a>
-                    ))}
-                  </div>
-                </div>
-                <WalletConnector />
-              </div>
-              <LiveValidator />
-            </div>
-          ) : (
-            <div className="site-panel-muted rounded-[38px] p-6 md:p-8">
-              <div className="flex flex-wrap items-center justify-between gap-6">
-                <div className="flex items-center gap-4">
-                  <ChainLogo id={selectedChain.logo} label={`${selectedChain.name} rail`} className="h-16 w-16" />
-                  <div>
-                    <p className="font-mono text-sm text-[#d4a93e]">{selectedChain.status}</p>
-                    <h3 className="mt-2 text-3xl font-black tracking-[-0.03em] text-white">{selectedChain.name} rail path</h3>
-                  </div>
-                </div>
-                <p className="site-copy max-w-2xl">
-                  Use the chain wallet, faucet, and explorer path to inspect the deployed or funded testnet artifact. Ward maps that evidence into the same nine-check conformance receipt without holding keys or signing settlement actions.
-                </p>
-              </div>
-
-              <div className="mt-7 grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
-                <div className="rounded-[24px] border border-white/10 bg-white/[0.03] p-5">
-                  <p className="font-mono text-sm font-bold text-[#d4a93e]">Policy artifact</p>
-                  <p className="mt-3 text-lg font-black text-white">{selectedChain.policyArtifact}</p>
-                  <p className="mt-3 break-words font-mono text-sm leading-7 text-[#d0dde0]">{selectedChain.deploymentRef}</p>
-                </div>
-                <div className="grid gap-3 sm:grid-cols-3">
-                  {selectedChain.walletActions.map((action) => (
-                    <a
-                      key={action.href}
-                      href={action.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="rounded-[20px] border border-white/10 bg-white/[0.03] px-4 py-4 text-center text-base font-bold text-[#f7f9f7] transition hover:border-[#d4a93e]/40 hover:bg-white/[0.06]"
-                    >
-                      {action.label}
-                    </a>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       </section>
     </main>
