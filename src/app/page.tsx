@@ -7,7 +7,7 @@ import { MARKETING } from '@/lib/marketingContent';
 const metrics = [
   ['9', 'Testnet rails'],
   ['9', 'Deterministic checks'],
-  ['529', 'Tests across Python, Rust, and TypeScript'],
+  ['537', 'Tests across Python, Rust, and TypeScript'],
   ['06/2026', 'Security hardening sprint'],
 ];
 
