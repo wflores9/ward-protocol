@@ -12,6 +12,7 @@ Ward never holds keys. Ward never submits transactions.
 Ward's server is intentionally irrelevant to protocol outcomes.
 """
 
+import importlib.metadata
 import os
 import sys
 import logging
@@ -19,6 +20,11 @@ import hashlib
 import time
 from datetime import datetime
 from typing import Optional
+
+try:
+    _VERSION = importlib.metadata.version("ward-protocol")
+except importlib.metadata.PackageNotFoundError:
+    _VERSION = "0.2.6"  # fallback
 
 from fastapi import FastAPI, HTTPException, Depends, Header, Request, Body
 from fastapi.middleware.cors import CORSMiddleware
@@ -109,7 +115,7 @@ app = FastAPI(
         "ward_signed = False — Ward constructs unsigned transactions. "
         "The institution signs. XRPL settles."
     ),
-    version="0.2.5",
+    version=_VERSION,
     docs_url=None,
     redoc_url=None,
     openapi_url=None,
@@ -304,10 +310,10 @@ def _institution_key_dep(x_institution_key: Optional[str] = Header(None)) -> str
 async def root():
     return {
         "protocol": "Ward Protocol",
-        "version": "0.2.5",
+        "version": _VERSION,
         "spec": "https://github.com/XRPLF/XRPL-Standards/discussions/474",
         "website": "https://wardprotocol.org",
-        "pypi": "ward-protocol==0.2.5",
+        "pypi": f"ward-protocol=={_VERSION}",
         "ward_signed": False,
         "invariant": "Ward constructs unsigned XRPL transactions. The institution signs. XRPL settles.",
         "status": "operational",
@@ -321,7 +327,7 @@ async def health():
         "status": "healthy",
         "timestamp": datetime.utcnow().isoformat() + "Z",
         "uptime_seconds": round(time.time() - _START_TIME),
-        "version": "0.2.5",
+        "version": _VERSION,
         "xrpl_url": XRPL_URL,
         "ward_client_available": WARD_CLIENT_AVAILABLE,
         "ward_signed": False,
