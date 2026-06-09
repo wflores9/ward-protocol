@@ -819,7 +819,7 @@ async def validate_claim(
         }
 
     try:
-        validator = ClaimValidator(url=XRPL_URL)
+        validator = ClaimValidator(url=XRPL_RPC)
         result = await validator.validate_claim(
             claimant_address=req.claimant_address,
             nft_token_id=req.nft_token_id,
