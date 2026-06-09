@@ -4,6 +4,9 @@ import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 
+const WARD_API = 'https://api.wardprotocol.org';
+const DEMO_KEY = process.env.NEXT_PUBLIC_WARD_DEMO_KEY ?? '';
+
 import ChainLogo from '@/components/ChainLogo';
 import ChainSelector from '@/components/ChainSelector';
 import {
@@ -24,6 +27,14 @@ type ConsoleEvent = {
   time: string;
   label: string;
   tone: 'info' | 'success' | 'warning';
+};
+
+type ApiResult = {
+  checks_passed: number;
+  approved: boolean;
+  rejection_reason: string;
+  ward_signed: boolean;
+  source: 'api' | 'simulation';
 };
 
 const nowStamp = () =>
@@ -79,8 +90,8 @@ function buildPayload(chain: ChainAdapter, profile: IntegrationProfile, walletAd
   );
 }
 
-function buildReceipt(chain: ChainAdapter, profile: IntegrationProfile, sessionId: string, walletAddress: string | null, policyId: string | null) {
-  return [
+function buildReceipt(chain: ChainAdapter, profile: IntegrationProfile, sessionId: string, walletAddress: string | null, policyId: string | null, apiResult?: ApiResult | null) {
+  const lines = [
     `receipt_id: ${sessionId}`,
     `chain: ${chain.name}`,
     `network: ${chain.network}`,
@@ -88,12 +99,17 @@ function buildReceipt(chain: ChainAdapter, profile: IntegrationProfile, sessionI
     `vault: ${profile.vault}`,
     `wallet: ${walletAddress || 'sandbox wallet pending'}`,
     `policy_artifact: ${policyId || 'demo policy pending'}`,
-    'result: WARD_CONFORMANT',
-    'checks_passed: 9/9',
+    `result: ${apiResult ? (apiResult.approved ? 'WARD_CONFORMANT' : 'WARD_REJECTED') : 'WARD_CONFORMANT'}`,
+    `checks_passed: ${apiResult ? `${apiResult.checks_passed}/9` : '9/9'}`,
     'ward_signed: false',
     'settlement_packet: unsigned',
     'signer_boundary: institution',
-  ].join('\n');
+    `source: ${apiResult?.source ?? 'simulation'}`,
+  ];
+  if (apiResult?.rejection_reason) {
+    lines.push(`rejection_reason: ${apiResult.rejection_reason}`);
+  }
+  return lines.join('\n');
 }
 
 export default function DemoClient() {
@@ -110,14 +126,15 @@ export default function DemoClient() {
   ]);
   const [receiptCopied, setReceiptCopied] = useState(false);
   const [integrationCopied, setIntegrationCopied] = useState<string | null>(null);
+  const [apiResult, setApiResult] = useState<ApiResult | null>(null);
 
   const payload = useMemo(
     () => buildPayload(selectedChain, selectedProfile, walletAddress, policyId),
     [policyId, selectedChain, selectedProfile, walletAddress],
   );
   const receipt = useMemo(
-    () => buildReceipt(selectedChain, selectedProfile, sessionId, walletAddress, policyId),
-    [policyId, selectedChain, selectedProfile, sessionId, walletAddress],
+    () => buildReceipt(selectedChain, selectedProfile, sessionId, walletAddress, policyId, apiResult),
+    [policyId, selectedChain, selectedProfile, sessionId, walletAddress, apiResult],
   );
 
   useEffect(() => {
@@ -129,6 +146,7 @@ export default function DemoClient() {
     setPassedChecks([]);
     setReceiptCopied(false);
     setIntegrationCopied(null);
+    setApiResult(null);
     setConsoleEvents([
       {
         time: nowStamp(),
@@ -200,11 +218,79 @@ export default function DemoClient() {
     setPassedChecks([]);
     setActiveEvent(-1);
     setReceiptCopied(false);
+    setApiResult(null);
 
+    // Health check — determine whether real API is reachable
+    let apiAvailable = false;
+    if (DEMO_KEY) {
+      try {
+        const healthResp = await fetch(`${WARD_API}/health`, { signal: AbortSignal.timeout(5000) });
+        apiAvailable = healthResp.ok;
+      } catch {
+        apiAvailable = false;
+      }
+    }
+
+    if (!apiAvailable) {
+      addEvent('API unavailable — simulated flow', 'warning');
+    }
+
+    // Real validate call for XRPL; simulation notice for other chains
+    let realResult: ApiResult | null = null;
+
+    if (selectedChain.id === 'xrpl' && apiAvailable && DEMO_KEY) {
+      addEvent('Calling POST /validate — live XRPL Altnet conformance', 'info');
+      try {
+        const vaultId = 'rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh';
+        const loanId = '0000000000000000000000000000000000000000000000000000000000000001';
+        const poolAddress = 'rU6K7V3Po4snVhBBaU29sesqs2qTQJWDw1';
+        const claimantAddress = runWallet && /^r[1-9A-HJ-NP-Za-km-z]{24,34}$/.test(runWallet)
+          ? runWallet
+          : 'rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh';
+        const policyNftId = runPolicy && /^[0-9a-fA-F]{64}$/.test(runPolicy)
+          ? runPolicy
+          : '0000000000000000000000000000000000000000000000000000000000000001';
+
+        const resp = await fetch(`${WARD_API}/validate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-Institution-Key': DEMO_KEY },
+          body: JSON.stringify({
+            vault_id: vaultId,
+            policy_nft_id: policyNftId,
+            claimant_address: claimantAddress,
+            loan_id: loanId,
+            pool_address: poolAddress,
+          }),
+          signal: AbortSignal.timeout(15000),
+        });
+
+        const data = await resp.json();
+        realResult = {
+          checks_passed: typeof data.checks_passed === 'number' ? data.checks_passed : 0,
+          approved: data.approved === true,
+          rejection_reason: data.rejection_reason ?? '',
+          ward_signed: data.ward_signed === false,
+          source: 'api',
+        };
+        addEvent(
+          `API response: ${realResult.checks_passed}/9 checks passed${realResult.rejection_reason ? ` — ${realResult.rejection_reason}` : ''}`,
+          realResult.approved ? 'success' : 'warning',
+        );
+      } catch {
+        addEvent('Real API call failed — falling back to simulation', 'warning');
+        realResult = null;
+      }
+    } else if (selectedChain.id !== 'xrpl') {
+      addEvent(`${selectedChain.shortName} adapter in development — showing simulated conformance flow`, 'info');
+    }
+
+    // Visual conformance animation — always runs
     for (let index = 0; index < DEMO_EVENTS.length; index += 1) {
       await new Promise((resolve) => setTimeout(resolve, 330));
       setActiveEvent(index);
-      addEvent(DEMO_EVENTS[index], index === DEMO_EVENTS.length - 1 ? 'success' : 'info');
+      if (!realResult) {
+        addEvent(DEMO_EVENTS[index], index === DEMO_EVENTS.length - 1 ? 'success' : 'info');
+      }
     }
 
     for (const check of CONFORMANCE_CHECKS) {
@@ -213,8 +299,14 @@ export default function DemoClient() {
     }
 
     await new Promise((resolve) => setTimeout(resolve, 260));
+
+    if (realResult) {
+      setApiResult(realResult);
+    }
+
     setWorkspaceState('receipt-ready');
-    addEvent(`Conformance receipt ${sessionId} issued for ${runWallet} with 9/9 checks passed`, 'success');
+    const checksDisplay = realResult ? `${realResult.checks_passed}/9` : '9/9';
+    addEvent(`Conformance receipt ${sessionId} issued for ${runWallet} with ${checksDisplay} checks passed`, 'success');
   };
 
   const helloConformance = async () => {
@@ -614,7 +706,7 @@ export default function DemoClient() {
                     <h2 className="mt-2 text-2xl font-black tracking-[-0.03em] text-white">Evidence gates</h2>
                   </div>
                   <span className="rounded-md border border-white/10 bg-[#07131a]/55 px-4 py-2 font-mono text-sm text-[#d0dde0]">
-                    9 / 9
+                    {apiResult ? `${apiResult.checks_passed} / 9` : '9 / 9'}
                   </span>
                 </div>
 
