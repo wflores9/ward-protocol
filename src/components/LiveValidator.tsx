@@ -40,27 +40,52 @@ async function runValidation(
   claimant: string,
   nft_token_id: string,
 ): Promise<ValidationResult> {
-  const res = await fetch(`${WARD_API}/claims/file`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Institution-Key': INST_KEY,
-    },
-    body: JSON.stringify({
-      claimant_address: claimant,
-      policy_nft_id: nft_token_id,
-      vault_id: claimant,
-      condition_hex: '00'.repeat(32),
+  let res: Response
+  try {
+    res = await fetch(`${WARD_API}/claims/file`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Institution-Key': INST_KEY,
+      },
+      body: JSON.stringify({
+        claimant_address: claimant,
+        policy_nft_id: nft_token_id,
+        vault_id: claimant,
+        condition_hex: '00'.repeat(32),
+      })
     })
-  })
-  const data = await res.json()
-  if (!res.ok) {
+  } catch {
+    throw new Error('API unavailable — try again or check api.wardprotocol.org/health')
+  }
+
+  // Read body as text first — response may be plain text (e.g. Railway proxy errors)
+  const text = await res.text()
+  let data: any = {}
+  try { data = JSON.parse(text) } catch { data = { message: text } }
+
+  // 403 or Railway "Host not in allowlist" — institution key required
+  if (res.status === 403 || text.includes('Host not in allowlist')) {
+    throw new Error(
+      'Live claim filing is restricted to authenticated institutions. ' +
+      'API access available at api.wardprotocol.org — contact wflores@wardprotocol.org for an institution key.'
+    )
+  }
+
+  // Other non-2xx (5xx, 503, etc.) — generic unavailable
+  if (!res.ok && res.status !== 422) {
+    throw new Error('API unavailable — try again or check api.wardprotocol.org/health')
+  }
+
+  // 422 CLAIM_REJECTED — return structured rejection result (not an error)
+  if (res.status === 422) {
     return {
       approved: false,
       steps_passed: data?.detail?.steps_passed || 0,
-      rejection_reason: data?.detail?.message || data?.message || 'Validation failed',
+      rejection_reason: data?.detail?.message || data?.message || 'Claim rejected',
     }
   }
+
   return {
     approved: data.approved || false,
     steps_passed: data.steps_passed || 0,
