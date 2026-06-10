@@ -16,6 +16,8 @@ env/
 *.egg-info/
 dist/
 /build/
+site-packages/
+lib/python*/
 
 # Testing
 .pytest_cache/
