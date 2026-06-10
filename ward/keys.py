@@ -52,7 +52,12 @@ try:
         decode_responses=True,
     )
     _redis_keys.ping()
-except Exception:
+except Exception as _redis_exc:
+    logger.warning(
+        "Redis unavailable for key store — falling back to in-memory (not restart-safe, single-process only). "
+        "Set WARD_REDIS_URL for production. Error: %s",
+        _redis_exc,
+    )
     _redis_keys = None
 
 _key_store: dict[str, KeyRecord] = {}  # fallback only

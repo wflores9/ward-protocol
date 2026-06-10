@@ -484,6 +484,13 @@ async def submit_with_retry(
     Raises:
         LedgerError: after all attempts fail.
     """
+    import warnings
+    warnings.warn(
+        "submit_with_retry is deprecated and will be removed before mainnet. "
+        "Use build_unsigned_tx() and return UnsignedTransaction to the institution.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     last_exc: Optional[Exception] = None
     delay = base_delay
 
