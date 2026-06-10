@@ -76,7 +76,8 @@ async def main() -> None:
     print(f"  ward_signed = False — Ward receives condition only")
 
     # Preimage never transmitted; only condition_hex goes to the API
-    assert len(preimage) == 32
+    if len(preimage) != 32:
+        raise ValueError(f"preimage must be 32 bytes, got {len(preimage)}")
 
     # --- Step 2: Ward builds unsigned EscrowCreate (pool → claimant) ---
     print("\n[2/5] Requesting unsigned EscrowCreate from Ward API …")
@@ -88,7 +89,8 @@ async def main() -> None:
         "nft_token_id":    CLAIM_NFT or "A" * 64,
     })
     unsigned_create = escrow_resp.get("unsigned_escrow_create", escrow_resp)
-    assert "TxnSignature" not in unsigned_create, "ward_signed invariant violated"
+    if "TxnSignature" in unsigned_create:
+        raise RuntimeError("ward_signed invariant violated")
     print(f"  ✓ ward_signed = False — EscrowCreate unsigned")
     print(f"  condition in tx : {unsigned_create.get('Condition', '')[:32]}…")
 
@@ -112,7 +114,8 @@ async def main() -> None:
         "fulfillment_hex":  fulfillment_hex,   # Ward assembles tx but claimant signs
     })
     unsigned_finish = finish_resp.get("unsigned_escrow_finish", finish_resp)
-    assert "TxnSignature" not in unsigned_finish, "ward_signed invariant violated"
+    if "TxnSignature" in unsigned_finish:
+        raise RuntimeError("ward_signed invariant violated")
     print(f"  ✓ ward_signed = False — EscrowFinish unsigned")
 
     # --- Step 5: Claimant signs and submits EscrowFinish ---

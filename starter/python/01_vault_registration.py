@@ -76,9 +76,10 @@ async def main() -> None:
     unsigned_tx: dict[str, Any] = tx_resp.get("unsigned_tx", tx_resp)
 
     # Core invariant: Ward must NOT set the signing fields
-    assert "TxnSignature" not in unsigned_tx, "ward_signed invariant violated"
-    assert "SigningPubKey" not in unsigned_tx or unsigned_tx.get("SigningPubKey") == "", \
-        "ward_signed invariant violated"
+    if "TxnSignature" in unsigned_tx:
+        raise RuntimeError("ward_signed invariant violated")
+    if "SigningPubKey" in unsigned_tx and unsigned_tx.get("SigningPubKey") != "":
+        raise RuntimeError("ward_signed invariant violated")
     print("  ✓ ward_signed = False — unsigned transaction received")
     print(f"  TransactionType : {unsigned_tx.get('TransactionType')}")
 

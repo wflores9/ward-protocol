@@ -72,7 +72,8 @@ async def main() -> None:
     print(f"  policy_id : {policy_id}")
 
     # Core invariant check
-    assert "TxnSignature" not in unsigned_tx, "ward_signed invariant violated"
+    if "TxnSignature" in unsigned_tx:
+        raise RuntimeError("ward_signed invariant violated")
     print("  ✓ ward_signed = False")
 
     # Ward encodes policy metadata in the NFT URI (hex-encoded JSON):
@@ -82,20 +83,24 @@ async def main() -> None:
         try:
             meta = json.loads(bytes.fromhex(uri_hex).decode())
             print(f"  NFT URI (decoded) : {json.dumps(meta, indent=4)}")
-            assert meta.get("w", "").startswith("ward"), "unexpected URI schema"
-            assert meta.get("c") == str(COVERAGE) or int(meta.get("c", 0)) == COVERAGE
+            if not meta.get("w", "").startswith("ward"):
+                raise ValueError("unexpected URI schema")
+            if meta.get("c") != str(COVERAGE) and int(meta.get("c", 0)) != COVERAGE:
+                raise ValueError(f"coverage mismatch in NFT URI: {meta.get('c')!r}")
             print("  ✓ NFT URI encodes correct policy metadata")
         except Exception as exc:
             print(f"  URI decode: {exc}")
 
     # --- F·02b: Verify NFTokenTaxon is correct (WARD_POLICY_TAXON = 281) ---
     taxon = unsigned_tx.get("NFTokenTaxon", -1)
-    assert taxon == 281, f"Expected taxon 281, got {taxon}"
+    if taxon != 281:
+        raise RuntimeError(f"Expected taxon 281, got {taxon}")
     print(f"  ✓ NFTokenTaxon = {taxon} (WARD_POLICY_TAXON)")
 
     # Verify TF_TRANSFERABLE is NOT set (flag 0x8 must be absent)
     flags = unsigned_tx.get("Flags", 0)
-    assert not (flags & 0x8), "Policy NFT must not be transferable"
+    if flags & 0x8:
+        raise RuntimeError("Policy NFT must not be transferable")
     print(f"  ✓ TF_TRANSFERABLE absent from flags (0x{flags:08x})")
 
     # --- F·02c: Institution signs and submits ---
