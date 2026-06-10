@@ -8,8 +8,8 @@
 //   - ward_signed structural invariant
 
 use ward::monitor::{
-    validate_ws_url, validate_xrpl_address, MonitorConfig, VaultMonitor, VerifiedDefault,
-    DEFAULT_CONFIRM_COUNT, HEALTH_RATIO_THRESHOLD,
+    validate_ws_url, validate_rpc_url, validate_xrpl_address, MonitorConfig, VaultMonitor,
+    VerifiedDefault, DEFAULT_CONFIRM_COUNT, HEALTH_RATIO_THRESHOLD,
 };
 
 // ---------------------------------------------------------------------------
@@ -42,6 +42,38 @@ fn test_monitor_accepts_allowed_altnet_url() {
 #[test]
 fn test_monitor_accepts_allowed_mainnet_url() {
     validate_ws_url("wss://xrplcluster.com/").unwrap();
+}
+
+// ---------------------------------------------------------------------------
+// 2.7b — RPC URL validation (SSRF prevention, mirrors WS allowlist)
+// ---------------------------------------------------------------------------
+
+#[test]
+fn test_rpc_url_rejects_http() {
+    let err = validate_rpc_url("http://s.altnet.rippletest.net:51234/").unwrap_err();
+    let msg = err.to_string();
+    assert!(msg.contains("https://"), "should require HTTPS: {}", msg);
+}
+
+#[test]
+fn test_rpc_url_rejects_unknown_endpoint() {
+    let err = validate_rpc_url("https://evil.attacker.com/rpc").unwrap_err();
+    let msg = err.to_string();
+    assert!(
+        msg.contains("not in allowed list"),
+        "should reject unknown RPC endpoint: {}",
+        msg
+    );
+}
+
+#[test]
+fn test_rpc_url_accepts_allowed_altnet() {
+    validate_rpc_url("https://s.altnet.rippletest.net:51234/").unwrap();
+}
+
+#[test]
+fn test_rpc_url_accepts_allowed_mainnet() {
+    validate_rpc_url("https://xrplcluster.com/").unwrap();
 }
 
 // ---------------------------------------------------------------------------

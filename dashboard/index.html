@@ -213,11 +213,17 @@
       $("vaultUpdated").textContent = data?.timestamp ?? "—";
 
       const claims = Array.isArray(data?.active_claims) ? data.active_claims : [];
+      const list = $("claimsList");
+      list.textContent = "";
       if (!claims.length) {
-        $("claimsList").textContent = "No active claims";
+        list.textContent = "No active claims";
         return;
       }
-      $("claimsList").innerHTML = claims.map((c) => `<div>${String(c)}</div>`).join("");
+      for (const c of claims) {
+        const div = document.createElement("div");
+        div.textContent = String(c);
+        list.appendChild(div);
+      }
     }
 
     async function checkVault(opts = {}) {
