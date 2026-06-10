@@ -103,36 +103,39 @@ const AUDIT_ITEMS = [
 
 export default function AssurancePage() {
   return (
-    <main className="site-shell text-[#f7f9f7]">
+    <main className="site-shell">
       {/* Hero */}
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0 grid-overlay opacity-40" />
-        <div className="site-container pb-28 pt-24 lg:pt-32">
+        <div className="site-container pb-24 pt-24 lg:pt-28">
           <div className="grid gap-14 lg:grid-cols-[1fr_0.9fr] lg:items-center">
             <div className="max-w-4xl">
               <p className="site-label">High-Assurance Infrastructure</p>
-              <h1 className="mt-6 text-5xl font-black leading-[0.98] tracking-[-0.04em] text-white md:text-6xl lg:text-[5rem]">
+              <h1 className="mt-6 text-4xl font-semibold leading-[1.08] tracking-[-0.02em] text-[#0f2439] md:text-[48px]">
                 Not a claim. A provable property.
               </h1>
-              <p className="site-copy mt-8 max-w-3xl text-lg md:text-[1.2rem]">
-                Ward Protocol invariants are machine-checked, not just documented. TLA+ model checking, property-based tests
-                in Rust and Python, and signing-boundary static analysis run on every CI push. This page is the audit trail.
+              <p className="mt-7 max-w-3xl text-[15px] leading-[1.75] text-[#5a7a99] md:text-[17px]">
+                Ward Protocol invariants are machine-checked, not just documented. TLA+ model checking, property-based
+                tests in Rust and Python, and signing-boundary static analysis run on every CI push.
               </p>
 
-              <div className="mt-9 flex flex-wrap gap-3 text-sm text-[#c8dce8]">
+              <div className="mt-8 flex flex-wrap gap-3">
                 {['537 tests', '92% coverage on critical paths', 'TLA+ model checked', 'ward_signed = False — always'].map(
                   (item) => (
-                    <span key={item} className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 font-mono">
+                    <span
+                      key={item}
+                      className="rounded-md border px-4 py-2 font-mono text-[13px] text-[#5a7a99]"
+                      style={{ borderColor: 'rgba(167,197,229,0.4)', background: '#ffffff' }}
+                    >
                       {item}
                     </span>
                   ),
                 )}
               </div>
 
-              <div className="mt-10 flex flex-wrap gap-4">
+              <div className="mt-8 flex flex-wrap gap-4">
                 <Link
                   href="/spec"
-                  className="inline-flex min-h-14 items-center rounded-full bg-[#f7f9f7] px-7 py-3 text-base font-bold text-[#07131a] transition hover:bg-white"
+                  className="inline-flex items-center rounded-lg bg-[#0f2439] px-6 py-3 text-[15px] font-semibold text-white transition hover:bg-[#0d1f32]"
                 >
                   Review the Specification
                 </Link>
@@ -140,25 +143,37 @@ export default function AssurancePage() {
                   href={PILOT_URL}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex min-h-14 items-center rounded-full border border-[#d4a93e]/30 bg-[#d4a93e]/10 px-7 py-3 text-base font-bold text-[#d4a93e] transition hover:bg-[#d4a93e]/20"
+                  className="inline-flex items-center rounded-lg border px-6 py-3 text-[15px] font-semibold text-[#0f2439] transition hover:bg-[rgba(167,197,229,0.12)]"
+                  style={{ borderColor: 'rgba(15,36,57,0.18)' }}
                 >
                   Discuss a Pilot
                 </a>
               </div>
             </div>
 
-            <div className="site-panel rounded-[38px] p-8 md:p-10">
-              <p className="font-mono text-sm font-bold text-[#d4a93e]">Assurance snapshot</p>
-              <div className="mt-6 grid gap-4">
+            <div
+              className="rounded-xl border bg-white p-7 shadow-[0_1px_3px_rgba(15,36,57,0.08)] md:p-8"
+              style={{ borderColor: 'rgba(167,197,229,0.4)' }}
+            >
+              <p
+                className="font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-[#a7c5e5]"
+              >
+                Assurance snapshot
+              </p>
+              <div className="mt-5 grid gap-4">
                 {[
                   ['Core invariant', 'ward_signed = False — always'],
                   ['Formal verification', 'TLA+ SafetyInvariant, TLC checked in CI'],
                   ['Property tests', 'Hypothesis (Python) + proptest (Rust)'],
                   ['Static analysis', 'Signing boundary check on every push'],
                 ].map(([label, value]) => (
-                  <div key={label} className="rounded-[24px] border border-white/10 bg-white/[0.03] p-5">
-                    <p className="font-mono text-sm uppercase tracking-[0.12em] text-[#a7c5e5]">{label}</p>
-                    <p className="mt-3 text-lg font-bold leading-7 text-white">{value}</p>
+                  <div
+                    key={label}
+                    className="rounded-lg border p-5"
+                    style={{ borderColor: 'rgba(167,197,229,0.35)', background: '#f8fafc' }}
+                  >
+                    <p className="font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-[#a7c5e5]">{label}</p>
+                    <p className="mt-2 text-[15px] font-semibold leading-6 text-[#0f2439]">{value}</p>
                   </div>
                 ))}
               </div>
@@ -169,21 +184,27 @@ export default function AssurancePage() {
 
       {/* Core invariant */}
       <section className="site-section">
-        <div className="site-container py-28">
+        <div className="site-container py-20">
           <div className="max-w-3xl">
             <p className="site-label">The invariant</p>
-            <h2 className="mt-5 text-4xl font-black leading-tight tracking-[-0.03em] text-white md:text-5xl">
+            <h2 className="mt-5 text-[32px] font-semibold leading-tight tracking-[-0.02em] text-[#0f2439]">
               One provable property anchors everything.
             </h2>
-            <p className="site-copy mt-6">
+            <p className="mt-5 text-[15px] leading-[1.75] text-[#5a7a99]">
               Every formal artifact, every property test, and every static check traces back to this single structural
               guarantee. It is enforced in code, in CI, and in the TLA+ model simultaneously.
             </p>
           </div>
 
-          <div className="mt-12 site-panel rounded-[34px] p-8 md:p-10">
-            <p className="font-mono text-sm font-bold text-[#d4a93e]">INV-001 — INV-003 · Signer boundary</p>
-            <pre className="mt-6 overflow-x-auto rounded-[20px] border border-white/10 bg-[#07131a] p-6 font-mono text-sm leading-7 text-[#f0d080]">
+          <div
+            className="mt-10 rounded-xl border bg-white p-7 shadow-[0_1px_3px_rgba(15,36,57,0.08)] md:p-8"
+            style={{ borderColor: 'rgba(167,197,229,0.4)', borderLeft: '3px solid #b8973a' }}
+          >
+            <p className="font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-[#b8973a]">
+              INV-001 — INV-003 · Signer boundary
+            </p>
+            <pre className="mt-5 overflow-x-auto rounded-lg border p-5 font-mono text-[13px] leading-7 text-[#c8dce8]"
+              style={{ background: '#1a2f3f', borderColor: 'rgba(167,197,229,0.12)' }}>
               {`ward_signed = False  -- always.
 
 Ward may:   validate ledger state
@@ -197,7 +218,7 @@ Ward must not:  sign transactions
                 become custodian
                 become counterparty`}
             </pre>
-            <p className="mt-6 font-mono text-sm text-[#a7c5e5]">
+            <p className="mt-5 font-mono text-[12px] text-[#5a7a99]">
               Enforced by: signing boundary scanner (CI) · TLA+ SafetyInvariant (TLC) · proptest INV-003 (Rust) · Hypothesis
               INV-003 (Python)
             </p>
@@ -207,27 +228,31 @@ Ward must not:  sign transactions
 
       {/* Formal artifacts */}
       <section className="site-section">
-        <div className="site-container py-28">
+        <div className="site-container py-20">
           <div className="max-w-3xl">
             <p className="site-label">Formal methods artifacts</p>
-            <h2 className="mt-5 text-4xl font-black leading-tight tracking-[-0.03em] text-white md:text-5xl">
+            <h2 className="mt-5 text-[32px] font-semibold leading-tight tracking-[-0.02em] text-[#0f2439]">
               Six machine-checked artifacts, all versioned in the repo.
             </h2>
-            <p className="site-copy mt-6">
+            <p className="mt-5 text-[15px] leading-[1.75] text-[#5a7a99]">
               These are not documentation. They are executable evidence. Each one runs in CI and fails the pipeline if the
               invariant is violated.
             </p>
           </div>
 
-          <div className="mt-14 grid gap-6 lg:grid-cols-3">
+          <div className="mt-12 grid gap-5 lg:grid-cols-3">
             {FORMAL_ARTIFACTS.map((artifact) => (
-              <article key={artifact.id} className="site-panel-muted rounded-[30px] p-6">
-                <p className="font-mono text-sm font-bold uppercase tracking-[0.12em] text-[#d4a93e]">
+              <article
+                key={artifact.id}
+                className="rounded-xl border bg-white p-6 shadow-[0_1px_3px_rgba(15,36,57,0.08)]"
+                style={{ borderColor: 'rgba(167,197,229,0.4)' }}
+              >
+                <p className="font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-[#b8973a]">
                   {artifact.invariants}
                 </p>
-                <h3 className="mt-4 text-xl font-black tracking-[-0.02em] text-white">{artifact.label}</h3>
-                <p className="mt-2 font-mono text-xs text-[#a7c5e5]">{artifact.file}</p>
-                <p className="site-copy-sm mt-4">{artifact.body}</p>
+                <h3 className="mt-4 text-[17px] font-semibold leading-snug text-[#0f2439]">{artifact.label}</h3>
+                <p className="mt-2 font-mono text-[11px] text-[#a7c5e5]">{artifact.file}</p>
+                <p className="mt-4 text-[14px] leading-[1.75] text-[#5a7a99]">{artifact.body}</p>
               </article>
             ))}
           </div>
@@ -236,31 +261,38 @@ Ward must not:  sign transactions
 
       {/* Test coverage */}
       <section className="site-section">
-        <div className="site-container py-28">
+        <div className="site-container py-20">
           <div className="grid gap-14 lg:grid-cols-[1fr_1fr] lg:items-start">
             <div>
               <p className="site-label">Test coverage</p>
-              <h2 className="mt-5 text-4xl font-black leading-tight tracking-[-0.03em] text-white md:text-5xl">
+              <h2 className="mt-5 text-[32px] font-semibold leading-tight tracking-[-0.02em] text-[#0f2439]">
                 537 tests. 92% coverage on critical paths.
               </h2>
-              <p className="site-copy mt-6">
-                Coverage is not the goal — correctness is. But coverage provides a lower bound on the evidence surface. These
-                numbers are enforced in CI with per-module tracking.
+              <p className="mt-5 text-[15px] leading-[1.75] text-[#5a7a99]">
+                Coverage is not the goal — correctness is. But coverage provides a lower bound on the evidence surface.
+                These numbers are enforced in CI with per-module tracking.
               </p>
 
-              <div className="mt-10 grid gap-4">
+              <div className="mt-8 grid gap-4">
                 {COVERAGE_MODULES.map(({ module, coverage, label }) => (
-                  <div key={module} className="rounded-[24px] border border-white/10 bg-white/[0.03] p-5">
+                  <div
+                    key={module}
+                    className="rounded-xl border bg-white p-5 shadow-[0_1px_3px_rgba(15,36,57,0.08)]"
+                    style={{ borderColor: 'rgba(167,197,229,0.4)' }}
+                  >
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="font-mono text-sm font-bold text-white">{label}</p>
-                        <p className="mt-1 font-mono text-xs text-[#a7c5e5]">{module}</p>
+                        <p className="text-[15px] font-semibold text-[#0f2439]">{label}</p>
+                        <p className="mt-1 font-mono text-[12px] text-[#a7c5e5]">{module}</p>
                       </div>
-                      <span className="font-mono text-2xl font-black text-[#d4a93e]">{coverage}%</span>
+                      <span className="font-mono text-[22px] font-bold text-[#b8973a]">{coverage}%</span>
                     </div>
-                    <div className="mt-4 h-1.5 w-full rounded-full bg-white/10">
+                    <div
+                      className="mt-4 h-1.5 w-full rounded-full"
+                      style={{ background: 'rgba(167,197,229,0.25)' }}
+                    >
                       <div
-                        className="h-1.5 rounded-full bg-[#d4a93e]"
+                        className="h-1.5 rounded-full bg-[#b8973a]"
                         style={{ width: `${coverage}%` }}
                       />
                     </div>
@@ -269,9 +301,14 @@ Ward must not:  sign transactions
               </div>
             </div>
 
-            <div className="site-panel rounded-[34px] p-8">
-              <p className="font-mono text-sm font-bold text-[#d4a93e]">Test suite breakdown</p>
-              <div className="mt-6 grid gap-4">
+            <div
+              className="rounded-xl border bg-white p-7 shadow-[0_1px_3px_rgba(15,36,57,0.08)]"
+              style={{ borderColor: 'rgba(167,197,229,0.4)' }}
+            >
+              <p className="font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-[#a7c5e5]">
+                Test suite breakdown
+              </p>
+              <div className="mt-5 grid gap-3">
                 {[
                   ['Unit tests', 'test_ward.py', '496 tests'],
                   ['Property tests (Python)', 'tests/test_invariants_property.py', '61 tests'],
@@ -280,13 +317,17 @@ Ward must not:  sign transactions
                   ['Rust property tests', 'ward/tests/invariants_test.rs', '4 proptest suites'],
                   ['TypeScript tests', 'sdk/typescript/', 'full TS SDK'],
                 ].map(([suite, path, count]) => (
-                  <div key={suite} className="rounded-[20px] border border-white/8 bg-white/[0.03] p-4">
+                  <div
+                    key={suite}
+                    className="rounded-lg border p-4"
+                    style={{ borderColor: 'rgba(167,197,229,0.35)', background: '#f8fafc' }}
+                  >
                     <div className="flex items-start justify-between gap-2">
                       <div>
-                        <p className="text-sm font-bold text-[#f7f9f7]">{suite}</p>
-                        <p className="mt-1 font-mono text-xs text-[#a7c5e5]">{path}</p>
+                        <p className="text-[14px] font-semibold text-[#0f2439]">{suite}</p>
+                        <p className="mt-1 font-mono text-[11px] text-[#a7c5e5]">{path}</p>
                       </div>
-                      <span className="shrink-0 font-mono text-xs font-bold text-[#d4a93e]">{count}</span>
+                      <span className="shrink-0 font-mono text-[12px] font-bold text-[#b8973a]">{count}</span>
                     </div>
                   </div>
                 ))}
@@ -298,25 +339,28 @@ Ward must not:  sign transactions
 
       {/* Nine-check invariants */}
       <section className="site-section">
-        <div className="site-container py-28">
+        <div className="site-container py-20">
           <div className="max-w-3xl">
             <p className="site-label">Nine-check conformance</p>
-            <h2 className="mt-5 text-4xl font-black leading-tight tracking-[-0.03em] text-white md:text-5xl">
+            <h2 className="mt-5 text-[32px] font-semibold leading-tight tracking-[-0.02em] text-[#0f2439]">
               Every check is an invariant, not a policy.
             </h2>
-            <p className="site-copy mt-6">
-              INV-007 states that a claim cannot pass unless all nine checks pass. There is no override, no emergency bypass,
-              and no partial conformance. INV-016 closes the boundary — Ward returns unsigned instructions only, even after
-              all nine checks succeed.
+            <p className="mt-5 text-[15px] leading-[1.75] text-[#5a7a99]">
+              INV-007 states that a claim cannot pass unless all nine checks pass. There is no override, no emergency
+              bypass, and no partial conformance. INV-016 closes the boundary — Ward returns unsigned instructions only.
             </p>
           </div>
 
-          <div className="mt-14 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <div className="mt-12 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {NINE_CHECKS.map(([inv, title, body]) => (
-              <article key={inv} className="site-panel rounded-[28px] p-5">
-                <p className="font-mono text-sm font-bold uppercase tracking-[0.12em] text-[#d4a93e]">{inv}</p>
-                <h3 className="mt-3 text-base font-black text-white">{title}</h3>
-                <p className="mt-3 text-sm leading-6 text-[#a7c5e5]">{body}</p>
+              <article
+                key={inv}
+                className="rounded-xl border bg-white p-5 shadow-[0_1px_3px_rgba(15,36,57,0.08)]"
+                style={{ borderColor: 'rgba(167,197,229,0.4)' }}
+              >
+                <p className="font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-[#b8973a]">{inv}</p>
+                <h3 className="mt-3 text-[15px] font-semibold text-[#0f2439]">{title}</h3>
+                <p className="mt-3 text-[13px] leading-6 text-[#5a7a99]">{body}</p>
               </article>
             ))}
           </div>
@@ -325,27 +369,29 @@ Ward must not:  sign transactions
 
       {/* Audit readiness */}
       <section className="site-section">
-        <div className="site-container py-28">
+        <div className="site-container py-20">
           <div className="grid gap-14 lg:grid-cols-[1fr_1fr]">
             <div>
               <p className="site-label">Audit readiness</p>
-              <h2 className="mt-5 text-4xl font-black leading-tight tracking-[-0.03em] text-white md:text-5xl">
+              <h2 className="mt-5 text-[32px] font-semibold leading-tight tracking-[-0.02em] text-[#0f2439]">
                 Machine-checked evidence before the auditors arrive.
               </h2>
-              <p className="site-copy mt-6">
+              <p className="mt-5 text-[15px] leading-[1.75] text-[#5a7a99]">
                 Ward Protocol targets Q3 2026 for a formal third-party audit. The formal artifacts, property tests, and
                 static checkers described here form the pre-audit evidence package. They run continuously — not on request.
               </p>
-              <div className="mt-8 flex flex-wrap gap-3 text-sm">
+              <div className="mt-8 flex flex-wrap gap-3">
                 <Link
                   href="/docs"
-                  className="inline-flex items-center rounded-full border border-white/12 bg-white/[0.03] px-5 py-2.5 font-semibold text-[#f7f9f7] transition hover:bg-white/[0.06]"
+                  className="inline-flex items-center rounded-lg border px-5 py-2.5 text-[14px] font-semibold text-[#0f2439] transition hover:bg-[rgba(167,197,229,0.12)]"
+                  style={{ borderColor: 'rgba(15,36,57,0.18)' }}
                 >
                   Read the docs
                 </Link>
                 <Link
                   href="/spec"
-                  className="inline-flex items-center rounded-full border border-white/12 bg-white/[0.03] px-5 py-2.5 font-semibold text-[#f7f9f7] transition hover:bg-white/[0.06]"
+                  className="inline-flex items-center rounded-lg border px-5 py-2.5 text-[14px] font-semibold text-[#0f2439] transition hover:bg-[rgba(167,197,229,0.12)]"
+                  style={{ borderColor: 'rgba(15,36,57,0.18)' }}
                 >
                   Full specification
                 </Link>
@@ -354,9 +400,13 @@ Ward must not:  sign transactions
 
             <div className="grid gap-4">
               {AUDIT_ITEMS.map((item) => (
-                <article key={item.label} className="site-panel-muted rounded-[28px] p-5">
-                  <h3 className="text-base font-black text-white">{item.label}</h3>
-                  <p className="site-copy-sm mt-3">{item.body}</p>
+                <article
+                  key={item.label}
+                  className="rounded-xl border bg-white p-5 shadow-[0_1px_3px_rgba(15,36,57,0.08)]"
+                  style={{ borderColor: 'rgba(167,197,229,0.4)' }}
+                >
+                  <h3 className="text-[15px] font-semibold text-[#0f2439]">{item.label}</h3>
+                  <p className="mt-3 text-[14px] leading-[1.75] text-[#5a7a99]">{item.body}</p>
                 </article>
               ))}
             </div>
@@ -366,24 +416,26 @@ Ward must not:  sign transactions
 
       {/* CTAs */}
       <section className="site-section">
-        <div className="site-container py-28">
-          <div className="site-panel rounded-[38px] p-8 md:p-10 lg:p-12">
+        <div className="site-container py-20">
+          <div
+            className="rounded-xl border bg-white p-8 shadow-[0_1px_3px_rgba(15,36,57,0.08)] md:p-10 lg:p-12"
+            style={{ borderColor: 'rgba(167,197,229,0.4)' }}
+          >
             <div className="max-w-3xl">
               <p className="site-label">Next steps</p>
-              <h2 className="mt-5 text-4xl font-black leading-tight tracking-[-0.03em] text-white md:text-5xl">
+              <h2 className="mt-5 text-[32px] font-semibold leading-tight tracking-[-0.02em] text-[#0f2439]">
                 Review the specification. Discuss a pilot.
               </h2>
-              <p className="site-copy mt-6">
+              <p className="mt-5 text-[15px] leading-[1.75] text-[#5a7a99]">
                 The assurance evidence is public and versioned. The full technical specification, conformance review, and
-                integration surface are available without a sales call. When you are ready to discuss a pilot, the path is
-                direct.
+                integration surface are available without a sales call.
               </p>
             </div>
 
             <div className="mt-10 flex flex-wrap gap-4">
               <Link
                 href="/spec"
-                className="inline-flex min-h-14 items-center rounded-full bg-[#f7f9f7] px-7 py-3 text-base font-bold text-[#07131a] transition hover:bg-white"
+                className="inline-flex items-center rounded-lg bg-[#0f2439] px-6 py-3 text-[15px] font-semibold text-white transition hover:bg-[#0d1f32]"
               >
                 Review the Specification
               </Link>
@@ -391,13 +443,14 @@ Ward must not:  sign transactions
                 href={PILOT_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex min-h-14 items-center rounded-full border border-[#d4a93e]/30 bg-[#d4a93e] px-7 py-3 text-base font-bold text-[#07131a] transition hover:brightness-105"
+                className="inline-flex items-center rounded-lg bg-[#b8973a] px-6 py-3 text-[15px] font-semibold text-white transition hover:brightness-105"
               >
                 Discuss a Pilot
               </a>
               <Link
                 href="/conformance"
-                className="inline-flex min-h-14 items-center rounded-full border border-white/12 bg-white/[0.03] px-7 py-3 text-base font-bold text-[#f7f9f7] transition hover:bg-white/[0.06]"
+                className="inline-flex items-center rounded-lg border px-6 py-3 text-[15px] font-semibold text-[#0f2439] transition hover:bg-[rgba(167,197,229,0.12)]"
+                style={{ borderColor: 'rgba(15,36,57,0.18)' }}
               >
                 Conformance Review
               </Link>
