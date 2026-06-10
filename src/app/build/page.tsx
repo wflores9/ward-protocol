@@ -271,10 +271,9 @@ export default function BuildPage() {
               <p className="font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-[#a7c5e5] mb-5">
                 Key calculations
               </p>
-              <div style={{ overflowX: 'auto', maxWidth: '100%' }}>
               <pre
                 className="rounded-lg p-5 font-mono text-[12px] leading-7"
-                style={{ background: '#1a2f3f', border: '1px solid rgba(167,197,229,0.15)', color: '#c8dce8', whiteSpace: 'pre', minWidth: 0 }}
+                style={{ background: '#1a2f3f', border: '1px solid rgba(167,197,229,0.15)', color: '#c8dce8', whiteSpace: 'pre-wrap', wordBreak: 'break-word', maxWidth: '100%' }}
               >{`# Drops are the native XRPL integer unit (1 XRP = 1,000,000 drops)
 
 DefaultAmount   = Loan.PrincipalAmount - Loan.PaidAmount
@@ -282,7 +281,6 @@ DefaultCovered  = min(DefaultAmount, Policy.CoverageDrops)
 VaultLoss       = Vault.LossUnrealized           # set by XLS-65 on default
 ClaimPayout     = min(DefaultCovered, VaultLoss)
 CoverageRatio   = Vault.AssetsTotal / LoanBroker.DebtTotal  # must be >= 1.5`}</pre>
-              </div>
             </div>
           </div>
         </div>
