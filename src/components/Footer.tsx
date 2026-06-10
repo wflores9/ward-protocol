@@ -23,7 +23,7 @@ const DOCS_LINKS = [
 
 const COMMUNITY_LINKS = [
   { label: 'X (Twitter)', href: 'https://x.com/wardprotocol', external: true },
-  { label: 'Discord', href: 'https://discord.gg/wardprotocol', external: true },
+  { label: 'Discord', href: 'https://discord.gg/j45hnRP3HW', external: true },
   { label: 'GitHub Discussions', href: 'https://github.com/wflores9/ward-protocol/discussions', external: true },
 ];
 
