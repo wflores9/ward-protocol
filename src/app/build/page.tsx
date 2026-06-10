@@ -6,6 +6,35 @@ import InstallBlocks from '@/components/InstallBlocks';
 import { PILOT_URL } from '@/lib/navigation';
 import { CHAIN_ADAPTERS, PILOT_READINESS_PHASES } from '@/lib/wardPlatform';
 
+const ARCHITECTURE_MODULES = [
+  ['Module 1', 'WardClient', 'High-level SDK entrypoint for institutions and integrators.'],
+  ['Module 2', 'VaultMonitor', 'WebSocket default detection with authoritative ledger re-verification.'],
+  ['Module 3', 'ClaimValidator', 'Nine-step deterministic on-chain claim validation.'],
+  ['Module 4', 'EscrowSettlement', 'Unsigned escrow lifecycle for controlled institutional execution.'],
+  ['Module 5', 'PoolHealthMonitor', 'Coverage ratio and reserve accounting for pool safety.'],
+] as const;
+
+const NINE_CHECKS = [
+  'NFT existence and taxon enforcement (WARD_POLICY_TAXON = 281)',
+  'Policy validity using XRPL ledger close_time, never server clock',
+  'Vault address binding: metadata vault must equal defaulted_vault',
+  'LSF_LOAN_DEFAULT flag on LedgerEntry(index=loan_id)',
+  'Vault loss must be greater than zero drops',
+  'Pool usable balance must exceed the validated loss amount',
+  'Replay protection: policy NFT must still be live',
+  'Claimant must still hold the policy NFT on ledger',
+  'Pool solvency and rate limits must still hold at settlement',
+] as const;
+
+const KEY_CONSTANTS = [
+  ['WARD_POLICY_TAXON', '281'],
+  ['MIN_COVERAGE_RATIO', '1.5'],
+  ['CLAIM_RATE_LIMIT_MAX', '3'],
+  ['LSF_LOAN_DEFAULT', '0x00010000'],
+  ['MONITOR_HEARTBEAT_TIMEOUT_S', '60'],
+  ['XRPL_BASE_RESERVE_DROPS', '2_000_000'],
+] as const;
+
 export const metadata: Metadata = {
   title: 'Build With Ward | Tokenized Credit Conformance Infrastructure',
   description:
@@ -59,6 +88,96 @@ export default function BuildPage() {
               >
                 Discuss a Pilot
               </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Protocol spec — architecture */}
+      <section className="site-section">
+        <div className="site-container py-20">
+          <div className="max-w-xl">
+            <p className="site-label">Protocol specification</p>
+            <h2 className="mt-5 text-[32px] font-semibold leading-tight tracking-[-0.02em] text-[#0f2439]">
+              Five modules. Nine checks. One conformance result.
+            </h2>
+            <p className="mt-5 text-[15px] leading-[1.75] text-[#5a7a99]">
+              The Ward conformance engine is deterministic and auditable. Every integration runs the same nine on-ledger
+              checks through the same five modules, returning a machine-readable receipt institutions can inspect.
+            </p>
+            <Link
+              href="/spec"
+              className="mt-6 inline-flex items-center font-mono text-[13px] font-semibold text-[#2a5f9e] transition hover:text-[#0f2439]"
+            >
+              Read the full protocol specification →
+            </Link>
+          </div>
+
+          {/* Architecture modules */}
+          <div className="mt-10 grid gap-4 lg:grid-cols-5">
+            {ARCHITECTURE_MODULES.map(([step, title, body]) => (
+              <article
+                key={title}
+                className="rounded-xl border bg-white p-5 shadow-[0_1px_3px_rgba(15,36,57,0.08)]"
+                style={{ borderColor: 'rgba(167,197,229,0.4)' }}
+              >
+                <p className="font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-[#b8973a]">{step}</p>
+                <h3 className="mt-3 text-[15px] font-semibold text-[#0f2439]">{title}</h3>
+                <p className="mt-3 text-[13px] leading-[1.65] text-[#5a7a99]">{body}</p>
+              </article>
+            ))}
+          </div>
+
+          {/* Nine checks + Key constants */}
+          <div className="mt-10 grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
+            {/* Nine checks */}
+            <div>
+              <p className="font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-[#a7c5e5]">
+                Nine on-ledger checks
+              </p>
+              <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {NINE_CHECKS.map((check, i) => (
+                  <div
+                    key={check}
+                    className="rounded-lg border p-4"
+                    style={{ borderColor: 'rgba(167,197,229,0.35)', background: '#f8fafc' }}
+                  >
+                    <p className="font-mono text-[11px] font-bold text-[#b8973a]">Check {String(i + 1).padStart(2, '0')}</p>
+                    <p className="mt-2 text-[12px] leading-[1.6] text-[#5a7a99]">{check}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Key constants */}
+            <div>
+              <p className="font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-[#a7c5e5]">
+                Key constants
+              </p>
+              <div
+                className="mt-4 rounded-xl border bg-white p-5 shadow-[0_1px_3px_rgba(15,36,57,0.08)]"
+                style={{ borderColor: 'rgba(167,197,229,0.4)' }}
+              >
+                <table className="w-full border-collapse">
+                  <tbody>
+                    {KEY_CONSTANTS.map(([name, value]) => (
+                      <tr key={name} style={{ borderTop: '1px solid rgba(167,197,229,0.28)' }}>
+                        <td className="py-2.5 font-mono text-[12px] text-[#b8973a]">{name}</td>
+                        <td className="py-2.5 text-right font-mono text-[12px] text-[#5a7a99]">{value}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                <div
+                  className="mt-5 rounded-lg p-3"
+                  style={{ background: 'rgba(184,151,58,0.07)', borderLeft: '3px solid #b8973a' }}
+                >
+                  <p className="font-mono text-[11px] font-semibold text-[#b8973a]">ward_signed = False — always.</p>
+                  <p className="mt-1 text-[12px] leading-[1.6] text-[#5a7a99]">
+                    Ward returns unsigned payloads only. The institution signs. The chain settles.
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
