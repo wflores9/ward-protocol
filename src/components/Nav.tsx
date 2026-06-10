@@ -9,27 +9,59 @@ export default function Nav() {
   const [open, setOpen] = useState(false);
 
   return (
-    <nav className="site-nav sticky top-0 z-[100] border-b bg-white" style={{ borderColor: '#E4E9F2' }}>
-      <div className="site-container flex h-[72px] items-center justify-between">
+    <nav className="site-nav sticky top-0 z-[100] bg-white" style={{ borderBottom: '1px solid #E4E9F2', height: 64 }}>
+      <div className="site-container flex h-full items-center justify-between">
         {/* Logo */}
         <Link href="/" onClick={() => setOpen(false)} className="flex items-center gap-3 no-underline">
-          <div className="relative flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-full bg-[#0f2439]">
-            <span className="text-[20px] font-extrabold leading-none text-[#a7c5e5]">W</span>
-            <div className="absolute bottom-[7px] left-[9px] right-[9px] h-[2px] rounded-[1px] bg-[#b8973a]" />
+          <div
+            className="relative flex shrink-0 items-center justify-center rounded-full bg-[#0f2439]"
+            style={{ width: 44, height: 44 }}
+          >
+            <span
+              style={{
+                fontFamily: 'Georgia, serif',
+                fontSize: 22,
+                fontWeight: 800,
+                color: '#a7c5e5',
+                lineHeight: 1,
+                marginBottom: 3,
+                display: 'block',
+              }}
+            >
+              W
+            </span>
+            <div
+              className="absolute rounded-[1px] bg-[#b8973a]"
+              style={{ bottom: 9, left: 10, right: 10, height: 2 }}
+            />
           </div>
-          <div className="flex flex-col gap-0">
-            <span className="text-[13px] font-bold tracking-[0.14em] text-[#0f2439]">WARD</span>
-            <span className="text-[9px] font-medium uppercase tracking-[0.12em] text-[#a7c5e5]">Protocol</span>
+          <div className="flex flex-col" style={{ gap: 3 }}>
+            <span style={{ fontSize: 16, fontWeight: 700, color: '#0f2439', letterSpacing: '0.04em', lineHeight: 1 }}>
+              WARD
+            </span>
+            <span
+              style={{
+                fontSize: 10,
+                fontWeight: 500,
+                color: '#a7c5e5',
+                letterSpacing: '0.14em',
+                textTransform: 'uppercase',
+                lineHeight: 1,
+              }}
+            >
+              PROTOCOL
+            </span>
           </div>
         </Link>
 
         {/* Desktop nav */}
-        <div className="hidden items-center gap-1 md:flex">
+        <div className="hidden items-center md:flex" style={{ gap: 32 }}>
           {SITE_NAVIGATION.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className="rounded-lg px-4 py-2 text-[14px] font-medium text-[#0f2439] transition hover:bg-[rgba(167,197,229,0.15)] hover:text-[#0d1f32]"
+              className="transition hover:text-[#0f2439]"
+              style={{ fontSize: 14, color: '#4a6580', textDecoration: 'none' }}
             >
               {link.label}
             </Link>
@@ -38,9 +70,19 @@ export default function Nav() {
             href={PILOT_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="ml-3 inline-flex min-h-[38px] items-center rounded-lg bg-[#0f2439] px-5 py-2 text-[14px] font-semibold text-white transition hover:bg-[#0d1f32]"
+            className="transition hover:bg-[#0d1f32]"
+            style={{
+              background: '#0f2439',
+              color: '#fff',
+              fontSize: 14,
+              fontWeight: 600,
+              padding: '10px 22px',
+              borderRadius: 8,
+              letterSpacing: '-0.01em',
+              textDecoration: 'none',
+            }}
           >
-            Discuss a pilot
+            Discuss a pilot →
           </a>
         </div>
 
@@ -79,7 +121,7 @@ export default function Nav() {
               onClick={() => setOpen(false)}
               className="mt-4 block rounded-lg bg-[#0f2439] px-5 py-3 text-center text-[15px] font-semibold text-white"
             >
-              Discuss a pilot
+              Discuss a pilot →
             </a>
           </div>
         </div>
