@@ -1,11 +1,26 @@
 import os
 import json
 import urllib.request
+from urllib.parse import urlparse
 
 
 def _env(name: str, default: str) -> str:
     v = os.getenv(name)
     return v if v else default
+
+
+def _validate_api_base(url: str) -> None:
+    """Reject non-https API bases unless the host is loopback (local dev)."""
+    parsed = urlparse(url)
+    is_loopback = parsed.hostname in ("127.0.0.1", "::1", "localhost")
+    if parsed.scheme == "http" and not is_loopback:
+        raise ValueError(
+            f"WARD_API_BASE must use https:// for non-loopback hosts: {url!r}"
+        )
+    if parsed.scheme not in ("http", "https"):
+        raise ValueError(
+            f"WARD_API_BASE must use http:// or https://: {url!r}"
+        )
 
 
 def _post(url: str, payload: dict, headers: dict) -> dict:
@@ -61,6 +76,7 @@ def file_claim(api_base: str, vault_id: str, policy_nft_id: str, claimant_addres
 
 def main() -> None:
     api_base = _env("WARD_API_BASE", "http://127.0.0.1:8000").rstrip("/")
+    _validate_api_base(api_base)
     institution_key = os.getenv("INSTITUTION_API_KEY")
 
     print("# health")

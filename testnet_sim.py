@@ -134,10 +134,11 @@ def load_wallets(path: str) -> dict[str, Wallet]:
     wallets = {}
     for name, info in data.items():
         wallet = Wallet.from_seed(info["seed"])
-        assert wallet.classic_address == info["address"], (
-            f"Address mismatch for {name}: "
-            f"expected {info['address']}, got {wallet.classic_address}"
-        )
+        if wallet.classic_address != info["address"]:
+            raise ValueError(
+                f"Address mismatch for {name}: "
+                f"expected {info['address']}, got {wallet.classic_address}"
+            )
         wallets[name] = wallet
         log(f"Loaded wallet '{name}': {wallet.classic_address}")
     return wallets

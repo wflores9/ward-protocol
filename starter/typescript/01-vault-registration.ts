@@ -18,6 +18,7 @@
 import { Client, Wallet, dropsToXrp } from "xrpl";
 import type { SubmittableTransaction } from "xrpl";
 
+// SAST note: WARD_API is a hardcoded https:// constant — no user input reaches the URL constructor.
 const WARD_API = "https://api.wardprotocol.org";
 const XRPL_WS  = "wss://s.altnet.rippletest.net:51233/";
 

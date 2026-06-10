@@ -84,7 +84,8 @@ async def step_vault_registration(wallet: Wallet) -> str:
     tx_resp = _post("/vaults/transaction", {"vault_id": vault_id,
                                              "account": wallet.classic_address})
     unsigned_tx = tx_resp.get("unsigned_tx", tx_resp)
-    assert "TxnSignature" not in unsigned_tx, "ward_signed violated"
+    if "TxnSignature" in unsigned_tx:
+        raise RuntimeError("ward_signed violated")
     print(f"  ✓ ward_signed = False")
 
     async with AsyncJsonRpcClient(XRPL_RPC) as client:
@@ -105,10 +106,13 @@ async def step_policy_purchase(wallet: Wallet, vault_address: str) -> str:
     policy_id   = resp.get("policy_id", "demo-policy")
     unsigned_tx = resp.get("unsigned_tx", resp)
 
-    # Invariant assertions
-    assert "TxnSignature" not in unsigned_tx, "ward_signed violated"
-    assert unsigned_tx.get("NFTokenTaxon") == WARD_POLICY_TAXON, "wrong taxon"
-    assert not (unsigned_tx.get("Flags", 0) & TF_TRANSFERABLE), "TF_TRANSFERABLE must be absent"
+    # Invariant checks
+    if "TxnSignature" in unsigned_tx:
+        raise RuntimeError("ward_signed violated")
+    if unsigned_tx.get("NFTokenTaxon") != WARD_POLICY_TAXON:
+        raise RuntimeError(f"wrong taxon: expected {WARD_POLICY_TAXON}, got {unsigned_tx.get('NFTokenTaxon')}")
+    if unsigned_tx.get("Flags", 0) & TF_TRANSFERABLE:
+        raise RuntimeError("TF_TRANSFERABLE must be absent")
     print(f"  policy_id : {policy_id}")
     print(f"  ✓ NFTokenTaxon = {WARD_POLICY_TAXON} (WARD_POLICY_TAXON)")
     print(f"  ✓ TF_TRANSFERABLE absent")
@@ -182,7 +186,8 @@ async def step_escrow_settlement(wallet: Wallet, pool_address: str, payout: int)
         "condition_hex":    condition_hex,
     })
     unsigned_create = escrow_resp.get("unsigned_escrow_create", escrow_resp)
-    assert "TxnSignature" not in unsigned_create, "ward_signed violated"
+    if "TxnSignature" in unsigned_create:
+        raise RuntimeError("ward_signed violated")
 
     async with AsyncJsonRpcClient(XRPL_RPC) as client:
         ec_result = await submit_and_wait(EscrowCreate.from_dict(unsigned_create), client, wallet)
@@ -197,7 +202,8 @@ async def step_escrow_settlement(wallet: Wallet, pool_address: str, payout: int)
         "fulfillment_hex":  fulfillment_hex,
     })
     unsigned_finish = finish_resp.get("unsigned_escrow_finish", finish_resp)
-    assert "TxnSignature" not in unsigned_finish, "ward_signed violated"
+    if "TxnSignature" in unsigned_finish:
+        raise RuntimeError("ward_signed violated")
 
     async with AsyncJsonRpcClient(XRPL_RPC) as client:
         ef_result = await submit_and_wait(EscrowFinish.from_dict(unsigned_finish), client, wallet)
