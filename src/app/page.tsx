@@ -18,20 +18,20 @@ const pillars = [
 ];
 
 const PROOF_STATS = [
-  { num: '537', suffix: '', label: 'passing tests', isVersion: false },
-  { num: '92', suffix: '%', label: 'critical path coverage', isVersion: false },
-  { num: '8', suffix: '', label: 'chain adapters', isVersion: false },
-  { num: '32', suffix: '', label: 'formal invariants', isVersion: false },
-  { num: 'v0.2.6', suffix: '', label: 'PyPI + npm', isVersion: true },
+  { num: '537', suffix: '', label: 'passing tests' },
+  { num: '92', suffix: '%', label: 'critical path coverage' },
+  { num: '8', suffix: '', label: 'chain adapters' },
+  { num: '32', suffix: '', label: 'formal invariants' },
+  { num: 'v0.2.6', suffix: '', label: 'PyPI + npm' },
 ];
 
-const API_STATS = [
-  { label: 'Endpoint', value: 'api.wardprotocol.org', cls: 'text-[#2a5f9e]' },
-  { label: 'Version', value: 'v0.2.6', cls: 'text-[#0f2439]' },
-  { label: 'Tests passing', value: '537 / 537', cls: 'text-[#16a34a]' },
-  { label: 'Coverage', value: '92%', cls: 'text-[#16a34a]' },
-  { label: 'Chains', value: '8 adapters', cls: 'text-[#0f2439]' },
-  { label: 'Last validation', value: 'checks_passed: 1', cls: 'text-[#16a34a]' },
+const API_STATS: { label: string; value: string; color: string }[] = [
+  { label: 'Endpoint', value: 'api.wardprotocol.org', color: '#1d4ed8' },
+  { label: 'Version', value: 'v0.2.6', color: '#0f2439' },
+  { label: 'Tests passing', value: '537 / 537', color: '#15803d' },
+  { label: 'Coverage', value: '92%', color: '#15803d' },
+  { label: 'Chains', value: '8 adapters', color: '#0f2439' },
+  { label: 'Last validation', value: 'checks_passed: 1', color: '#15803d' },
 ];
 
 export default function Home() {
@@ -44,12 +44,12 @@ export default function Home() {
             {/* Left column */}
             <div>
               <p className="site-label">Institutional tokenized credit · conformance standard</p>
-              <h1 className="mt-7 text-4xl font-semibold leading-[1.08] tracking-[-0.02em] text-[#0f2439] md:text-[48px]">
+              <h1 className="mt-7 text-[40px] font-semibold leading-[1.05] tracking-[-0.015em] text-[#0f2439] md:text-[56px]">
                 Default<span className="text-[#b8973a]">.</span> Resolved<span className="text-[#b8973a]">.</span>{' '}
                 On-chain<span className="text-[#b8973a]">.</span>
               </h1>
               <div className="mb-6 mt-4 h-[3px] w-[72px] rounded-sm bg-[#b8973a]" />
-              <p className="text-[15px] leading-[1.7] text-[#5a7a99]">
+              <p className="text-[16px] leading-[1.75] text-[#5a7a99]">
                 Ward gives lenders, vault operators, and credit protocols a deterministic way to validate defaults,
                 preserve the signer boundary, and export reviewable conformance receipts.
               </p>
@@ -73,7 +73,7 @@ export default function Home() {
               {/* Version badge */}
               <div
                 className="mt-6 inline-flex items-center gap-2.5 rounded-md border bg-white px-4 py-2 font-mono text-[13px] text-[#0f2439]"
-                style={{ borderColor: 'rgba(167,197,229,0.5)' }}
+                style={{ borderColor: '#E4E9F2' }}
               >
                 <span className="h-2 w-2 shrink-0 rounded-full bg-[#16a34a]" />
                 v0.2.6 · 8 chains · 537 tests · ward_signed = False
@@ -82,35 +82,42 @@ export default function Home() {
 
             {/* Right column: Live API Status */}
             <div
-              className="rounded-xl border bg-white p-6 shadow-[0_1px_4px_rgba(15,36,57,0.07)]"
-              style={{ borderColor: 'rgba(167,197,229,0.45)' }}
+              className="overflow-hidden rounded-xl bg-white"
+              style={{ border: '1.5px solid #c8d9eb', boxShadow: '0 2px 12px rgba(15,36,57,0.08)' }}
             >
+              {/* Card header */}
               <div
-                className="mb-5 flex items-center justify-between border-b pb-4"
-                style={{ borderColor: 'rgba(167,197,229,0.28)' }}
+                className="flex items-center justify-between"
+                style={{ background: '#F9FAFC', borderBottom: '1px solid #E4E9F2', padding: '14px 20px' }}
               >
-                <p className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-[#a7c5e5]">
+                <p
+                  className="font-mono"
+                  style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#0f2439' }}
+                >
                   Live API Status
                 </p>
-                <span className="badge-live">XRPL Altnet</span>
+                <span
+                  className="font-mono text-[12px] font-semibold"
+                  style={{ background: '#dcfce7', color: '#15803d', padding: '2px 10px', borderRadius: 20 }}
+                >
+                  XRPL Altnet
+                </span>
               </div>
-              <div className="space-y-3">
-                {API_STATS.map(({ label, value, cls }) => (
-                  <div key={label} className="flex items-center justify-between">
-                    <span className="font-mono text-[12px] text-[#a7c5e5]">{label}</span>
-                    <span className={`font-mono text-[12px] font-bold ${cls}`}>{value}</span>
-                  </div>
-                ))}
-              </div>
+
+              {/* Stat rows */}
+              {API_STATS.map(({ label, value, color }) => (
+                <div
+                  key={label}
+                  className="flex items-center justify-between"
+                  style={{ padding: '10px 20px', borderBottom: '1px solid #F9FAFC' }}
+                >
+                  <span style={{ color: '#8a9bb0', fontSize: 13, fontWeight: 400 }}>{label}</span>
+                  <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 13, fontWeight: 600, color }}>{value}</span>
+                </div>
+              ))}
+
               {/* Invariant banner */}
-              <div
-                className="mt-5 rounded-r-[6px]"
-                style={{
-                  background: '#f8fafc',
-                  borderLeft: '3px solid #b8973a',
-                  padding: '10px 12px',
-                }}
-              >
+              <div style={{ background: '#fffdf5', borderLeft: '3px solid #b8973a', margin: '0 16px 16px', padding: '10px 12px', marginTop: 8 }}>
                 <p
                   className="font-mono font-bold uppercase"
                   style={{ fontSize: 9, letterSpacing: '0.12em', color: '#b8973a' }}
@@ -127,25 +134,21 @@ export default function Home() {
       </section>
 
       {/* Proof strip */}
-      <div
-        className="border-y bg-white py-7"
-        style={{ borderColor: 'rgba(167,197,229,0.3)' }}
-      >
+      <div style={{ background: '#ffffff', borderTop: '1px solid #E4E9F2', borderBottom: '1px solid #E4E9F2' }}>
         <div className="site-container">
-          <div className="grid grid-cols-2 gap-y-6 gap-x-6 md:grid-cols-5">
-            {PROOF_STATS.map(({ num, suffix, label, isVersion }) => (
-              <div key={label}>
-                <p className="font-mono text-[22px] font-bold">
-                  {isVersion ? (
-                    <span className="text-[#b8973a]">{num}</span>
-                  ) : (
-                    <>
-                      <span className="text-[#0f2439]">{num}</span>
-                      {suffix && <span className="text-[#b8973a]">{suffix}</span>}
-                    </>
-                  )}
+          <div className="grid grid-cols-2 md:grid-cols-5">
+            {PROOF_STATS.map(({ num, suffix, label }, i) => (
+              <div
+                key={label}
+                style={{
+                  padding: '28px 20px',
+                  borderRight: i < 4 ? '1px solid #F9FAFC' : undefined,
+                }}
+              >
+                <p style={{ fontFamily: 'DM Mono, monospace', fontSize: 32, fontWeight: 700, color: '#0f2439', lineHeight: 1 }}>
+                  {num}{suffix}
                 </p>
-                <p className="mt-0.5 text-[12px] text-[#5a7a99]">{label}</p>
+                <p style={{ fontSize: 12, color: '#8a9bb0', marginTop: 4 }}>{label}</p>
               </div>
             ))}
           </div>
@@ -166,8 +169,8 @@ export default function Home() {
             {pillars.map((pillar) => (
               <article
                 key={pillar.title}
-                className="rounded-xl border bg-white p-5 shadow-[0_1px_3px_rgba(15,36,57,0.08)]"
-                style={{ borderColor: 'rgba(167,197,229,0.4)' }}
+                className="rounded-xl border bg-white p-5"
+                style={{ borderColor: '#E4E9F2', boxShadow: '0 1px 3px rgba(15,36,57,0.06)' }}
               >
                 <div className="mb-5 h-[3px] w-7 rounded-sm bg-[#b8973a]" />
                 <h3 className="text-[18px] font-semibold leading-snug text-[#0f2439]">{pillar.title}</h3>
@@ -182,8 +185,8 @@ export default function Home() {
       <section className="site-section">
         <div className="site-container py-24">
           <div
-            className="rounded-xl border bg-white p-8 shadow-[0_1px_3px_rgba(15,36,57,0.08)] md:p-10"
-            style={{ borderColor: 'rgba(167,197,229,0.4)', borderLeft: '3px solid #b8973a' }}
+            className="rounded-xl border bg-white p-8 md:p-10"
+            style={{ borderColor: '#E4E9F2', borderLeft: '3px solid #b8973a', boxShadow: '0 1px 3px rgba(15,36,57,0.06)' }}
           >
             <div className="max-w-2xl">
               <p
@@ -208,8 +211,8 @@ export default function Home() {
       <section className="site-section">
         <div className="site-container py-24">
           <div
-            className="rounded-xl border bg-white p-8 shadow-[0_1px_3px_rgba(15,36,57,0.08)] md:p-12"
-            style={{ borderColor: 'rgba(167,197,229,0.4)' }}
+            className="rounded-xl border bg-white p-8 md:p-12"
+            style={{ borderColor: '#E4E9F2', boxShadow: '0 1px 3px rgba(15,36,57,0.06)' }}
           >
             <div className="max-w-2xl">
               <p className="site-label">Pilots open now</p>
