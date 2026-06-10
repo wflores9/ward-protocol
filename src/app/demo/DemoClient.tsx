@@ -17,6 +17,7 @@ const FAKE_NFT_ID = '00000000000000000000000000000000000000000000000000000000000
 const XRPL_EXPLORER = 'https://testnet.xrpl.org';
 
 type RunState = 'idle' | 'running' | 'done';
+type RunMode = 'unknown' | 'live' | 'simulated';
 type ScenarioId = 1 | 2 | 3;
 type CheckStatus = 'pending' | 'pass' | 'fail';
 
@@ -108,6 +109,7 @@ function buildReceipt(
 export default function DemoClient() {
   const [selectedChain, setSelectedChain] = useState<ChainAdapter>(CHAIN_ADAPTERS[0]);
   const [runState, setRunState] = useState<RunState>('idle');
+  const [runMode, setRunMode] = useState<RunMode>('unknown');
   const [sessionId, setSessionId] = useState(makeSessionId());
   const [activeScenario, setActiveScenario] = useState<ScenarioId>(1);
   const [checkStatuses, setCheckStatuses] = useState<Record<string, CheckStatus>>({});
@@ -121,6 +123,7 @@ export default function DemoClient() {
 
   useEffect(() => {
     setRunState('idle');
+    setRunMode('unknown');
     setSessionId(makeSessionId());
     setActiveScenario(1);
     setCheckStatuses({});
@@ -133,6 +136,7 @@ export default function DemoClient() {
     if (runState === 'running') return;
     setActiveScenario(id);
     setRunState('idle');
+    setRunMode('unknown');
     setSessionId(makeSessionId());
     setCheckStatuses({});
     setApiResult(null);
@@ -164,6 +168,7 @@ export default function DemoClient() {
 
     let realResult: ApiResult | null = null;
     if (apiAvailable && DEMO_KEY && isXrpl) {
+      setRunMode('live');
       setStatusMsg('Ward API connected — reading XRPL Altnet ledger…');
       try {
         const resp = await fetch(`${WARD_API}/validate`, {
@@ -189,7 +194,10 @@ export default function DemoClient() {
         };
       } catch { setStatusMsg('API call failed — running simulation'); }
     } else if (!apiAvailable) {
+      setRunMode('simulated');
       setStatusMsg('API unavailable — running simulation');
+    } else {
+      setRunMode('simulated');
     }
 
     // Determine how many checks pass and where it fails
@@ -374,6 +382,39 @@ export default function DemoClient() {
                     {runState === 'running' ? 'Running…' : 'Run Ward Validation'}
                   </button>
 
+                  {/* Live / Simulated mode pill */}
+                  {runMode !== 'unknown' && (
+                    <div className="mt-3 flex justify-center">
+                      {runMode === 'live' ? (
+                        <span
+                          className="font-mono text-[11px] font-bold uppercase tracking-[0.08em]"
+                          style={{
+                            background: 'rgba(22,163,74,0.1)',
+                            color: '#15803d',
+                            border: '1px solid rgba(22,163,74,0.3)',
+                            borderRadius: 9999,
+                            padding: '4px 14px',
+                          }}
+                        >
+                          ● LIVE
+                        </span>
+                      ) : (
+                        <span
+                          className="font-mono text-[11px] font-bold uppercase tracking-[0.08em]"
+                          style={{
+                            background: 'rgba(90,122,153,0.1)',
+                            color: '#5a7a99',
+                            border: '1px solid rgba(90,122,153,0.2)',
+                            borderRadius: 9999,
+                            padding: '4px 14px',
+                          }}
+                        >
+                          ○ SIMULATED
+                        </span>
+                      )}
+                    </div>
+                  )}
+
                   {/* API info */}
                   <div
                     className="mt-5 space-y-2 rounded-lg border p-4"
@@ -538,12 +579,12 @@ export default function DemoClient() {
                 </p>
                 {isXrpl && (
                   <a
-                    href={`${XRPL_EXPLORER}/nfts/${DEMO_NFT_ID}`}
+                    href={`${XRPL_EXPLORER}/accounts/${DEMO_VAULT}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="font-mono text-[12px] text-[#2a5f9e] hover:underline"
                   >
-                    View NFT on Altnet →
+                    View vault on Altnet →
                   </a>
                 )}
               </div>
