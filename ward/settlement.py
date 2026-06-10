@@ -54,7 +54,12 @@ try:
         decode_responses=True,
     )
     _settlement_redis.ping()
-except Exception:
+except Exception as _redis_exc:
+    logger.warning(
+        "Redis unavailable for settlement locks — falling back to in-memory (not restart-safe). "
+        "Set WARD_REDIS_URL to enable distributed locking. Error: %s",
+        _redis_exc,
+    )
     _settlement_redis = None
 
 _SETTLEMENT_LOCK_TTL = 3600  # 1 hour — covers dispute window

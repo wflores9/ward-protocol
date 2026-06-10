@@ -314,7 +314,7 @@ async fn process_ledger_close(
     ledger_index: u32,
     health_ratio: f64,
 ) {
-    let mut lock = pending.lock().unwrap();
+    let mut lock = pending.lock().expect("pending mutex poisoned — another task panicked while holding it");
 
     if health_ratio < HEALTH_RATIO_THRESHOLD {
         // Default condition persists — increment or start counter
