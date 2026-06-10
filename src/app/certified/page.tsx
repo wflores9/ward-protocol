@@ -47,44 +47,59 @@ const doesNotCover = [
 
 export default function CertifiedPage() {
   return (
-    <main className="bg-[#f6f4ee] text-[#14242b]">
-      <section className="relative overflow-hidden bg-[#14242b] px-6 py-20 text-[#f7faf8] md:px-10 lg:px-12">
-        <div className="absolute inset-0 grid-overlay opacity-40" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_16%_18%,rgba(182,215,206,0.10),transparent_32%),radial-gradient(circle_at_84%_12%,rgba(212,169,62,0.08),transparent_34%)]" />
-        <div className="relative mx-auto max-w-6xl">
-          <p className="font-mono text-sm font-bold text-[#d4a93e]">Ward Conformance</p>
-          <h1 className="mt-4 max-w-4xl text-4xl font-black leading-tight md:text-6xl">
-            Certification for the default-resolution layer institutions need to trust.
-          </h1>
-          <p className="mt-6 max-w-3xl text-lg leading-8 text-[#d2e1dd] md:text-xl">
-            Ward Conformance verifies that a tokenized credit product implements deterministic default resolution, preserves the signer boundary, and can produce a reviewable receipt.
-          </p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Link href="/demo" className="inline-flex min-h-12 items-center rounded-md bg-[#f7faf8] px-6 py-3 text-base font-bold text-[#14242b] transition hover:bg-white">
-              Run Console
-            </Link>
-            <a href="mailto:wflores@wardprotocol.org?subject=Ward%20Conformance%20Review" className="inline-flex min-h-12 items-center rounded-md border border-[#b6d7ce]/30 px-6 py-3 text-base font-bold text-[#f7faf8] transition hover:border-[#b6d7ce] hover:bg-[#b6d7ce]/10">
-              Request Review
-            </a>
+    <main className="site-shell">
+      {/* Hero */}
+      <section className="relative overflow-hidden">
+        <div className="site-container pb-24 pt-24 lg:pt-28">
+          <div className="max-w-3xl">
+            <p className="site-label">Ward Conformance</p>
+            <h1 className="mt-6 text-4xl font-semibold leading-[1.08] tracking-[-0.02em] text-[#0f2439] md:text-[48px]">
+              Certification for the default-resolution layer institutions need to trust.
+            </h1>
+            <p className="mt-6 max-w-2xl text-[15px] leading-[1.75] text-[#5a7a99]">
+              Ward Conformance verifies that a tokenized credit product implements deterministic default resolution,
+              preserves the signer boundary, and can produce a reviewable receipt.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-4">
+              <Link
+                href="/demo"
+                className="inline-flex items-center rounded-lg bg-[#0f2439] px-6 py-3 text-[15px] font-semibold text-white transition hover:bg-[#0d1f32]"
+              >
+                Run Demo
+              </Link>
+              <a
+                href="mailto:wflores@wardprotocol.org?subject=Ward%20Conformance%20Review"
+                className="inline-flex items-center rounded-lg border px-6 py-3 text-[15px] font-semibold text-[#0f2439] transition hover:bg-[rgba(167,197,229,0.12)]"
+                style={{ borderColor: 'rgba(15,36,57,0.18)' }}
+              >
+                Request Review
+              </a>
+            </div>
           </div>
         </div>
       </section>
 
-      <section className="bg-white py-16">
-        <div className="mx-auto max-w-7xl px-6 md:px-10 lg:px-12">
-          <div className="mb-10 max-w-3xl">
-            <p className="font-mono text-sm font-bold text-[#9b6d13]">Public registry</p>
-            <h2 className="mt-3 text-3xl font-black leading-tight text-[#14242b] md:text-5xl">
+      {/* Public registry */}
+      <section className="site-section">
+        <div className="site-container py-20">
+          <div className="mb-8 max-w-xl">
+            <p className="site-label">Public registry</p>
+            <h2 className="mt-5 text-[32px] font-semibold leading-tight tracking-[-0.02em] text-[#0f2439]">
               Conformance records make the default path inspectable.
             </h2>
           </div>
-
-          <div className="overflow-x-auto rounded-lg border border-[#14242b]/10 bg-white">
-            <table className="w-full min-w-[900px] border-collapse">
-              <thead className="bg-[#f6f4ee]">
+          <div
+            className="overflow-x-auto rounded-xl border bg-white shadow-[0_1px_3px_rgba(15,36,57,0.06)]"
+            style={{ borderColor: '#E4E9F2' }}
+          >
+            <table className="w-full min-w-[860px] border-collapse">
+              <thead style={{ background: '#F9FAFC', borderBottom: '1px solid #E4E9F2' }}>
                 <tr>
                   {['Record', 'Product', 'Network', 'Status', 'Checks', 'Signer Boundary', 'Version'].map((header) => (
-                    <th key={header} className="px-5 py-4 text-left font-mono text-sm font-bold text-[#52665f]">
+                    <th
+                      key={header}
+                      className="px-5 py-4 text-left font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-[#a7c5e5]"
+                    >
                       {header}
                     </th>
                   ))}
@@ -92,66 +107,108 @@ export default function CertifiedPage() {
               </thead>
               <tbody>
                 {registry.map((item) => (
-                  <tr key={item.id} className="border-t border-[#14242b]/10">
-                    <td className="px-5 py-4 font-mono text-sm font-bold text-[#9b6d13]">{item.id}</td>
-                    <td className="px-5 py-4 text-base font-bold text-[#14242b]">{item.product}</td>
-                    <td className="px-5 py-4 text-base text-[#52665f]">{item.network}</td>
+                  <tr key={item.id} style={{ borderTop: '1px solid #E4E9F2' }}>
+                    <td className="px-5 py-4 font-mono text-[12px] font-bold text-[#b8973a]">{item.id}</td>
+                    <td className="px-5 py-4 text-[14px] font-semibold text-[#0f2439]">{item.product}</td>
+                    <td className="px-5 py-4 text-[14px] text-[#5a7a99]">{item.network}</td>
                     <td className="px-5 py-4">
-                      <span className="rounded-md border border-[#00cc66]/30 bg-[#00cc66]/10 px-3 py-1.5 font-mono text-sm font-bold text-[#116c3b]">
+                      <span
+                        className="rounded-md px-3 py-1 font-mono text-[12px] font-bold"
+                        style={{
+                          background: 'rgba(22,163,74,0.08)',
+                          color: '#15803d',
+                          border: '1px solid rgba(22,163,74,0.25)',
+                        }}
+                      >
                         {item.status}
                       </span>
                     </td>
-                    <td className="px-5 py-4 font-mono text-sm font-bold text-[#14242b]">{item.checks}</td>
-                    <td className="px-5 py-4 text-base text-[#52665f]">{item.signerBoundary}</td>
-                    <td className="px-5 py-4 font-mono text-sm text-[#52665f]">{item.version}</td>
+                    <td className="px-5 py-4 font-mono text-[13px] font-bold text-[#0f2439]">{item.checks}</td>
+                    <td className="px-5 py-4 text-[14px] text-[#5a7a99]">{item.signerBoundary}</td>
+                    <td className="px-5 py-4 font-mono text-[12px] text-[#5a7a99]">{item.version}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-          <p className="mt-4 text-sm leading-6 text-[#52665f]">
-            Mainnet production certifications will appear after the external audit path and mainnet launch readiness are complete.
+          <p className="mt-4 text-[13px] leading-6 text-[#8a9bb0]">
+            Mainnet production certifications will appear after the external audit path and mainnet launch readiness are
+            complete.
           </p>
         </div>
       </section>
 
-      <section className="bg-[#f6f4ee] py-16">
-        <div className="mx-auto grid max-w-7xl gap-8 px-6 md:px-10 lg:grid-cols-2 lg:px-12">
-          <article className="rounded-lg border border-[#14242b]/10 bg-white p-6">
-            <p className="font-mono text-sm font-bold text-[#9b6d13]">What conformance covers</p>
-            <h2 className="mt-3 text-3xl font-black text-[#14242b]">Technical default-resolution readiness.</h2>
-            <div className="mt-6 grid gap-3">
-              {covers.map((item) => (
-                <div key={item} className="rounded-md border border-[#14242b]/10 bg-[#f6f4ee] p-4 text-base leading-7 text-[#52665f]">
-                  {item}
-                </div>
-              ))}
-            </div>
-          </article>
+      {/* Covers / Does not cover */}
+      <section className="site-section">
+        <div className="site-container py-20">
+          <div className="grid gap-6 lg:grid-cols-2">
+            <article
+              className="rounded-xl border bg-white p-6 shadow-[0_1px_3px_rgba(15,36,57,0.06)]"
+              style={{ borderColor: '#E4E9F2' }}
+            >
+              <p className="font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-[#b8973a]">
+                What conformance covers
+              </p>
+              <h2 className="mt-4 text-[24px] font-semibold tracking-[-0.02em] text-[#0f2439]">
+                Technical default-resolution readiness.
+              </h2>
+              <div className="mt-6 grid gap-3">
+                {covers.map((item) => (
+                  <div
+                    key={item}
+                    className="rounded-lg p-4 text-[14px] leading-[1.7] text-[#5a7a99]"
+                    style={{ background: '#F9FAFC', border: '1px solid #E4E9F2' }}
+                  >
+                    {item}
+                  </div>
+                ))}
+              </div>
+            </article>
 
-          <article className="rounded-lg border border-[#14242b]/10 bg-white p-6">
-            <p className="font-mono text-sm font-bold text-[#9b6d13]">What it does not cover</p>
-            <h2 className="mt-3 text-3xl font-black text-[#14242b]">No financial guarantee, no custody promise.</h2>
-            <div className="mt-6 grid gap-3">
-              {doesNotCover.map((item) => (
-                <div key={item} className="rounded-md border border-[#14242b]/10 bg-[#f6f4ee] p-4 text-base leading-7 text-[#52665f]">
-                  {item}
-                </div>
-              ))}
-            </div>
-          </article>
+            <article
+              className="rounded-xl border bg-white p-6 shadow-[0_1px_3px_rgba(15,36,57,0.06)]"
+              style={{ borderColor: '#E4E9F2' }}
+            >
+              <p className="font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-[#a7c5e5]">
+                What it does not cover
+              </p>
+              <h2 className="mt-4 text-[24px] font-semibold tracking-[-0.02em] text-[#0f2439]">
+                No financial guarantee, no custody promise.
+              </h2>
+              <div className="mt-6 grid gap-3">
+                {doesNotCover.map((item) => (
+                  <div
+                    key={item}
+                    className="rounded-lg p-4 text-[14px] leading-[1.7] text-[#5a7a99]"
+                    style={{ background: '#F9FAFC', border: '1px solid #E4E9F2' }}
+                  >
+                    {item}
+                  </div>
+                ))}
+              </div>
+            </article>
+          </div>
         </div>
       </section>
 
-      <section className="bg-[#14242b] py-16 text-center text-[#f7faf8]">
-        <div className="mx-auto max-w-4xl px-6">
-          <p className="font-mono text-sm font-bold text-[#d4a93e]">Pre-mainnet assurance path</p>
-          <h2 className="mt-3 text-3xl font-black leading-tight md:text-5xl">
-            Ward Conformance is the bridge between a working integration and institutional confidence.
-          </h2>
-          <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-[#d2e1dd]">
-            The next unlock is third-party review, production pilots, and mainnet-ready certification once the underlying lending primitives are live.
-          </p>
+      {/* CTA */}
+      <section className="site-section">
+        <div className="site-container py-20">
+          <div
+            className="rounded-xl border bg-white p-8 shadow-[0_1px_3px_rgba(15,36,57,0.06)] md:p-10"
+            style={{ borderColor: '#E4E9F2' }}
+          >
+            <div className="max-w-2xl">
+              <p className="site-label">Pre-mainnet assurance path</p>
+              <h2 className="mt-5 text-[32px] font-semibold leading-tight tracking-[-0.02em] text-[#0f2439]">
+                Ward Conformance is the bridge between a working integration and institutional confidence.
+              </h2>
+              <p className="mt-5 text-[15px] leading-[1.75] text-[#5a7a99]">
+                The next unlock is third-party review, production pilots, and mainnet-ready certification once the
+                underlying lending primitives are live.
+              </p>
+            </div>
+          </div>
         </div>
       </section>
     </main>

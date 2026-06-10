@@ -184,16 +184,16 @@ function getEscrowStatus(escrow: Escrow, now: number): EscrowStatus {
 }
 
 const STATUS_STYLES: Record<ClaimStatus, string> = {
-  PENDING: 'text-gold bg-gold/10 border border-gold/30',
-  VALIDATED: 'text-sky-400 bg-sky-400/10 border border-sky-400/30',
-  REJECTED: 'text-red-400 bg-red-400/10 border border-red-400/30',
-  SETTLED: 'text-emerald-400 bg-emerald-400/10 border border-emerald-400/30',
+  PENDING: 'text-[#b8973a] bg-[rgba(184,151,58,0.08)] border border-[rgba(184,151,58,0.25)]',
+  VALIDATED: 'text-[#1d4ed8] bg-[rgba(29,78,216,0.08)] border border-[rgba(29,78,216,0.2)]',
+  REJECTED: 'text-[#dc2626] bg-[rgba(220,38,38,0.08)] border border-[rgba(220,38,38,0.2)]',
+  SETTLED: 'text-[#15803d] bg-[rgba(22,163,74,0.08)] border border-[rgba(22,163,74,0.2)]',
 }
 
 const ESCROW_STATUS_STYLES: Record<EscrowStatus, string> = {
-  OPEN: 'text-emerald-400 bg-emerald-400/10 border border-emerald-400/30',
-  EXPIRING: 'text-gold bg-gold/10 border border-gold/30',
-  EXPIRED: 'text-red-400 bg-red-400/10 border border-red-400/30',
+  OPEN: 'text-[#15803d] bg-[rgba(22,163,74,0.08)] border border-[rgba(22,163,74,0.2)]',
+  EXPIRING: 'text-[#b8973a] bg-[rgba(184,151,58,0.08)] border border-[rgba(184,151,58,0.25)]',
+  EXPIRED: 'text-[#dc2626] bg-[rgba(220,38,38,0.08)] border border-[rgba(220,38,38,0.2)]',
 }
 
 function StatusBadge({ status }: { status: ClaimStatus }) {
@@ -218,7 +218,7 @@ function StepProgress({ steps, total = 9 }: { steps: number; total?: number }) {
       {Array.from({ length: total }, (_, i) => (
         <div
           key={i}
-          className={`h-1.5 w-3 rounded-sm ${i < steps ? 'bg-ice' : 'bg-white/10'}`}
+          className={`h-1.5 w-3 rounded-sm ${i < steps ? 'bg-[#a7c5e5]' : 'bg-[#E4E9F2]'}`}
         />
       ))}
     </div>
@@ -257,27 +257,27 @@ export default function DashboardClient() {
   }, {})
 
   return (
-    <div className="min-h-screen bg-navy text-white font-mono">
+    <div className="min-h-screen bg-white text-[#0f2439] font-mono">
       {/* Header */}
-      <header className="border-b border-white/10 bg-mid/80 backdrop-blur-sm sticky top-0 z-10">
+      <header className="sticky top-0 z-10 border-b bg-white" style={{ borderColor: '#E4E9F2' }}>
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-6">
-            <span className="font-sans text-xl font-bold text-ice uppercase">
+            <span className="font-sans text-xl font-bold text-[#0f2439] uppercase">
               Ward Protocol
             </span>
-            <span className="text-dim text-sm">"º</span>
-            <span className="text-sm text-white/60 font-sans uppercase">
+            <span className="text-[#8a9bb0] text-sm">·</span>
+            <span className="text-sm text-[#8a9bb0] font-sans uppercase">
               Claim Dispute Dashboard
             </span>
           </div>
           <div className="flex items-center gap-6">
-            <span className="text-sm text-red-400 bg-red-400/10 border border-red-400/20 px-2 py-1 rounded font-mono">
+            <span className="text-sm text-[#b8973a] bg-[rgba(184,151,58,0.08)] border border-[rgba(184,151,58,0.25)] px-2 py-1 rounded font-mono">
               ward_signed = False
             </span>
-            <div className="flex items-center gap-2 text-sm text-dim">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse inline-block" />
+            <div className="flex items-center gap-2 text-sm text-[#8a9bb0]">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#15803d] animate-pulse inline-block" />
               <span>TESTNET</span>
-              <span className="text-white/30">·</span>
+              <span className="text-[#E4E9F2]">·</span>
               <span>refresh in {secondsUntilRefresh}s</span>
             </div>
           </div>
@@ -285,7 +285,7 @@ export default function DashboardClient() {
       </header>
 
       {/* Demo banner */}
-      <div className="bg-gold/10 border-b border-gold/20 text-gold text-sm text-center py-2 font-mono">
+      <div className="border-b text-[#b8973a] text-sm text-center py-2 font-mono" style={{ background: 'rgba(184,151,58,0.06)', borderColor: 'rgba(184,151,58,0.2)' }}>
         DEMO — mock data · connect api.wardprotocol.org for live XRPL state
       </div>
 
@@ -293,14 +293,14 @@ export default function DashboardClient() {
         {/* Stats row */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {[
-            { label: 'Pending Claims', value: pendingCount, accent: 'text-gold' },
-            { label: 'Validated', value: validatedCount, accent: 'text-sky-400' },
-            { label: 'Settled', value: settledCount, accent: 'text-emerald-400' },
-            { label: 'Expiring Windows', value: expiringCount, accent: 'text-red-400' },
+            { label: 'Pending Claims', value: pendingCount, accent: 'text-[#b8973a]' },
+            { label: 'Validated', value: validatedCount, accent: 'text-[#1d4ed8]' },
+            { label: 'Settled', value: settledCount, accent: 'text-[#15803d]' },
+            { label: 'Expiring Windows', value: expiringCount, accent: 'text-[#dc2626]' },
           ].map(({ label, value, accent }) => (
-            <div key={label} className="bg-mid border border-white/10 rounded-lg px-4 py-4">
+            <div key={label} className="rounded-lg border bg-white px-4 py-4" style={{ borderColor: '#E4E9F2' }}>
               <div className={`text-2xl font-bold font-sans ${accent}`}>{value}</div>
-              <div className="text-sm text-dim mt-1 uppercase">{label}</div>
+              <div className="text-sm text-[#8a9bb0] mt-1 uppercase">{label}</div>
             </div>
           ))}
         </div>
@@ -308,15 +308,15 @@ export default function DashboardClient() {
         {/* Active Claims panel */}
         <section>
           <div className="flex items-center justify-between mb-3">
-            <h2 className="font-sans text-lg font-bold uppercase text-ice">
+            <h2 className="font-sans text-lg font-bold uppercase text-[#a7c5e5]">
               Active Claims
             </h2>
-            <span className="text-sm text-dim">{MOCK_CLAIMS.length} total</span>
+            <span className="text-sm text-[#8a9bb0]">{MOCK_CLAIMS.length} total</span>
           </div>
-          <div className="bg-mid border border-white/10 rounded-lg overflow-hidden">
+          <div className="rounded-lg border bg-white overflow-hidden" style={{ borderColor: '#E4E9F2' }}>
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-white/10 text-dim text-sm uppercase">
+                <tr className="text-[#8a9bb0] text-sm uppercase" style={{ borderBottom: '1px solid #E4E9F2' }}>
                   <th className="text-left px-4 py-3">NFT / Vault</th>
                   <th className="text-left px-4 py-3 hidden md:table-cell">Claimant</th>
                   <th className="text-right px-4 py-3">Coverage</th>
@@ -329,11 +329,12 @@ export default function DashboardClient() {
                 {MOCK_CLAIMS.map((claim, i) => (
                   <tr
                     key={claim.id}
-                    className={`border-b border-white/5 hover:bg-white/[0.02] transition-colors ${i === MOCK_CLAIMS.length - 1 ? 'border-none' : ''}`}
+                    className={`hover:bg-[#F9FAFC] transition-colors ${i === MOCK_CLAIMS.length - 1 ? '' : 'border-b'}`}
+                    style={{ borderColor: '#E4E9F2' }}
                   >
                     <td className="px-4 py-3">
-                      <div className="text-white/80 text-sm font-mono">{fmtNft(claim.nft_token_id)}</div>
-                      <div className="text-dim text-sm mt-0.5">{fmtAddr(claim.vault_address)}</div>
+                      <div className="text-[#0f2439] text-sm font-mono">{fmtNft(claim.nft_token_id)}</div>
+                      <div className="text-[#8a9bb0] text-sm mt-0.5">{fmtAddr(claim.vault_address)}</div>
                       {claim.rejection_reason && (
                         <div className="text-red-400/70 text-sm mt-1 max-w-xs truncate" title={claim.rejection_reason}>
                           ✕ step {claim.rejection_step}: {claim.rejection_reason}
@@ -346,10 +347,10 @@ export default function DashboardClient() {
                       )}
                     </td>
                     <td className="px-4 py-3 hidden md:table-cell">
-                      <span className="text-white/60 text-sm">{fmtAddr(claim.claimant)}</span>
+                      <span className="text-[#5a7a99] text-sm">{fmtAddr(claim.claimant)}</span>
                     </td>
                     <td className="px-4 py-3 text-right">
-                      <span className="text-ice text-sm">{fmtXrp(claim.coverage_drops)}</span>
+                      <span className="text-[#a7c5e5] text-sm">{fmtXrp(claim.coverage_drops)}</span>
                     </td>
                     <td className="px-4 py-3 text-center">
                       <StatusBadge status={claim.status} />
@@ -357,11 +358,11 @@ export default function DashboardClient() {
                     <td className="px-4 py-3 hidden lg:table-cell">
                       <div className="space-y-1">
                         <StepProgress steps={claim.steps_passed} />
-                        <span className="text-dim text-sm">{claim.steps_passed}/9</span>
+                        <span className="text-[#8a9bb0] text-sm">{claim.steps_passed}/9</span>
                       </div>
                     </td>
                     <td className="px-4 py-3 text-right hidden sm:table-cell">
-                      <span className="text-dim text-sm">{fmtRelTime(claim.filed_at)}</span>
+                      <span className="text-[#8a9bb0] text-sm">{fmtRelTime(claim.filed_at)}</span>
                     </td>
                   </tr>
                 ))}
@@ -375,12 +376,12 @@ export default function DashboardClient() {
           {/* Dispute Window tracker */}
           <section>
             <div className="flex items-center justify-between mb-3">
-              <h2 className="font-sans text-lg font-bold uppercase text-ice">
+              <h2 className="font-sans text-lg font-bold uppercase text-[#a7c5e5]">
                 Dispute Windows
               </h2>
-              <span className="text-sm text-dim">48h PREIMAGE-SHA-256</span>
+              <span className="text-sm text-[#8a9bb0]">48h PREIMAGE-SHA-256</span>
             </div>
-            <div className="bg-mid border border-white/10 rounded-lg divide-y divide-white/5">
+            <div className="rounded-lg border bg-white divide-y divide-[#E4E9F2]" style={{ borderColor: '#E4E9F2' }}>
               {MOCK_ESCROWS.map((escrow) => {
                 const status = getEscrowStatus(escrow, now)
                 const remaining = escrow.cancel_after - now
@@ -391,27 +392,27 @@ export default function DashboardClient() {
                   <div key={escrow.id} className="px-4 py-4">
                     <div className="flex items-start justify-between gap-2 mb-2">
                       <div>
-                        <div className="text-white/70 text-sm font-mono">{fmtAddr(escrow.vault_address)}</div>
-                        <div className="text-dim text-sm mt-0.5">{fmtXrp(escrow.amount_drops)}</div>
+                        <div className="text-[#0f2439] text-sm font-mono">{fmtAddr(escrow.vault_address)}</div>
+                        <div className="text-[#8a9bb0] text-sm mt-0.5">{fmtXrp(escrow.amount_drops)}</div>
                       </div>
                       <EscrowBadge status={status} />
                     </div>
                     <div className="mb-2">
                       <div className="flex justify-between text-sm mb-1">
-                        <span className="text-dim">window elapsed</span>
-                        <span className={`font-mono font-bold ${status === 'EXPIRED' ? 'text-red-400' : status === 'EXPIRING' ? 'text-gold' : 'text-emerald-400'}`}>
+                        <span className="text-[#8a9bb0]">window elapsed</span>
+                        <span className={`font-mono font-bold ${status === 'EXPIRED' ? 'text-[#dc2626]' : status === 'EXPIRING' ? 'text-[#b8973a]' : 'text-[#15803d]'}`}>
                           {status === 'EXPIRED' ? 'EXPIRED' : fmtCountdown(escrow.cancel_after, now)}
                         </span>
                       </div>
-                      <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
+                      <div className="h-1.5 bg-[#E4E9F2] rounded-full overflow-hidden">
                         <div
-                          className={`h-full rounded-full transition-all duration-1000 ${status === 'EXPIRED' ? 'bg-red-400' : status === 'EXPIRING' ? 'bg-gold' : 'bg-emerald-400'}`}
+                          className={`h-full rounded-full transition-all duration-1000 ${status === 'EXPIRED' ? 'bg-[#dc2626]' : status === 'EXPIRING' ? 'bg-[#b8973a]' : 'bg-[#15803d]'}`}
                           style={{ width: `${pct}%` }}
                         />
                       </div>
                     </div>
-                    <div className="text-dim text-sm font-mono truncate" title={escrow.condition_hex}>
-                      cond: {escrow.condition_hex.slice(0, 20)}"¦
+                    <div className="text-[#8a9bb0] text-sm font-mono truncate" title={escrow.condition_hex}>
+                      cond: {escrow.condition_hex.slice(0, 20)}…
                     </div>
                   </div>
                 )
@@ -422,21 +423,21 @@ export default function DashboardClient() {
           {/* Policy Registry panel */}
           <section>
             <div className="flex items-center justify-between mb-3">
-              <h2 className="font-sans text-lg font-bold uppercase text-ice">
+              <h2 className="font-sans text-lg font-bold uppercase text-[#a7c5e5]">
                 Policy Registry
               </h2>
-              <span className="text-sm text-dim">
+              <span className="text-sm text-[#8a9bb0]">
                 {MOCK_POLICIES.length} active · {fmtXrp(totalCoverage)} total
               </span>
             </div>
-            <div className="bg-mid border border-white/10 rounded-lg divide-y divide-white/5">
+            <div className="rounded-lg border bg-white divide-y divide-[#E4E9F2]" style={{ borderColor: '#E4E9F2' }}>
               {Object.entries(depositorGroups).map(([depositor, policies]) => (
                 <div key={depositor} className="px-4 py-4">
                   <div className="flex items-center gap-2 mb-3">
-                    <span className="text-sm text-dim uppercase">Depositor</span>
-                    <span className="text-white/70 text-sm font-mono">{fmtAddr(depositor)}</span>
+                    <span className="text-sm text-[#8a9bb0] uppercase">Depositor</span>
+                    <span className="text-[#5a7a99] text-sm font-mono">{fmtAddr(depositor)}</span>
                     {policies.some((p) => p.is_multi_vault) && (
-                      <span className="text-sm text-gold bg-gold/10 border border-gold/20 px-1.5 py-0.5 rounded font-mono">
+                      <span className="text-sm text-[#b8973a] bg-[rgba(184,151,58,0.08)] border border-[rgba(184,151,58,0.25)] px-1.5 py-0.5 rounded font-mono">
                         multi-vault
                       </span>
                     )}
@@ -446,14 +447,14 @@ export default function DashboardClient() {
                       const daysLeft = Math.max(0, Math.floor((policy.expiry_ms - now) / 86_400_000))
                       const expiringSoon = daysLeft < 10
                       return (
-                        <div key={policy.nft_token_id} className="flex items-center justify-between bg-navy/50 rounded px-3 py-2">
+                        <div key={policy.nft_token_id} className="flex items-center justify-between rounded px-3 py-2" style={{ background: '#F9FAFC' }}>
                           <div>
-                            <div className="text-white/60 text-sm font-mono">{fmtNft(policy.nft_token_id)}</div>
-                            <div className="text-dim text-sm mt-0.5">{fmtAddr(policy.vault_address)}</div>
+                            <div className="text-[#5a7a99] text-sm font-mono">{fmtNft(policy.nft_token_id)}</div>
+                            <div className="text-[#8a9bb0] text-sm mt-0.5">{fmtAddr(policy.vault_address)}</div>
                           </div>
                           <div className="text-right">
-                            <div className="text-ice text-sm font-mono">{fmtXrp(policy.coverage_drops)}</div>
-                            <div className={`text-sm mt-0.5 ${expiringSoon ? 'text-red-400' : 'text-dim'}`}>
+                            <div className="text-[#a7c5e5] text-sm font-mono">{fmtXrp(policy.coverage_drops)}</div>
+                            <div className={`text-sm mt-0.5 ${expiringSoon ? 'text-[#dc2626]' : 'text-[#8a9bb0]'}`}>
                               {daysLeft}d left
                             </div>
                           </div>
@@ -468,7 +469,7 @@ export default function DashboardClient() {
         </div>
 
         {/* Footer */}
-        <footer className="border-t border-white/10 pt-6 flex items-center justify-between text-sm text-dim">
+        <footer className="pt-6 flex items-center justify-between text-sm text-[#8a9bb0]" style={{ borderTop: '1px solid #E4E9F2' }}>
           <span>
             Last refreshed {new Date(refreshedAt).toLocaleTimeString()} · All state from XRPL ledger
           </span>

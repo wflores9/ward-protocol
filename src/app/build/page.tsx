@@ -183,6 +183,109 @@ export default function BuildPage() {
         </div>
       </section>
 
+      {/* Integration Architecture */}
+      <section className="site-section">
+        <div className="site-container py-20">
+          <div className="max-w-xl mb-10">
+            <p className="site-label">Integration architecture</p>
+            <h2 className="mt-5 text-[32px] font-semibold leading-tight tracking-[-0.02em] text-[#0f2439]">
+              XLS-66, XLS-65, XLS-30, and XLS-20 on the XRP Ledger.
+            </h2>
+            <p className="mt-5 text-[15px] leading-[1.75] text-[#5a7a99]">
+              Ward integrates with XLS-66 Lending, XLS-65 Vault, XLS-30 AMM, and XLS-20 NFT on the XRP Ledger. The
+              following shows the settlement pipeline and key calculations.
+            </p>
+          </div>
+
+          <div className="grid gap-6 lg:grid-cols-2">
+            {/* Settlement timeline */}
+            <div
+              className="rounded-xl border bg-white p-6"
+              style={{ borderColor: '#E4E9F2', borderRadius: 12 }}
+            >
+              <p className="font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-[#a7c5e5] mb-5">
+                Settlement timeline
+              </p>
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr style={{ borderBottom: '1px solid #E4E9F2' }}>
+                    <th className="pb-3 text-left font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-[#a7c5e5]">Time</th>
+                    <th className="pb-3 text-left font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-[#a7c5e5]">Event</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    ['T + 0', 'Default confirmed on ledger'],
+                    ['T + 5 min', 'Ward monitor detects lsfLoanDefault'],
+                    ['T + 10 min', 'Escrow created — 48 hr dispute lock'],
+                    ['T + 48 hr', 'Dispute window expires'],
+                    ['T + 48 hr 5 min', 'Escrow finishes — claim paid'],
+                  ].map(([time, event]) => (
+                    <tr key={time} style={{ borderTop: '1px solid #E4E9F2' }}>
+                      <td className="py-3 pr-4 font-mono text-[12px] font-bold text-[#b8973a] whitespace-nowrap">{time}</td>
+                      <td className="py-3 text-[13px] leading-[1.65] text-[#5a7a99]">{event}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Monitoring points */}
+            <div
+              className="rounded-xl border bg-white p-6"
+              style={{ borderColor: '#E4E9F2', borderRadius: 12 }}
+            >
+              <p className="font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-[#a7c5e5] mb-5">
+                Monitoring points
+              </p>
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr style={{ borderBottom: '1px solid #E4E9F2' }}>
+                    <th className="pb-3 text-left font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-[#a7c5e5]">Object</th>
+                    <th className="pb-3 text-left font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-[#a7c5e5]">Field</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    ['Loan', 'lsfLoanDefault'],
+                    ['LoanBroker', 'DebtTotal'],
+                    ['Vault', 'AssetsTotal'],
+                    ['Vault', 'LossUnrealized'],
+                  ].map(([obj, field], i) => (
+                    <tr key={i} style={{ borderTop: '1px solid #E4E9F2' }}>
+                      <td className="py-3 pr-4 font-mono text-[12px] font-bold text-[#0f2439]">{obj}</td>
+                      <td className="py-3 font-mono text-[12px] text-[#a7c5e5]">{field}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Key calculations */}
+          <div className="mt-6">
+            <div
+              className="rounded-xl border bg-white p-6"
+              style={{ borderColor: '#E4E9F2', borderRadius: 12 }}
+            >
+              <p className="font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-[#a7c5e5] mb-5">
+                Key calculations
+              </p>
+              <pre
+                className="overflow-x-auto rounded-lg p-5 font-mono text-[12px] leading-7"
+                style={{ background: '#1a2f3f', border: '1px solid rgba(167,197,229,0.15)', color: '#c8dce8' }}
+              >{`# Drops are the native XRPL integer unit (1 XRP = 1,000,000 drops)
+
+DefaultAmount   = Loan.PrincipalAmount - Loan.PaidAmount
+DefaultCovered  = min(DefaultAmount, Policy.CoverageDrops)
+VaultLoss       = Vault.LossUnrealized           # set by XLS-65 on default
+ClaimPayout     = min(DefaultCovered, VaultLoss)
+CoverageRatio   = Vault.AssetsTotal / LoanBroker.DebtTotal  # must be >= 1.5`}</pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Integration surface */}
       <section className="site-section">
         <div className="site-container py-20">

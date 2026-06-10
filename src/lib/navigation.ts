@@ -5,5 +5,5 @@ export const SITE_NAVIGATION = [
   { label: 'Conformance', href: '/conformance' },
   { label: 'Assurance', href: '/assurance' },
   { label: 'Demo', href: '/demo' },
-  { label: 'Protocol + Build', href: '/build' },
+  { label: 'Build', href: '/build' },
 ] as const;
