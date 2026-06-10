@@ -31,22 +31,22 @@ export default function ChainSelector({ chains, selected, onSelect }: ChainSelec
           >
             <div className="flex items-start justify-between gap-3">
               <ChainLogo id={chain.logo} label={`${chain.name} logo`} className="h-12 w-12" />
-              <span className="rounded-md border border-white/10 bg-[#07131a]/70 px-3 py-1.5 font-mono text-sm font-bold text-[#d0dde0]">
+              <span className="rounded-md border border-white/10 bg-[#07131a]/70 px-3 py-1.5 font-mono text-sm font-bold text-[#c8dce8]">
                 {chain.status}
               </span>
             </div>
 
             <div className="mt-5">
               <p className="text-xl font-black tracking-[-0.03em] text-white">{chain.name}</p>
-              <p className="mt-2 text-sm font-medium text-[#d0dde0]">{chain.network}</p>
-              <p className="mt-4 text-sm leading-7 text-[#9eb0b7]">{chain.proof}</p>
+              <p className="mt-2 text-sm font-medium text-[#c8dce8]">{chain.network}</p>
+              <p className="mt-4 text-sm leading-7 text-[#a7c5e5]">{chain.proof}</p>
             </div>
 
             <div className="mt-5 grid gap-2">
-              <span className="break-words rounded-md border border-white/10 bg-[#07131a]/55 px-3 py-2 font-mono text-sm text-[#9eb0b7]">
+              <span className="break-words rounded-md border border-white/10 bg-[#07131a]/55 px-3 py-2 font-mono text-sm text-[#a7c5e5]">
                 {chain.integrationSurface}
               </span>
-              <span className="break-words rounded-md border border-white/10 bg-[#07131a]/55 px-3 py-2 font-mono text-sm text-[#9eb0b7]">
+              <span className="break-words rounded-md border border-white/10 bg-[#07131a]/55 px-3 py-2 font-mono text-sm text-[#a7c5e5]">
                 {chain.deploymentRef}
               </span>
             </div>

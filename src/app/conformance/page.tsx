@@ -139,7 +139,7 @@ export default function ConformancePage() {
   return (
     <main className="site-shell text-[#f7f9f7]">
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0 grid-overlay opacity-70" />
+        <div className="absolute inset-0 grid-overlay opacity-40" />
         <div className="site-container pb-28 pt-24 lg:pt-32">
           <div className="grid gap-16 lg:grid-cols-[1fr_0.92fr] lg:items-center">
             <div className="max-w-4xl">
@@ -151,7 +151,7 @@ export default function ConformancePage() {
                 Ward Conformance is the institutional assurance layer for deterministic default resolution. It means a credit product resolves claims through explicit on-ledger checks, preserves the signer boundary, and produces a record partners can review without trusting Ward as a discretionary operator.
               </p>
 
-              <div className="mt-9 flex flex-wrap gap-3 text-sm text-[#d0dde0]">
+              <div className="mt-9 flex flex-wrap gap-3 text-sm text-[#c8dce8]">
                 {[
                   '9 on-ledger checks',
                   'Unsigned settlement instructions',
@@ -252,7 +252,7 @@ export default function ConformancePage() {
               <thead className="bg-white/[0.03]">
                 <tr>
                   {['Step', 'Check', 'Ledger evidence', 'Why it matters'].map((header) => (
-                    <th key={header} className="px-6 py-5 text-left font-mono text-sm font-bold uppercase tracking-[0.12em] text-[#9eb0b7]">
+                    <th key={header} className="px-6 py-5 text-left font-mono text-sm font-bold uppercase tracking-[0.12em] text-[#a7c5e5]">
                       {header}
                     </th>
                   ))}
@@ -263,8 +263,8 @@ export default function ConformancePage() {
                   <tr key={item.step} className="border-t border-white/10 align-top">
                     <td className="px-6 py-5 font-mono text-sm font-bold text-[#d4a93e]">{item.step}</td>
                     <td className="px-6 py-5 text-base font-bold leading-7 text-white">{item.check}</td>
-                    <td className="px-6 py-5 text-base leading-8 text-[#d0dde0]">{item.evidence}</td>
-                    <td className="px-6 py-5 text-base leading-8 text-[#d0dde0]">{item.whyItMatters}</td>
+                    <td className="px-6 py-5 text-base leading-8 text-[#c8dce8]">{item.evidence}</td>
+                    <td className="px-6 py-5 text-base leading-8 text-[#c8dce8]">{item.whyItMatters}</td>
                   </tr>
                 ))}
               </tbody>
@@ -284,7 +284,7 @@ export default function ConformancePage() {
               <p className="site-copy mt-6">
                 The June 2026 sprint focused on closing audit findings, removing unsafe assumptions, and hardening the protocol surface for institutional review. The result was v0.2.6, a stricter implementation of the same conformance model.
               </p>
-              <p className="site-copy-sm mt-6 text-[#9eb0b7]">
+              <p className="site-copy-sm mt-6 text-[#a7c5e5]">
                 The assurance story now combines protocol design, visible controls, and a clearer institutional-readiness narrative.
               </p>
             </div>

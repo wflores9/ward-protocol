@@ -70,13 +70,13 @@ export default function WalletConnector() {
           <span className="font-mono text-sm text-[#f7f9f7]">
             {accountInfo.address.slice(0, 8)}...{accountInfo.address.slice(-6)}
           </span>
-          <span className="ml-1 text-sm uppercase text-[#9eb0b7]">
+          <span className="ml-1 text-sm uppercase text-[#a7c5e5]">
             {accountInfo.walletName}
           </span>
         </div>
         <button
           onClick={disconnect}
-          className="rounded-full border border-white/12 bg-white/[0.03] px-4 py-2 text-sm font-bold text-[#d0dde0] transition hover:bg-white/[0.06] hover:text-white"
+          className="rounded-full border border-white/12 bg-white/[0.03] px-4 py-2 text-sm font-bold text-[#c8dce8] transition hover:bg-white/[0.06] hover:text-white"
         >
           Disconnect
         </button>
@@ -100,12 +100,12 @@ export default function WalletConnector() {
               <h3 className="font-sans text-lg font-black text-white">Select Wallet</h3>
               <button
                 onClick={() => { setShowPicker(false); setError(null) }}
-                className="text-lg leading-none text-[#9eb0b7] hover:text-white"
+                className="text-lg leading-none text-[#a7c5e5] hover:text-white"
               >
                 ×
               </button>
             </div>
-            <p className="mb-4 font-mono text-sm text-[#9eb0b7]">
+            <p className="mb-4 font-mono text-sm text-[#a7c5e5]">
               Verify wallet ownership — no transaction submitted. ward_signed = False.
             </p>
             <div className="flex flex-col gap-2">
@@ -118,7 +118,7 @@ export default function WalletConnector() {
                 >
                   <div className="text-left">
                     <div className="text-sm font-bold text-white">{w.label}</div>
-                    <div className="text-sm text-[#9eb0b7]">{w.desc}</div>
+                    <div className="text-sm text-[#a7c5e5]">{w.desc}</div>
                   </div>
                   {loading === w.id && (
                     <span className="h-4 w-4 animate-spin rounded-full border border-[#f7f9f7] border-t-transparent" />

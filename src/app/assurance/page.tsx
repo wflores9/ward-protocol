@@ -106,7 +106,7 @@ export default function AssurancePage() {
     <main className="site-shell text-[#f7f9f7]">
       {/* Hero */}
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0 grid-overlay opacity-70" />
+        <div className="absolute inset-0 grid-overlay opacity-40" />
         <div className="site-container pb-28 pt-24 lg:pt-32">
           <div className="grid gap-14 lg:grid-cols-[1fr_0.9fr] lg:items-center">
             <div className="max-w-4xl">
@@ -119,7 +119,7 @@ export default function AssurancePage() {
                 in Rust and Python, and signing-boundary static analysis run on every CI push. This page is the audit trail.
               </p>
 
-              <div className="mt-9 flex flex-wrap gap-3 text-sm text-[#d0dde0]">
+              <div className="mt-9 flex flex-wrap gap-3 text-sm text-[#c8dce8]">
                 {['537 tests', '92% coverage on critical paths', 'TLA+ model checked', 'ward_signed = False — always'].map(
                   (item) => (
                     <span key={item} className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 font-mono">
@@ -157,7 +157,7 @@ export default function AssurancePage() {
                   ['Static analysis', 'Signing boundary check on every push'],
                 ].map(([label, value]) => (
                   <div key={label} className="rounded-[24px] border border-white/10 bg-white/[0.03] p-5">
-                    <p className="font-mono text-sm uppercase tracking-[0.12em] text-[#9eb0b7]">{label}</p>
+                    <p className="font-mono text-sm uppercase tracking-[0.12em] text-[#a7c5e5]">{label}</p>
                     <p className="mt-3 text-lg font-bold leading-7 text-white">{value}</p>
                   </div>
                 ))}
@@ -197,7 +197,7 @@ Ward must not:  sign transactions
                 become custodian
                 become counterparty`}
             </pre>
-            <p className="mt-6 font-mono text-sm text-[#9eb0b7]">
+            <p className="mt-6 font-mono text-sm text-[#a7c5e5]">
               Enforced by: signing boundary scanner (CI) · TLA+ SafetyInvariant (TLC) · proptest INV-003 (Rust) · Hypothesis
               INV-003 (Python)
             </p>
@@ -226,7 +226,7 @@ Ward must not:  sign transactions
                   {artifact.invariants}
                 </p>
                 <h3 className="mt-4 text-xl font-black tracking-[-0.02em] text-white">{artifact.label}</h3>
-                <p className="mt-2 font-mono text-xs text-[#9eb0b7]">{artifact.file}</p>
+                <p className="mt-2 font-mono text-xs text-[#a7c5e5]">{artifact.file}</p>
                 <p className="site-copy-sm mt-4">{artifact.body}</p>
               </article>
             ))}
@@ -254,7 +254,7 @@ Ward must not:  sign transactions
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="font-mono text-sm font-bold text-white">{label}</p>
-                        <p className="mt-1 font-mono text-xs text-[#9eb0b7]">{module}</p>
+                        <p className="mt-1 font-mono text-xs text-[#a7c5e5]">{module}</p>
                       </div>
                       <span className="font-mono text-2xl font-black text-[#d4a93e]">{coverage}%</span>
                     </div>
@@ -284,7 +284,7 @@ Ward must not:  sign transactions
                     <div className="flex items-start justify-between gap-2">
                       <div>
                         <p className="text-sm font-bold text-[#f7f9f7]">{suite}</p>
-                        <p className="mt-1 font-mono text-xs text-[#9eb0b7]">{path}</p>
+                        <p className="mt-1 font-mono text-xs text-[#a7c5e5]">{path}</p>
                       </div>
                       <span className="shrink-0 font-mono text-xs font-bold text-[#d4a93e]">{count}</span>
                     </div>
@@ -316,7 +316,7 @@ Ward must not:  sign transactions
               <article key={inv} className="site-panel rounded-[28px] p-5">
                 <p className="font-mono text-sm font-bold uppercase tracking-[0.12em] text-[#d4a93e]">{inv}</p>
                 <h3 className="mt-3 text-base font-black text-white">{title}</h3>
-                <p className="mt-3 text-sm leading-6 text-[#9eb0b7]">{body}</p>
+                <p className="mt-3 text-sm leading-6 text-[#a7c5e5]">{body}</p>
               </article>
             ))}
           </div>

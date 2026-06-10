@@ -145,8 +145,8 @@ export default function LiveValidator() {
       </div>
 
       {loading && (
-        <div className="flex items-center gap-2 text-sm text-[#9eb0b7]">
-          <span className="h-3 w-3 animate-spin rounded-full border border-[#9eb0b7] border-t-transparent" />
+        <div className="flex items-center gap-2 text-sm text-[#a7c5e5]">
+          <span className="h-3 w-3 animate-spin rounded-full border border-[#a7c5e5] border-t-transparent" />
           Checking wallet for Ward policy NFTs...
         </div>
       )}
@@ -154,12 +154,12 @@ export default function LiveValidator() {
       {!loading && nfts.length === 0 && (
         <div className="rounded-[24px] border border-[#d4a93e]/30 bg-[#d4a93e]/10 p-5">
           <div className="mb-1 text-sm font-bold text-white">No wallet-held Ward policy NFT found</div>
-          <p className="text-sm leading-relaxed text-[#d0dde0]">
+          <p className="text-sm leading-relaxed text-[#c8dce8]">
             This wallet does not hold a Ward Protocol policy NFT (taxon 281) on Altnet.
             Live wallet validation needs a wallet-held artifact. The sandbox above can still run
             conformance with a generated demo policy artifact.
           </p>
-          <p className="mt-2 text-sm text-[#d0dde0]">
+          <p className="mt-2 text-sm text-[#c8dce8]">
             <span className="font-mono text-white">ward_signed = False</span> — all checks
             read live XRPL ledger state.
           </p>
@@ -187,7 +187,7 @@ export default function LiveValidator() {
             </button>
           </div>
 
-          <div className="font-mono text-sm text-[#9eb0b7]">
+          <div className="font-mono text-sm text-[#a7c5e5]">
             NFT: {selectedNft?.slice(0, 16)}...{selectedNft?.slice(-8)}
           </div>
 
@@ -198,20 +198,20 @@ export default function LiveValidator() {
                   {result.approved ? '✓ WARD-CONFORMANT' : `${result.steps_passed} / 9 Steps Passed`}
                 </div>
                 {!result.approved && (
-                  <span className="rounded border border-white/10 bg-white/[0.08] px-2 py-0.5 text-sm font-bold text-[#d0dde0]">
+                  <span className="rounded border border-white/10 bg-white/[0.08] px-2 py-0.5 text-sm font-bold text-[#c8dce8]">
                     NOT CONFORMANT
                   </span>
                 )}
               </div>
               {result.rejection_reason && (
-                <p className="font-mono text-sm text-[#d0dde0]">{result.rejection_reason}</p>
+                <p className="font-mono text-sm text-[#c8dce8]">{result.rejection_reason}</p>
               )}
               {result.approved && result.claim_payout_drops && (
-                <p className="text-sm text-[#d0dde0]">
+                <p className="text-sm text-[#c8dce8]">
                   Payout: <span className="font-mono text-white">{(result.claim_payout_drops / 1_000_000).toFixed(2)} XRP</span>
                 </p>
               )}
-              <p className="mt-2 font-mono text-sm text-[#d0dde0]">ward_signed = False — all checks read live XRPL Altnet state</p>
+              <p className="mt-2 font-mono text-sm text-[#c8dce8]">ward_signed = False — all checks read live XRPL Altnet state</p>
             </div>
           )}
 

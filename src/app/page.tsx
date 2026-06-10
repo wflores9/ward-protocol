@@ -21,7 +21,7 @@ export default function Home() {
   return (
     <main className="site-shell text-[#f7f9f7]">
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0 grid-overlay opacity-70" />
+        <div className="absolute inset-0 grid-overlay opacity-40" />
         <div className="site-container pb-32 pt-24 lg:pt-40">
           <div className="mx-auto max-w-4xl text-center">
             <p className="site-label">Institutional tokenized credit · conformance standard</p>
