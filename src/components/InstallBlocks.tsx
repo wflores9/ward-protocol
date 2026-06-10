@@ -39,13 +39,13 @@ export default function InstallBlocks() {
         <article key={block.id} id={block.id} className="site-panel-muted rounded-[32px] p-7 scroll-mt-28">
           <p className="font-mono text-sm font-bold text-[#d4a93e]">{block.label}</p>
           <div className="relative mt-5">
-            <pre className="overflow-hidden whitespace-pre-wrap break-all rounded-[24px] border border-white/10 bg-[#07131a]/70 p-5 pr-20 font-mono text-sm leading-7 text-[#d0dde0]">
+            <pre className="overflow-hidden whitespace-pre-wrap break-all rounded-[24px] border border-white/10 bg-[#07131a]/70 p-5 pr-20 font-mono text-sm leading-7 text-[#c8dce8]">
               <code>{block.command}</code>
             </pre>
             <button
               onClick={() => copy(block.id, block.command)}
               aria-label={copied === block.id ? 'Copied' : `Copy ${block.label} command`}
-              className="absolute right-3 top-3 rounded-[14px] border border-white/10 bg-white/[0.06] px-3 py-2 font-mono text-xs font-bold text-[#d0dde0] transition hover:bg-white/[0.12] hover:text-white"
+              className="absolute right-3 top-3 rounded-[14px] border border-white/10 bg-white/[0.06] px-3 py-2 font-mono text-xs font-bold text-[#c8dce8] transition hover:bg-white/[0.12] hover:text-white"
             >
               {copied === block.id ? 'Copied!' : 'Copy'}
             </button>

@@ -26,7 +26,7 @@ export default function BuildPage() {
   return (
     <main className="site-shell text-[#f7f9f7]">
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0 grid-overlay opacity-70" />
+        <div className="absolute inset-0 grid-overlay opacity-40" />
         <div className="site-container pb-32 pt-24 lg:pt-32">
           <div className="max-w-3xl">
             <p className="site-label">Build</p>
@@ -92,13 +92,13 @@ export default function BuildPage() {
                 <article key={chain.id} className="site-panel-muted rounded-[30px] p-6">
                   <div className="flex items-start justify-between gap-4">
                     <ChainLogo id={chain.logo} label={`${chain.name} rail`} className="h-14 w-14" />
-                    <span className="rounded-md border border-white/10 bg-white/[0.04] px-3 py-1.5 font-mono text-sm text-[#9eb0b7]">
+                    <span className="rounded-md border border-white/10 bg-white/[0.04] px-3 py-1.5 font-mono text-sm text-[#a7c5e5]">
                       {chain.status}
                     </span>
                   </div>
                   <h3 className="mt-5 text-2xl font-black tracking-[-0.03em] text-white">{chain.name}</h3>
-                  <p className="mt-3 font-mono text-sm leading-6 text-[#d0dde0]">{chain.integrationSurface}</p>
-                  <p className="mt-4 text-sm leading-7 text-[#9eb0b7]">{chain.proof}</p>
+                  <p className="mt-3 font-mono text-sm leading-6 text-[#c8dce8]">{chain.integrationSurface}</p>
+                  <p className="mt-4 text-sm leading-7 text-[#a7c5e5]">{chain.proof}</p>
                 </article>
               ))}
             </div>

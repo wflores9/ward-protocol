@@ -92,7 +92,7 @@ export default function SpecPage() {
   return (
     <main className="site-shell text-[#f7f9f7]">
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0 grid-overlay opacity-70" />
+        <div className="absolute inset-0 grid-overlay opacity-40" />
         <div className="site-container pb-28 pt-24 lg:pt-32">
           <div className="grid gap-14 lg:grid-cols-[1fr_0.9fr] lg:items-center">
             <div className="max-w-4xl">
@@ -104,7 +104,7 @@ export default function SpecPage() {
                 This page is the engineering reference for Ward Protocol: architecture, claim validation, signer-boundary guarantees, settlement behavior, and the controls that make conformance reviewable.
               </p>
 
-              <div className="mt-9 flex flex-wrap gap-3 text-sm text-[#d0dde0]">
+              <div className="mt-9 flex flex-wrap gap-3 text-sm text-[#c8dce8]">
                 {['9 on-ledger checks', '15 attack vectors mitigated', 'ward_signed = False', 'SDK v0.2.6'].map((item) => (
                   <span key={item} className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 font-mono">
                     {item}
@@ -144,7 +144,7 @@ export default function SpecPage() {
                   ['Primary assurance surface', 'Nine-step claim validation'],
                 ].map(([label, value]) => (
                   <div key={label} className="rounded-[24px] border border-white/10 bg-white/[0.03] p-5">
-                    <p className="font-mono text-sm uppercase tracking-[0.12em] text-[#9eb0b7]">{label}</p>
+                    <p className="font-mono text-sm uppercase tracking-[0.12em] text-[#a7c5e5]">{label}</p>
                     <p className="mt-3 text-lg font-bold leading-7 text-white">{value}</p>
                   </div>
                 ))}
@@ -194,7 +194,7 @@ export default function SpecPage() {
                   <p className="font-mono text-sm font-bold uppercase tracking-[0.12em] text-[#d4a93e]">
                     Step {index + 1}
                   </p>
-                  <p className="mt-4 text-base leading-7 text-[#d0dde0]">{step}</p>
+                  <p className="mt-4 text-base leading-7 text-[#c8dce8]">{step}</p>
                 </article>
               ))}
             </div>
@@ -232,7 +232,7 @@ export default function SpecPage() {
               </h2>
               <div className="mt-10 grid gap-4">
                 {ATTACK_VECTORS.map((item) => (
-                  <div key={item} className="rounded-[24px] border border-white/10 bg-white/[0.03] p-5 text-base leading-7 text-[#d0dde0]">
+                  <div key={item} className="rounded-[24px] border border-white/10 bg-white/[0.03] p-5 text-base leading-7 text-[#c8dce8]">
                     {item}
                   </div>
                 ))}
@@ -246,15 +246,15 @@ export default function SpecPage() {
                   <table className="w-full border-collapse">
                     <thead>
                       <tr className="border-b border-white/10">
-                        <th className="px-0 py-3 text-left font-mono text-sm uppercase tracking-[0.12em] text-[#9eb0b7]">Constant</th>
-                        <th className="px-0 py-3 text-left font-mono text-sm uppercase tracking-[0.12em] text-[#9eb0b7]">Value</th>
+                        <th className="px-0 py-3 text-left font-mono text-sm uppercase tracking-[0.12em] text-[#a7c5e5]">Constant</th>
+                        <th className="px-0 py-3 text-left font-mono text-sm uppercase tracking-[0.12em] text-[#a7c5e5]">Value</th>
                       </tr>
                     </thead>
                     <tbody>
                       {CONSTANTS.map(([name, value]) => (
                         <tr key={name} className="border-t border-white/10">
                           <td className="px-0 py-4 font-mono text-sm text-[#f0d080]">{name}</td>
-                          <td className="px-0 py-4 font-mono text-sm text-[#d0dde0]">{value}</td>
+                          <td className="px-0 py-4 font-mono text-sm text-[#c8dce8]">{value}</td>
                         </tr>
                       ))}
                     </tbody>

@@ -9,7 +9,7 @@ export default function Nav() {
   const [open, setOpen] = useState(false);
 
   return (
-    <nav className="site-nav sticky top-0 z-[100] border-b border-white/10 bg-[#07131a]/88 backdrop-blur-xl">
+    <nav className="site-nav sticky top-0 z-[100] border-b border-white/10 bg-[#0f2439]/90 backdrop-blur-xl">
       <div className="site-container flex h-[80px] items-center justify-between">
         <Link href="/" onClick={() => setOpen(false)} className="flex items-center gap-4 no-underline">
           <div className="relative flex h-11 w-11 items-center justify-center rounded-full border border-white/12 bg-white/[0.04]">
@@ -18,7 +18,7 @@ export default function Nav() {
           </div>
           <div className="flex flex-col">
             <span className="text-base font-black tracking-[0.14em] text-[#f7f9f7]">WARD</span>
-            <span className="font-mono text-sm uppercase tracking-[0.12em] text-[#9eb0b7]">Protocol</span>
+            <span className="font-mono text-sm uppercase tracking-[0.12em] text-[#a7c5e5]">Protocol</span>
           </div>
         </Link>
 
@@ -27,7 +27,7 @@ export default function Nav() {
             <Link
               key={link.href}
               href={link.href}
-              className="rounded-full px-4 py-2 text-sm font-semibold text-[#d0dde0] transition hover:bg-white/[0.04] hover:text-white"
+              className="rounded-full px-4 py-2 text-sm font-semibold text-[#c8dce8] transition hover:bg-white/[0.04] hover:text-white"
             >
               {link.label}
             </Link>

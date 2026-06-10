@@ -60,7 +60,7 @@ export default function DocsPage() {
   return (
     <main className="bg-[#f6f4ee] text-[#14242b]">
       <section className="relative overflow-hidden bg-[#14242b] px-6 py-20 text-[#f7faf8] md:px-10 lg:px-12">
-        <div className="absolute inset-0 grid-overlay opacity-80" />
+        <div className="absolute inset-0 grid-overlay opacity-40" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_16%_18%,rgba(182,215,206,0.10),transparent_32%),radial-gradient(circle_at_84%_12%,rgba(212,169,62,0.08),transparent_34%)]" />
         <div className="relative mx-auto max-w-6xl">
           <p className="font-mono text-sm font-bold text-[#d4a93e]">Developer Documentation</p>
