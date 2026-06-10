@@ -52,6 +52,14 @@ pub const ALLOWED_WS_URLS: &[&str] = &[
     "wss://s2.ripple.com/",
 ];
 
+/// Allowed JSON-RPC endpoints — mirrors WS allowlist, HTTPS only.
+pub const ALLOWED_RPC_URLS: &[&str] = &[
+    "https://s.altnet.rippletest.net:51234/",
+    "https://xrplcluster.com/",
+    "https://s1.ripple.com/",
+    "https://s2.ripple.com/",
+];
+
 // ---------------------------------------------------------------------------
 // Data types
 // ---------------------------------------------------------------------------
@@ -140,6 +148,7 @@ pub struct VaultMonitor {
 impl VaultMonitor {
     pub fn new(config: MonitorConfig) -> Result<Self, WardError> {
         validate_ws_url(&config.ws_url)?;
+        validate_rpc_url(&config.rpc_url)?;
         validate_xrpl_address(&config.vault_address)?;
 
         let (stop_tx, _) = broadcast::channel(1);
@@ -450,6 +459,23 @@ pub fn validate_ws_url(url: &str) -> Result<(), WardError> {
         return Err(WardError::ValidationError(format!(
             "WebSocket URL not in allowed list: {}. Allowed: {:?}",
             url, ALLOWED_WS_URLS
+        )));
+    }
+    Ok(())
+}
+
+/// Validate that a JSON-RPC URL is allowed (HTTPS only, known endpoint).
+pub fn validate_rpc_url(url: &str) -> Result<(), WardError> {
+    if !url.starts_with("https://") {
+        return Err(WardError::ValidationError(format!(
+            "RPC URL must use https:// (TLS required): {}",
+            url
+        )));
+    }
+    if !ALLOWED_RPC_URLS.contains(&url) {
+        return Err(WardError::ValidationError(format!(
+            "RPC URL not in allowed list: {}. Allowed: {:?}",
+            url, ALLOWED_RPC_URLS
         )));
     }
     Ok(())
