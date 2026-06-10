@@ -24,28 +24,30 @@ export const metadata: Metadata = {
 
 export default function BuildPage() {
   return (
-    <main className="site-shell text-[#f7f9f7]">
+    <main className="site-shell">
+      {/* Hero */}
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0 grid-overlay opacity-40" />
-        <div className="site-container pb-32 pt-24 lg:pt-32">
+        <div className="site-container pb-24 pt-24 lg:pt-28">
           <div className="max-w-3xl">
             <p className="site-label">Build</p>
-            <h1 className="mt-6 text-5xl font-black leading-[0.98] tracking-[-0.04em] text-white md:text-6xl lg:text-[5rem]">
+            <h1 className="mt-6 text-4xl font-semibold leading-[1.08] tracking-[-0.02em] text-[#0f2439] md:text-[48px]">
               Build a Ward-conformant product without giving up the signer boundary.
             </h1>
-            <p className="site-copy mt-8 max-w-xl text-lg md:text-[1.2rem]">
-              Ward provides the SDK surface, API path, and chain adapters needed to ship deterministic default resolution without giving Ward custody or signing authority.
+            <p className="mt-7 max-w-xl text-[15px] leading-[1.75] text-[#5a7a99] md:text-[17px]">
+              Ward provides the SDK surface, API path, and chain adapters needed to ship deterministic default resolution
+              without giving Ward custody or signing authority.
             </p>
-            <div className="mt-10 flex flex-wrap gap-4">
+            <div className="mt-8 flex flex-wrap gap-4">
               <Link
                 href="/demo"
-                className="inline-flex min-h-14 items-center rounded-full bg-[#f7f9f7] px-7 py-3 text-base font-bold text-[#07131a] transition hover:bg-white"
+                className="inline-flex items-center rounded-lg bg-[#0f2439] px-6 py-3 text-[15px] font-semibold text-white transition hover:bg-[#0d1f32]"
               >
                 Open Demo
               </Link>
               <Link
                 href="/spec"
-                className="inline-flex min-h-14 items-center rounded-full border border-white/12 bg-white/[0.03] px-7 py-3 text-base font-bold text-[#f7f9f7] transition hover:bg-white/[0.06]"
+                className="inline-flex items-center rounded-lg border px-6 py-3 text-[15px] font-semibold text-[#0f2439] transition hover:bg-[rgba(167,197,229,0.12)]"
+                style={{ borderColor: 'rgba(15,36,57,0.18)' }}
               >
                 Review Protocol
               </Link>
@@ -53,7 +55,7 @@ export default function BuildPage() {
                 href={PILOT_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex min-h-14 items-center rounded-full bg-[#d4a93e] px-7 py-3 text-base font-bold text-[#07131a] transition hover:brightness-105"
+                className="inline-flex items-center rounded-lg bg-[#b8973a] px-6 py-3 text-[15px] font-semibold text-white transition hover:brightness-105"
               >
                 Discuss a Pilot
               </a>
@@ -62,11 +64,12 @@ export default function BuildPage() {
         </div>
       </section>
 
+      {/* Integration surface */}
       <section className="site-section">
-        <div className="site-container py-32">
+        <div className="site-container py-20">
           <div className="max-w-xl">
             <p className="site-label">Integration surface</p>
-            <h2 className="mt-5 text-4xl font-black leading-tight tracking-[-0.03em] text-white md:text-5xl">
+            <h2 className="mt-5 text-[32px] font-semibold leading-tight tracking-[-0.02em] text-[#0f2439]">
               Start with the SDK. Finish with a conformance receipt.
             </h2>
           </div>
@@ -74,31 +77,40 @@ export default function BuildPage() {
         </div>
       </section>
 
+      {/* Chain adapter catalog */}
       <section className="site-section">
-        <div className="site-container py-32">
+        <div className="site-container py-20">
           <div className="grid gap-14 lg:grid-cols-[0.88fr_1.12fr] lg:items-start">
             <div className="max-w-xl">
               <p className="site-label">Chain adapter catalog</p>
-              <h2 className="mt-5 text-4xl font-black leading-tight tracking-[-0.03em] text-white md:text-5xl">
+              <h2 className="mt-5 text-[32px] font-semibold leading-tight tracking-[-0.02em] text-[#0f2439]">
                 Chain-native rails. One conformance result.
               </h2>
-              <p className="site-copy mt-6">
-                Each rail maps the local chain primitive into Ward&apos;s conformance engine. Your product keeps its settlement rail. Ward standardizes the resolution path and the institutional review surface.
+              <p className="mt-5 text-[15px] leading-[1.75] text-[#5a7a99]">
+                Each rail maps the local chain primitive into Ward&apos;s conformance engine. Your product keeps its
+                settlement rail. Ward standardizes the resolution path and the institutional review surface.
               </p>
             </div>
 
-            <div className="grid gap-5 sm:grid-cols-2">
+            <div className="grid gap-4 sm:grid-cols-2">
               {CHAIN_ADAPTERS.map((chain) => (
-                <article key={chain.id} className="site-panel-muted rounded-[30px] p-6">
+                <article
+                  key={chain.id}
+                  className="rounded-xl border bg-white p-5 shadow-[0_1px_3px_rgba(15,36,57,0.08)]"
+                  style={{ borderColor: 'rgba(167,197,229,0.4)' }}
+                >
                   <div className="flex items-start justify-between gap-4">
-                    <ChainLogo id={chain.logo} label={`${chain.name} rail`} className="h-14 w-14" />
-                    <span className="rounded-md border border-white/10 bg-white/[0.04] px-3 py-1.5 font-mono text-sm text-[#a7c5e5]">
+                    <ChainLogo id={chain.logo} label={`${chain.name} rail`} className="h-12 w-12" />
+                    <span
+                      className="rounded-md border px-3 py-1 font-mono text-[12px] text-[#5a7a99]"
+                      style={{ borderColor: 'rgba(167,197,229,0.4)', background: '#f0f4f8' }}
+                    >
                       {chain.status}
                     </span>
                   </div>
-                  <h3 className="mt-5 text-2xl font-black tracking-[-0.03em] text-white">{chain.name}</h3>
-                  <p className="mt-3 font-mono text-sm leading-6 text-[#c8dce8]">{chain.integrationSurface}</p>
-                  <p className="mt-4 text-sm leading-7 text-[#a7c5e5]">{chain.proof}</p>
+                  <h3 className="mt-4 text-[18px] font-semibold tracking-[-0.02em] text-[#0f2439]">{chain.name}</h3>
+                  <p className="mt-2 font-mono text-[12px] leading-5 text-[#a7c5e5]">{chain.integrationSurface}</p>
+                  <p className="mt-3 text-[13px] leading-6 text-[#5a7a99]">{chain.proof}</p>
                 </article>
               ))}
             </div>
@@ -106,46 +118,58 @@ export default function BuildPage() {
         </div>
       </section>
 
+      {/* Pilot readiness timetable */}
       <section className="site-section">
-        <div className="site-container py-32">
-          <div className="site-panel rounded-[38px] p-8 md:p-10 lg:p-12">
+        <div className="site-container py-20">
+          <div
+            className="rounded-xl border bg-white p-8 shadow-[0_1px_3px_rgba(15,36,57,0.08)] md:p-10 lg:p-12"
+            style={{ borderColor: 'rgba(167,197,229,0.4)' }}
+          >
             <div className="max-w-xl">
               <p className="site-label">Pilot readiness timetable</p>
-              <h2 className="mt-5 text-4xl font-black leading-tight tracking-[-0.03em] text-white md:text-5xl">
+              <h2 className="mt-5 text-[32px] font-semibold leading-tight tracking-[-0.02em] text-[#0f2439]">
                 Phase 1–4 from self-serve review to production certification.
               </h2>
             </div>
 
-            <div className="mt-14 grid gap-5">
+            <div className="mt-10 grid gap-4">
               {PILOT_READINESS_PHASES.slice(0, 4).map((phase) => (
                 <article
                   key={phase.phase}
-                  className="rounded-[30px] border border-white/10 bg-white/[0.03] p-6 md:grid md:grid-cols-[100px_1fr_180px] md:gap-6 md:p-7"
+                  className="rounded-xl border p-6 md:grid md:grid-cols-[88px_1fr_160px] md:gap-6 md:p-7"
+                  style={{ borderColor: 'rgba(167,197,229,0.35)', background: '#f8fafc' }}
                 >
-                  <div className="flex h-16 w-16 items-center justify-center rounded-[20px] bg-[#d4a93e] font-mono text-lg font-black text-[#07131a]">
+                  <div
+                    className="flex h-14 w-14 items-center justify-center rounded-lg font-mono text-[16px] font-bold text-white"
+                    style={{ background: '#b8973a' }}
+                  >
                     {phase.phase}
                   </div>
-                  <div className="mt-5 md:mt-0">
-                    <h3 className="text-2xl font-black tracking-[-0.03em] text-white">{phase.title}</h3>
-                    <p className="site-copy mt-3">{phase.body}</p>
+                  <div className="mt-4 md:mt-0">
+                    <h3 className="text-[18px] font-semibold tracking-[-0.02em] text-[#0f2439]">{phase.title}</h3>
+                    <p className="mt-2 text-[14px] leading-[1.75] text-[#5a7a99]">{phase.body}</p>
                   </div>
-                  <div className="mt-5 self-start rounded-md border border-white/10 bg-white/[0.04] px-4 py-2 font-mono text-sm font-bold text-[#f0d080] md:mt-0 md:text-center">
+                  <div
+                    className="mt-4 self-start rounded-md border px-4 py-2 font-mono text-[13px] font-bold text-[#b8973a] md:mt-0 md:text-center"
+                    style={{ borderColor: 'rgba(184,151,58,0.35)', background: 'rgba(184,151,58,0.07)' }}
+                  >
                     {phase.window}
                   </div>
                 </article>
               ))}
             </div>
 
-            <div className="mt-10 flex flex-wrap gap-4">
+            <div className="mt-8 flex flex-wrap gap-4">
               <Link
                 href="/conformance"
-                className="inline-flex min-h-14 items-center rounded-full bg-[#f7f9f7] px-7 py-3 text-base font-bold text-[#07131a] transition hover:bg-white"
+                className="inline-flex items-center rounded-lg bg-[#0f2439] px-6 py-3 text-[15px] font-semibold text-white transition hover:bg-[#0d1f32]"
               >
                 Review Conformance
               </Link>
               <Link
                 href="/demo"
-                className="inline-flex min-h-14 items-center rounded-full border border-white/12 bg-white/[0.03] px-7 py-3 text-base font-bold text-[#f7f9f7] transition hover:bg-white/[0.06]"
+                className="inline-flex items-center rounded-lg border px-6 py-3 text-[15px] font-semibold text-[#0f2439] transition hover:bg-[rgba(167,197,229,0.12)]"
+                style={{ borderColor: 'rgba(15,36,57,0.18)' }}
               >
                 Open Demo
               </Link>

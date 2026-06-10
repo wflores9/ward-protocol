@@ -9,25 +9,31 @@ export default function Nav() {
   const [open, setOpen] = useState(false);
 
   return (
-    <nav className="site-nav sticky top-0 z-[100] border-b border-white/10 bg-[#0f2439]/90 backdrop-blur-xl">
-      <div className="site-container flex h-[80px] items-center justify-between">
-        <Link href="/" onClick={() => setOpen(false)} className="flex items-center gap-4 no-underline">
-          <div className="relative flex h-11 w-11 items-center justify-center rounded-full border border-white/12 bg-white/[0.04]">
-            <span className="text-xl font-black text-[#f7f9f7]">W</span>
-            <div className="absolute bottom-2 left-1/2 h-0.5 w-4 -translate-x-1/2 rounded bg-[#d4a93e]" />
+    <nav
+      className="site-nav sticky top-0 z-[100] border-b bg-white backdrop-blur-xl"
+      style={{ borderColor: 'rgba(167,197,229,0.3)' }}
+    >
+      <div className="site-container flex h-[72px] items-center justify-between">
+        {/* Logo */}
+        <Link href="/" onClick={() => setOpen(false)} className="flex items-center gap-3 no-underline">
+          <div className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-[7px] bg-[#0f2439]">
+            <span className="text-lg font-bold text-[#a7c5e5]">W</span>
+            <div className="absolute bottom-[5px] left-2 right-2 h-[2px] rounded-sm bg-[#b8973a]" />
+            <span className="absolute bottom-[2px] right-[3px] text-[8px] leading-none text-[#a7c5e5]/40">✦</span>
           </div>
-          <div className="flex flex-col">
-            <span className="text-base font-black tracking-[0.14em] text-[#f7f9f7]">WARD</span>
-            <span className="font-mono text-sm uppercase tracking-[0.12em] text-[#a7c5e5]">Protocol</span>
+          <div className="flex flex-col gap-0">
+            <span className="text-[13px] font-bold tracking-[0.14em] text-[#0f2439]">WARD</span>
+            <span className="font-mono text-[9px] uppercase tracking-[0.12em] text-[#a7c5e5]">Protocol</span>
           </div>
         </Link>
 
-        <div className="hidden items-center gap-2 md:flex">
+        {/* Desktop nav */}
+        <div className="hidden items-center gap-1 md:flex">
           {SITE_NAVIGATION.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className="rounded-full px-4 py-2 text-sm font-semibold text-[#c8dce8] transition hover:bg-white/[0.04] hover:text-white"
+              className="rounded-lg px-4 py-2 text-[14px] font-medium text-[#0f2439] transition hover:bg-[rgba(167,197,229,0.15)] hover:text-[#0d1f32]"
             >
               {link.label}
             </Link>
@@ -36,32 +42,37 @@ export default function Nav() {
             href={PILOT_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="ml-3 inline-flex min-h-10 items-center rounded-full border border-[#d4a93e]/30 bg-[#d4a93e] px-5 py-2 text-sm font-bold text-[#07131a] transition hover:brightness-105"
+            className="ml-3 inline-flex min-h-[38px] items-center rounded-lg bg-[#0f2439] px-5 py-2 text-[14px] font-semibold text-white transition hover:bg-[#0d1f32]"
           >
             Discuss a pilot
           </a>
         </div>
 
+        {/* Mobile toggle */}
         <div className="flex items-center gap-3 md:hidden">
           <button
             onClick={() => setOpen((current) => !current)}
             aria-label={open ? 'Close menu' : 'Open menu'}
-            className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-xl text-[#f7f9f7]"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-[rgba(167,197,229,0.4)] bg-white text-xl text-[#0f2439]"
           >
             {open ? '×' : '≡'}
           </button>
         </div>
       </div>
 
+      {/* Mobile menu */}
       {open && (
-        <div className="border-t border-white/10 bg-[#0a161d]/98 px-6 pb-6 pt-4 md:hidden">
-          <div className="site-container space-y-2 px-0">
+        <div
+          className="border-t bg-white px-6 pb-6 pt-4 md:hidden"
+          style={{ borderColor: 'rgba(167,197,229,0.3)' }}
+        >
+          <div className="site-container space-y-1 px-0">
             {SITE_NAVIGATION.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 onClick={() => setOpen(false)}
-                className="block rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-3 text-base font-semibold text-[#f7f9f7]"
+                className="block rounded-lg border border-[rgba(167,197,229,0.3)] bg-[#f0f4f8] px-4 py-3 text-[15px] font-medium text-[#0f2439]"
               >
                 {link.label}
               </Link>
@@ -71,7 +82,7 @@ export default function Nav() {
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => setOpen(false)}
-              className="mt-4 block rounded-full bg-[#d4a93e] px-5 py-3 text-center text-sm font-bold text-[#07131a]"
+              className="mt-4 block rounded-lg bg-[#0f2439] px-5 py-3 text-center text-[15px] font-semibold text-white"
             >
               Discuss a pilot
             </a>

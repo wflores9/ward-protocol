@@ -76,14 +76,12 @@ function buildReceipt(
         ? 2
         : 1;
 
-  const approved = apiResult ? apiResult.approved : false;
-
   const lines = [
     `receipt_id:    ${sessionId}`,
     `chain:         ${chain.name}`,
     `network:       ${chain.network}`,
     `scenario:      ${scenarioLabels[scenario]}`,
-    `result:        ${approved ? 'WARD_CONFORMANT' : 'WARD_REJECTED'}`,
+    `result:        ${apiResult?.approved ? 'WARD_CONFORMANT' : 'WARD_REJECTED'}`,
     `checks_passed: ${checksPassCount}/9`,
     `ward_signed:   false`,
     `settlement:    unsigned packet returned to institution`,
@@ -146,7 +144,6 @@ export default function DemoClient() {
     setStatusText('Connecting to Ward API…');
 
     const nftId = activeScenario === 2 ? FAKE_NFT_ID : DEMO_NFT_ID;
-    // scenario 3: swap vault with pool to trigger vault binding failure
     const vault = activeScenario === 3 ? DEMO_POOL : DEMO_VAULT;
 
     let apiAvailable = false;
@@ -159,9 +156,7 @@ export default function DemoClient() {
       }
     }
 
-    if (!apiAvailable) {
-      setStatusText('API unavailable — running simulation');
-    }
+    if (!apiAvailable) setStatusText('API unavailable — running simulation');
 
     let realResult: ApiResult | null = null;
 
@@ -194,7 +189,6 @@ export default function DemoClient() {
       }
     }
 
-    // Determine pass/fail boundary
     let checksPassCount: number;
     let failCheckId: string | null;
 
@@ -202,20 +196,11 @@ export default function DemoClient() {
       checksPassCount = realResult.checks_passed;
       failCheckId = checksPassCount < 9 ? (CONFORMANCE_CHECKS[checksPassCount]?.id ?? null) : null;
     } else {
-      // Simulation defaults per scenario
-      if (activeScenario === 2) {
-        checksPassCount = 0;
-        failCheckId = '01';
-      } else if (activeScenario === 3) {
-        checksPassCount = 2;
-        failCheckId = '03';
-      } else {
-        checksPassCount = 1;
-        failCheckId = '02';
-      }
+      if (activeScenario === 2) { checksPassCount = 0; failCheckId = '01'; }
+      else if (activeScenario === 3) { checksPassCount = 2; failCheckId = '03'; }
+      else { checksPassCount = 1; failCheckId = '02'; }
     }
 
-    // Animate check results
     for (let i = 0; i < CONFORMANCE_CHECKS.length; i++) {
       await new Promise((r) => setTimeout(r, 180));
       const check = CONFORMANCE_CHECKS[i];
@@ -245,18 +230,16 @@ export default function DemoClient() {
   const passCount = Object.values(checkStatuses).filter((s) => s === 'pass').length;
 
   return (
-    <main className="site-shell text-[#f7f9f7]">
+    <main className="site-shell">
       {/* Hero + Chain Selector */}
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0 grid-overlay opacity-40" />
-        <div className="site-container pb-20 pt-24 lg:pt-32">
+        <div className="site-container pb-20 pt-24 lg:pt-28">
           <p className="site-label">Ward conformance workspace</p>
-          <h1 className="mt-6 text-5xl font-black leading-[0.98] tracking-[-0.04em] text-white md:text-6xl">
+          <h1 className="mt-6 text-4xl font-semibold leading-[1.08] tracking-[-0.02em] text-[#0f2439] md:text-[48px]">
             Run deterministic conformance on any supported chain.
           </h1>
-          <p className="site-copy mt-6 max-w-xl text-lg">
-            XRPL Altnet runs against the live Ward API. All other chains show the adapter surface and testnet
-            deployment.
+          <p className="mt-6 max-w-xl text-[15px] leading-[1.75] text-[#5a7a99]">
+            XRPL Altnet runs against the live Ward API. All other chains show the adapter surface and testnet deployment.
           </p>
           <div className="mt-10">
             <ChainSelector chains={CHAIN_ADAPTERS} selected={selectedChain} onSelect={setSelectedChain} />
@@ -267,16 +250,19 @@ export default function DemoClient() {
       {/* XRPL Live Sandbox */}
       {isXrpl && (
         <section className="site-section">
-          <div className="site-container py-24">
+          <div className="site-container py-20">
             <div className="mb-6 flex items-center gap-3">
               <span className="badge-live">LIVE — XRPL Altnet</span>
-              <span className="font-mono text-sm text-[#a7c5e5]">api.wardprotocol.org · XLS-66 lending vaults</span>
+              <span className="font-mono text-[13px] text-[#a7c5e5]">api.wardprotocol.org · XLS-66 lending vaults</span>
             </div>
 
-            <div className="grid gap-6 lg:grid-cols-3">
+            <div className="grid gap-5 lg:grid-cols-3">
               {/* Left: Demo Vault */}
-              <div className="site-panel rounded-[30px] p-6">
-                <p className="font-mono text-sm font-bold text-[#d4a93e]">Demo Vault</p>
+              <div
+                className="rounded-xl border bg-white p-6 shadow-[0_1px_3px_rgba(15,36,57,0.08)]"
+                style={{ borderColor: 'rgba(167,197,229,0.4)' }}
+              >
+                <p className="font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-[#a7c5e5]">Demo Vault</p>
                 <div className="mt-5 space-y-5">
                   {[
                     { label: 'Vault', value: DEMO_VAULT, href: `${XRPL_EXPLORER}/accounts/${DEMO_VAULT}` },
@@ -289,63 +275,85 @@ export default function DemoClient() {
                     },
                   ].map(({ label, value, href }) => (
                     <div key={label}>
-                      <p className="font-mono text-xs text-[#a7c5e5]">{label}</p>
+                      <p className="font-mono text-[11px] text-[#a7c5e5]">{label}</p>
                       <a
                         href={href}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="mt-1 block break-all font-mono text-sm text-[#9fc6ff] underline decoration-[#9fc6ff]/30 underline-offset-4 hover:decoration-[#9fc6ff]"
+                        className="mt-1 block break-all font-mono text-[13px] text-[#2a5f9e] underline decoration-[#2a5f9e]/30 underline-offset-4 hover:decoration-[#2a5f9e]"
                       >
                         {value}
                       </a>
                     </div>
                   ))}
                 </div>
-                <div className="mt-6 border-t border-white/10 pt-5">
-                  <p className="font-mono text-xs text-[#a7c5e5]">Loan ID</p>
-                  <p className="mt-1 break-all font-mono text-xs text-[#c8dce8]">{DEMO_LOAN_ID}</p>
+                <div
+                  className="mt-5 border-t pt-5"
+                  style={{ borderColor: 'rgba(167,197,229,0.28)' }}
+                >
+                  <p className="font-mono text-[11px] text-[#a7c5e5]">Loan ID</p>
+                  <p className="mt-1 break-all font-mono text-[11px] text-[#5a7a99]">{DEMO_LOAN_ID}</p>
                 </div>
               </div>
 
               {/* Center: Scenarios + Run */}
-              <div className="site-panel rounded-[30px] p-6">
-                <p className="font-mono text-sm font-bold text-[#d4a93e]">Run Validation</p>
+              <div
+                className="rounded-xl border bg-white p-6 shadow-[0_1px_3px_rgba(15,36,57,0.08)]"
+                style={{ borderColor: 'rgba(167,197,229,0.4)' }}
+              >
+                <p className="font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-[#a7c5e5]">Run Validation</p>
                 <div className="mt-5 space-y-3">
                   {SCENARIOS.map((s) => (
                     <button
                       key={s.id}
                       onClick={() => selectScenario(s.id)}
                       disabled={runState === 'running'}
-                      className="w-full rounded-[16px] border p-4 text-left transition disabled:cursor-not-allowed"
+                      className="w-full rounded-lg border p-4 text-left transition disabled:cursor-not-allowed"
                       style={{
                         borderColor:
-                          activeScenario === s.id ? 'rgba(212,169,62,0.5)' : 'rgba(255,255,255,0.10)',
+                          activeScenario === s.id ? '#b8973a' : 'rgba(167,197,229,0.35)',
                         background:
-                          activeScenario === s.id ? 'rgba(212,169,62,0.08)' : 'rgba(255,255,255,0.03)',
+                          activeScenario === s.id ? 'rgba(184,151,58,0.07)' : '#f8fafc',
                       }}
                     >
-                      <p className="font-mono text-xs font-bold text-[#d4a93e]">Scenario {s.id}</p>
-                      <p className="mt-1 text-sm font-bold text-white">{s.label}</p>
+                      <p
+                        className="font-mono text-[10px] font-bold uppercase tracking-[0.1em]"
+                        style={{ color: activeScenario === s.id ? '#b8973a' : '#a7c5e5' }}
+                      >
+                        Scenario {s.id}
+                      </p>
+                      <p className="mt-1 text-[14px] font-semibold text-[#0f2439]">{s.label}</p>
                     </button>
                   ))}
                 </div>
                 <button
                   onClick={runValidation}
                   disabled={runState === 'running'}
-                  className="mt-5 w-full rounded-full bg-[#d4a93e] px-7 py-4 text-base font-bold text-[#07131a] transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="mt-5 w-full rounded-lg bg-[#0f2439] px-6 py-3.5 text-[15px] font-semibold text-white transition hover:bg-[#0d1f32] disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {runState === 'running' ? 'Running…' : 'Run Ward Validation'}
                 </button>
-                <p className="mt-4 rounded-[14px] border border-white/10 bg-white/[0.03] p-3 font-mono text-xs leading-5 text-[#a7c5e5]">
+                <p
+                  className="mt-4 rounded-lg border p-3 font-mono text-[12px] leading-5 text-[#5a7a99]"
+                  style={{ borderColor: 'rgba(167,197,229,0.35)', background: '#f8fafc' }}
+                >
                   {statusText}
                 </p>
               </div>
 
               {/* Right: 9-Check Results */}
-              <div className="site-panel rounded-[30px] p-6">
+              <div
+                className="rounded-xl border bg-white p-6 shadow-[0_1px_3px_rgba(15,36,57,0.08)]"
+                style={{ borderColor: 'rgba(167,197,229,0.4)' }}
+              >
                 <div className="mb-5 flex items-center justify-between">
-                  <p className="font-mono text-sm font-bold text-[#d4a93e]">9-Check Results</p>
-                  <span className="rounded-md border border-white/10 bg-white/[0.04] px-3 py-1 font-mono text-sm text-[#c8dce8]">
+                  <p className="font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-[#a7c5e5]">
+                    9-Check Results
+                  </p>
+                  <span
+                    className="rounded-md border px-3 py-1 font-mono text-[12px] text-[#5a7a99]"
+                    style={{ borderColor: 'rgba(167,197,229,0.4)', background: '#f0f4f8' }}
+                  >
                     {apiResult ? `${apiResult.checks_passed}/9` : `${passCount}/9`}
                   </span>
                 </div>
@@ -355,23 +363,32 @@ export default function DemoClient() {
                     return (
                       <div
                         key={check.id}
-                        className="flex items-center gap-3 rounded-[12px] border border-white/10 bg-white/[0.02] px-3 py-2.5"
+                        className="flex items-center gap-3 rounded-lg border px-3 py-2.5"
+                        style={{
+                          borderColor: 'rgba(167,197,229,0.3)',
+                          background:
+                            status === 'pass'
+                              ? 'rgba(22,163,74,0.06)'
+                              : status === 'fail'
+                                ? 'rgba(220,38,38,0.06)'
+                                : '#f8fafc',
+                        }}
                       >
                         <span
-                          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[8px] font-mono text-xs font-bold"
+                          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md font-mono text-xs font-bold"
                           style={{
                             background:
                               status === 'pass'
-                                ? '#00cc66'
+                                ? '#16a34a'
                                 : status === 'fail'
-                                  ? '#ef4444'
-                                  : 'rgba(255,255,255,0.07)',
-                            color: status === 'pending' ? '#a7c5e5' : '#fff',
+                                  ? '#dc2626'
+                                  : 'rgba(167,197,229,0.3)',
+                            color: status === 'pending' ? '#5a7a99' : '#ffffff',
                           }}
                         >
                           {status === 'pass' ? '✓' : status === 'fail' ? '✗' : check.id}
                         </span>
-                        <span className="text-xs leading-5 text-[#c8dce8]">{check.label}</span>
+                        <span className="text-[12px] leading-5 text-[#5a7a99]">{check.label}</span>
                       </div>
                     );
                   })}
@@ -380,32 +397,40 @@ export default function DemoClient() {
             </div>
 
             {/* Ward Receipt */}
-            <div className="mt-8 site-panel rounded-[30px] p-6 md:p-8">
+            <div
+              className="mt-6 rounded-xl border bg-white p-6 shadow-[0_1px_3px_rgba(15,36,57,0.08)] md:p-8"
+              style={{ borderColor: 'rgba(167,197,229,0.4)' }}
+            >
               <div className="mb-5 flex items-center justify-between gap-4">
-                <p className="font-mono text-sm font-bold text-[#d4a93e]">Ward Conformance Receipt</p>
+                <p className="font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-[#a7c5e5]">
+                  Ward Conformance Receipt
+                </p>
                 {runState === 'done' && (
                   <a
                     href={`${XRPL_EXPLORER}/nfts/${DEMO_NFT_ID}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="font-mono text-xs text-[#9fc6ff] hover:underline"
+                    className="font-mono text-[12px] text-[#2a5f9e] hover:underline"
                   >
                     View NFT on Altnet →
                   </a>
                 )}
               </div>
-              <pre className="whitespace-pre-wrap break-words rounded-[16px] border border-white/10 bg-[#07131a]/70 p-5 font-mono text-sm leading-7 text-[#c8dce8]">
+              <pre
+                className="whitespace-pre-wrap break-words rounded-lg border p-5 font-mono text-[13px] leading-7 text-[#0f2439]"
+                style={{ borderColor: 'rgba(167,197,229,0.35)', background: '#f8fafc' }}
+              >
                 {receipt}
               </pre>
               {apiResult?.rejection_memo_hex && (
-                <p className="mt-3 font-mono text-xs text-[#a7c5e5]">
+                <p className="mt-3 font-mono text-[12px] text-[#5a7a99]">
                   memo_hex is an on-chain memo written to the XRPL Altnet ledger at rejection time.
                 </p>
               )}
               <button
                 onClick={copyReceipt}
                 disabled={runState !== 'done'}
-                className="mt-5 w-full rounded-full bg-[#d4a93e] px-5 py-3.5 text-base font-bold text-[#07131a] transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-55"
+                className="mt-5 w-full rounded-lg bg-[#0f2439] px-5 py-3.5 text-[15px] font-semibold text-white transition hover:bg-[#0d1f32] disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {receiptCopied ? 'Receipt Copied' : 'Copy Receipt'}
               </button>
@@ -417,39 +442,54 @@ export default function DemoClient() {
       {/* Non-XRPL adapter card */}
       {!isXrpl && (
         <section className="site-section">
-          <div className="site-container py-24">
+          <div className="site-container py-20">
             <div className="mx-auto max-w-2xl">
-              <div className="site-panel rounded-[34px] p-8 md:p-10">
+              <div
+                className="rounded-xl border bg-white p-8 shadow-[0_1px_3px_rgba(15,36,57,0.08)] md:p-10"
+                style={{ borderColor: 'rgba(167,197,229,0.4)' }}
+              >
                 <div className="flex items-start justify-between gap-6">
                   <div>
-                    <span className="rounded-md border border-white/10 bg-white/[0.04] px-3 py-1 font-mono text-xs text-[#a7c5e5]">
+                    <span
+                      className="rounded-md border px-3 py-1 font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-[#a7c5e5]"
+                      style={{ borderColor: 'rgba(167,197,229,0.4)', background: '#f0f4f8' }}
+                    >
                       Adapter in development
                     </span>
-                    <h2 className="mt-4 text-3xl font-black tracking-[-0.03em] text-white">{selectedChain.name}</h2>
-                    <p className="mt-2 font-mono text-sm text-[#a7c5e5]">{selectedChain.network}</p>
+                    <h2 className="mt-4 text-[28px] font-semibold tracking-[-0.02em] text-[#0f2439]">
+                      {selectedChain.name}
+                    </h2>
+                    <p className="mt-2 font-mono text-[13px] text-[#5a7a99]">{selectedChain.network}</p>
                   </div>
-                  <span className="shrink-0 rounded-md border border-white/10 bg-white/[0.04] px-3 py-1.5 font-mono text-sm text-[#f0d080]">
+                  <span
+                    className="shrink-0 rounded-md border px-3 py-1.5 font-mono text-[13px] font-bold text-[#b8973a]"
+                    style={{ borderColor: 'rgba(184,151,58,0.35)', background: 'rgba(184,151,58,0.08)' }}
+                  >
                     {selectedChain.status}
                   </span>
                 </div>
 
                 <div className="mt-8 grid gap-4 sm:grid-cols-2">
-                  <div className="rounded-[20px] border border-white/10 bg-white/[0.03] p-5">
-                    <p className="font-mono text-xs text-[#a7c5e5]">Deployed contract</p>
-                    <p className="mt-2 break-all font-mono text-sm text-[#c8dce8]">{selectedChain.deploymentRef}</p>
-                  </div>
-                  <div className="rounded-[20px] border border-white/10 bg-white/[0.03] p-5">
-                    <p className="font-mono text-xs text-[#a7c5e5]">Policy artifact</p>
-                    <p className="mt-2 font-mono text-sm text-[#c8dce8]">{selectedChain.policyArtifact}</p>
-                  </div>
-                  <div className="rounded-[20px] border border-white/10 bg-white/[0.03] p-5">
-                    <p className="font-mono text-xs text-[#a7c5e5]">Integration surface</p>
-                    <p className="mt-2 font-mono text-sm text-[#c8dce8]">{selectedChain.integrationSurface}</p>
-                  </div>
-                  <div className="rounded-[20px] border border-white/10 bg-white/[0.03] p-5">
-                    <p className="font-mono text-xs text-[#a7c5e5]">Full adapter</p>
-                    <p className="mt-2 font-mono text-sm text-[#f0d080]">Phase 2 — Q3 2026</p>
-                  </div>
+                  {[
+                    { label: 'Deployed contract', value: selectedChain.deploymentRef },
+                    { label: 'Policy artifact', value: selectedChain.policyArtifact },
+                    { label: 'Integration surface', value: selectedChain.integrationSurface },
+                    { label: 'Full adapter', value: 'Phase 2 — Q3 2026', highlight: true },
+                  ].map(({ label, value, highlight }) => (
+                    <div
+                      key={label}
+                      className="rounded-lg border p-5"
+                      style={{ borderColor: 'rgba(167,197,229,0.35)', background: '#f8fafc' }}
+                    >
+                      <p className="font-mono text-[11px] text-[#a7c5e5]">{label}</p>
+                      <p
+                        className="mt-2 break-all font-mono text-[13px]"
+                        style={{ color: highlight ? '#b8973a' : '#0f2439' }}
+                      >
+                        {value}
+                      </p>
+                    </div>
+                  ))}
                 </div>
 
                 <div className="mt-8 flex flex-wrap gap-3">
@@ -459,14 +499,15 @@ export default function DemoClient() {
                       href={action.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 rounded-full border border-white/[0.12] bg-white/[0.03] px-5 py-2.5 font-mono text-sm text-[#c8dce8] transition hover:bg-white/[0.06]"
+                      className="inline-flex items-center gap-2 rounded-lg border px-5 py-2.5 font-mono text-[13px] text-[#5a7a99] transition hover:border-[rgba(167,197,229,0.6)] hover:text-[#0f2439]"
+                      style={{ borderColor: 'rgba(167,197,229,0.4)', background: '#f8fafc' }}
                     >
                       {action.label} →
                     </a>
                   ))}
                   <Link
                     href="/build"
-                    className="inline-flex items-center gap-2 rounded-full bg-[#d4a93e] px-5 py-2.5 font-mono text-sm font-bold text-[#07131a] transition hover:brightness-105"
+                    className="inline-flex items-center gap-2 rounded-lg bg-[#0f2439] px-5 py-2.5 font-mono text-[13px] font-semibold text-white transition hover:bg-[#0d1f32]"
                   >
                     View integration path →
                   </Link>
