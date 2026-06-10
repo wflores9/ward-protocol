@@ -90,62 +90,83 @@ const CONSTANTS = [
 
 export default function SpecPage() {
   return (
-    <main className="site-shell text-[#f7f9f7]">
+    <main className="site-shell">
+      {/* Hero */}
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0 grid-overlay opacity-40" />
-        <div className="site-container pb-28 pt-24 lg:pt-32">
-          <div className="grid gap-14 lg:grid-cols-[1fr_0.9fr] lg:items-center">
-            <div className="max-w-4xl">
+        <div className="site-container pb-24 pt-24 lg:pt-28">
+          <div className="grid gap-14 lg:grid-cols-[1fr_0.9fr] lg:items-start">
+            <div className="max-w-3xl">
               <p className="site-label">Protocol specification</p>
-              <h1 className="mt-6 text-5xl font-black leading-[0.98] tracking-[-0.04em] text-white md:text-6xl lg:text-[5rem]">
+              <h1 className="mt-6 text-4xl font-semibold leading-[1.08] tracking-[-0.02em] text-[#0f2439] md:text-[48px]">
                 The technical basis for deterministic default resolution.
               </h1>
-              <p className="site-copy mt-8 max-w-3xl text-lg md:text-[1.2rem]">
-                This page is the engineering reference for Ward Protocol: architecture, claim validation, signer-boundary guarantees, settlement behavior, and the controls that make conformance reviewable.
+              <p className="mt-6 max-w-2xl text-[15px] leading-[1.75] text-[#5a7a99]">
+                Engineering reference for Ward Protocol: architecture, claim validation, signer-boundary guarantees,
+                settlement behavior, and the controls that make conformance reviewable.
               </p>
 
-              <div className="mt-9 flex flex-wrap gap-3 text-sm text-[#c8dce8]">
-                {['9 on-ledger checks', '15 attack vectors mitigated', 'ward_signed = False', 'SDK v0.2.6'].map((item) => (
-                  <span key={item} className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 font-mono">
-                    {item}
-                  </span>
-                ))}
+              <div className="mt-6 flex flex-wrap gap-2">
+                {['9 on-ledger checks', '15 attack vectors mitigated', 'ward_signed = False', 'SDK v0.2.6'].map(
+                  (item) => (
+                    <span
+                      key={item}
+                      className="rounded-full border px-4 py-1.5 font-mono text-[12px] text-[#5a7a99]"
+                      style={{ borderColor: 'rgba(167,197,229,0.5)', background: '#f8fafc' }}
+                    >
+                      {item}
+                    </span>
+                  ),
+                )}
               </div>
 
-              <div className="mt-10 flex flex-wrap gap-4">
+              <div className="mt-8 flex flex-wrap gap-4">
                 <Link
                   href="/demo"
-                  className="inline-flex min-h-14 items-center rounded-full bg-[#f7f9f7] px-7 py-3 text-base font-bold text-[#07131a] transition hover:bg-white"
+                  className="inline-flex items-center rounded-lg bg-[#0f2439] px-6 py-3 text-[15px] font-semibold text-white transition hover:bg-[#0d1f32]"
                 >
-                  Open Demo Workspace
+                  Open Demo
                 </Link>
                 <Link
                   href="/conformance"
-                  className="inline-flex min-h-14 items-center rounded-full border border-white/12 bg-white/[0.03] px-7 py-3 text-base font-bold text-[#f7f9f7] transition hover:bg-white/[0.06]"
+                  className="inline-flex items-center rounded-lg border px-6 py-3 text-[15px] font-semibold text-[#0f2439] transition hover:bg-[rgba(167,197,229,0.12)]"
+                  style={{ borderColor: 'rgba(15,36,57,0.18)' }}
                 >
                   Review Conformance
                 </Link>
                 <Link
                   href="/build"
-                  className="inline-flex min-h-14 items-center rounded-full border border-white/12 bg-white/[0.03] px-7 py-3 text-base font-bold text-[#f7f9f7] transition hover:bg-white/[0.06]"
+                  className="inline-flex items-center rounded-lg border px-6 py-3 text-[15px] font-semibold text-[#0f2439] transition hover:bg-[rgba(167,197,229,0.12)]"
+                  style={{ borderColor: 'rgba(15,36,57,0.18)' }}
                 >
                   Build With Ward
                 </Link>
               </div>
             </div>
 
-            <div className="site-panel rounded-[38px] p-8 md:p-10">
-              <p className="font-mono text-sm font-bold text-[#d4a93e]">Specification snapshot</p>
-              <div className="mt-6 grid gap-4">
+            {/* Spec snapshot card */}
+            <div
+              className="rounded-xl border bg-white p-6 shadow-[0_1px_3px_rgba(15,36,57,0.08)]"
+              style={{ borderColor: 'rgba(167,197,229,0.4)' }}
+            >
+              <p className="font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-[#b8973a]">
+                Specification snapshot
+              </p>
+              <div className="mt-5 grid gap-3">
                 {[
                   ['Core invariant', 'ward_signed = False'],
                   ['Decision source', 'Authoritative on-ledger state only'],
                   ['Settlement role', 'Ward returns unsigned payloads only'],
                   ['Primary assurance surface', 'Nine-step claim validation'],
                 ].map(([label, value]) => (
-                  <div key={label} className="rounded-[24px] border border-white/10 bg-white/[0.03] p-5">
-                    <p className="font-mono text-sm uppercase tracking-[0.12em] text-[#a7c5e5]">{label}</p>
-                    <p className="mt-3 text-lg font-bold leading-7 text-white">{value}</p>
+                  <div
+                    key={label}
+                    className="rounded-lg p-4"
+                    style={{ background: '#f8fafc', border: '1px solid rgba(167,197,229,0.35)' }}
+                  >
+                    <p className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-[#a7c5e5]">
+                      {label}
+                    </p>
+                    <p className="mt-2 text-[14px] font-semibold text-[#0f2439]">{value}</p>
                   </div>
                 ))}
               </div>
@@ -154,47 +175,56 @@ export default function SpecPage() {
         </div>
       </section>
 
+      {/* Architecture */}
       <section className="site-section">
-        <div className="site-container py-28">
-          <div className="max-w-3xl">
+        <div className="site-container py-20">
+          <div className="max-w-xl">
             <p className="site-label">Architecture</p>
-            <h2 className="mt-5 text-4xl font-black leading-tight tracking-[-0.03em] text-white md:text-5xl">
+            <h2 className="mt-5 text-[32px] font-semibold leading-tight tracking-[-0.02em] text-[#0f2439]">
               Five modules form the conformance and settlement surface.
             </h2>
           </div>
-
-          <div className="mt-14 grid gap-6 lg:grid-cols-5">
+          <div className="mt-10 grid gap-4 lg:grid-cols-5">
             {ARCHITECTURE.map(([step, title, body]) => (
-              <article key={title} className="site-panel-muted rounded-[30px] p-6 lg:min-h-[260px]">
-                <p className="font-mono text-sm font-bold uppercase tracking-[0.12em] text-[#d4a93e]">{step}</p>
-                <h3 className="mt-4 text-2xl font-black tracking-[-0.03em] text-white">{title}</h3>
-                <p className="site-copy-sm mt-4">{body}</p>
+              <article
+                key={title}
+                className="rounded-xl border bg-white p-5 shadow-[0_1px_3px_rgba(15,36,57,0.08)]"
+                style={{ borderColor: 'rgba(167,197,229,0.4)' }}
+              >
+                <p className="font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-[#b8973a]">{step}</p>
+                <h3 className="mt-3 text-[16px] font-semibold text-[#0f2439]">{title}</h3>
+                <p className="mt-3 text-[13px] leading-[1.65] text-[#5a7a99]">{body}</p>
               </article>
             ))}
           </div>
         </div>
       </section>
 
+      {/* Claim validation */}
       <section className="site-section">
-        <div className="site-container py-28">
+        <div className="site-container py-20">
           <div className="grid gap-14 lg:grid-cols-[0.94fr_1.06fr]">
             <div className="max-w-2xl">
               <p className="site-label">Claim validation</p>
-              <h2 className="mt-5 text-4xl font-black leading-tight tracking-[-0.03em] text-white md:text-5xl">
+              <h2 className="mt-5 text-[32px] font-semibold leading-tight tracking-[-0.02em] text-[#0f2439]">
                 Nine deterministic checks govern every claim.
               </h2>
-              <p className="site-copy mt-6">
-                These steps are intentionally explicit. They define the evidence path institutions can inspect and the basis for every conformant result.
+              <p className="mt-5 text-[15px] leading-[1.75] text-[#5a7a99]">
+                These steps are intentionally explicit. They define the evidence path institutions can inspect and the
+                basis for every conformant result.
               </p>
             </div>
-
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
               {CLAIM_STEPS.map((step, index) => (
-                <article key={step} className="site-panel rounded-[28px] p-5">
-                  <p className="font-mono text-sm font-bold uppercase tracking-[0.12em] text-[#d4a93e]">
+                <article
+                  key={step}
+                  className="rounded-xl border bg-white p-4 shadow-[0_1px_3px_rgba(15,36,57,0.08)]"
+                  style={{ borderColor: 'rgba(167,197,229,0.4)' }}
+                >
+                  <p className="font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-[#b8973a]">
                     Step {index + 1}
                   </p>
-                  <p className="mt-4 text-base leading-7 text-[#c8dce8]">{step}</p>
+                  <p className="mt-3 text-[13px] leading-[1.65] text-[#5a7a99]">{step}</p>
                 </article>
               ))}
             </div>
@@ -202,37 +232,46 @@ export default function SpecPage() {
         </div>
       </section>
 
+      {/* Protocol details */}
       <section className="site-section">
-        <div className="site-container py-28">
-          <div className="max-w-3xl">
+        <div className="site-container py-20">
+          <div className="max-w-xl">
             <p className="site-label">Protocol details</p>
-            <h2 className="mt-5 text-4xl font-black leading-tight tracking-[-0.03em] text-white md:text-5xl">
+            <h2 className="mt-5 text-[32px] font-semibold leading-tight tracking-[-0.02em] text-[#0f2439]">
               Reference sections for operators, integrators, and reviewers.
             </h2>
           </div>
-
-          <div className="mt-14 grid gap-6 lg:grid-cols-2">
+          <div className="mt-10 grid gap-5 lg:grid-cols-2">
             {SPEC_SECTIONS.map((section) => (
-              <article key={section.id} className="site-panel-muted rounded-[32px] p-8">
-                <h3 className="text-[1.8rem] font-black tracking-[-0.03em] text-white">{section.title}</h3>
-                <p className="site-copy mt-5">{section.body}</p>
+              <article
+                key={section.id}
+                className="rounded-xl border bg-white p-6 shadow-[0_1px_3px_rgba(15,36,57,0.08)]"
+                style={{ borderColor: 'rgba(167,197,229,0.4)' }}
+              >
+                <h3 className="text-[20px] font-semibold tracking-[-0.02em] text-[#0f2439]">{section.title}</h3>
+                <p className="mt-4 text-[14px] leading-[1.75] text-[#5a7a99]">{section.body}</p>
               </article>
             ))}
           </div>
         </div>
       </section>
 
+      {/* Attack vectors + Constants */}
       <section className="site-section">
-        <div className="site-container py-28">
+        <div className="site-container py-20">
           <div className="grid gap-14 lg:grid-cols-[1fr_0.92fr]">
             <div>
               <p className="site-label">Attack-vector mitigations</p>
-              <h2 className="mt-5 text-4xl font-black leading-tight tracking-[-0.03em] text-white md:text-5xl">
+              <h2 className="mt-5 text-[32px] font-semibold leading-tight tracking-[-0.02em] text-[#0f2439]">
                 The spec defines control intent, not just happy-path behavior.
               </h2>
-              <div className="mt-10 grid gap-4">
+              <div className="mt-8 grid gap-3">
                 {ATTACK_VECTORS.map((item) => (
-                  <div key={item} className="rounded-[24px] border border-white/10 bg-white/[0.03] p-5 text-base leading-7 text-[#c8dce8]">
+                  <div
+                    key={item}
+                    className="rounded-lg border p-4 text-[14px] leading-[1.7] text-[#5a7a99]"
+                    style={{ borderColor: 'rgba(167,197,229,0.35)', background: '#f8fafc' }}
+                  >
                     {item}
                   </div>
                 ))}
@@ -241,30 +280,42 @@ export default function SpecPage() {
 
             <div>
               <p className="site-label">Protocol constants</p>
-              <div className="site-panel rounded-[34px] p-6 md:p-8">
+              <div
+                className="rounded-xl border bg-white p-6 shadow-[0_1px_3px_rgba(15,36,57,0.08)]"
+                style={{ borderColor: 'rgba(167,197,229,0.4)' }}
+              >
                 <div className="overflow-x-auto">
                   <table className="w-full border-collapse">
                     <thead>
-                      <tr className="border-b border-white/10">
-                        <th className="px-0 py-3 text-left font-mono text-sm uppercase tracking-[0.12em] text-[#a7c5e5]">Constant</th>
-                        <th className="px-0 py-3 text-left font-mono text-sm uppercase tracking-[0.12em] text-[#a7c5e5]">Value</th>
+                      <tr style={{ borderBottom: '1px solid rgba(167,197,229,0.4)' }}>
+                        <th className="px-0 py-3 text-left font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-[#a7c5e5]">
+                          Constant
+                        </th>
+                        <th className="px-0 py-3 text-left font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-[#a7c5e5]">
+                          Value
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
                       {CONSTANTS.map(([name, value]) => (
-                        <tr key={name} className="border-t border-white/10">
-                          <td className="px-0 py-4 font-mono text-sm text-[#f0d080]">{name}</td>
-                          <td className="px-0 py-4 font-mono text-sm text-[#c8dce8]">{value}</td>
+                        <tr key={name} style={{ borderTop: '1px solid rgba(167,197,229,0.28)' }}>
+                          <td className="px-0 py-3 font-mono text-[12px] text-[#b8973a]">{name}</td>
+                          <td className="px-0 py-3 font-mono text-[12px] text-[#5a7a99]">{value}</td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
                 </div>
-
-                <div className="mt-8 rounded-[24px] border border-white/10 bg-white/[0.03] p-5">
-                  <p className="font-mono text-sm font-bold text-[#d4a93e]">Signer boundary reminder</p>
-                  <p className="site-copy-sm mt-3">
-                    No Ward class stores a wallet, no Ward method calls submit_and_wait, and build_unsigned_tx() is the transaction construction path that preserves ward_signed = False.
+                <div
+                  className="mt-6 rounded-lg p-4"
+                  style={{ background: 'rgba(184,151,58,0.07)', borderLeft: '3px solid #b8973a' }}
+                >
+                  <p className="font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-[#b8973a]">
+                    Signer boundary reminder
+                  </p>
+                  <p className="mt-2 text-[13px] leading-[1.65] text-[#5a7a99]">
+                    No Ward class stores a wallet, no Ward method calls submit_and_wait, and build_unsigned_tx() is the
+                    transaction construction path that preserves ward_signed = False.
                   </p>
                 </div>
               </div>
@@ -273,35 +324,41 @@ export default function SpecPage() {
         </div>
       </section>
 
+      {/* CTA */}
       <section className="site-section">
-        <div className="site-container py-28">
-          <div className="site-panel rounded-[38px] p-8 md:p-10 lg:p-12">
-            <div className="max-w-3xl">
+        <div className="site-container py-20">
+          <div
+            className="rounded-xl border bg-white p-8 shadow-[0_1px_3px_rgba(15,36,57,0.08)] md:p-10"
+            style={{ borderColor: 'rgba(167,197,229,0.4)' }}
+          >
+            <div className="max-w-2xl">
               <p className="site-label">Navigation flow</p>
-              <h2 className="mt-5 text-4xl font-black leading-tight tracking-[-0.03em] text-white md:text-5xl">
+              <h2 className="mt-5 text-[32px] font-semibold leading-tight tracking-[-0.02em] text-[#0f2439]">
                 Move from the protocol reference into review, sandbox, and integration.
               </h2>
-              <p className="site-copy mt-6">
-                The spec should feed directly into a conformance review, a live sandbox run, or an implementation surface. No dead ends, no broken buttons, and no ambiguity about the next institutional step.
+              <p className="mt-5 text-[15px] leading-[1.75] text-[#5a7a99]">
+                The spec should feed directly into a conformance review, a live sandbox run, or an implementation
+                surface. No dead ends, no broken buttons, and no ambiguity about the next institutional step.
               </p>
             </div>
-
-            <div className="mt-10 flex flex-wrap gap-4">
+            <div className="mt-8 flex flex-wrap gap-4">
               <Link
                 href="/conformance"
-                className="inline-flex min-h-14 items-center rounded-full bg-[#f7f9f7] px-7 py-3 text-base font-bold text-[#07131a] transition hover:bg-white"
+                className="inline-flex items-center rounded-lg bg-[#0f2439] px-6 py-3 text-[15px] font-semibold text-white transition hover:bg-[#0d1f32]"
               >
                 Review Conformance
               </Link>
               <Link
                 href="/demo"
-                className="inline-flex min-h-14 items-center rounded-full border border-white/12 bg-white/[0.03] px-7 py-3 text-base font-bold text-[#f7f9f7] transition hover:bg-white/[0.06]"
+                className="inline-flex items-center rounded-lg border px-6 py-3 text-[15px] font-semibold text-[#0f2439] transition hover:bg-[rgba(167,197,229,0.12)]"
+                style={{ borderColor: 'rgba(15,36,57,0.18)' }}
               >
-                Open Demo Workspace
+                Open Demo
               </Link>
               <Link
                 href="/build"
-                className="inline-flex min-h-14 items-center rounded-full border border-white/12 bg-white/[0.03] px-7 py-3 text-base font-bold text-[#f7f9f7] transition hover:bg-white/[0.06]"
+                className="inline-flex items-center rounded-lg border px-6 py-3 text-[15px] font-semibold text-[#0f2439] transition hover:bg-[rgba(167,197,229,0.12)]"
+                style={{ borderColor: 'rgba(15,36,57,0.18)' }}
               >
                 Build With Ward
               </Link>
