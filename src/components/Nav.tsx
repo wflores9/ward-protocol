@@ -24,7 +24,7 @@ export default function Nav() {
                 fontWeight: 800,
                 color: '#a7c5e5',
                 lineHeight: 1,
-                marginBottom: 3,
+                marginBottom: 4,
                 display: 'block',
               }}
             >
@@ -32,7 +32,7 @@ export default function Nav() {
             </span>
             <div
               className="absolute rounded-[1px] bg-[#b8973a]"
-              style={{ bottom: 9, left: 10, right: 10, height: 2 }}
+              style={{ bottom: 8, left: 10, right: 10, height: 2 }}
             />
           </div>
           <div className="flex flex-col" style={{ gap: 3 }}>

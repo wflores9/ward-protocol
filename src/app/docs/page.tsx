@@ -58,115 +58,166 @@ const docsSections = [
 
 export default function DocsPage() {
   return (
-    <main className="bg-[#f6f4ee] text-[#14242b]">
-      <section className="relative overflow-hidden bg-[#14242b] px-6 py-20 text-[#f7faf8] md:px-10 lg:px-12">
-        <div className="absolute inset-0 grid-overlay opacity-40" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_16%_18%,rgba(182,215,206,0.10),transparent_32%),radial-gradient(circle_at_84%_12%,rgba(212,169,62,0.08),transparent_34%)]" />
-        <div className="relative mx-auto max-w-6xl">
-          <p className="font-mono text-sm font-bold text-[#d4a93e]">Developer Documentation</p>
-          <h1 className="mt-4 max-w-4xl text-4xl font-black leading-tight md:text-6xl">
-            Integrate the Ward conformance engine into your credit product.
-          </h1>
-          <p className="mt-6 max-w-3xl text-lg leading-8 text-[#d2e1dd] md:text-xl">
-            These docs show how to select integration rails, run nine on-ledger checks, preserve the signer boundary, and export receipts for institutional review.
-          </p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Link href="/demo" className="inline-flex min-h-12 items-center rounded-md bg-[#f7faf8] px-6 py-3 text-base font-bold text-[#14242b] transition hover:bg-white">
-              Open Console
-            </Link>
-            <Link href="/spec" className="inline-flex min-h-12 items-center rounded-md border border-[#b6d7ce]/30 px-6 py-3 text-base font-bold text-[#f7faf8] transition hover:border-[#b6d7ce] hover:bg-[#b6d7ce]/10">
-              Read Spec
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      <section className="bg-white py-16">
-        <div className="mx-auto grid max-w-7xl gap-8 px-6 md:px-10 lg:grid-cols-[0.95fr_1.05fr] lg:px-12">
-          <div>
-            <p className="font-mono text-sm font-bold text-[#9b6d13]">Quickstart</p>
-            <h2 className="mt-3 text-3xl font-black leading-tight text-[#14242b] md:text-5xl">
-              One call returns the evidence your product needs.
-            </h2>
-            <p className="mt-5 text-lg leading-8 text-[#3f534d]">
-              Ward does not replace your protocol. It gives your protocol a deterministic default-resolution path that serious counterparties can inspect.
+    <main className="site-shell">
+      {/* Hero */}
+      <section className="relative overflow-hidden">
+        <div className="site-container pb-24 pt-24 lg:pt-28">
+          <div className="max-w-3xl">
+            <p className="site-label">Developer Documentation</p>
+            <h1 className="mt-6 text-4xl font-semibold leading-[1.08] tracking-[-0.02em] text-[#0f2439] md:text-[48px]">
+              Integrate the Ward conformance engine into your credit product.
+            </h1>
+            <p className="mt-6 max-w-2xl text-[15px] leading-[1.75] text-[#5a7a99]">
+              These docs show how to select integration rails, run nine on-ledger checks, preserve the signer boundary,
+              and export receipts for institutional review.
             </p>
+            <div className="mt-8 flex flex-wrap gap-4">
+              <Link
+                href="/demo"
+                className="inline-flex items-center rounded-lg bg-[#0f2439] px-6 py-3 text-[15px] font-semibold text-white transition hover:bg-[#0d1f32]"
+              >
+                Open Demo
+              </Link>
+              <Link
+                href="/spec"
+                className="inline-flex items-center rounded-lg border px-6 py-3 text-[15px] font-semibold text-[#0f2439] transition hover:bg-[rgba(167,197,229,0.12)]"
+                style={{ borderColor: 'rgba(15,36,57,0.18)' }}
+              >
+                Read Spec
+              </Link>
+            </div>
           </div>
-          <pre className="overflow-x-auto rounded-lg border border-[#14242b]/20 bg-[#101d23] p-5 font-mono text-sm leading-7 text-[#d2e1dd]">
-            <code>{quickstart}</code>
-          </pre>
         </div>
       </section>
 
-      <section className="bg-[#f6f4ee] py-16">
-        <div className="mx-auto max-w-7xl px-6 md:px-10 lg:px-12">
-          <div className="mb-10 max-w-3xl">
-            <p className="font-mono text-sm font-bold text-[#9b6d13]">Documentation map</p>
-            <h2 className="mt-3 text-3xl font-black leading-tight text-[#14242b] md:text-5xl">
+      {/* Quickstart */}
+      <section className="site-section">
+        <div className="site-container py-20">
+          <div className="grid gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:items-start">
+            <div>
+              <p className="site-label">Quickstart</p>
+              <h2 className="mt-5 text-[32px] font-semibold leading-tight tracking-[-0.02em] text-[#0f2439]">
+                One call returns the evidence your product needs.
+              </h2>
+              <p className="mt-5 text-[15px] leading-[1.75] text-[#5a7a99]">
+                Ward does not replace your protocol. It gives your protocol a deterministic default-resolution path that
+                serious counterparties can inspect.
+              </p>
+            </div>
+            <pre
+              className="overflow-x-auto rounded-xl p-5 font-mono text-[13px] leading-7"
+              style={{
+                background: '#1a2f3f',
+                border: '1px solid rgba(167,197,229,0.15)',
+                color: '#c8dce8',
+              }}
+            >
+              <code>{quickstart}</code>
+            </pre>
+          </div>
+        </div>
+      </section>
+
+      {/* Documentation map */}
+      <section className="site-section">
+        <div className="site-container py-20">
+          <div className="max-w-xl">
+            <p className="site-label">Documentation map</p>
+            <h2 className="mt-5 text-[32px] font-semibold leading-tight tracking-[-0.02em] text-[#0f2439]">
               Build the integration in four reviewable surfaces.
             </h2>
           </div>
-          <div className="grid gap-4 md:grid-cols-4">
+          <div className="mt-10 grid gap-4 md:grid-cols-4">
             {docsSections.map(([title, body], index) => (
-              <article key={title} className="rounded-lg border border-[#14242b]/10 bg-white p-5">
-                <p className="font-mono text-sm font-bold text-[#9b6d13]">{String(index + 1).padStart(2, '0')}</p>
-                <h3 className="mt-4 text-xl font-black text-[#14242b]">{title}</h3>
-                <p className="mt-3 text-base leading-7 text-[#52665f]">{body}</p>
+              <article
+                key={title}
+                className="rounded-xl border bg-white p-5 shadow-[0_1px_3px_rgba(15,36,57,0.06)]"
+                style={{ borderColor: '#E4E9F2' }}
+              >
+                <p className="font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-[#b8973a]">
+                  {String(index + 1).padStart(2, '0')}
+                </p>
+                <h3 className="mt-4 text-[17px] font-semibold text-[#0f2439]">{title}</h3>
+                <p className="mt-3 text-[13px] leading-[1.7] text-[#5a7a99]">{body}</p>
               </article>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="bg-[#14242b] py-16 text-[#f7faf8]">
-        <div className="mx-auto grid max-w-7xl gap-8 px-6 md:px-10 lg:grid-cols-[0.85fr_1.15fr] lg:px-12">
-          <div>
-            <p className="font-mono text-sm font-bold text-[#d4a93e]">Integration rail matrix</p>
-            <h2 className="mt-3 text-3xl font-black leading-tight md:text-5xl">
-              Pick the chain lane. Keep the Ward invariant.
-            </h2>
-            <p className="mt-5 text-lg leading-8 text-[#d2e1dd]">
-              Each rail translates a chain-native primitive into the same conformance result: approved, rejected, evidence, and unsigned settlement instructions.
-            </p>
-          </div>
-          <div className="grid gap-3 sm:grid-cols-2">
-            {CHAIN_ADAPTERS.map((chain) => (
-              <article key={chain.id} className="rounded-lg border border-[#b6d7ce]/20 bg-[#f7faf8]/10 p-5">
-                <div className="mb-4 flex items-center gap-4">
-                  <ChainLogo id={chain.logo} label={`${chain.name} rail`} className="h-12 w-12" />
-                  <div>
-                    <h3 className="text-lg font-black text-[#f7faf8]">{chain.name}</h3>
-                    <p className="text-sm leading-5 text-[#a9bdb8]">{chain.network}</p>
+      {/* Chain rail matrix */}
+      <section className="site-section">
+        <div className="site-container py-20">
+          <div className="grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
+            <div>
+              <p className="site-label">Integration rail matrix</p>
+              <h2 className="mt-5 text-[32px] font-semibold leading-tight tracking-[-0.02em] text-[#0f2439]">
+                Pick the chain lane. Keep the Ward invariant.
+              </h2>
+              <p className="mt-5 text-[15px] leading-[1.75] text-[#5a7a99]">
+                Each rail translates a chain-native primitive into the same conformance result: approved, rejected,
+                evidence, and unsigned settlement instructions.
+              </p>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {CHAIN_ADAPTERS.map((chain) => (
+                <article
+                  key={chain.id}
+                  className="rounded-xl border bg-white p-5 shadow-[0_1px_3px_rgba(15,36,57,0.06)]"
+                  style={{ borderColor: '#E4E9F2' }}
+                >
+                  <div className="mb-4 flex items-center gap-3">
+                    <ChainLogo id={chain.logo} label={`${chain.name} rail`} className="h-10 w-10" />
+                    <div>
+                      <h3 className="text-[15px] font-semibold text-[#0f2439]">{chain.name}</h3>
+                      <p className="text-[12px] text-[#8a9bb0]">{chain.network}</p>
+                    </div>
                   </div>
-                </div>
-                <p className="font-mono text-sm leading-6 text-[#d2e1dd]">{chain.status}</p>
-                <p className="mt-3 text-base leading-7 text-[#d2e1dd]">{chain.proof}</p>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="bg-white py-16">
-        <div className="mx-auto grid max-w-7xl gap-8 px-6 md:px-10 lg:grid-cols-[1fr_380px] lg:px-12">
-          <div>
-            <p className="font-mono text-sm font-bold text-[#9b6d13]">Nine-check conformance</p>
-            <h2 className="mt-3 text-3xl font-black leading-tight text-[#14242b] md:text-5xl">
-              The validation engine is explainable at check level.
-            </h2>
-            <div className="mt-8 grid gap-3 md:grid-cols-3">
-              {CONFORMANCE_CHECKS.map((check) => (
-                <article key={check.id} className="rounded-lg border border-[#14242b]/10 bg-[#f6f4ee] p-4">
-                  <p className="font-mono text-sm font-bold text-[#9b6d13]">{check.id}</p>
-                  <h3 className="mt-3 text-lg font-black leading-6 text-[#14242b]">{check.label}</h3>
-                  <p className="mt-2 text-sm leading-6 text-[#52665f]">{check.description}</p>
+                  <p className="font-mono text-[12px] font-semibold text-[#a7c5e5]">{chain.status}</p>
+                  <p className="mt-2 text-[13px] leading-[1.65] text-[#5a7a99]">{chain.proof}</p>
                 </article>
               ))}
             </div>
           </div>
-          <div className="rounded-lg border border-[#14242b]/20 bg-[#101d23] p-5 text-[#f7faf8]">
-            <p className="font-mono text-sm font-bold text-[#d4a93e]">Receipt shape</p>
-            <pre className="mt-5 whitespace-pre-wrap font-mono text-sm leading-7 text-[#d2e1dd]">{receiptPreview}</pre>
+        </div>
+      </section>
+
+      {/* Nine-check conformance + receipt */}
+      <section className="site-section">
+        <div className="site-container py-20">
+          <div className="grid gap-10 lg:grid-cols-[1fr_360px] lg:items-start">
+            <div>
+              <p className="site-label">Nine-check conformance</p>
+              <h2 className="mt-5 text-[32px] font-semibold leading-tight tracking-[-0.02em] text-[#0f2439]">
+                The validation engine is explainable at check level.
+              </h2>
+              <div className="mt-8 grid gap-3 md:grid-cols-3">
+                {CONFORMANCE_CHECKS.map((check) => (
+                  <article
+                    key={check.id}
+                    className="rounded-xl border bg-white p-4 shadow-[0_1px_3px_rgba(15,36,57,0.06)]"
+                    style={{ borderColor: '#E4E9F2' }}
+                  >
+                    <p className="font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-[#b8973a]">
+                      {check.id}
+                    </p>
+                    <h3 className="mt-3 text-[14px] font-semibold leading-snug text-[#0f2439]">{check.label}</h3>
+                    <p className="mt-2 text-[12px] leading-[1.65] text-[#5a7a99]">{check.description}</p>
+                  </article>
+                ))}
+              </div>
+            </div>
+            <div
+              className="rounded-xl p-5"
+              style={{ background: '#1a2f3f', border: '1px solid rgba(167,197,229,0.15)' }}
+            >
+              <p className="font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-[#b8973a]">
+                Receipt shape
+              </p>
+              <pre className="mt-5 whitespace-pre-wrap font-mono text-[13px] leading-7 text-[#c8dce8]">
+                {receiptPreview}
+              </pre>
+            </div>
           </div>
         </div>
       </section>

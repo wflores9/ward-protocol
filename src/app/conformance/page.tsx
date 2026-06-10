@@ -137,73 +137,83 @@ const VERIFICATION_STEPS = [
 
 export default function ConformancePage() {
   return (
-    <main className="site-shell text-[#f7f9f7]">
+    <main className="site-shell">
+      {/* Hero */}
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0 grid-overlay opacity-40" />
-        <div className="site-container pb-28 pt-24 lg:pt-32">
-          <div className="grid gap-16 lg:grid-cols-[1fr_0.92fr] lg:items-center">
-            <div className="max-w-4xl">
+        <div className="site-container pb-24 pt-24 lg:pt-28">
+          <div className="grid gap-14 lg:grid-cols-[1fr_0.92fr] lg:items-start">
+            <div className="max-w-3xl">
               <p className="site-label">Ward Conformance</p>
-              <h1 className="mt-6 text-5xl font-black leading-[0.98] tracking-[-0.04em] text-white md:text-6xl lg:text-[5rem]">
+              <h1 className="mt-6 text-4xl font-semibold leading-[1.08] tracking-[-0.02em] text-[#0f2439] md:text-[48px]">
                 A clean institutional standard for default-resolution integrity.
               </h1>
-              <p className="site-copy mt-8 max-w-3xl text-lg md:text-[1.2rem]">
-                Ward Conformance is the institutional assurance layer for deterministic default resolution. It means a credit product resolves claims through explicit on-ledger checks, preserves the signer boundary, and produces a record partners can review without trusting Ward as a discretionary operator.
+              <p className="mt-6 max-w-2xl text-[15px] leading-[1.75] text-[#5a7a99]">
+                Ward Conformance is the institutional assurance layer for deterministic default resolution. It means a
+                credit product resolves claims through explicit on-ledger checks, preserves the signer boundary, and
+                produces a record partners can review without trusting Ward as a discretionary operator.
               </p>
-
-              <div className="mt-9 flex flex-wrap gap-3 text-sm text-[#c8dce8]">
+              <div className="mt-6 flex flex-wrap gap-2">
                 {[
                   '9 on-ledger checks',
                   'Unsigned settlement instructions',
                   'Reviewable conformance receipt',
                   'June 2026 hardening complete',
                 ].map((item) => (
-                  <span key={item} className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 font-mono">
+                  <span
+                    key={item}
+                    className="rounded-full border px-4 py-1.5 font-mono text-[12px] text-[#5a7a99]"
+                    style={{ borderColor: 'rgba(167,197,229,0.5)', background: '#F9FAFC' }}
+                  >
                     {item}
                   </span>
                 ))}
               </div>
-
-              <div className="mt-10 flex flex-wrap gap-4">
+              <div className="mt-8 flex flex-wrap gap-4">
                 <Link
                   href="/spec"
-                  className="inline-flex min-h-14 items-center rounded-full bg-[#f7f9f7] px-7 py-3 text-base font-bold text-[#07131a] transition hover:bg-white"
+                  className="inline-flex items-center rounded-lg bg-[#0f2439] px-6 py-3 text-[15px] font-semibold text-white transition hover:bg-[#0d1f32]"
                 >
                   Review Specification
                 </Link>
                 <Link
                   href="/demo"
-                  className="inline-flex min-h-14 items-center rounded-full border border-white/12 bg-white/[0.03] px-7 py-3 text-base font-bold text-[#f7f9f7] transition hover:bg-white/[0.06]"
+                  className="inline-flex items-center rounded-lg border px-6 py-3 text-[15px] font-semibold text-[#0f2439] transition hover:bg-[rgba(167,197,229,0.12)]"
+                  style={{ borderColor: 'rgba(15,36,57,0.18)' }}
                 >
                   Inspect Demo Workflow
-                </Link>
-                <Link
-                  href="/build"
-                  className="inline-flex min-h-14 items-center rounded-full border border-white/12 bg-white/[0.03] px-7 py-3 text-base font-bold text-[#f7f9f7] transition hover:bg-white/[0.06]"
-                >
-                  Build With Ward
                 </Link>
               </div>
             </div>
 
-            <div className="site-panel rounded-[38px] p-8 md:p-10">
-              <p className="font-mono text-sm font-bold text-[#d4a93e]">Core invariant</p>
-              <h2 className="mt-4 text-3xl font-black tracking-[-0.03em] text-white md:text-4xl">
-                ward_signed = False - always.
-              </h2>
-              <p className="site-copy mt-5">
-                Ward prepares deterministic validation results and unsigned settlement instructions. Institutions sign. The chain settles. Ward never holds private keys, never acts as custodian, and never becomes a transaction signatory.
+            {/* Core invariant card */}
+            <div
+              className="rounded-xl border bg-white p-6 shadow-[0_1px_3px_rgba(15,36,57,0.06)]"
+              style={{ borderColor: '#E4E9F2' }}
+            >
+              <p className="font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-[#b8973a]">
+                Core invariant
               </p>
-
-              <div className="mt-8 grid gap-4">
+              <h2 className="mt-4 text-[24px] font-semibold tracking-[-0.02em] text-[#0f2439]">
+                ward_signed = False — always.
+              </h2>
+              <p className="mt-4 text-[14px] leading-[1.75] text-[#5a7a99]">
+                Ward prepares deterministic validation results and unsigned settlement instructions. Institutions sign.
+                The chain settles. Ward never holds private keys, never acts as custodian, and never becomes a
+                transaction signatory.
+              </p>
+              <div className="mt-6 grid gap-3">
                 {[
                   ['No Ward custody', 'No wallet storage, no secret handling, and no delegation of signing authority to Ward.'],
                   ['No Ward signature', 'Unsigned packets are prepared for institutional review and execution by the responsible counterparty.'],
                   ['Clean institutional boundary', 'Teams can confirm exactly where Ward stops and institutional authority begins.'],
                 ].map(([title, body]) => (
-                  <article key={title} className="rounded-[24px] border border-white/10 bg-white/[0.03] p-5">
-                    <h3 className="text-xl font-black tracking-[-0.02em] text-white">{title}</h3>
-                    <p className="site-copy-sm mt-3">{body}</p>
+                  <article
+                    key={title}
+                    className="rounded-lg p-4"
+                    style={{ background: '#F9FAFC', border: '1px solid #E4E9F2' }}
+                  >
+                    <h3 className="text-[14px] font-semibold text-[#0f2439]">{title}</h3>
+                    <p className="mt-1.5 text-[13px] leading-[1.65] text-[#5a7a99]">{body}</p>
                   </article>
                 ))}
               </div>
@@ -212,47 +222,61 @@ export default function ConformancePage() {
         </div>
       </section>
 
+      {/* What conformance means */}
       <section className="site-section">
-        <div className="site-container py-28">
-          <div className="max-w-3xl">
+        <div className="site-container py-20">
+          <div className="max-w-xl">
             <p className="site-label">What conformance means</p>
-            <h2 className="mt-5 text-4xl font-black leading-tight tracking-[-0.03em] text-white md:text-5xl lg:text-[3.5rem]">
+            <h2 className="mt-5 text-[32px] font-semibold leading-tight tracking-[-0.02em] text-[#0f2439]">
               Conformance is a technical claim about process integrity.
             </h2>
-            <p className="site-copy mt-6">
-              A Ward-conformant product is not being described as risk-free, underwritten by Ward, or approved by a regulator. It is being described as technically disciplined: the default path is deterministic, the evidence is on ledger, and the signing boundary remains with the institution.
+            <p className="mt-5 text-[15px] leading-[1.75] text-[#5a7a99]">
+              A Ward-conformant product is not being described as risk-free or approved by a regulator. It is being
+              described as technically disciplined: the default path is deterministic, the evidence is on ledger, and
+              the signing boundary remains with the institution.
             </p>
           </div>
-
-          <div className="mt-14 grid gap-6 lg:grid-cols-3">
+          <div className="mt-10 grid gap-5 lg:grid-cols-3">
             {CONFORMANCE_MEANING.map((item) => (
-              <article key={item.title} className="site-panel-muted rounded-[32px] p-8">
-                <h3 className="text-[1.75rem] font-black tracking-[-0.03em] text-white">{item.title}</h3>
-                <p className="site-copy mt-5">{item.body}</p>
+              <article
+                key={item.title}
+                className="rounded-xl border bg-white p-6 shadow-[0_1px_3px_rgba(15,36,57,0.06)]"
+                style={{ borderColor: '#E4E9F2' }}
+              >
+                <div className="mb-4 h-[3px] w-7 rounded-sm bg-[#b8973a]" />
+                <h3 className="text-[18px] font-semibold leading-snug text-[#0f2439]">{item.title}</h3>
+                <p className="mt-4 text-[14px] leading-[1.75] text-[#5a7a99]">{item.body}</p>
               </article>
             ))}
           </div>
         </div>
       </section>
 
+      {/* Nine checks table */}
       <section className="site-section">
-        <div className="site-container py-28">
-          <div className="max-w-3xl">
+        <div className="site-container py-20">
+          <div className="max-w-xl">
             <p className="site-label">On-ledger evidence gates</p>
-            <h2 className="mt-5 text-4xl font-black leading-tight tracking-[-0.03em] text-white md:text-5xl">
+            <h2 className="mt-5 text-[32px] font-semibold leading-tight tracking-[-0.02em] text-[#0f2439]">
               The nine checks every conformant default path must satisfy.
             </h2>
-            <p className="site-copy mt-6">
-              These checks make the decision path inspectable. They are designed to show not just that a claim was accepted or rejected, but which ledger facts justified the outcome.
+            <p className="mt-5 text-[15px] leading-[1.75] text-[#5a7a99]">
+              These checks make the decision path inspectable. They are designed to show not just that a claim was
+              accepted or rejected, but which ledger facts justified the outcome.
             </p>
           </div>
-
-          <div className="mt-14 overflow-x-auto rounded-[34px] border border-white/10 bg-white/[0.03]">
-            <table className="w-full min-w-[1060px] border-collapse">
-              <thead className="bg-white/[0.03]">
+          <div
+            className="mt-10 overflow-x-auto rounded-xl border bg-white shadow-[0_1px_3px_rgba(15,36,57,0.06)]"
+            style={{ borderColor: '#E4E9F2' }}
+          >
+            <table className="w-full min-w-[900px] border-collapse">
+              <thead style={{ background: '#F9FAFC', borderBottom: '1px solid #E4E9F2' }}>
                 <tr>
                   {['Step', 'Check', 'Ledger evidence', 'Why it matters'].map((header) => (
-                    <th key={header} className="px-6 py-5 text-left font-mono text-sm font-bold uppercase tracking-[0.12em] text-[#a7c5e5]">
+                    <th
+                      key={header}
+                      className="px-5 py-4 text-left font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-[#a7c5e5]"
+                    >
                       {header}
                     </th>
                   ))}
@@ -260,11 +284,11 @@ export default function ConformancePage() {
               </thead>
               <tbody>
                 {LEDGER_CHECKS.map((item) => (
-                  <tr key={item.step} className="border-t border-white/10 align-top">
-                    <td className="px-6 py-5 font-mono text-sm font-bold text-[#d4a93e]">{item.step}</td>
-                    <td className="px-6 py-5 text-base font-bold leading-7 text-white">{item.check}</td>
-                    <td className="px-6 py-5 text-base leading-8 text-[#c8dce8]">{item.evidence}</td>
-                    <td className="px-6 py-5 text-base leading-8 text-[#c8dce8]">{item.whyItMatters}</td>
+                  <tr key={item.step} className="align-top" style={{ borderTop: '1px solid #E4E9F2' }}>
+                    <td className="px-5 py-4 font-mono text-[13px] font-bold text-[#b8973a]">{item.step}</td>
+                    <td className="px-5 py-4 text-[14px] font-semibold leading-6 text-[#0f2439]">{item.check}</td>
+                    <td className="px-5 py-4 text-[13px] leading-6 text-[#5a7a99]">{item.evidence}</td>
+                    <td className="px-5 py-4 text-[13px] leading-6 text-[#5a7a99]">{item.whyItMatters}</td>
                   </tr>
                 ))}
               </tbody>
@@ -273,27 +297,32 @@ export default function ConformancePage() {
         </div>
       </section>
 
+      {/* Hardening sprint */}
       <section className="site-section">
-        <div className="site-container py-28">
+        <div className="site-container py-20">
           <div className="grid gap-14 lg:grid-cols-[0.94fr_1.06fr]">
             <div className="max-w-2xl">
               <p className="site-label">June 2026 security hardening sprint</p>
-              <h2 className="mt-5 text-4xl font-black leading-tight tracking-[-0.03em] text-white md:text-5xl">
+              <h2 className="mt-5 text-[32px] font-semibold leading-tight tracking-[-0.02em] text-[#0f2439]">
                 Security maturity was tightened before institutional outreach scaled.
               </h2>
-              <p className="site-copy mt-6">
-                The June 2026 sprint focused on closing audit findings, removing unsafe assumptions, and hardening the protocol surface for institutional review. The result was v0.2.6, a stricter implementation of the same conformance model.
-              </p>
-              <p className="site-copy-sm mt-6 text-[#a7c5e5]">
-                The assurance story now combines protocol design, visible controls, and a clearer institutional-readiness narrative.
+              <p className="mt-5 text-[15px] leading-[1.75] text-[#5a7a99]">
+                The June 2026 sprint focused on closing audit findings, removing unsafe assumptions, and hardening the
+                protocol surface for institutional review. The result was v0.2.6, a stricter implementation of the same
+                conformance model.
               </p>
             </div>
-
             <div className="grid gap-4">
               {HARDENING_HIGHLIGHTS.map((item) => (
-                <article key={item.label} className="site-panel-muted rounded-[28px] p-6">
-                  <p className="font-mono text-sm font-bold text-[#d4a93e]">{item.label}</p>
-                  <p className="site-copy mt-4">{item.body}</p>
+                <article
+                  key={item.label}
+                  className="rounded-xl border bg-white p-5 shadow-[0_1px_3px_rgba(15,36,57,0.06)]"
+                  style={{ borderColor: '#E4E9F2' }}
+                >
+                  <p className="font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-[#b8973a]">
+                    {item.label}
+                  </p>
+                  <p className="mt-3 text-[14px] leading-[1.75] text-[#5a7a99]">{item.body}</p>
                 </article>
               ))}
             </div>
@@ -301,32 +330,36 @@ export default function ConformancePage() {
         </div>
       </section>
 
+      {/* Pilot readiness */}
       <section className="site-section">
-        <div className="site-container py-28">
-          <div className="max-w-3xl">
+        <div className="site-container py-20">
+          <div className="max-w-xl">
             <p className="site-label">Pilot readiness timetable</p>
-            <h2 className="mt-5 text-4xl font-black leading-tight tracking-[-0.03em] text-white md:text-5xl">
+            <h2 className="mt-5 text-[32px] font-semibold leading-tight tracking-[-0.02em] text-[#0f2439]">
               Four visible phases from technical review to production certification.
             </h2>
-            <p className="site-copy mt-6">
-              Partners should be able to see where the current program sits, what evidence is expected next, and how Ward moves from self-serve review into pilot and mainnet readiness.
-            </p>
           </div>
-
-          <div className="mt-14 grid gap-5">
+          <div className="mt-10 grid gap-4">
             {PILOT_READINESS_PHASES.slice(0, 4).map((phase) => (
               <article
                 key={phase.phase}
-                className="rounded-[30px] border border-white/10 bg-white/[0.03] p-6 md:grid md:grid-cols-[110px_1fr_200px] md:gap-6 md:p-7"
+                className="rounded-xl border p-6 md:grid md:grid-cols-[88px_1fr_160px] md:gap-6 md:p-7"
+                style={{ borderColor: '#E4E9F2', background: '#F9FAFC' }}
               >
-                <div className="flex h-16 w-16 items-center justify-center rounded-[20px] bg-[#d4a93e] font-mono text-lg font-black text-[#07131a]">
+                <div
+                  className="flex h-14 w-14 items-center justify-center rounded-lg font-mono text-[16px] font-bold text-white"
+                  style={{ background: '#b8973a' }}
+                >
                   {phase.phase}
                 </div>
-                <div className="mt-5 md:mt-0">
-                  <h3 className="text-2xl font-black tracking-[-0.03em] text-white">{phase.title}</h3>
-                  <p className="site-copy mt-3">{phase.body}</p>
+                <div className="mt-4 md:mt-0">
+                  <h3 className="text-[18px] font-semibold tracking-[-0.02em] text-[#0f2439]">{phase.title}</h3>
+                  <p className="mt-2 text-[14px] leading-[1.75] text-[#5a7a99]">{phase.body}</p>
                 </div>
-                <div className="mt-5 self-start rounded-md border border-white/10 bg-white/[0.04] px-4 py-2 font-mono text-sm font-bold text-[#f0d080] md:mt-0 md:text-center">
+                <div
+                  className="mt-4 self-start rounded-md border px-4 py-2 font-mono text-[13px] font-bold text-[#b8973a] md:mt-0 md:text-center"
+                  style={{ borderColor: 'rgba(184,151,58,0.35)', background: 'rgba(184,151,58,0.07)' }}
+                >
                   {phase.window}
                 </div>
               </article>
@@ -335,52 +368,47 @@ export default function ConformancePage() {
         </div>
       </section>
 
+      {/* Verification */}
       <section className="site-section">
-        <div className="site-container py-28">
-          <div className="max-w-3xl">
+        <div className="site-container py-20">
+          <div className="max-w-xl">
             <p className="site-label">Verification for partners and institutions</p>
-            <h2 className="mt-5 text-4xl font-black leading-tight tracking-[-0.03em] text-white md:text-5xl lg:text-[3.5rem]">
+            <h2 className="mt-5 text-[32px] font-semibold leading-tight tracking-[-0.02em] text-[#0f2439]">
               Conformance should be verifiable, not merely asserted.
             </h2>
-            <p className="site-copy mt-6">
-              Serious counterparties should be able to inspect the standard, review a conformance record, and confirm the signer boundary without relying on private process or informal assurances.
-            </p>
           </div>
-
-          <div className="mt-14 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+          <div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
             {VERIFICATION_STEPS.map((item) => (
-              <article key={item.step} className="site-panel-muted rounded-[30px] p-7 md:min-h-[300px]">
-                <p className="font-mono text-sm font-bold text-[#d4a93e]">{item.step}</p>
-                <h3 className="mt-5 text-2xl font-black tracking-[-0.03em] text-white">{item.title}</h3>
-                <p className="site-copy mt-5">{item.body}</p>
+              <article
+                key={item.step}
+                className="rounded-xl border bg-white p-6 shadow-[0_1px_3px_rgba(15,36,57,0.06)]"
+                style={{ borderColor: '#E4E9F2' }}
+              >
+                <p className="font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-[#b8973a]">{item.step}</p>
+                <h3 className="mt-4 text-[18px] font-semibold tracking-[-0.02em] text-[#0f2439]">{item.title}</h3>
+                <p className="mt-3 text-[14px] leading-[1.75] text-[#5a7a99]">{item.body}</p>
               </article>
             ))}
           </div>
-
-          <div className="mt-12 flex flex-wrap gap-4">
+          <div className="mt-10 flex flex-wrap gap-4">
             <Link
               href="/spec"
-              className="inline-flex min-h-14 items-center rounded-full bg-[#f7f9f7] px-7 py-3 text-base font-bold text-[#07131a] transition hover:bg-white"
+              className="inline-flex items-center rounded-lg bg-[#0f2439] px-6 py-3 text-[15px] font-semibold text-white transition hover:bg-[#0d1f32]"
             >
               Review Specification
             </Link>
             <Link
               href="/demo"
-              className="inline-flex min-h-14 items-center rounded-full border border-white/12 bg-white/[0.03] px-7 py-3 text-base font-bold text-[#f7f9f7] transition hover:bg-white/[0.06]"
+              className="inline-flex items-center rounded-lg border px-6 py-3 text-[15px] font-semibold text-[#0f2439] transition hover:bg-[rgba(167,197,229,0.12)]"
+              style={{ borderColor: 'rgba(15,36,57,0.18)' }}
             >
-              Inspect Demo Workflow
-            </Link>
-            <Link
-              href="/build"
-              className="inline-flex min-h-14 items-center rounded-full border border-white/12 bg-white/[0.03] px-7 py-3 text-base font-bold text-[#f7f9f7] transition hover:bg-white/[0.06]"
-            >
-              Build With Ward
+              Open Demo
             </Link>
             <a
               href={PILOT_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex min-h-14 items-center rounded-full bg-[#d4a93e] px-7 py-3 text-base font-bold text-[#07131a] transition hover:brightness-105"
+              className="inline-flex items-center rounded-lg bg-[#b8973a] px-6 py-3 text-[15px] font-semibold text-white transition hover:brightness-105"
             >
               Discuss a Pilot
             </a>
