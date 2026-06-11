@@ -106,7 +106,7 @@ export default function SpecPage() {
               </p>
 
               <div className="mt-6 flex flex-wrap gap-2">
-                {['9 on-ledger checks', '15 attack vectors mitigated', 'ward_signed = False', 'SDK v0.2.6'].map(
+                {['9 on-ledger checks', '8 attack vectors mitigated', 'ward_signed = False', 'SDK v0.2.6'].map(
                   (item) => (
                     <span
                       key={item}
