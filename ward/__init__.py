@@ -1,5 +1,5 @@
 """
-Ward Protocol SDK — Public Package API  v0.2.4
+Ward Protocol SDK — Public Package API  v0.2.6
 
     from ward import WardClient, VaultMonitor, ClaimValidator
     from ward import EscrowSettlement, PoolHealthMonitor
@@ -7,6 +7,8 @@ Ward Protocol SDK — Public Package API  v0.2.4
     from ward import PoolHealth, VerifiedDefault, ValidationResult
 
 Changelog:
+    v0.2.6  Pre-mainnet audit: dep freshness, SSRF, XSS, GHA SHA pins, hygiene.
+    v0.2.5  SSRF RPC allowlist; ward_signed structural invariant test.
     v0.2.4  README/stats corrected; CI workflows overhauled; ruff.toml added.
     v0.2.3  On-chain coverage registry; webhook notifications; TypeScript SDK.
     v0.2.2  Add ripple_time_now, get_ledger_close_time exports; full __all__.
@@ -14,7 +16,7 @@ Changelog:
     v0.2.0  Initial modular split from ward_client monolith.
 """
 
-__version__ = "0.2.4"
+__version__ = "0.2.6"
 
 
 from ward.client import WardClient
@@ -46,6 +48,7 @@ from ward.constants import (
 )
 from ward.pool import PoolHealth, PoolHealthMonitor
 from ward.primitives import (
+    ConfigurationError,
     LedgerError,
     SecurityError,
     ValidationError,
@@ -92,6 +95,7 @@ __all__ = [
     "PoolHealth",
     # Errors
     "WardError",
+    "ConfigurationError",
     "ValidationError",
     "SecurityError",
     "LedgerError",

@@ -19,8 +19,8 @@ from xrpl.asyncio.clients import AsyncJsonRpcClient
 from xrpl.models import AccountInfo, AccountNFTs, LedgerEntry
 from xrpl.models.requests import AccountTx
 
+from ward._network import get_xrpl_url, validate_url_network_match
 from ward.constants import (
-    DEFAULT_TESTNET_URL,
     LSF_LOAN_DEFAULT,
     MIN_COVERAGE_RATIO,
     WARD_POLICY_TAXON,
@@ -69,7 +69,11 @@ class ClaimValidator:
     rather than raised as exceptions, so callers can handle them uniformly.
     """
 
-    def __init__(self, url: str = DEFAULT_TESTNET_URL) -> None:
+    def __init__(self, url: Optional[str] = None) -> None:
+        if url is None:
+            url = get_xrpl_url()
+        else:
+            validate_url_network_match(url, "url")
         self._url = url
 
     async def validate_claim(

@@ -18,7 +18,7 @@ from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.currencies import XRP, IssuedCurrency
 from xrpl.models.requests import RipplePathFind
 
-from ward.constants import DEFAULT_TESTNET_URL
+from ward._network import get_xrpl_url, validate_url_network_match
 from ward.primitives import UnsignedTransaction, client_context
 
 logger = logging.getLogger("ward.resolver")
@@ -55,7 +55,11 @@ class Resolver:
     and the caller must decide how to proceed — Ward never forces a swap.
     """
 
-    def __init__(self, url: str = DEFAULT_TESTNET_URL) -> None:
+    def __init__(self, url: Optional[str] = None) -> None:
+        if url is None:
+            url = get_xrpl_url()
+        else:
+            validate_url_network_match(url, "url")
         self._url = url
 
     async def build_unsigned_tx(
