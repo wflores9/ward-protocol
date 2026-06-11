@@ -16,15 +16,15 @@ import json
 import logging
 import os as _os
 from dataclasses import dataclass
-from typing import Dict
+from typing import Dict, Optional
 
 from xrpl.asyncio.clients import AsyncJsonRpcClient
 from xrpl.asyncio.transaction import autofill
 from xrpl.models import EscrowCancel, EscrowCreate, EscrowFinish, Memo, NFTokenBurn
 from xrpl.utils import str_to_hex
 
+from ward._network import get_xrpl_url, validate_url_network_match
 from ward.constants import (
-    DEFAULT_TESTNET_URL,
     ESCROW_CANCEL_HOURS,
     ESCROW_DISPUTE_HOURS,
 )
@@ -54,7 +54,12 @@ try:
         decode_responses=True,
     )
     _settlement_redis.ping()
-except Exception:
+except Exception as _redis_exc:
+    logger.warning(
+        "Redis unavailable for settlement locks — falling back to in-memory (not restart-safe). "
+        "Set WARD_REDIS_URL to enable distributed locking. Error: %s",
+        _redis_exc,
+    )
     _settlement_redis = None
 
 _SETTLEMENT_LOCK_TTL = 3600  # 1 hour — covers dispute window
@@ -94,7 +99,11 @@ class EscrowSettlement:
       Enterprise: white-label - same interface, institution keys.
     """
 
-    def __init__(self, xrpl_url: str = DEFAULT_TESTNET_URL) -> None:
+    def __init__(self, xrpl_url: Optional[str] = None) -> None:
+        if xrpl_url is None:
+            xrpl_url = get_xrpl_url()
+        else:
+            validate_url_network_match(xrpl_url, "xrpl_url")
         self._url = xrpl_url
 
     async def create_claim_escrow(

@@ -36,7 +36,12 @@ try:
         decode_responses=True,
     )
     _redis_registry.ping()
-except Exception:
+except Exception as _redis_exc:
+    logger.warning(
+        "Redis unavailable for vault registry — falling back to in-memory (not restart-safe). "
+        "Set WARD_REDIS_URL for production. Error: %s",
+        _redis_exc,
+    )
     _redis_registry = None
 
 _REDIS_REG_PREFIX = "ward:registry:"

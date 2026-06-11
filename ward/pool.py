@@ -20,8 +20,8 @@ from typing import Dict, List, Optional
 from xrpl.asyncio.clients import AsyncJsonRpcClient
 from xrpl.models import AccountInfo
 
+from ward._network import get_xrpl_url, validate_url_network_match
 from ward.constants import (
-    DEFAULT_TESTNET_URL,
     MIN_COVERAGE_RATIO,
     RISK_TIER_THRESHOLDS,
     TIER_BASE_RATES,
@@ -80,10 +80,14 @@ class PoolHealthMonitor:
     def __init__(
         self,
         pool_address: str,
-        url: str = DEFAULT_TESTNET_URL,
+        url: Optional[str] = None,
     ) -> None:
         validate_xrpl_address(pool_address, "pool_address")
         self._pool_address = pool_address
+        if url is None:
+            url = get_xrpl_url()
+        else:
+            validate_url_network_match(url, "url")
         self._url = url
         self._coverage_registry: Dict[str, int] = {}
         # Per-depositor, per-vault coverage tracking for multi-vault policies.

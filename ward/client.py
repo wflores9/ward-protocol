@@ -24,15 +24,15 @@ from __future__ import annotations
 
 import json
 import logging
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from xrpl.asyncio.clients import AsyncJsonRpcClient
 from xrpl.asyncio.transaction import autofill
 from xrpl.models import Memo, NFTokenMint, Payment
 from xrpl.utils import str_to_hex
 
+from ward._network import get_xrpl_url, validate_url_network_match
 from ward.constants import (
-    DEFAULT_TESTNET_URL,
     TF_BURNABLE,
     WARD_POLICY_TAXON,
     LicenseTier,
@@ -68,7 +68,11 @@ class WardClient:
     during the transaction signing flow, then discarded.
     """
 
-    def __init__(self, url: str = DEFAULT_TESTNET_URL) -> None:
+    def __init__(self, url: Optional[str] = None) -> None:
+        if url is None:
+            url = get_xrpl_url()
+        else:
+            validate_url_network_match(url, "url")
         self._url = url
 
     async def purchase_coverage(
