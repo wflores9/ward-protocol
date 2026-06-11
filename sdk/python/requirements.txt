@@ -5,3 +5,5 @@ uvicorn[standard]>=0.29.0
 httpx>=0.25.0
 pydantic>=2.5.0
 xrpl-py>=4.0.0
+# starlette >=1.0.1 — CVE fix (Aikido rescan 2026-06-11); FastAPI pulls this transitively
+starlette>=1.0.1
