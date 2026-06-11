@@ -12,7 +12,7 @@
 
 Ward Protocol is architecturally sound for a testnet deployment. The core invariant — Ward constructs unsigned transactions, institutions sign, the ledger settles — is correctly enforced and protected by CI. The nine-gate claim validator logic is deterministic and well-tested. The chain adapter abstraction is well-designed.
 
-**The single most important mainnet blocker** is that every Python module (validator, resolver, settlement, pool, vault_monitor, client) defaults to the Altnet testnet URL. There is no deployment-time guard that forces an operator to explicitly choose mainnet. An operator who deploys without setting environment variables will silently run against testnet and pass validation against real-looking but fake ledger data.
+**The single most important mainnet blocker** (B1) has been closed: all six core Python modules previously defaulted to `DEFAULT_TESTNET_URL` / `DEFAULT_TESTNET_WS`. The new `ward/_network.py` module requires `WARD_XRPL_URL` and `WARD_XRPL_WS` env vars explicitly. A missing env var raises `ConfigurationError` at construction time. The `WARD_NETWORK=mainnet|testnet` guard enforces that every URL — explicit or env-sourced — matches the declared network.
 
 **Other significant gaps** (not blockers, but require remediation plans):
 - Rate limiter, coverage registry, and settlement locks are all in-memory / single-process. Multi-instance deploys will bypass rate limits and allow duplicate settlements.
@@ -73,7 +73,7 @@ Summary of gaps:
 5. Settlement lock falls back to in-memory threading.Lock on Redis unavailability.
 6. `ward_client.py` (legacy root-level file) still uses testnet defaults.
 
-**Nothing was changed** in this category — changes to network defaults require explicit operator review and testing before mainnet go-live.
+**B1 closed** — see `ward/_network.py`. `WARD_XRPL_URL`, `WARD_XRPL_WS`, and `WARD_NETWORK` must be set. Mismatch is a `ConfigurationError`. Starter/demo scripts retain explicit Altnet URLs by design. See MAINNET_READINESS.md for the full detail and go-live checklist update.
 
 ---
 
@@ -167,7 +167,7 @@ File contains `3.13` (minor pin). This lets mise resolve the latest precompiled 
 
 | Risk | Severity | Status |
 |------|----------|--------|
-| No forced mainnet URL at deploy time | CRITICAL | Deferred — requires operator runbook |
+| No forced mainnet URL at deploy time | CRITICAL | **CLOSED** — `ward/_network.py` ConfigurationError guard |
 | In-memory rate limiter bypassed multi-instance | HIGH | Deferred — requires Redis mandate |
 | In-memory coverage registry | HIGH | Deferred — requires Redis mandate |
 | submit_with_retry() still callable | MEDIUM | Mitigated — DeprecationWarning added |

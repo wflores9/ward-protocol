@@ -21,10 +21,10 @@ from typing import Any, Callable, Dict, List, Optional, Set, cast
 from xrpl.asyncio.clients import AsyncWebsocketClient
 from xrpl.models import LedgerEntry, Subscribe
 
+from ward._network import get_xrpl_ws, validate_url_network_match
 from ward.constants import (
     ALLOWED_WS_URLS,
     DEFAULT_CONFIRM_COUNT,
-    DEFAULT_TESTNET_WS,
     LSF_LOAN_DEFAULT,
     MONITOR_HEARTBEAT_TIMEOUT_S,
 )
@@ -99,9 +99,13 @@ class VaultMonitor:
     def __init__(
         self,
         vault_addresses: Optional[List[str]] = None,
-        websocket_url: str = DEFAULT_TESTNET_WS,
+        websocket_url: Optional[str] = None,
         confirm_count: int = DEFAULT_CONFIRM_COUNT,
     ) -> None:
+        if websocket_url is None:
+            websocket_url = get_xrpl_ws()
+        else:
+            validate_url_network_match(websocket_url, "websocket_url")
         # 2.7 — reject non-TLS and unknown endpoints at construction time.
         _validate_ws_url(websocket_url)
 

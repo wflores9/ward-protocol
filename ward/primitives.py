@@ -71,6 +71,10 @@ class LedgerError(WardError):
     """XRPL ledger interaction failed."""
 
 
+class ConfigurationError(WardError):
+    """Required environment configuration is missing or inconsistent."""
+
+
 @asynccontextmanager
 async def client_context(client: object) -> AsyncIterator[AsyncJsonRpcClient]:
     """
