@@ -250,7 +250,7 @@ export default function DemoClient() {
               </h1>
               <p className="mt-4 max-w-xl text-[15px] leading-[1.75] text-[#5a7a99]">
                 Select a chain. Choose a scenario. Run Ward&apos;s nine-check engine against the live API. XRPL Altnet
-                is live — all other chains show the adapter surface.
+                is live. Solana is in active development. All other chains are roadmap — environments provisioned, adapters scoped.
               </p>
             </div>
             <div className="hidden shrink-0 items-center gap-2.5 lg:flex">

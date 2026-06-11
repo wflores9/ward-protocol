@@ -91,15 +91,30 @@ Institutional readiness: [docs/institutional-readiness.md](docs/institutional-re
 
 ## Multi-Chain Status
 
+**Live**
+
 | Chain | Status | Notes |
 |-------|--------|-------|
-| XRPL Altnet | **E2E verified** | NFT policy and XLS-66-aligned validation path |
-| XRPL EVM | **Contract deployed** | XRPL-aligned EVM rail in the live demo |
-| Stellar | **Account funded** | Soroban path ready in the live demo |
-| Solana | **Account funded** | Devnet adapter lane live |
-| XDC | **Contract deployed** | Apothem adapter lane live |
-| Algorand | **Account funded** | Testnet adapter lane live |
-| Polygon | **Contract deployed** | Amoy adapter lane live |
+| XRPL Altnet | **Live** | F01–F06 E2E verified on Altnet; NFT policy and XLS-66-aligned validation path |
+
+**In Development**
+
+| Chain | Status | Notes |
+|-------|--------|-------|
+| Solana | **In development** | Devnet environment provisioned; SPL adapter in active development |
+
+**Roadmap — scoped, environments provisioned**
+
+| Chain | Environment | Notes |
+|-------|-------------|-------|
+| Flare | Coston2 | WardResolver contract surface scoped |
+| XRPL EVM | Sidechain testnet | EVM-aligned policy contract surface scoped |
+| XDC | Apothem | ERC policy contract surface scoped |
+| Polygon | Amoy | ERC policy contract surface scoped |
+| Stellar | Testnet | Soroban contract surface scoped |
+| Algorand | Testnet | ASA policy surface scoped |
+
+Engineering detail: [MULTICHAIN_GAPS.md](./MULTICHAIN_GAPS.md)
 
 Integration plans: [docs/integration/](docs/integration/)
 

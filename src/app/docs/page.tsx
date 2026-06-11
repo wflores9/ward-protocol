@@ -159,24 +159,54 @@ export default function DocsPage() {
                 evidence, and unsigned settlement instructions.
               </p>
             </div>
-            <div className="grid gap-3 sm:grid-cols-2">
-              {CHAIN_ADAPTERS.map((chain) => (
-                <article
-                  key={chain.id}
-                  className="rounded-xl border bg-white p-5 shadow-[0_1px_3px_rgba(15,36,57,0.06)]"
-                  style={{ borderColor: '#E4E9F2' }}
-                >
-                  <div className="mb-4 flex items-center gap-3">
-                    <ChainLogo id={chain.logo} label={`${chain.name} rail`} className="h-10 w-10" />
-                    <div>
-                      <h3 className="text-[15px] font-semibold text-[#0f2439]">{chain.name}</h3>
-                      <p className="text-[12px] text-[#8a9bb0]">{chain.network}</p>
+            <div className="space-y-6">
+              {(
+                [
+                  { tier: 'live' as const, label: 'Live', color: '#16a34a', border: '#E4E9F2' },
+                  { tier: 'in-development' as const, label: 'In Development', color: '#b8973a', border: '#E4E9F2' },
+                  { tier: 'roadmap' as const, label: 'Roadmap', color: '#a7c5e5', border: '#E4E9F2' },
+                ] as const
+              ).map(({ tier, label, color, border }) => {
+                const chains = CHAIN_ADAPTERS.filter((c) => c.tier === tier);
+                if (!chains.length) return null;
+                return (
+                  <div key={tier}>
+                    <p className="mb-2 font-mono text-[10px] font-bold uppercase tracking-[0.12em]" style={{ color }}>
+                      {label}
+                    </p>
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      {chains.map((chain) => (
+                        <article
+                          key={chain.id}
+                          className="rounded-xl border bg-white p-5 shadow-[0_1px_3px_rgba(15,36,57,0.06)]"
+                          style={{ borderColor: border }}
+                        >
+                          <div className="mb-4 flex items-center gap-3">
+                            <ChainLogo id={chain.logo} label={`${chain.name} rail`} className="h-10 w-10" />
+                            <div>
+                              <h3 className="text-[15px] font-semibold text-[#0f2439]">{chain.name}</h3>
+                              <p className="text-[12px] text-[#8a9bb0]">{chain.network}</p>
+                            </div>
+                          </div>
+                          <p className="font-mono text-[12px] font-semibold" style={{ color }}>{chain.status}</p>
+                          <p className="mt-2 text-[13px] leading-[1.65] text-[#5a7a99]">{chain.proof}</p>
+                        </article>
+                      ))}
                     </div>
                   </div>
-                  <p className="font-mono text-[12px] font-semibold text-[#a7c5e5]">{chain.status}</p>
-                  <p className="mt-2 text-[13px] leading-[1.65] text-[#5a7a99]">{chain.proof}</p>
-                </article>
-              ))}
+                );
+              })}
+              <p className="pt-1 font-mono text-[11px] text-[#8a9bb0]">
+                Engineering detail:{' '}
+                <a
+                  href="https://github.com/wflores9/ward-protocol/blob/main/MULTICHAIN_GAPS.md"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline hover:text-[#5a7a99]"
+                >
+                  MULTICHAIN_GAPS.md
+                </a>
+              </p>
             </div>
           </div>
         </div>

@@ -314,27 +314,46 @@ CoverageRatio   = Vault.AssetsTotal / LoanBroker.DebtTotal  # must be >= 1.5`}</
               </p>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2">
-              {CHAIN_ADAPTERS.map((chain) => (
-                <article
-                  key={chain.id}
-                  className="rounded-xl border bg-white p-5 shadow-[0_1px_3px_rgba(15,36,57,0.08)]"
-                  style={{ borderColor: 'rgba(167,197,229,0.4)' }}
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <ChainLogo id={chain.logo} label={`${chain.name} rail`} className="h-12 w-12" />
-                    <span
-                      className="rounded-md border px-3 py-1 font-mono text-[12px] text-[#5a7a99]"
-                      style={{ borderColor: 'rgba(167,197,229,0.4)', background: '#f0f4f8' }}
-                    >
-                      {chain.status}
-                    </span>
+            <div className="space-y-8">
+              {(
+                [
+                  { tier: 'live' as const, label: 'Live', color: '#16a34a', bg: 'rgba(22,163,74,0.06)', border: 'rgba(22,163,74,0.25)' },
+                  { tier: 'in-development' as const, label: 'In Development', color: '#b8973a', bg: 'rgba(184,151,58,0.06)', border: 'rgba(184,151,58,0.28)' },
+                  { tier: 'roadmap' as const, label: 'Roadmap — scoped, environments provisioned', color: '#a7c5e5', bg: 'rgba(167,197,229,0.06)', border: 'rgba(167,197,229,0.35)' },
+                ] as const
+              ).map(({ tier, label, color, bg, border }) => {
+                const chains = CHAIN_ADAPTERS.filter((c) => c.tier === tier);
+                if (!chains.length) return null;
+                return (
+                  <div key={tier}>
+                    <p className="mb-3 font-mono text-[11px] font-bold uppercase tracking-[0.1em]" style={{ color }}>
+                      {label}
+                    </p>
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      {chains.map((chain) => (
+                        <article
+                          key={chain.id}
+                          className="rounded-xl border bg-white p-5 shadow-[0_1px_3px_rgba(15,36,57,0.08)]"
+                          style={{ borderColor: border, background: bg }}
+                        >
+                          <div className="flex items-start justify-between gap-4">
+                            <ChainLogo id={chain.logo} label={`${chain.name} rail`} className="h-12 w-12" />
+                            <span
+                              className="rounded-md border px-3 py-1 font-mono text-[12px]"
+                              style={{ borderColor: border, background: '#ffffff', color }}
+                            >
+                              {chain.status}
+                            </span>
+                          </div>
+                          <h3 className="mt-4 text-[18px] font-semibold tracking-[-0.02em] text-[#0f2439]">{chain.name}</h3>
+                          <p className="mt-2 font-mono text-[12px] leading-5 text-[#a7c5e5]">{chain.integrationSurface}</p>
+                          <p className="mt-3 text-[13px] leading-6 text-[#5a7a99]">{chain.proof}</p>
+                        </article>
+                      ))}
+                    </div>
                   </div>
-                  <h3 className="mt-4 text-[18px] font-semibold tracking-[-0.02em] text-[#0f2439]">{chain.name}</h3>
-                  <p className="mt-2 font-mono text-[12px] leading-5 text-[#a7c5e5]">{chain.integrationSurface}</p>
-                  <p className="mt-3 text-[13px] leading-6 text-[#5a7a99]">{chain.proof}</p>
-                </article>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>
