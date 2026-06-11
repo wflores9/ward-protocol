@@ -95,8 +95,8 @@ const CONFORMANCE_MEANING = [
 
 const HARDENING_HIGHLIGHTS = [
   {
-    label: '107 fixes delivered',
-    body: 'The June 2026 sprint closed audit findings and tightened the production surface ahead of institutional outreach.',
+    label: '18 audit findings resolved',
+    body: 'The June 2026 Aikido SAST/SCA rescan surfaced 18 findings. All critical and high-severity issues were remediated in-sprint. Full report: wardprotocol.org/reports/Ward_Protocol_Security_Report_June2026.pdf',
   },
   {
     label: 'Fail-closed controls',
