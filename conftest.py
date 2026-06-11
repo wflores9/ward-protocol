@@ -14,15 +14,17 @@ Ward SDK v0.2.6
 
 import pytest
 
-
 # ---------------------------------------------------------------------------
 # pytest-asyncio: set event loop scope to function (default, safest)
 # ---------------------------------------------------------------------------
 
+
 def pytest_configure(config):
     """Register custom marks to avoid PytestUnknownMarkWarning."""
     config.addinivalue_line("markers", "unit: Unit tests — no XRPL network required")
-    config.addinivalue_line("markers", "integration: Integration tests — hit XRPL testnet")
+    config.addinivalue_line(
+        "markers", "integration: Integration tests — hit XRPL testnet"
+    )
     config.addinivalue_line("markers", "slow: Slow-running tests")
 
 
@@ -30,7 +32,7 @@ def pytest_configure(config):
 # Common XRPL test addresses (valid Base58Check, not reserved)
 # ---------------------------------------------------------------------------
 
-VALID_ADDRESS  = "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh"
+VALID_ADDRESS = "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh"
 VALID_ADDRESS2 = "rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe"
 
 

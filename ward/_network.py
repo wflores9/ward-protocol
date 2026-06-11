@@ -25,18 +25,22 @@ from urllib.parse import urlparse
 from ward.primitives import ConfigurationError
 
 # Hosts that classify as mainnet XRPL endpoints.
-_MAINNET_HOSTS: frozenset = frozenset({
-    "xrplcluster.com",
-    "s1.ripple.com",
-    "s2.ripple.com",
-})
+_MAINNET_HOSTS: frozenset = frozenset(
+    {
+        "xrplcluster.com",
+        "s1.ripple.com",
+        "s2.ripple.com",
+    }
+)
 
 # Hosts that classify as testnet/devnet XRPL endpoints.
-_TESTNET_HOSTS: frozenset = frozenset({
-    "s.altnet.rippletest.net",
-    "s.devnet.rippletest.net",
-    "testnet.xrpl-labs.com",
-})
+_TESTNET_HOSTS: frozenset = frozenset(
+    {
+        "s.altnet.rippletest.net",
+        "s.devnet.rippletest.net",
+        "testnet.xrpl-labs.com",
+    }
+)
 
 _VALID_NETWORKS = frozenset({"mainnet", "testnet"})
 
