@@ -25,6 +25,10 @@
     <xrpl4j.version>6.0.0</xrpl4j.version>
     <jackson.version>2.17.2</jackson.version>
     <slf4j.version>2.0.13</slf4j.version>
+    <!-- Security pins — Aikido rescan 2026-06-11 -->
+    <jackson-core.version>2.15.0</jackson-core.version>
+    <bcprov.version>1.84</bcprov.version>
+    <logback.version>1.3.16</logback.version>
   </properties>
 
   <dependencies>
@@ -60,6 +64,26 @@
       <groupId>com.fasterxml.jackson.datatype</groupId>
       <artifactId>jackson-datatype-jdk8</artifactId>
       <version>${jackson.version}</version>
+    </dependency>
+    <!-- Explicit jackson-core pin — security fix (CVE; Aikido rescan 2026-06-11) -->
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
+      <version>${jackson-core.version}</version>
+    </dependency>
+
+    <!-- Bouncy Castle — explicit version pin (Aikido rescan 2026-06-11) -->
+    <dependency>
+      <groupId>org.bouncycastle</groupId>
+      <artifactId>bcprov-jdk18on</artifactId>
+      <version>${bcprov.version}</version>
+    </dependency>
+
+    <!-- Logback — explicit version pin (Aikido rescan 2026-06-11) -->
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-core</artifactId>
+      <version>${logback.version}</version>
     </dependency>
 
     <!-- Logging -->

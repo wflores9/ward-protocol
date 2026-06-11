@@ -52,7 +52,7 @@ pub const ALLOWED_WS_URLS: &[&str] = &[
     "wss://s2.ripple.com/",
 ];
 
-/// Allowed JSON-RPC endpoints — mirrors WS allowlist, HTTPS only.
+/// Allowed JSON-RPC endpoints — mirrors WS allowlist; HTTPS only.
 pub const ALLOWED_RPC_URLS: &[&str] = &[
     "https://s.altnet.rippletest.net:51234/",
     "https://xrplcluster.com/",
@@ -385,6 +385,9 @@ async fn fetch_health_ratio(rpc_url: &str, vault_address: &str) -> Result<f64, W
         }]
     });
 
+    // Guard: validate RPC URL immediately before use (SAST-visible at call site).
+    validate_rpc_url(rpc_url)?;
+
     let resp = client
         .post(rpc_url)
         .json(&req_body)
@@ -447,23 +450,6 @@ pub fn compute_health_ratio_from_data(data: &Value) -> Result<f64, WardError> {
 // Validation helpers
 // ---------------------------------------------------------------------------
 
-/// Validate that a WebSocket URL is allowed (TLS only, known endpoint).
-pub fn validate_ws_url(url: &str) -> Result<(), WardError> {
-    if !url.starts_with("wss://") {
-        return Err(WardError::ValidationError(format!(
-            "WebSocket URL must use wss:// (TLS required): {}",
-            url
-        )));
-    }
-    if !ALLOWED_WS_URLS.contains(&url) {
-        return Err(WardError::ValidationError(format!(
-            "WebSocket URL not in allowed list: {}. Allowed: {:?}",
-            url, ALLOWED_WS_URLS
-        )));
-    }
-    Ok(())
-}
-
 /// Validate that a JSON-RPC URL is allowed (HTTPS only, known endpoint).
 pub fn validate_rpc_url(url: &str) -> Result<(), WardError> {
     if !url.starts_with("https://") {
@@ -476,6 +462,23 @@ pub fn validate_rpc_url(url: &str) -> Result<(), WardError> {
         return Err(WardError::ValidationError(format!(
             "RPC URL not in allowed list: {}. Allowed: {:?}",
             url, ALLOWED_RPC_URLS
+        )));
+    }
+    Ok(())
+}
+
+/// Validate that a WebSocket URL is allowed (TLS only, known endpoint).
+pub fn validate_ws_url(url: &str) -> Result<(), WardError> {
+    if !url.starts_with("wss://") {
+        return Err(WardError::ValidationError(format!(
+            "WebSocket URL must use wss:// (TLS required): {}",
+            url
+        )));
+    }
+    if !ALLOWED_WS_URLS.contains(&url) {
+        return Err(WardError::ValidationError(format!(
+            "WebSocket URL not in allowed list: {}. Allowed: {:?}",
+            url, ALLOWED_WS_URLS
         )));
     }
     Ok(())
