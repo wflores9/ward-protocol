@@ -96,7 +96,6 @@ Institutional readiness: [docs/institutional-readiness.md](docs/institutional-re
 | XRPL Altnet | **E2E verified** | NFT policy and XLS-66-aligned validation path |
 | XRPL EVM | **Contract deployed** | XRPL-aligned EVM rail in the live demo |
 | Stellar | **Account funded** | Soroban path ready in the live demo |
-| Hedera | **Testnet-ready** | HTS / mirror-node integration lane live |
 | Solana | **Account funded** | Devnet adapter lane live |
 | XDC | **Contract deployed** | Apothem adapter lane live |
 | Algorand | **Account funded** | Testnet adapter lane live |
