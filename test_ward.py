@@ -19,7 +19,6 @@ Run all tests (requires testnet access):
     pytest test_ward.py -v
 """
 
-
 from __future__ import annotations
 
 import asyncio
@@ -71,12 +70,13 @@ from ward.vault_monitor import VaultMonitor
 # ---------------------------------------------------------------------------
 RATE_LIMIT_ATTEMPTS = CLAIM_RATE_LIMIT_MAX
 RATE_LIMIT_WINDOW_S = CLAIM_RATE_LIMIT_WINDOW_S
-PREIMAGE_BYTES      = 32      # generate_claim_preimage always returns 32 bytes
+PREIMAGE_BYTES = 32  # generate_claim_preimage always returns 32 bytes
 
 
 # ---------------------------------------------------------------------------
 # KYC helpers  (re-implemented locally; removed from ward_client monolith)
 # ---------------------------------------------------------------------------
+
 
 def build_kyc_hash(kyc_type: str, subject_address: str, issued_at: int) -> str:
     if kyc_type not in VALID_KYC_TYPES:
@@ -101,6 +101,7 @@ def validate_kyc_hash(kyc_hash: str) -> None:
 # ---------------------------------------------------------------------------
 # Convenience wrappers kept for API compatibility
 # ---------------------------------------------------------------------------
+
 
 def generate_claim_condition():
     """Return (preimage_bytes, condition_hex, fulfillment_hex)."""
@@ -135,25 +136,25 @@ def get_ledger_time(close_time_ripple: int) -> int:
     return close_time_ripple
 
 
-
 # ---------------------------------------------------------------------------
 # Test fixtures & helpers
 # ---------------------------------------------------------------------------
 
-VALID_ADDRESS  = "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh"
+VALID_ADDRESS = "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh"
 VALID_ADDRESS2 = "rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe"
-VALID_NFT_ID   = "A" * 64
-VALID_LOAN_ID  = "B" * 64
-VALID_VAULT    = VALID_ADDRESS   # alias used by standalone test classes
-POLICY_TAXON   = WARD_POLICY_TAXON
+VALID_NFT_ID = "A" * 64
+VALID_LOAN_ID = "B" * 64
+VALID_VAULT = VALID_ADDRESS  # alias used by standalone test classes
+POLICY_TAXON = WARD_POLICY_TAXON
 
 
 @dataclass
 class FakeWallet:
     """Minimal wallet stub that satisfies validate_wallet()."""
+
     classic_address: str = VALID_ADDRESS
-    seed: str            = "sEdTM1uX8pu2do5XvTnutH6HsouMaM2"
-    public_key: str      = "ED" + "0" * 62
+    seed: str = "sEdTM1uX8pu2do5XvTnutH6HsouMaM2"
+    public_key: str = "ED" + "0" * 62
 
 
 def _make_success_response(result_data: dict):
@@ -173,12 +174,14 @@ def _make_fail_response(engine_result: str = "tecFAILED"):
     return resp
 
 
-def _make_nft_entry(nft_token_id: str, uri_metadata: dict, taxon: int = WARD_POLICY_TAXON):
+def _make_nft_entry(
+    nft_token_id: str, uri_metadata: dict, taxon: int = WARD_POLICY_TAXON
+):
     uri_hex = json.dumps(uri_metadata, separators=(",", ":")).encode().hex().upper()
     return {
-        "NFTokenID":    nft_token_id,
+        "NFTokenID": nft_token_id,
         "NFTokenTaxon": taxon,
-        "URI":          uri_hex,
+        "URI": uri_hex,
     }
 
 
@@ -189,10 +192,10 @@ def _make_policy_metadata(
 ) -> dict:
     """Compact URI format used by WardClient v0.2.x."""
     return {
-        "w":  "ward-v1",
-        "v":  vault_address,
-        "c":  str(coverage_drops),
-        "e":  expiry_ledger_time,
+        "w": "ward-v1",
+        "v": vault_address,
+        "c": str(coverage_drops),
+        "e": expiry_ledger_time,
         "pa": VALID_ADDRESS2,
     }
 
@@ -204,11 +207,11 @@ def _make_loan_node(
     loan_broker_id: str = "E" * 64,
 ) -> dict:
     return {
-        "Flags":               flags,
-        "PrincipalOutstanding":  principal,
-        "InterestOutstanding":   interest,
+        "Flags": flags,
+        "PrincipalOutstanding": principal,
+        "InterestOutstanding": interest,
         "TotalValueOutstanding": principal + interest,
-        "LoanBrokerID":          loan_broker_id,
+        "LoanBrokerID": loan_broker_id,
     }
 
 
@@ -218,8 +221,8 @@ def _make_broker_node(
     coverage_rate_min: float = 0.8,
 ) -> dict:
     return {
-        "DebtTotal":       debt_total,
-        "CoverAvailable":  cover_available,
+        "DebtTotal": debt_total,
+        "CoverAvailable": cover_available,
         "CoverageRateMin": str(coverage_rate_min),
     }
 
@@ -231,10 +234,10 @@ def _make_vault_node(
     shares_total: int = 1_000,
 ) -> dict:
     return {
-        "AssetsTotal":     assets_total,
+        "AssetsTotal": assets_total,
         "AssetsAvailable": assets_available,
-        "LossUnrealized":  loss_unrealized,
-        "SharesTotal":     shares_total,
+        "LossUnrealized": loss_unrealized,
+        "SharesTotal": shares_total,
     }
 
 
@@ -243,7 +246,7 @@ def _make_server_info_response(close_time: int = 100_000_000) -> dict:
         "info": {
             "validated_ledger": {
                 "close_time": close_time,
-                "seq":        12_345_678,
+                "seq": 12_345_678,
             }
         }
     }
@@ -252,15 +255,15 @@ def _make_server_info_response(close_time: int = 100_000_000) -> dict:
 def _make_pool_nft_entry(coverage_drops: int) -> dict:
     """Build a Ward policy NFT that PoolHealthMonitor can decode on-chain."""
     meta = {
-        "w":  "ward-v1",
-        "v":  VALID_ADDRESS,
-        "c":  str(coverage_drops),
-        "e":  9_999_999_999,
+        "w": "ward-v1",
+        "v": VALID_ADDRESS,
+        "c": str(coverage_drops),
+        "e": 9_999_999_999,
     }
     return {
-        "NFTokenID":    "C" * 64,
+        "NFTokenID": "C" * 64,
         "NFTokenTaxon": WARD_POLICY_TAXON,
-        "URI":          json.dumps(meta, separators=(",", ":")).encode().hex().upper(),
+        "URI": json.dumps(meta, separators=(",", ":")).encode().hex().upper(),
     }
 
 
@@ -283,9 +286,8 @@ def _async_client_factory(request_fn):
 
     MockClass = MagicMock()
     MockClass.return_value.__aenter__ = _aenter
-    MockClass.return_value.__aexit__  = _aexit
+    MockClass.return_value.__aexit__ = _aexit
     return MockClass
-
 
 
 # ===========================================================================
@@ -385,7 +387,7 @@ class TestValidateNftId:
 class TestPreimageConditionCryptography:
     def test_roundtrip_condition_matches_fulfillment(self):
         preimage = bytes(range(32))
-        sha256   = hashlib.sha256(preimage).digest()
+        sha256 = hashlib.sha256(preimage).digest()
         cond, fulf = make_preimage_condition(preimage)
         cond_bytes = bytes.fromhex(cond)
         fulf_bytes = bytes.fromhex(fulf)
@@ -449,31 +451,45 @@ class TestExtractNftId:
 
     def test_created_node_fallback(self):
         meta = {
-            "AffectedNodes": [{
-                "CreatedNode": {
-                    "LedgerEntryType": "NFTokenPage",
-                    "NewFields": {
-                        "NFTokens": [
-                            {"NFToken": {"NFTokenID": "B" * 64, "URI": "7465737430"}}
-                        ]
-                    },
+            "AffectedNodes": [
+                {
+                    "CreatedNode": {
+                        "LedgerEntryType": "NFTokenPage",
+                        "NewFields": {
+                            "NFTokens": [
+                                {
+                                    "NFToken": {
+                                        "NFTokenID": "B" * 64,
+                                        "URI": "7465737430",
+                                    }
+                                }
+                            ]
+                        },
+                    }
                 }
-            }]
+            ]
         }
         assert extract_nft_id(meta) == "B" * 64
 
     def test_modified_node_fallback(self):
         meta = {
-            "AffectedNodes": [{
-                "ModifiedNode": {
-                    "LedgerEntryType": "NFTokenPage",
-                    "FinalFields": {
-                        "NFTokens": [
-                            {"NFToken": {"NFTokenID": "C" * 64, "URI": "7465737430"}}
-                        ]
-                    },
+            "AffectedNodes": [
+                {
+                    "ModifiedNode": {
+                        "LedgerEntryType": "NFTokenPage",
+                        "FinalFields": {
+                            "NFTokens": [
+                                {
+                                    "NFToken": {
+                                        "NFTokenID": "C" * 64,
+                                        "URI": "7465737430",
+                                    }
+                                }
+                            ]
+                        },
+                    }
                 }
-            }]
+            ]
         }
         assert extract_nft_id(meta) == "C" * 64
 
@@ -496,7 +512,6 @@ class TestCalculateCoverageRatio:
 
     def test_undercollateralised(self):
         assert calculate_coverage_ratio(500_000, 1_000_000) == pytest.approx(0.5)
-
 
 
 # ===========================================================================
@@ -585,6 +600,7 @@ class TestWardClientInputValidation:
         """FIX #9: WardError raised when NFTokenMint response has no nftoken_id.
         NFT is minted first (so nft_token_id is available for the payment memo)."""
         from xrpl.wallet import Wallet as _Wallet
+
         real_wallet = _Wallet.create()
 
         # NFT mint returns response with no nftoken_id in meta
@@ -594,8 +610,13 @@ class TestWardClientInputValidation:
         with (
             patch("ward.client.AsyncJsonRpcClient", _async_client_factory(AsyncMock())),
             patch("ward.client.autofill", AsyncMock(side_effect=lambda tx, c: tx)),
-            patch("ward.client.build_unsigned_tx", AsyncMock(return_value=fake_empty_nft_resp)),
-            patch("ward.client.get_ledger_close_time", AsyncMock(return_value=800_000_000)),
+            patch(
+                "ward.client.build_unsigned_tx",
+                AsyncMock(return_value=fake_empty_nft_resp),
+            ),
+            patch(
+                "ward.client.get_ledger_close_time", AsyncMock(return_value=800_000_000)
+            ),
         ):
             # ward_signed = False — Ward returns unsigned tx, NFT ID pending institution signature
             result = await self.client.purchase_coverage(
@@ -655,7 +676,9 @@ class TestClaimValidatorInputSanitation:
         )
         assert not result.approved
         assert result.steps_passed == 0
-        assert "64 hex" in result.rejection_reason or "loan_id" in result.rejection_reason
+        assert (
+            "64 hex" in result.rejection_reason or "loan_id" in result.rejection_reason
+        )
 
     @pytest.mark.asyncio
     async def test_claim_rejects_non_hex_loan_id(self):
@@ -688,6 +711,7 @@ class TestClaimValidatorAdversarial:
 
     def setup_method(self):
         from ward.primitives import _rate_limit_windows
+
         _rate_limit_windows.pop(VALID_NFT_ID, None)
 
     def _make_validator_with_mocks(
@@ -713,15 +737,17 @@ class TestClaimValidatorAdversarial:
         )
         uri_hex = json.dumps(metadata, separators=(",", ":")).encode().hex().upper()
         nft_entry = {
-            "NFTokenID":    VALID_NFT_ID,
+            "NFTokenID": VALID_NFT_ID,
             "NFTokenTaxon": nft_taxon,
-            "URI":          uri_hex,
+            "URI": uri_hex,
         }
         loan_flags = 0x00010000 if default_flag_set else 0x0
-        loan_node  = _make_loan_node(flags=loan_flags, principal=500_000, interest=10_000)
+        loan_node = _make_loan_node(
+            flags=loan_flags, principal=500_000, interest=10_000
+        )
         broker_node = _make_broker_node(debt_total=1_000_000, cover_available=100_000)
-        vault_node  = _make_vault_node(assets_total=400_000, loss_unrealized=0)
-        pool_info   = {"account_data": {"Balance": str(pool_balance_drops)}}
+        vault_node = _make_vault_node(assets_total=400_000, loss_unrealized=0)
+        pool_info = {"account_data": {"Balance": str(pool_balance_drops)}}
 
         async def mock_request(req):
             from xrpl.models import AccountInfo as _AI
@@ -749,14 +775,16 @@ class TestClaimValidatorAdversarial:
                                 "Account": VALID_ADDRESS,
                                 "Destination": getattr(req, "account", VALID_ADDRESS2),
                                 "Amount": "1000",
-                                "Memos": [build_premium_memo(VALID_NFT_ID, coverage_drops)],
+                                "Memos": [
+                                    build_premium_memo(VALID_NFT_ID, coverage_drops)
+                                ],
                             }
                         }
                     )
                 return _make_success_response({"transactions": txs})
             elif isinstance(req, _LE):
                 index_val = getattr(req, "index", None)
-                vault_val = getattr(req, "vault",  None)
+                vault_val = getattr(req, "vault", None)
                 if index_val == VALID_LOAN_ID:
                     if not default_flag_set:
                         return _make_fail_response()
@@ -783,7 +811,7 @@ class TestClaimValidatorAdversarial:
         try:
             return await validator.validate_claim(**kwargs)
         finally:
-            p = getattr(validator, '_mock_patch', None)
+            p = getattr(validator, "_mock_patch", None)
             if p:
                 try:
                     p.stop()
@@ -797,8 +825,10 @@ class TestClaimValidatorAdversarial:
         validator = self._make_validator_with_mocks(nft_exists=False)
         result = await self._validate(
             validator,
-            claimant_address=VALID_ADDRESS, nft_token_id=VALID_NFT_ID,
-            defaulted_vault=VALID_ADDRESS, loan_id=VALID_LOAN_ID,
+            claimant_address=VALID_ADDRESS,
+            nft_token_id=VALID_NFT_ID,
+            defaulted_vault=VALID_ADDRESS,
+            loan_id=VALID_LOAN_ID,
             pool_address=VALID_ADDRESS2,
         )
         assert not result.approved
@@ -809,12 +839,15 @@ class TestClaimValidatorAdversarial:
     @pytest.mark.asyncio
     async def test_expired_policy_rejected(self):
         validator = self._make_validator_with_mocks(
-            ledger_time=200_000_000, expiry_time=100_000_000,
+            ledger_time=200_000_000,
+            expiry_time=100_000_000,
         )
         result = await self._validate(
             validator,
-            claimant_address=VALID_ADDRESS, nft_token_id=VALID_NFT_ID,
-            defaulted_vault=VALID_ADDRESS, loan_id=VALID_LOAN_ID,
+            claimant_address=VALID_ADDRESS,
+            nft_token_id=VALID_NFT_ID,
+            defaulted_vault=VALID_ADDRESS,
+            loan_id=VALID_LOAN_ID,
             pool_address=VALID_ADDRESS2,
         )
         assert not result.approved
@@ -825,12 +858,15 @@ class TestClaimValidatorAdversarial:
     @pytest.mark.asyncio
     async def test_wrong_vault_rejected(self):
         validator = self._make_validator_with_mocks(
-            policy_vault=VALID_ADDRESS, defaulted_vault=VALID_ADDRESS2,
+            policy_vault=VALID_ADDRESS,
+            defaulted_vault=VALID_ADDRESS2,
         )
         result = await self._validate(
             validator,
-            claimant_address=VALID_ADDRESS, nft_token_id=VALID_NFT_ID,
-            defaulted_vault=VALID_ADDRESS2, loan_id=VALID_LOAN_ID,
+            claimant_address=VALID_ADDRESS,
+            nft_token_id=VALID_NFT_ID,
+            defaulted_vault=VALID_ADDRESS2,
+            loan_id=VALID_LOAN_ID,
             pool_address=VALID_ADDRESS2,
         )
         assert not result.approved
@@ -843,8 +879,10 @@ class TestClaimValidatorAdversarial:
         validator = self._make_validator_with_mocks(default_flag_set=False)
         result = await self._validate(
             validator,
-            claimant_address=VALID_ADDRESS, nft_token_id=VALID_NFT_ID,
-            defaulted_vault=VALID_ADDRESS, loan_id=VALID_LOAN_ID,
+            claimant_address=VALID_ADDRESS,
+            nft_token_id=VALID_NFT_ID,
+            defaulted_vault=VALID_ADDRESS,
+            loan_id=VALID_LOAN_ID,
             pool_address=VALID_ADDRESS2,
         )
         assert not result.approved
@@ -854,12 +892,15 @@ class TestClaimValidatorAdversarial:
     @pytest.mark.asyncio
     async def test_drained_pool_rejected(self):
         validator = self._make_validator_with_mocks(
-            pool_balance_drops=100, coverage_drops=10_000_000,
+            pool_balance_drops=100,
+            coverage_drops=10_000_000,
         )
         result = await self._validate(
             validator,
-            claimant_address=VALID_ADDRESS, nft_token_id=VALID_NFT_ID,
-            defaulted_vault=VALID_ADDRESS, loan_id=VALID_LOAN_ID,
+            claimant_address=VALID_ADDRESS,
+            nft_token_id=VALID_NFT_ID,
+            defaulted_vault=VALID_ADDRESS,
+            loan_id=VALID_LOAN_ID,
             pool_address=VALID_ADDRESS2,
         )
         assert not result.approved
@@ -872,13 +913,14 @@ class TestClaimValidatorAdversarial:
         validator = self._make_validator_with_mocks(nft_taxon=9999)
         result = await self._validate(
             validator,
-            claimant_address=VALID_ADDRESS, nft_token_id=VALID_NFT_ID,
-            defaulted_vault=VALID_ADDRESS, loan_id=VALID_LOAN_ID,
+            claimant_address=VALID_ADDRESS,
+            nft_token_id=VALID_NFT_ID,
+            defaulted_vault=VALID_ADDRESS,
+            loan_id=VALID_LOAN_ID,
             pool_address=VALID_ADDRESS2,
         )
         assert not result.approved
         assert "taxon" in result.rejection_reason.lower()
-
 
 
 # ===========================================================================
@@ -902,6 +944,7 @@ class TestVaultMonitor:
 
     def test_anomaly_window_clears_expired_entries(self):
         from ward.vault_monitor import ANOMALY_THRESHOLD
+
         monitor = VaultMonitor(vault_addresses=[VALID_ADDRESS])
         now = time.time()
         for _ in range(ANOMALY_THRESHOLD):
@@ -929,16 +972,20 @@ class TestPoolHealthMonitor:
         async def mock_request(req):
             from xrpl.models import AccountInfo as _AI
             from xrpl.models.requests import AccountTx as _ATx
+
             if isinstance(req, _AI):
-                return _make_success_response({
-                    "account_data": {"Balance": str(balance_drops), "OwnerCount": 1}
-                })
+                return _make_success_response(
+                    {"account_data": {"Balance": str(balance_drops), "OwnerCount": 1}}
+                )
             if isinstance(req, _ATx):
                 txs = []
                 if coverage_drops > 0:
                     from ward.coverage import build_premium_memo
+
                     memo = build_premium_memo(VALID_NFT_ID, coverage_drops)
-                    txs.append({"tx_json": {"TransactionType": "Payment", "Memos": [memo]}})
+                    txs.append(
+                        {"tx_json": {"TransactionType": "Payment", "Memos": [memo]}}
+                    )
                 return _make_success_response({"transactions": txs})
             return _make_fail_response()
 
@@ -954,7 +1001,7 @@ class TestPoolHealthMonitor:
         return monitor
 
     def _stop(self, monitor):
-        p = getattr(monitor, '_mock_patch', None)
+        p = getattr(monitor, "_mock_patch", None)
         if p:
             try:
                 p.stop()
@@ -974,7 +1021,9 @@ class TestPoolHealthMonitor:
     @pytest.mark.asyncio
     async def test_undercollateralized_pool(self):
         # 21M - 20M base = 1M usable vs 10M coverage = 0.1x
-        monitor = self._make_monitor(balance_drops=21_000_000, coverage_drops=10_000_000)
+        monitor = self._make_monitor(
+            balance_drops=21_000_000, coverage_drops=10_000_000
+        )
         try:
             health = await monitor.get_health()
             assert not health.is_solvent
@@ -993,12 +1042,18 @@ class TestPoolHealthMonitor:
 
     @pytest.mark.asyncio
     async def test_premium_rate_increases_with_risk(self):
-        monitor_safe     = self._make_monitor(balance_drops=120_000_000, coverage_drops=1_000_000)
-        monitor_stressed = self._make_monitor(balance_drops=23_000_000,  coverage_drops=2_800_000)
+        monitor_safe = self._make_monitor(
+            balance_drops=120_000_000, coverage_drops=1_000_000
+        )
+        monitor_stressed = self._make_monitor(
+            balance_drops=23_000_000, coverage_drops=2_800_000
+        )
         try:
-            health_safe     = await monitor_safe.get_health()
+            health_safe = await monitor_safe.get_health()
             health_stressed = await monitor_stressed.get_health()
-            assert health_stressed.dynamic_premium_rate >= health_safe.dynamic_premium_rate
+            assert (
+                health_stressed.dynamic_premium_rate >= health_safe.dynamic_premium_rate
+            )
         finally:
             self._stop(monitor_safe)
             self._stop(monitor_stressed)
@@ -1007,8 +1062,8 @@ class TestPoolHealthMonitor:
     async def test_calculate_premium_pro_rated(self):
         monitor = self._make_monitor(balance_drops=30_000_000, coverage_drops=1_000_000)
         try:
-            health     = await monitor.get_health()
-            result_30  = monitor.calculate_premium(health, 1_000_000, 30)
+            health = await monitor.get_health()
+            result_30 = monitor.calculate_premium(health, 1_000_000, 30)
             result_365 = monitor.calculate_premium(health, 1_000_000, 365)
             assert result_30["premium_drops"] > 0
             assert result_365["premium_drops"] > result_30["premium_drops"]
@@ -1023,6 +1078,7 @@ class TestPoolHealthMonitor:
     async def test_starter_tier_blocks_elevated_minting(self):
         """Tier gate: Starter must not mint at elevated risk (index.html tier rules)."""
         from ward.constants import LicenseTier
+
         # 23.5M - (20M base + 2M owner@1) = 1.5M usable vs 1M coverage = 1.5x = elevated tier
         monitor = self._make_monitor(balance_drops=23_500_000, coverage_drops=1_000_000)
         try:
@@ -1036,6 +1092,7 @@ class TestPoolHealthMonitor:
     async def test_enterprise_tier_allows_elevated_minting(self):
         """Tier gate: Enterprise can mint at elevated risk."""
         from ward.constants import LicenseTier
+
         # 23.5M - (20M base + 2M owner@1) = 1.5M usable vs 1M coverage = 1.5x = elevated tier
         monitor = self._make_monitor(balance_drops=23_500_000, coverage_drops=1_000_000)
         try:
@@ -1044,7 +1101,6 @@ class TestPoolHealthMonitor:
             assert allowed, "Enterprise should be allowed at elevated tier"
         finally:
             self._stop(monitor)
-
 
 
 # ===========================================================================
@@ -1069,7 +1125,7 @@ class TestEscrowSettlement:
         return settlement
 
     def _stop(self, s):
-        p = getattr(s, '_mock_patch', None)
+        p = getattr(s, "_mock_patch", None)
         if p:
             try:
                 p.stop()
@@ -1086,7 +1142,7 @@ class TestEscrowSettlement:
             escrow_sequence=42,
             condition_hex=condition_hex,
             tx_hash="E" * 64,
-            dispute_deadline_ripple=100_000_000 - 1,    # already finishable
+            dispute_deadline_ripple=100_000_000 - 1,  # already finishable
             cancel_after_ripple=100_000_000 + 7200,  # not yet cancellable
         )
 
@@ -1095,7 +1151,7 @@ class TestEscrowSettlement:
         settlement = self._make_settlement()
         preimage, cond, fulf = generate_claim_condition()
         record = self._make_record(cond)
-        pool_wallet     = FakeWallet(classic_address=VALID_ADDRESS)
+        pool_wallet = FakeWallet(classic_address=VALID_ADDRESS)
         claimant_wallet = FakeWallet(classic_address=VALID_ADDRESS2)
         try:
             with pytest.raises(ValidationError, match="dispute window"):
@@ -1122,7 +1178,7 @@ class TestEscrowSettlement:
             condition_hex=cond,
             tx_hash="G" * 64,
             dispute_deadline_ripple=50_000_000,
-            cancel_after_ripple=200_000_000,   # far future
+            cancel_after_ripple=200_000_000,  # far future
         )
         pool_wallet = FakeWallet(classic_address=VALID_ADDRESS)
         try:
@@ -1165,7 +1221,7 @@ class TestBuildKycHash:
         assert h1 == h2
 
     def test_different_inputs_differ(self):
-        h1 = build_kyc_hash("KYC_VERIFIED", VALID_ADDRESS,  1000)
+        h1 = build_kyc_hash("KYC_VERIFIED", VALID_ADDRESS, 1000)
         h2 = build_kyc_hash("KYC_VERIFIED", VALID_ADDRESS2, 1000)
         assert h1 != h2
 
@@ -1219,8 +1275,9 @@ class TestCredentialConstants:
     def test_credential_nft_taxon_is_282(self):
         # WARD_CREDENTIAL_TAXON == 282 per spec (was 283 — corrected)
         from ward.constants import WARD_CREDENTIAL_TAXON
+
         assert WARD_CREDENTIAL_TAXON == 282
-        assert CREDENTIAL_NFT_TAXON == 282   # backward-compat alias
+        assert CREDENTIAL_NFT_TAXON == 282  # backward-compat alias
 
     def test_policy_taxon_is_281(self):
         # WARD_POLICY_TAXON == 281 per security_notes.md §2.1 and §2.13
@@ -1231,7 +1288,7 @@ class TestCredentialConstants:
 
     def test_valid_kyc_types_contains_required(self):
         assert "KYC_VERIFIED" in VALID_KYC_TYPES
-        assert "AML_CLEARED"  in VALID_KYC_TYPES
+        assert "AML_CLEARED" in VALID_KYC_TYPES
 
 
 # ===========================================================================
@@ -1243,24 +1300,31 @@ class TestPoolHealthMonitorAdvanced:
     """Coverage for pool.py changes: active-coverage trust boundary, reserve
     math, tier gates, and calculate_premium signature."""
 
-    def _make_pool_monitor(self, balance_drops=30_000_000, coverage_drops=0,
-                           owner_count=0):
+    def _make_pool_monitor(
+        self, balance_drops=30_000_000, coverage_drops=0, owner_count=0
+    ):
         async def mock_request(req):
             from xrpl.models import AccountInfo as _AI
             from xrpl.models.requests import AccountTx as _ATx
+
             if isinstance(req, _AI):
-                return _make_success_response({
-                    "account_data": {
-                        "Balance": str(balance_drops),
-                        "OwnerCount": owner_count,
+                return _make_success_response(
+                    {
+                        "account_data": {
+                            "Balance": str(balance_drops),
+                            "OwnerCount": owner_count,
+                        }
                     }
-                })
+                )
             if isinstance(req, _ATx):
                 txs = []
                 if coverage_drops > 0:
                     from ward.coverage import build_premium_memo
+
                     memo = build_premium_memo(VALID_NFT_ID, coverage_drops)
-                    txs.append({"tx_json": {"TransactionType": "Payment", "Memos": [memo]}})
+                    txs.append(
+                        {"tx_json": {"TransactionType": "Payment", "Memos": [memo]}}
+                    )
                 return _make_success_response({"transactions": txs})
             return _make_fail_response()
 
@@ -1286,19 +1350,31 @@ class TestPoolHealthMonitorAdvanced:
     @pytest.mark.asyncio
     async def test_pool_active_coverage_on_chain(self):
         """active_coverage_drops is summed from on-chain premium payment memos."""
+
         async def mock_request(req):
             from xrpl.models import AccountInfo as _AI
             from xrpl.models.requests import AccountTx as _ATx
 
             from ward.coverage import build_premium_memo
+
             if isinstance(req, _AI):
-                return _make_success_response({
-                    "account_data": {"Balance": "30000000", "OwnerCount": 0}
-                })
+                return _make_success_response(
+                    {"account_data": {"Balance": "30000000", "OwnerCount": 0}}
+                )
             if isinstance(req, _ATx):
                 txs = [
-                    {"tx_json": {"TransactionType": "Payment", "Memos": [build_premium_memo("A" * 64, 500_000)]}},
-                    {"tx_json": {"TransactionType": "Payment", "Memos": [build_premium_memo("D" * 64, 300_000)]}},
+                    {
+                        "tx_json": {
+                            "TransactionType": "Payment",
+                            "Memos": [build_premium_memo("A" * 64, 500_000)],
+                        }
+                    },
+                    {
+                        "tx_json": {
+                            "TransactionType": "Payment",
+                            "Memos": [build_premium_memo("D" * 64, 300_000)],
+                        }
+                    },
                 ]
                 return _make_success_response({"transactions": txs})
             return _make_fail_response()
@@ -1306,8 +1382,9 @@ class TestPoolHealthMonitorAdvanced:
         monitor = PoolHealthMonitor(pool_address=VALID_ADDRESS)
         monitor.register_policy("A" * 64, 500_000)
         monitor.register_policy("D" * 64, 300_000)
-        _patch = patch("ward.pool.AsyncJsonRpcClient",
-                       _async_client_factory(mock_request))
+        _patch = patch(
+            "ward.pool.AsyncJsonRpcClient", _async_client_factory(mock_request)
+        )
         _patch.start()
         try:
             health = await monitor.get_health()
@@ -1432,16 +1509,16 @@ class TestClaimValidatorAdvanced(TestClaimValidatorAdversarial):
     def test_validator_dual_uri_format_legacy(self):
         """_parse_nft_metadata accepts legacy 'protocol: ward/v1' URI format."""
         metadata = {
-            "protocol":           "ward/v1",
-            "vault_address":      VALID_ADDRESS,
-            "coverage_drops":     "500000",
+            "protocol": "ward/v1",
+            "vault_address": VALID_ADDRESS,
+            "coverage_drops": "500000",
             "expiry_ledger_time": 999_999_999,
         }
         uri_hex = json.dumps(metadata, separators=(",", ":")).encode().hex().upper()
         nft_data = {
-            "URI":           uri_hex,
-            "NFTokenID":     VALID_NFT_ID,
-            "NFTokenTaxon":  WARD_POLICY_TAXON,
+            "URI": uri_hex,
+            "NFTokenID": VALID_NFT_ID,
+            "NFTokenTaxon": WARD_POLICY_TAXON,
         }
         parsed, err = ClaimValidator._parse_nft_metadata(nft_data)
         assert err is None, f"Unexpected error: {err}"
@@ -1458,8 +1535,8 @@ class TestClaimValidatorAdvanced(TestClaimValidatorAdversarial):
         }
         uri_hex = json.dumps(metadata, separators=(",", ":")).encode().hex().upper()
         nft_data = {
-            "URI":          uri_hex,
-            "NFTokenID":    VALID_NFT_ID,
+            "URI": uri_hex,
+            "NFTokenID": VALID_NFT_ID,
             "NFTokenTaxon": WARD_POLICY_TAXON,
         }
         parsed, err = ClaimValidator._parse_nft_metadata(nft_data)
@@ -1472,9 +1549,12 @@ class TestClaimValidatorAdvanced(TestClaimValidatorAdversarial):
         validator = ClaimValidator()
 
         # With OwnerCount=0: usable = 30M - 20M = 10M; payout=5M; ratio=2 → pass
-        assert validator._step9_check_pool_solvency(
-            {"Balance": "30000000", "OwnerCount": 0}, 5_000_000
-        ) is None
+        assert (
+            validator._step9_check_pool_solvency(
+                {"Balance": "30000000", "OwnerCount": 0}, 5_000_000
+            )
+            is None
+        )
 
         # With OwnerCount=5: reserve = 20M+10M = 30M; usable = 0 < payout → fail
         result = validator._step9_check_pool_solvency(
@@ -1532,14 +1612,18 @@ class TestEscrowSettlementAdvanced:
             return _make_success_response({})
 
         patches = [
-            patch("ward.settlement.AsyncJsonRpcClient",
-                  _async_client_factory(noop_request)),
-            patch("ward.settlement.get_ledger_close_time",
-                  AsyncMock(return_value=current_time)),
-            patch("ward.settlement.build_unsigned_tx",
-                  AsyncMock(return_value=fake_resp)),
-            patch("ward.settlement.autofill",
-                  AsyncMock(side_effect=lambda tx, c: tx)),
+            patch(
+                "ward.settlement.AsyncJsonRpcClient",
+                _async_client_factory(noop_request),
+            ),
+            patch(
+                "ward.settlement.get_ledger_close_time",
+                AsyncMock(return_value=current_time),
+            ),
+            patch(
+                "ward.settlement.build_unsigned_tx", AsyncMock(return_value=fake_resp)
+            ),
+            patch("ward.settlement.autofill", AsyncMock(side_effect=lambda tx, c: tx)),
         ]
         return pool_wallet, patches
 
@@ -1571,7 +1655,9 @@ class TestEscrowSettlementAdvanced:
                 except RuntimeError:
                     pass
 
-        assert record.dispute_deadline_ripple == KNOWN_TIME + ESCROW_DISPUTE_HOURS * 3_600
+        assert (
+            record.dispute_deadline_ripple == KNOWN_TIME + ESCROW_DISPUTE_HOURS * 3_600
+        )
         assert not getattr(record, "ward_signed", False)  # ward_signed = False
 
     @pytest.mark.asyncio
@@ -1670,7 +1756,9 @@ class TestVaultMonitorAdvanced:
             async def send(self, *a):
                 pass
 
-        with patch("ward.vault_monitor.AsyncWebsocketClient", lambda _url: _FakeClient()):
+        with patch(
+            "ward.vault_monitor.AsyncWebsocketClient", lambda _url: _FakeClient()
+        ):
             with patch("ward.vault_monitor.asyncio.sleep", AsyncMock()):
                 await _asyncio.wait_for(monitor.run(), timeout=3.0)
 
@@ -1698,11 +1786,14 @@ class TestVaultMonitorAdvanced:
         )
         monitor._pending[VALID_LOAN_ID] = signal
 
-        with patch.object(monitor, "_verify_default_on_chain",
-                          AsyncMock(return_value=None)):
+        with patch.object(
+            monitor, "_verify_default_on_chain", AsyncMock(return_value=None)
+        ):
             await monitor._process_pending_confirmations(AsyncMock(), 1001)
 
-        assert len(fired) == 0, "Callback must not fire when on-chain verify returns None"
+        assert len(fired) == 0, (
+            "Callback must not fire when on-chain verify returns None"
+        )
 
     @pytest.mark.asyncio
     async def test_monitor_requires_3_consecutive_closes(self):
@@ -1767,7 +1858,7 @@ class TestPrimitivesAdvanced:
             if call_count < 2:
                 resp.is_successful.return_value = False
                 resp.result = {
-                    "meta":          {"TransactionResult": "telINSUF_FEE_P"},
+                    "meta": {"TransactionResult": "telINSUF_FEE_P"},
                     "engine_result": "telINSUF_FEE_P",
                 }
             else:
@@ -1778,8 +1869,11 @@ class TestPrimitivesAdvanced:
         with patch("ward.primitives.submit_and_wait", mock_submit):
             with patch("ward.primitives.asyncio.sleep", AsyncMock()):
                 result = await submit_with_retry(
-                    MagicMock(), MagicMock(), MagicMock(),
-                    max_attempts=3, base_delay=0.0,
+                    MagicMock(),
+                    MagicMock(),
+                    MagicMock(),
+                    max_attempts=3,
+                    base_delay=0.0,
                 )
 
         assert call_count == 2, f"Expected 2 attempts; got {call_count}"
@@ -1798,7 +1892,7 @@ class TestPrimitivesAdvanced:
             resp = MagicMock()
             resp.is_successful.return_value = False
             resp.result = {
-                "meta":          {"TransactionResult": "tecNO_DST"},
+                "meta": {"TransactionResult": "tecNO_DST"},
                 "engine_result": "tecNO_DST",
             }
             return resp
@@ -1812,18 +1906,18 @@ class TestPrimitivesAdvanced:
     def test_uri_hex_assertion_fires_over_512(self):
         """_parse_nft_metadata rejects any NFT URI longer than 512 hex chars."""
         long_meta = {
-            "w":     "ward-v1",
-            "v":     VALID_ADDRESS,
-            "c":     "1000000",
-            "e":     999_999,
-            "extra": "x" * 300,   # pushes JSON well over 256 bytes
+            "w": "ward-v1",
+            "v": VALID_ADDRESS,
+            "c": "1000000",
+            "e": 999_999,
+            "extra": "x" * 300,  # pushes JSON well over 256 bytes
         }
         uri_hex = json.dumps(long_meta, separators=(",", ":")).encode().hex().upper()
         assert len(uri_hex) > 512, "Test setup: URI must exceed 512 hex chars"
 
         nft_data = {
-            "URI":          uri_hex,
-            "NFTokenID":    VALID_NFT_ID,
+            "URI": uri_hex,
+            "NFTokenID": VALID_NFT_ID,
             "NFTokenTaxon": WARD_POLICY_TAXON,
         }
         _, err = ClaimValidator._parse_nft_metadata(nft_data)
@@ -1848,7 +1942,7 @@ async def test_integration_purchase_coverage_testnet():
     from xrpl.asyncio.wallet import generate_faucet_wallet as _gfw
 
     pool_address = os.getenv("WARD_POOL_ADDRESS", VALID_ADDRESS)
-    rpc    = _RPC("https://s.altnet.rippletest.net:51234/")
+    rpc = _RPC("https://s.altnet.rippletest.net:51234/")
     wallet = await _gfw(rpc, debug=False)
 
     client = WardClient(url="https://s.altnet.rippletest.net:51234/")
@@ -1880,6 +1974,7 @@ def _make_validator_with_mocks(**kwargs):
 # 2.1 Policy Forgery
 # ---------------------------------------------------------------------------
 
+
 class TestPolicyForgery:
     """2.1 — Policy forgery / fake claim injection mitigations."""
 
@@ -1889,9 +1984,12 @@ class TestPolicyForgery:
 
         nft = {"NFTokenID": "A" * 64, "NFTokenTaxon": 9999, "URI": ""}
         # Simulate step 1 finding NFT with wrong taxon
-        result = ClaimValidator._make_validator_stub_reject_taxon(nft) if False else None
+        result = (
+            ClaimValidator._make_validator_stub_reject_taxon(nft) if False else None
+        )
         # Direct unit test: wrong taxon returns sentinel
         import asyncio
+
         validator = ClaimValidator()
 
         async def _run():
@@ -1902,11 +2000,14 @@ class TestPolicyForgery:
             }
             client = AsyncMock()
             client.request = AsyncMock(return_value=mock_resp)
-            r = await validator._step1_verify_nft_exists(client, VALID_ADDRESS, "A" * 64)
+            r = await validator._step1_verify_nft_exists(
+                client, VALID_ADDRESS, "A" * 64
+            )
             return r
 
         result = asyncio.run(_run())
         from ward.validator import _WRONG_TAXON as _WT
+
         assert result is _WT, "NFT with wrong taxon must return _WRONG_TAXON sentinel"
 
     def test_forgery_wrong_flags_rejected(self):
@@ -1916,6 +2017,7 @@ class TestPolicyForgery:
         import inspect
 
         from ward.client import WardClient
+
         src = inspect.getsource(WardClient.purchase_coverage)
         assert "TF_BURNABLE" in src, "purchase_coverage must set TF_BURNABLE"
         assert "TF_TRANSFERABLE" not in src, (
@@ -1931,6 +2033,7 @@ class TestPolicyForgery:
 # ---------------------------------------------------------------------------
 # 2.2 Double-Spend / Replay
 # ---------------------------------------------------------------------------
+
 
 class TestReplayProtection:
     """2.2 — Policy double-spend / replay attack mitigations."""
@@ -1948,7 +2051,10 @@ class TestReplayProtection:
         )
         assert not result.approved
         assert result.steps_passed == 0
-        assert "not found" in result.rejection_reason.lower() or "burned" in result.rejection_reason.lower()
+        assert (
+            "not found" in result.rejection_reason.lower()
+            or "burned" in result.rejection_reason.lower()
+        )
 
     def test_replay_rate_limit_enforced(self):
         """check_rate_limit raises after CLAIM_RATE_LIMIT_MAX attempts on the same NFT."""
@@ -1960,6 +2066,7 @@ class TestReplayProtection:
         _rate_limit_windows.pop(unique_nft, None)
 
         from ward.constants import CLAIM_RATE_LIMIT_MAX
+
         for _ in range(CLAIM_RATE_LIMIT_MAX):
             check_rate_limit(unique_nft)
 
@@ -1971,12 +2078,14 @@ class TestReplayProtection:
 # 2.3 Policy Transfer
 # ---------------------------------------------------------------------------
 
+
 class TestPolicyTransfer:
     """2.3 — Policy transfer / stolen claim mitigations."""
 
     def test_policy_nft_not_transferable(self):
         """NFTokenMint must NOT include tfTransferable flag."""
         from ward.constants import TF_BURNABLE, TF_TRANSFERABLE
+
         # Ward only sets TF_BURNABLE — verify TF_TRANSFERABLE is not ORed in
         flags_used = TF_BURNABLE
         assert (flags_used & TF_TRANSFERABLE) == 0, (
@@ -1986,8 +2095,9 @@ class TestPolicyTransfer:
     def test_policy_flags_explicit(self):
         """TF_TRANSFERABLE constant is defined so its absence can be asserted."""
         from ward.constants import TF_BURNABLE, TF_TRANSFERABLE
+
         assert TF_TRANSFERABLE == 0x00000008
-        assert TF_BURNABLE     == 0x00000001
+        assert TF_BURNABLE == 0x00000001
         # They are distinct flags
         assert TF_TRANSFERABLE != TF_BURNABLE
         assert (TF_BURNABLE & TF_TRANSFERABLE) == 0
@@ -1996,6 +2106,7 @@ class TestPolicyTransfer:
 # ---------------------------------------------------------------------------
 # 2.4 Signal Manipulation
 # ---------------------------------------------------------------------------
+
 
 class TestSignalManipulation:
     """2.4 — Vault operator default signal manipulation mitigations."""
@@ -2013,13 +2124,14 @@ class TestSignalManipulation:
         fired = []
 
         @monitor.on_verified_default
-        async def cb(e): fired.append(e)
+        async def cb(e):
+            fired.append(e)
 
         # Plant a pending signal
         signal = DefaultSignal(
             vault_address=VALID_ADDRESS,
             loan_id=VALID_LOAN_ID,
-            health_ratio=999.0,   # bogus value from "event"
+            health_ratio=999.0,  # bogus value from "event"
             ledger_index=1000,
             confirm_count=1,
         )
@@ -2028,11 +2140,13 @@ class TestSignalManipulation:
         verified = VerifiedDefault(
             vault_address=VALID_ADDRESS,
             loan_id=VALID_LOAN_ID,
-            health_ratio=0.4,     # on-chain re-fetched value
+            health_ratio=0.4,  # on-chain re-fetched value
             first_ledger_index=1000,
             confirmed_ledger=1001,
         )
-        with patch.object(monitor, "_verify_default_on_chain", AsyncMock(return_value=verified)) as mock_verify:
+        with patch.object(
+            monitor, "_verify_default_on_chain", AsyncMock(return_value=verified)
+        ) as mock_verify:
             await monitor._process_pending_confirmations(AsyncMock(), 1001)
 
         # _verify_default_on_chain MUST have been called (independent RPC)
@@ -2049,7 +2163,7 @@ class TestSignalManipulation:
         from ward.vault_monitor import DefaultSignal, VaultMonitor
 
         monitor = VaultMonitor(vault_addresses=[VALID_ADDRESS], confirm_count=1)
-        signal  = DefaultSignal(
+        signal = DefaultSignal(
             vault_address=VALID_ADDRESS,
             loan_id=VALID_LOAN_ID,
             health_ratio=0.5,
@@ -2075,6 +2189,7 @@ class TestSignalManipulation:
 # ---------------------------------------------------------------------------
 # 2.5 Clock Manipulation
 # ---------------------------------------------------------------------------
+
 
 class TestClockManipulation:
     """2.5 — Clock manipulation / expiry bypass mitigations."""
@@ -2103,9 +2218,10 @@ class TestClockManipulation:
         metadata = {"w": "ward-v1", "v": VALID_VAULT, "c": "1000000", "e": past_expiry}
 
         async def mock_get_time(_client):
-            return 999_999_999   # ledger time >> expiry
+            return 999_999_999  # ledger time >> expiry
 
         from ward.validator import ClaimValidator
+
         validator = ClaimValidator()
         with patch("ward.validator.get_ledger_close_time", mock_get_time):
             err = await validator._step2_check_expiry(AsyncMock(), metadata)
@@ -2118,6 +2234,7 @@ class TestClockManipulation:
 # 2.6 Front-Running Escrow
 # ---------------------------------------------------------------------------
 
+
 class TestFrontRunning:
     """2.6 — Front-running the escrow release mitigations."""
 
@@ -2126,6 +2243,7 @@ class TestFrontRunning:
         import inspect
 
         from ward.settlement import EscrowSettlement
+
         sig = inspect.signature(EscrowSettlement.create_claim_escrow)
         assert "preimage" not in sig.parameters, (
             "create_claim_escrow must NEVER accept a preimage — "
@@ -2137,6 +2255,7 @@ class TestFrontRunning:
         import dataclasses
 
         from ward.settlement import EscrowRecord
+
         field_names = {f.name for f in dataclasses.fields(EscrowRecord)}
         assert "preimage" not in field_names, (
             "EscrowRecord must not store a preimage — only condition_hex"
@@ -2148,24 +2267,30 @@ class TestFrontRunning:
 # 2.7 Monitor Spoofing
 # ---------------------------------------------------------------------------
 
+
 class TestMonitorSpoofing:
     """2.7 — Ward monitoring module spoofing mitigations."""
 
     def test_monitor_rejects_non_tls_url(self):
         """VaultMonitor must reject ws:// (non-TLS) URLs at construction."""
         with pytest.raises(ValidationError, match="wss://"):
-            VaultMonitor(vault_addresses=[VALID_ADDRESS],
-                         websocket_url="ws://s.altnet.rippletest.net:51233/")
+            VaultMonitor(
+                vault_addresses=[VALID_ADDRESS],
+                websocket_url="ws://s.altnet.rippletest.net:51233/",
+            )
 
     def test_monitor_rejects_unknown_endpoint(self):
         """VaultMonitor must reject unknown wss:// endpoints."""
         with pytest.raises(ValidationError, match="not in allowed list"):
-            VaultMonitor(vault_addresses=[VALID_ADDRESS],
-                         websocket_url="wss://evil-node.example.com:51233/")
+            VaultMonitor(
+                vault_addresses=[VALID_ADDRESS],
+                websocket_url="wss://evil-node.example.com:51233/",
+            )
 
     def test_allowed_ws_urls_tls_only(self):
         """Every URL in ALLOWED_WS_URLS must use wss:// (TLS)."""
         from ward.constants import ALLOWED_WS_URLS
+
         for url in ALLOWED_WS_URLS:
             assert url.startswith("wss://"), (
                 f"All allowed WS URLs must be TLS (wss://), got: {url}"
@@ -2174,15 +2299,18 @@ class TestMonitorSpoofing:
     def test_monitor_accepts_known_tls_endpoint(self):
         """VaultMonitor accepts known wss:// endpoints without raising."""
         from ward.constants import DEFAULT_TESTNET_WS
+
         # Should not raise
-        monitor = VaultMonitor(vault_addresses=[VALID_ADDRESS],
-                               websocket_url=DEFAULT_TESTNET_WS)
+        monitor = VaultMonitor(
+            vault_addresses=[VALID_ADDRESS], websocket_url=DEFAULT_TESTNET_WS
+        )
         assert monitor._ws_url == DEFAULT_TESTNET_WS
 
 
 # ---------------------------------------------------------------------------
 # 2.8 Pool Drainage
 # ---------------------------------------------------------------------------
+
 
 class TestPoolDrainage:
     """2.8 — Pool drainage via inflated loss calculation mitigations."""
@@ -2198,7 +2326,7 @@ class TestPoolDrainage:
             usable_drops=0,
             active_coverage_drops=100_000_000,
             owner_count=0,
-            coverage_ratio=0.0,   # 0 < 1.5 → "high" tier
+            coverage_ratio=0.0,  # 0 < 1.5 → "high" tier
             is_solvent=False,
             dynamic_premium_rate=0.1,
             risk_tier="high",
@@ -2223,15 +2351,20 @@ class TestPoolDrainage:
             from xrpl.models.requests import AccountTx as _ATx
 
             from ward.coverage import build_premium_memo
+
             if isinstance(req, _AI):
-                return _make_success_response({
-                    "account_data": {"Balance": "30000000", "OwnerCount": 1}
-                })
+                return _make_success_response(
+                    {"account_data": {"Balance": "30000000", "OwnerCount": 1}}
+                )
             if isinstance(req, _ATx):
                 memo = build_premium_memo(VALID_NFT_ID, 100_000_000)
-                return _make_success_response({"transactions": [
-                    {"tx_json": {"TransactionType": "Payment", "Memos": [memo]}}
-                ]})
+                return _make_success_response(
+                    {
+                        "transactions": [
+                            {"tx_json": {"TransactionType": "Payment", "Memos": [memo]}}
+                        ]
+                    }
+                )
             return _make_fail_response()
 
         monitor = PoolHealthMonitor(pool_address=VALID_ADDRESS)
@@ -2247,6 +2380,7 @@ class TestPoolDrainage:
 # 2.9 Coverage Ratio Manipulation
 # ---------------------------------------------------------------------------
 
+
 class TestCoverageRatioManipulation:
     """2.9 — Coverage ratio manipulation mitigations."""
 
@@ -2259,19 +2393,19 @@ class TestCoverageRatioManipulation:
         import inspect
 
         from ward.validator import ClaimValidator
+
         src = inspect.getsource(ClaimValidator._step6_check_coverage_breach)
         # Must issue AccountInfo request (independent RPC)
         assert "AccountInfo" in src, (
             "_step6_check_coverage_breach must call AccountInfo (independent RPC read)"
         )
-        assert "cache" not in src.lower(), (
-            "_step6 must not use cached values"
-        )
+        assert "cache" not in src.lower(), "_step6 must not use cached values"
 
 
 # ---------------------------------------------------------------------------
 # 2.10 Address Injection
 # ---------------------------------------------------------------------------
+
 
 class TestAddressInjection:
     """2.10 — Address injection / transaction crafting mitigations."""
@@ -2309,12 +2443,14 @@ class TestAddressInjection:
 # 2.11 Key Exfiltration
 # ---------------------------------------------------------------------------
 
+
 class TestKeyExfiltration:
     """2.11 — Key exfiltration mitigations."""
 
     def test_no_wallet_stored_after_call(self):
         """WardClient must not retain a wallet attribute between calls."""
         from ward.client import WardClient
+
         client = WardClient()
         assert not hasattr(client, "_wallet"), (
             "WardClient must not store a wallet as instance attribute"
@@ -2336,14 +2472,17 @@ class TestKeyExfiltration:
             # Check instance dict after __init__ with dummy args where possible
             attrs = vars(instance) if hasattr(instance, "__dict__") else {}
             for attr_name in attrs:
-                assert "wallet" not in attr_name.lower() and "key" not in attr_name.lower() and "seed" not in attr_name.lower(), (
-                    f"{cls.__name__}.{attr_name} looks like it stores key material"
-                )
+                assert (
+                    "wallet" not in attr_name.lower()
+                    and "key" not in attr_name.lower()
+                    and "seed" not in attr_name.lower()
+                ), f"{cls.__name__}.{attr_name} looks like it stores key material"
 
 
 # ---------------------------------------------------------------------------
 # 2.12 Rate Limiting
 # ---------------------------------------------------------------------------
+
 
 class TestRateLimiting:
     """2.12 — Rate limiting bypass / DoS mitigations."""
@@ -2357,7 +2496,7 @@ class TestRateLimiting:
         _rate_limit_windows.pop(nft_id, None)
 
         for i in range(CLAIM_RATE_LIMIT_MAX):
-            assert check_rate_limit(nft_id) is True, f"Call {i+1} should succeed"
+            assert check_rate_limit(nft_id) is True, f"Call {i + 1} should succeed"
 
         with pytest.raises(ValidationError, match="Rate limit"):
             check_rate_limit(nft_id)
@@ -2377,6 +2516,7 @@ class TestRateLimiting:
 
         # Fake old timestamps by backdating entries
         import collections
+
         old_ts = _time.monotonic() - CLAIM_RATE_LIMIT_WINDOW_S - 1
         _rate_limit_windows[nft_id] = collections.deque([old_ts] * CLAIM_RATE_LIMIT_MAX)
 
@@ -2428,6 +2568,7 @@ class TestRateLimiting:
 # 2.13 NFT Taxon Spoofing
 # ---------------------------------------------------------------------------
 
+
 class TestNFTTaxonSpoofing:
     """2.13 — NFT taxon spoofing mitigations."""
 
@@ -2448,13 +2589,15 @@ class TestNFTTaxonSpoofing:
     def test_taxon_spoofing_different_taxon(self):
         """WARD_POLICY_TAXON is a hard constant — not configurable by callers."""
         from ward.constants import WARD_CREDENTIAL_TAXON, WARD_POLICY_TAXON
-        assert WARD_POLICY_TAXON == 281,    "Policy taxon must be 281"
+
+        assert WARD_POLICY_TAXON == 281, "Policy taxon must be 281"
         assert WARD_CREDENTIAL_TAXON == 282, "Credential taxon must be 282"
         assert WARD_POLICY_TAXON != WARD_CREDENTIAL_TAXON
 
     def test_taxon_constants_not_mutable(self):
         """Taxon constants must be module-level ints, not variables that drift."""
         import ward.constants as _c
+
         assert isinstance(_c.WARD_POLICY_TAXON, int)
         assert isinstance(_c.WARD_CREDENTIAL_TAXON, int)
 
@@ -2463,12 +2606,14 @@ class TestNFTTaxonSpoofing:
 # 2.14 XRP / Drops Unit Confusion
 # ---------------------------------------------------------------------------
 
+
 class TestDropsUnitConfusion:
     """2.14 — XRP / drops unit confusion mitigations."""
 
     def test_float_drops_rejected(self):
         """validate_drops must reject float inputs."""
         from ward.primitives import validate_drops
+
         with pytest.raises(ValidationError, match="integer"):
             validate_drops(1.5)
         with pytest.raises(ValidationError, match="integer"):
@@ -2479,6 +2624,7 @@ class TestDropsUnitConfusion:
     def test_negative_drops_rejected(self):
         """validate_drops must reject negative values."""
         from ward.primitives import validate_drops
+
         with pytest.raises(ValidationError):
             validate_drops(-1)
 
@@ -2486,23 +2632,27 @@ class TestDropsUnitConfusion:
         """validate_drops must reject amounts exceeding the XRP max supply."""
         from ward.constants import XRP_MAX_DROPS
         from ward.primitives import validate_drops
+
         with pytest.raises(ValidationError, match="max XRP supply"):
             validate_drops(XRP_MAX_DROPS + 1)
 
     def test_zero_drops_accepted(self):
         """validate_drops allows 0 (coverage check, not payment)."""
         from ward.primitives import validate_drops
-        validate_drops(0)   # must not raise
+
+        validate_drops(0)  # must not raise
 
     def test_max_drops_accepted(self):
         """validate_drops allows exactly XRP_MAX_DROPS."""
         from ward.constants import XRP_MAX_DROPS
         from ward.primitives import validate_drops
-        validate_drops(XRP_MAX_DROPS)   # must not raise
+
+        validate_drops(XRP_MAX_DROPS)  # must not raise
 
     def test_bool_rejected(self):
         """True/False (bool subclass of int) must be rejected."""
         from ward.primitives import validate_drops
+
         with pytest.raises(ValidationError, match="integer"):
             validate_drops(True)
         with pytest.raises(ValidationError, match="integer"):
@@ -2513,12 +2663,14 @@ class TestDropsUnitConfusion:
 # 2.15 Silent Network Failure
 # ---------------------------------------------------------------------------
 
+
 class TestSilentNetworkFailure:
     """2.15 — Silent network failure / heartbeat mitigations."""
 
     def test_heartbeat_constant_is_60s(self):
         """MONITOR_HEARTBEAT_TIMEOUT_S must be 60 seconds."""
         from ward.constants import MONITOR_HEARTBEAT_TIMEOUT_S
+
         assert MONITOR_HEARTBEAT_TIMEOUT_S == 60
 
     @pytest.mark.asyncio
@@ -2534,19 +2686,25 @@ class TestSilentNetworkFailure:
         monitor = VaultMonitor(vault_addresses=[VALID_ADDRESS])
 
         class _SlowIter:
-            def __aiter__(self): return self
+            def __aiter__(self):
+                return self
+
             async def __anext__(self):
                 await _aio.sleep(999)
                 raise StopAsyncIteration
 
         class _FakeClient:
-            def __aiter__(self): return _SlowIter()
-            async def send(self, *a): pass
+            def __aiter__(self):
+                return _SlowIter()
+
+            async def send(self, *a):
+                pass
 
         # Mock asyncio.wait_for in vault_monitor to immediately raise TimeoutError,
         # simulating the heartbeat timeout firing.
-        with patch("ward.vault_monitor.asyncio.wait_for",
-                   side_effect=_aio.TimeoutError()):
+        with patch(
+            "ward.vault_monitor.asyncio.wait_for", side_effect=_aio.TimeoutError()
+        ):
             with pytest.raises(_aio.TimeoutError):
                 await monitor._run_with_heartbeat(_FakeClient())
 
@@ -2573,10 +2731,17 @@ class TestSilentNetworkFailure:
                 monitor._running = False
                 return self
 
-            async def __aexit__(self, *a): pass
-            async def send(self, *a): pass
-            def __aiter__(self): return self
-            async def __anext__(self): raise StopAsyncIteration
+            async def __aexit__(self, *a):
+                pass
+
+            async def send(self, *a):
+                pass
+
+            def __aiter__(self):
+                return self
+
+            async def __anext__(self):
+                raise StopAsyncIteration
 
         with patch("ward.vault_monitor.AsyncWebsocketClient", lambda _u: _FakeClient()):
             with patch("ward.vault_monitor.asyncio.sleep", AsyncMock()):
@@ -2618,6 +2783,7 @@ class TestCriticalBugFixes:
             if isinstance(tx, _NFTokenBurn):
                 burn_wallet_addresses.append(tx.account)
             from ward.primitives import UnsignedTransaction
+
             return UnsignedTransaction(
                 tx_type=tx.__class__.__name__,
                 account=getattr(tx, "account", ""),
@@ -2625,7 +2791,7 @@ class TestCriticalBugFixes:
                 amount_drops=0,
             )
 
-        pool_wallet     = _Wallet.create()
+        pool_wallet = _Wallet.create()
         claimant_wallet = _Wallet.create()
 
         record = EscrowRecord(
@@ -2642,14 +2808,21 @@ class TestCriticalBugFixes:
         )
 
         settlement = EscrowSettlement()
-        with patch("ward.settlement.AsyncJsonRpcClient",
-                   _async_client_factory(noop_request)):
-            with patch("ward.settlement.get_ledger_close_time",
-                       AsyncMock(return_value=100_000_000)):
-                with patch("ward.settlement.build_unsigned_tx",
-                           AsyncMock(side_effect=track_burn)):
-                    with patch("ward.settlement.autofill",
-                               AsyncMock(side_effect=lambda tx, c: tx)):
+        with patch(
+            "ward.settlement.AsyncJsonRpcClient", _async_client_factory(noop_request)
+        ):
+            with patch(
+                "ward.settlement.get_ledger_close_time",
+                AsyncMock(return_value=100_000_000),
+            ):
+                with patch(
+                    "ward.settlement.build_unsigned_tx",
+                    AsyncMock(side_effect=track_burn),
+                ):
+                    with patch(
+                        "ward.settlement.autofill",
+                        AsyncMock(side_effect=lambda tx, c: tx),
+                    ):
                         await settlement.finish_escrow(
                             pool_address=pool_wallet.classic_address,
                             claimant_address_signer=claimant_wallet.classic_address,
@@ -2659,8 +2832,7 @@ class TestCriticalBugFixes:
 
         assert len(burn_wallet_addresses) == 1, "NFTokenBurn must be submitted once"
         assert burn_wallet_addresses[0] == claimant_wallet.classic_address, (
-            f"NFTokenBurn must use claimant_wallet; "
-            f"got {burn_wallet_addresses[0]!r}"
+            f"NFTokenBurn must use claimant_wallet; got {burn_wallet_addresses[0]!r}"
         )
         assert burn_wallet_addresses[0] != pool_wallet.classic_address, (
             "NFTokenBurn must NOT use pool_wallet — that causes tecNO_PERMISSION"
@@ -2669,6 +2841,7 @@ class TestCriticalBugFixes:
     def test_finish_escrow_signature_has_claimant_wallet(self):
         """FIX 1: finish_escrow must declare claimant_wallet parameter."""
         import inspect
+
         sig = inspect.signature(EscrowSettlement().finish_escrow)
         assert "claimant_address_signer" in sig.parameters, (
             "finish_escrow must accept claimant_address_signer parameter"
@@ -2683,20 +2856,22 @@ class TestCriticalBugFixes:
         client = MagicMock()
         err = await validator._step7_verify_nft_live(None, VALID_NFT_ID)
         assert err is not None, "Step 7 must return an error when NFT is burned"
-        assert any(
-            kw in err.lower() for kw in ("burned", "not found", "replay")
-        ), f"Error should mention burned/not found/replay: {err!r}"
+        assert any(kw in err.lower() for kw in ("burned", "not found", "replay")), (
+            f"Error should mention burned/not found/replay: {err!r}"
+        )
 
     @pytest.mark.asyncio
     async def test_step8_rejects_transferred_nft(self):
         """FIX 2: Step 8 rejects claim when claimant no longer holds NFT."""
         validator = ClaimValidator()
         client = MagicMock()
-        err = await validator._step8_verify_claimant_holds_nft(None, VALID_ADDRESS, VALID_NFT_ID)
+        err = await validator._step8_verify_claimant_holds_nft(
+            None, VALID_ADDRESS, VALID_NFT_ID
+        )
         assert err is not None, "Step 8 must return an error when NFT not held"
-        assert any(
-            kw in err.lower() for kw in ("claimant", "hold", "does not")
-        ), f"Error should mention claimant/hold: {err!r}"
+        assert any(kw in err.lower() for kw in ("claimant", "hold", "does not")), (
+            f"Error should mention claimant/hold: {err!r}"
+        )
 
     @pytest.mark.asyncio
     async def test_step7_passes_when_nft_live(self):
@@ -2713,13 +2888,16 @@ class TestCriticalBugFixes:
         validator = ClaimValidator()
         client = MagicMock()
         nft_data = {"NFTokenID": VALID_NFT_ID, "NFTokenTaxon": WARD_POLICY_TAXON}
-        err = await validator._step8_verify_claimant_holds_nft(nft_data, VALID_ADDRESS, VALID_NFT_ID)
+        err = await validator._step8_verify_claimant_holds_nft(
+            nft_data, VALID_ADDRESS, VALID_NFT_ID
+        )
         assert err is None, f"Step 8 must pass when claimant holds NFT; got: {err!r}"
 
     @pytest.mark.asyncio
     async def test_step7_and_8_are_not_log_only_stubs(self):
         """FIX 2: Steps 7 and 8 must be real async methods, not logger stubs."""
         import inspect
+
         validator = ClaimValidator()
         assert hasattr(validator, "_step7_verify_nft_live"), (
             "ClaimValidator must have _step7_verify_nft_live method"
@@ -2730,9 +2908,9 @@ class TestCriticalBugFixes:
         assert inspect.iscoroutinefunction(validator._step7_verify_nft_live), (
             "_step7_verify_nft_live must be async"
         )
-        assert inspect.iscoroutinefunction(validator._step8_verify_claimant_holds_nft), (
-            "_step8_verify_claimant_holds_nft must be async"
-        )
+        assert inspect.iscoroutinefunction(
+            validator._step8_verify_claimant_holds_nft
+        ), "_step8_verify_claimant_holds_nft must be async"
 
     # ── FIX 3: TxBuilder.escrow_finish condition/fulfillment ─────────────────
 
@@ -2768,6 +2946,7 @@ class TestCriticalBugFixes:
     def test_escrow_finish_signature_accepts_condition_fulfillment(self):
         """FIX 3: escrow_finish signature must declare condition and fulfillment."""
         import inspect
+
         sig = inspect.signature(TxBuilder.escrow_finish)
         params = sig.parameters
         assert "condition" in params, "escrow_finish must accept condition kwarg"
@@ -2804,20 +2983,26 @@ class TestPolicyRegistryFixes:
     @pytest.mark.asyncio
     async def test_registry_coverage_reflected_in_get_health(self):
         """Active coverage from on-chain premium memos is visible in PoolHealth output."""
+
         async def mock_request(req):
             from xrpl.models import AccountInfo as _AI
             from xrpl.models.requests import AccountTx as _ATx
 
             from ward.coverage import build_premium_memo
+
             if isinstance(req, _AI):
-                return _make_success_response({
-                    "account_data": {"Balance": "50000000", "OwnerCount": 0}
-                })
+                return _make_success_response(
+                    {"account_data": {"Balance": "50000000", "OwnerCount": 0}}
+                )
             if isinstance(req, _ATx):
                 memo = build_premium_memo(VALID_NFT_ID, 2_000_000)
-                return _make_success_response({"transactions": [
-                    {"tx_json": {"TransactionType": "Payment", "Memos": [memo]}}
-                ]})
+                return _make_success_response(
+                    {
+                        "transactions": [
+                            {"tx_json": {"TransactionType": "Payment", "Memos": [memo]}}
+                        ]
+                    }
+                )
             return _make_fail_response()
 
         monitor = PoolHealthMonitor(pool_address=VALID_ADDRESS)
@@ -2905,16 +3090,19 @@ class TestMultiVaultRegistry:
 
     def setup_method(self):
         from ward.registry import clear_registry
+
         clear_registry()
         # Generate valid XRPL addresses for registry tests
         from xrpl.wallet import Wallet as _Wallet
-        self.vault_a = VALID_ADDRESS    # rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh
-        self.vault_b = VALID_ADDRESS2   # rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe
+
+        self.vault_a = VALID_ADDRESS  # rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh
+        self.vault_b = VALID_ADDRESS2  # rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe
         self.vault_c = _Wallet.create().classic_address  # fresh valid address
 
     async def test_register_single_vault(self):
         """Institution can register a vault."""
         from ward.registry import get_vaults, register_vault
+
         await register_vault("key_001", self.vault_a)
         vaults = await get_vaults("key_001")
         assert len(vaults) == 1
@@ -2923,6 +3111,7 @@ class TestMultiVaultRegistry:
     async def test_register_multiple_vaults(self):
         """Institution can register multiple vaults under one key."""
         from ward.registry import get_vaults, register_vault
+
         await register_vault("key_001", self.vault_a)
         await register_vault("key_001", self.vault_b)
         await register_vault("key_001", self.vault_c)
@@ -2932,6 +3121,7 @@ class TestMultiVaultRegistry:
     async def test_different_institutions_isolated(self):
         """Two institution keys cannot see each other's vaults."""
         from ward.registry import get_vaults, register_vault
+
         await register_vault("key_A", self.vault_a)
         await register_vault("key_B", self.vault_b)
         vaults_a = await get_vaults("key_A")
@@ -2943,6 +3133,7 @@ class TestMultiVaultRegistry:
     async def test_duplicate_vault_rejected(self):
         """Cannot register the same vault address twice under one key."""
         from ward.registry import register_vault
+
         await register_vault("key_001", self.vault_a)
         with pytest.raises(WardError, match="already registered"):
             await register_vault("key_001", self.vault_a)
@@ -2950,6 +3141,7 @@ class TestMultiVaultRegistry:
     async def test_deregister_vault(self):
         """Institution can remove a vault from their registry."""
         from ward.registry import deregister_vault, get_vaults, register_vault
+
         await register_vault("key_001", self.vault_a)
         await register_vault("key_001", self.vault_b)
         await deregister_vault("key_001", self.vault_a)
@@ -2960,12 +3152,14 @@ class TestMultiVaultRegistry:
     async def test_invalid_address_rejected(self):
         """Invalid XRPL address format raises WardError or ValidationError."""
         from ward.registry import register_vault
+
         with pytest.raises((WardError, Exception)):
             await register_vault("key_001", "not-a-valid-xrpl-address")
 
     async def test_institution_key_hash_not_raw(self):
         """Registry stores key hash — never the raw institution key."""
         from ward.registry import register_vault
+
         entry = await register_vault("key_001", self.vault_a)
         assert entry["institution_key_hash"] != "key_001"
         assert len(entry["institution_key_hash"]) == 64  # SHA-256 hex
@@ -2973,25 +3167,31 @@ class TestMultiVaultRegistry:
     async def test_invalid_tier_rejected(self):
         """Only starter / standard / enterprise tiers are accepted."""
         from ward.registry import register_vault
+
         with pytest.raises(WardError, match="Invalid tier"):
             await register_vault("key_001", self.vault_a, tier="premium")
 
     async def test_deregister_returns_false_when_not_found(self):
         """deregister_vault returns False if the address was never registered."""
         from ward.registry import deregister_vault
+
         removed = await deregister_vault("key_001", self.vault_a)
         assert removed is False
 
     async def test_get_vault_returns_none_when_missing(self):
         """get_vault returns None when vault is not registered."""
         from ward.registry import get_vault
+
         result = await get_vault("key_001", self.vault_a)
         assert result is None
 
     async def test_get_vault_returns_entry_when_present(self):
         """get_vault returns the correct registration entry."""
         from ward.registry import get_vault, register_vault
-        await register_vault("key_001", self.vault_a, tier="standard", label="Main Vault")
+
+        await register_vault(
+            "key_001", self.vault_a, tier="standard", label="Main Vault"
+        )
         entry = await get_vault("key_001", self.vault_a)
         assert entry is not None
         assert entry["vault_address"] == self.vault_a
@@ -3003,11 +3203,13 @@ class TestMultiVaultRegistry:
 # TestWebhookNotifications — Week 2 Session 2
 # ===========================================================================
 
+
 class TestWebhookNotifications:
     """Unit tests for ward/webhooks.py threshold detection and registry."""
 
     def setup_method(self):
         from ward.webhooks import clear_webhooks
+
         clear_webhooks()
 
     # ----------------------------------------------------------------
@@ -3017,36 +3219,42 @@ class TestWebhookNotifications:
     async def test_threshold_crossing_warning(self):
         """Crossing below 2.0 from above fires HEALTH_WARNING."""
         from ward.webhooks import WebhookEvent, determine_event
+
         event = determine_event(1.9, 2.5)
         assert event == WebhookEvent.HEALTH_WARNING
 
     async def test_threshold_crossing_elevated(self):
         """Crossing below 1.75 fires HEALTH_ELEVATED (not WARNING)."""
         from ward.webhooks import WebhookEvent, determine_event
+
         event = determine_event(1.7, 1.8)
         assert event == WebhookEvent.HEALTH_ELEVATED
 
     async def test_threshold_crossing_critical(self):
         """Crossing below 1.5 fires HEALTH_CRITICAL."""
         from ward.webhooks import WebhookEvent, determine_event
+
         event = determine_event(1.4, 1.6)
         assert event == WebhookEvent.HEALTH_CRITICAL
 
     async def test_default_resolved(self):
         """Recovery above 1.5 from below fires DEFAULT_RESOLVED."""
         from ward.webhooks import WebhookEvent, determine_event
+
         event = determine_event(1.6, 1.4)
         assert event == WebhookEvent.DEFAULT_RESOLVED
 
     async def test_stable_no_event(self):
         """No threshold crossing returns None."""
         from ward.webhooks import determine_event
+
         event = determine_event(2.1, 2.3)
         assert event is None
 
     async def test_no_previous_no_event(self):
         """First reading with no previous ratio returns None."""
         from ward.webhooks import determine_event
+
         event = determine_event(1.4, None)
         assert event is None
 
@@ -3057,6 +3265,7 @@ class TestWebhookNotifications:
     async def test_payload_ward_signed_always_false(self):
         """WebhookPayload.ward_signed is always False."""
         from ward.webhooks import WebhookEvent, WebhookPayload
+
         payload = WebhookPayload(
             event=WebhookEvent.HEALTH_CRITICAL,
             vault_address=VALID_ADDRESS,
@@ -3072,6 +3281,7 @@ class TestWebhookNotifications:
     async def test_register_and_retrieve_webhook(self):
         """Registered webhook is retrievable by vault address."""
         from ward.webhooks import WebhookConfig, get_webhooks, register_webhook
+
         config = WebhookConfig(
             url="https://example.com/hook",
             vault_address=VALID_ADDRESS,
@@ -3090,7 +3300,10 @@ class TestWebhookNotifications:
             get_webhooks,
             register_webhook,
         )
-        await register_webhook(WebhookConfig(url="https://example.com/hook", vault_address=VALID_ADDRESS))
+
+        await register_webhook(
+            WebhookConfig(url="https://example.com/hook", vault_address=VALID_ADDRESS)
+        )
         removed = await deregister_webhook(VALID_ADDRESS, "https://example.com/hook")
         assert removed is True
         hooks = await get_webhooks(VALID_ADDRESS)
@@ -3100,8 +3313,13 @@ class TestWebhookNotifications:
         """Webhook URL must use https — plaintext http is rejected."""
         from ward.primitives import WardError
         from ward.webhooks import WebhookConfig, register_webhook
+
         with pytest.raises(WardError, match="https://"):
-            await register_webhook(WebhookConfig(url="http://example.com/hook", vault_address=VALID_ADDRESS))
+            await register_webhook(
+                WebhookConfig(
+                    url="http://example.com/hook", vault_address=VALID_ADDRESS
+                )
+            )
 
     # ----------------------------------------------------------------
     # Registration / deregistration edge cases (branch coverage)
@@ -3110,10 +3328,17 @@ class TestWebhookNotifications:
     async def test_webhook_registration(self):
         """Second webhook for the same vault appends without re-initialising the list."""
         from ward.webhooks import WebhookConfig, get_webhooks, register_webhook
-        cfg1 = WebhookConfig(url="https://hook1.example.com/a", vault_address=VALID_ADDRESS)
-        cfg2 = WebhookConfig(url="https://hook2.example.com/b", vault_address=VALID_ADDRESS)
+
+        cfg1 = WebhookConfig(
+            url="https://hook1.example.com/a", vault_address=VALID_ADDRESS
+        )
+        cfg2 = WebhookConfig(
+            url="https://hook2.example.com/b", vault_address=VALID_ADDRESS
+        )
         await register_webhook(cfg1)
-        await register_webhook(cfg2)  # hits the 84->86 branch (vault already in registry)
+        await register_webhook(
+            cfg2
+        )  # hits the 84->86 branch (vault already in registry)
         hooks = await get_webhooks(VALID_ADDRESS)
         assert len(hooks) == 2
         assert {h.url for h in hooks} == {cfg1.url, cfg2.url}
@@ -3121,6 +3346,7 @@ class TestWebhookNotifications:
     async def test_webhook_deregistration(self):
         """deregister_webhook returns False when vault has no registered webhooks."""
         from ward.webhooks import deregister_webhook
+
         removed = await deregister_webhook(VALID_ADDRESS, "https://example.com/hook")
         assert removed is False  # hits line 94 — early return
 
@@ -3137,6 +3363,7 @@ class TestWebhookNotifications:
             fire_webhook,
             register_webhook,
         )
+
         cfg = WebhookConfig(
             url="https://example.com/hook",
             vault_address=VALID_ADDRESS,
@@ -3163,6 +3390,7 @@ class TestWebhookNotifications:
             fire_webhook,
             register_webhook,
         )
+
         cfg = WebhookConfig(
             url="https://example.com/hook",
             vault_address=VALID_ADDRESS,
@@ -3192,7 +3420,10 @@ class TestWebhookNotifications:
             WebhookPayload,
             _post_webhook,
         )
-        config = WebhookConfig(url="https://example.com/hook", vault_address=VALID_ADDRESS)
+
+        config = WebhookConfig(
+            url="https://example.com/hook", vault_address=VALID_ADDRESS
+        )
         payload = WebhookPayload(
             event=WebhookEvent.HEALTH_CRITICAL,
             vault_address=VALID_ADDRESS,
@@ -3206,6 +3437,7 @@ class TestWebhookNotifications:
         # ward_signed = False in body
         call_args = mock_urlopen.call_args[0][0]  # urllib Request object
         import json as _json
+
         body = _json.loads(call_args.data)
         assert body["ward_signed"] is False
 
@@ -3217,7 +3449,10 @@ class TestWebhookNotifications:
             WebhookPayload,
             _post_webhook,
         )
-        config = WebhookConfig(url="https://example.com/hook", vault_address=VALID_ADDRESS)
+
+        config = WebhookConfig(
+            url="https://example.com/hook", vault_address=VALID_ADDRESS
+        )
         payload = WebhookPayload(
             event=WebhookEvent.HEALTH_CRITICAL,
             vault_address=VALID_ADDRESS,
@@ -3225,10 +3460,12 @@ class TestWebhookNotifications:
             timestamp=1_000_000,
         )
         calls: List[int] = []
+
         def flaky_urlopen(req, timeout=None):
             calls.append(1)
             if len(calls) < 3:
                 raise OSError("connection refused")
+
         with (
             patch("ward.webhooks.urlopen", flaky_urlopen),
             patch("asyncio.sleep", new_callable=AsyncMock),
@@ -3245,7 +3482,10 @@ class TestWebhookNotifications:
             WebhookPayload,
             _post_webhook,
         )
-        config = WebhookConfig(url="https://example.com/hook", vault_address=VALID_ADDRESS)
+
+        config = WebhookConfig(
+            url="https://example.com/hook", vault_address=VALID_ADDRESS
+        )
         payload = WebhookPayload(
             event=WebhookEvent.HEALTH_WARNING,
             vault_address=VALID_ADDRESS,
@@ -3253,9 +3493,11 @@ class TestWebhookNotifications:
             timestamp=1_000_000,
         )
         calls: List[int] = []
+
         def always_fail(req, timeout=None):
             calls.append(1)
             raise OSError("timeout")
+
         with (
             patch("ward.webhooks.urlopen", always_fail),
             patch("asyncio.sleep", new_callable=AsyncMock),
@@ -3275,6 +3517,7 @@ class TestWebhookNotifications:
             WebhookPayload,
             _post_webhook,
         )
+
         secret = "ward-test-secret"
         config = WebhookConfig(
             url="https://example.com/hook",
@@ -3288,23 +3531,29 @@ class TestWebhookNotifications:
             timestamp=1_000_000,
         )
         captured: dict = {}
+
         def capture_urlopen(req, timeout=None):
             captured["req"] = req
+
         with patch("ward.webhooks.urlopen", capture_urlopen):
             await _post_webhook(config, payload)
         req = captured["req"]
         sig_header = req.get_header("X-ward-signature")
         assert sig_header is not None
         # Recompute expected signature
-        body = _json.dumps({
-            "event": payload.event.value,
-            "vault_address": payload.vault_address,
-            "health_ratio": payload.health_ratio,
-            "timestamp": payload.timestamp,
-            "ward_signed": False,
-            "data": payload.data,
-        }).encode()
-        expected = f"sha256={_hmac.new(secret.encode(), body, _hashlib.sha256).hexdigest()}"
+        body = _json.dumps(
+            {
+                "event": payload.event.value,
+                "vault_address": payload.vault_address,
+                "health_ratio": payload.health_ratio,
+                "timestamp": payload.timestamp,
+                "ward_signed": False,
+                "data": payload.data,
+            }
+        ).encode()
+        expected = (
+            f"sha256={_hmac.new(secret.encode(), body, _hashlib.sha256).hexdigest()}"
+        )
         assert sig_header == expected
         # Invariant: ward_signed hardcoded False in body — never from payload attribute
         assert _json.loads(body)["ward_signed"] is False
@@ -3313,6 +3562,7 @@ class TestWebhookNotifications:
         """HMAC signature of tampered body does not match signature of original body."""
         import hashlib as _hashlib
         import hmac as _hmac
+
         secret = "ward-test-secret"
         body = b'{"event":"health.critical","ward_signed":false}'
         tampered = body[:-1] + bytes([body[-1] ^ 0xFF])
@@ -3326,6 +3576,7 @@ class TestWebhookNotifications:
         import json as _json
 
         from ward.webhooks import WebhookEvent, WebhookPayload
+
         for event in WebhookEvent:
             payload = WebhookPayload(
                 event=event,
@@ -3334,11 +3585,13 @@ class TestWebhookNotifications:
                 timestamp=1_000_000,
             )
             assert payload.ward_signed is False
-            body = _json.dumps({
-                "event": payload.event.value,
-                "ward_signed": payload.ward_signed,
-                "data": payload.data,
-            })
+            body = _json.dumps(
+                {
+                    "event": payload.event.value,
+                    "ward_signed": payload.ward_signed,
+                    "data": payload.data,
+                }
+            )
             parsed = _json.loads(body)
             assert parsed["ward_signed"] is False
             assert parsed["event"] == event.value
@@ -3348,20 +3601,24 @@ class TestWebhookNotifications:
 # TestApiKeyManagement — Week 2 Session 4
 # ===========================================================================
 
+
 class TestApiKeyManagement:
     """Tests for institution API key generation and management."""
 
     def setup_method(self):
         from ward.keys import clear_keys
+
         clear_keys()
 
     def test_generate_key_has_prefix(self):
         from ward.keys import generate_key
+
         key = generate_key("starter", "Test Institution")
         assert key.startswith("ward_")
 
     def test_generate_key_sufficient_entropy(self):
         from ward.keys import generate_key
+
         key1 = generate_key()
         key2 = generate_key()
         assert key1 != key2
@@ -3369,6 +3626,7 @@ class TestApiKeyManagement:
 
     async def test_register_and_verify_key(self):
         from ward.keys import generate_key, register_key, verify_key
+
         raw = generate_key("standard", "Test")
         await register_key(raw, "standard", "Test")
         record = await verify_key(raw)
@@ -3378,6 +3636,7 @@ class TestApiKeyManagement:
 
     async def test_raw_key_not_stored(self):
         from ward.keys import _key_store, generate_key, register_key
+
         raw = generate_key()
         await register_key(raw)
         # Raw key must not appear anywhere in the store
@@ -3387,6 +3646,7 @@ class TestApiKeyManagement:
 
     async def test_revoked_key_rejected(self):
         from ward.keys import generate_key, register_key, revoke_key, verify_key
+
         raw = generate_key()
         await register_key(raw)
         await revoke_key(raw)
@@ -3395,11 +3655,13 @@ class TestApiKeyManagement:
 
     async def test_invalid_key_rejected(self):
         from ward.keys import verify_key
+
         record = await verify_key("ward_notarealkey")
         assert record is None
 
     async def test_rotate_key_generates_new(self):
         from ward.keys import generate_key, register_key, rotate_key
+
         raw = generate_key("enterprise", "BigBank")
         await register_key(raw, "enterprise", "BigBank")
         new_raw, new_record = await rotate_key(raw)
@@ -3410,6 +3672,7 @@ class TestApiKeyManagement:
 
     async def test_expired_key_rejected(self):
         from ward.keys import generate_key, register_key, verify_key
+
         raw = generate_key()
         await register_key(raw, expires_at=1)  # expired in 1970
         record = await verify_key(raw)
@@ -3417,11 +3680,13 @@ class TestApiKeyManagement:
 
     def test_invalid_tier_rejected(self):
         from ward.keys import generate_key
+
         with pytest.raises(ValueError, match="Invalid tier"):
             generate_key("platinum")
 
     def test_ward_signed_false_implied(self):
         from ward.keys import generate_key
+
         raw = generate_key()
         # Keys themselves don't carry ward_signed — it's in API responses
         assert raw.startswith("ward_")
@@ -3432,11 +3697,13 @@ class TestApiKeyManagement:
 # TestOnChainCoverageRegistry — Week 2 Session 6
 # ===========================================================================
 
+
 class TestOnChainCoverageRegistry:
     """Tests for on-chain coverage registry via memo-encoded payments."""
 
     def test_build_premium_memo_structure(self):
         from ward.coverage import build_premium_memo
+
         nft_id = "A" * 64
         memo = build_premium_memo(nft_id, 1_000_000)
         assert "Memo" in memo
@@ -3444,14 +3711,17 @@ class TestOnChainCoverageRegistry:
         assert "MemoData" in memo["Memo"]
         # MemoType must be hex of ward/policy-premium
         import codecs
+
         decoded_type = codecs.decode(memo["Memo"]["MemoType"], "hex").decode()
         assert decoded_type == "ward/policy-premium"
 
     def test_build_premium_memo_data_format(self):
         from ward.coverage import build_premium_memo
+
         nft_id = "B" * 64
         memo = build_premium_memo(nft_id, 5_000_000)
         import codecs
+
         decoded_data = codecs.decode(memo["Memo"]["MemoData"], "hex").decode()
         assert ":" in decoded_data
         parts = decoded_data.split(":", 1)
@@ -3460,6 +3730,7 @@ class TestOnChainCoverageRegistry:
 
     def test_extract_coverage_from_valid_tx(self):
         from ward.coverage import _extract_coverage_from_tx, build_premium_memo
+
         nft_id = "C" * 64
         memo = build_premium_memo(nft_id, 2_000_000)
         tx = {
@@ -3473,12 +3744,14 @@ class TestOnChainCoverageRegistry:
 
     def test_extract_ignores_non_payment(self):
         from ward.coverage import _extract_coverage_from_tx
+
         tx = {"TransactionType": "NFTokenMint", "Memos": []}
         result = _extract_coverage_from_tx(tx)
         assert result is None
 
     def test_extract_ignores_wrong_memo_type(self):
         from ward.coverage import _extract_coverage_from_tx
+
         memo = {
             "Memo": {
                 "MemoType": "736f6d657468696e67656c7365",  # "somethingelse"
@@ -3491,6 +3764,7 @@ class TestOnChainCoverageRegistry:
 
     def test_extract_ignores_malformed_memo_data(self):
         from ward.coverage import WARD_PREMIUM_MEMO_TYPE_HEX, _extract_coverage_from_tx
+
         memo = {
             "Memo": {
                 "MemoType": WARD_PREMIUM_MEMO_TYPE_HEX,
@@ -3503,11 +3777,13 @@ class TestOnChainCoverageRegistry:
 
     def test_decode_memo_field_handles_empty(self):
         from ward.coverage import _decode_memo_field
+
         assert _decode_memo_field("") == ""
         assert _decode_memo_field(None) == ""
 
     def test_decode_memo_field_valid_hex(self):
         from ward.coverage import _decode_memo_field
+
         hex_val = "ward/policy-premium".encode().hex()
         assert _decode_memo_field(hex_val) == "ward/policy-premium"
 
@@ -3528,9 +3804,9 @@ def _make_ws_client(request_fn):
 
 class TestChainReaderGetAccountBalance:
     async def test_returns_account_balance(self):
-        resp = _make_success_response({
-            "account_data": {"Balance": "5000000", "Sequence": 7}
-        })
+        resp = _make_success_response(
+            {"account_data": {"Balance": "5000000", "Sequence": 7}}
+        )
         client = _make_ws_client(AsyncMock(return_value=resp))
         reader = ChainReader(client)
         bal = await reader.get_account_balance(VALID_ADDRESS)
@@ -3540,18 +3816,16 @@ class TestChainReaderGetAccountBalance:
         assert bal.address == VALID_ADDRESS
 
     async def test_balance_xrp_property(self):
-        resp = _make_success_response({
-            "account_data": {"Balance": "2000000", "Sequence": 1}
-        })
+        resp = _make_success_response(
+            {"account_data": {"Balance": "2000000", "Sequence": 1}}
+        )
         client = _make_ws_client(AsyncMock(return_value=resp))
         reader = ChainReader(client)
         bal = await reader.get_account_balance(VALID_ADDRESS)
         assert bal.balance_xrp == pytest.approx(2.0)
 
     async def test_missing_sequence_defaults_to_zero(self):
-        resp = _make_success_response({
-            "account_data": {"Balance": "1000000"}
-        })
+        resp = _make_success_response({"account_data": {"Balance": "1000000"}})
         client = _make_ws_client(AsyncMock(return_value=resp))
         reader = ChainReader(client)
         bal = await reader.get_account_balance(VALID_ADDRESS)
@@ -3567,9 +3841,9 @@ class TestChainReaderGetAccountBalance:
 
 class TestChainReaderVerifyAccountExists:
     async def test_returns_true_for_funded_account(self):
-        resp = _make_success_response({
-            "account_data": {"Balance": "10000000", "Sequence": 1}
-        })
+        resp = _make_success_response(
+            {"account_data": {"Balance": "10000000", "Sequence": 1}}
+        )
         client = _make_ws_client(AsyncMock(return_value=resp))
         reader = ChainReader(client)
         assert await reader.verify_account_exists(VALID_ADDRESS) is True
@@ -3634,12 +3908,12 @@ class TestChainReaderGetEscrows:
         raw = [
             {
                 "LedgerEntryType": "Escrow",
-                "Sequence":    10,
-                "Amount":      "500000",
+                "Sequence": 10,
+                "Amount": "500000",
                 "Destination": VALID_ADDRESS2,
                 "FinishAfter": 12345,
                 "CancelAfter": 99999,
-                "Account":     VALID_ADDRESS,
+                "Account": VALID_ADDRESS,
             }
         ]
         resp = _make_success_response({"account_objects": raw})
@@ -3659,10 +3933,10 @@ class TestChainReaderGetEscrows:
             {"LedgerEntryType": "NFTokenPage"},
             {
                 "LedgerEntryType": "Escrow",
-                "Sequence":    1,
-                "Amount":      "1000",
+                "Sequence": 1,
+                "Amount": "1000",
                 "Destination": VALID_ADDRESS2,
-                "Account":     VALID_ADDRESS,
+                "Account": VALID_ADDRESS,
             },
         ]
         resp = _make_success_response({"account_objects": raw})
@@ -3824,7 +4098,7 @@ class TestWardMonitorPollLoop:
         async def fake_fetch(addr):
             nonlocal call_count
             call_count += 1
-            m.stop()   # stop after first fetch
+            m.stop()  # stop after first fetch
             return 1_000_000
 
         m._fetch_balance = fake_fetch
@@ -3954,9 +4228,7 @@ class TestWardMonitorFetchBalance:
                 xrpl_url="wss://xrplcluster.com",
             )
 
-        mock_resp = _make_success_response(
-            {"account_data": {"Balance": "7000000"}}
-        )
+        mock_resp = _make_success_response({"account_data": {"Balance": "7000000"}})
         mock_client = AsyncMock()
         mock_client.request = AsyncMock(return_value=mock_resp)
 
@@ -4006,7 +4278,9 @@ class TestTxBuilderPayment:
         assert tx.amount == "1000000"
 
     def test_payment_with_destination_tag(self):
-        tx = TxBuilder.payment(VALID_ADDRESS, VALID_ADDRESS2, 500_000, destination_tag=42)
+        tx = TxBuilder.payment(
+            VALID_ADDRESS, VALID_ADDRESS2, 500_000, destination_tag=42
+        )
         assert tx.destination_tag == 42
 
     def test_payment_without_destination_tag(self):
@@ -4061,6 +4335,7 @@ class TestTxBuilderEscrowCreate:
         finish = now + timedelta(hours=48)
         tx = TxBuilder.escrow_create(self._params(finish_after=finish))
         from xrpl.utils import datetime_to_ripple_time
+
         expected_cancel = datetime_to_ripple_time(finish + timedelta(hours=72))
         assert tx.cancel_after == expected_cancel
 
@@ -4068,13 +4343,17 @@ class TestTxBuilderEscrowCreate:
         now = datetime.now(timezone.utc).replace(tzinfo=None)
         finish = now + timedelta(hours=48)
         cancel = now + timedelta(hours=200)
-        tx = TxBuilder.escrow_create(self._params(finish_after=finish, cancel_after=cancel))
+        tx = TxBuilder.escrow_create(
+            self._params(finish_after=finish, cancel_after=cancel)
+        )
         from xrpl.utils import datetime_to_ripple_time
+
         assert tx.cancel_after == datetime_to_ripple_time(cancel)
 
     def test_memos_included_when_provided(self):
         from xrpl.models import Memo
         from xrpl.utils import str_to_hex
+
         memos = [Memo(memo_type=str_to_hex("ward/test"), memo_data=str_to_hex("data"))]
         tx = TxBuilder.escrow_create(self._params(memos=memos))
         assert tx.memos is not None
@@ -4107,22 +4386,34 @@ class TestTxBuilderClaimEscrow:
 
     def test_custom_dispute_window(self):
         tx1 = TxBuilder.claim_escrow(
-            VALID_ADDRESS, VALID_ADDRESS2, 100, claim_id="C1",
+            VALID_ADDRESS,
+            VALID_ADDRESS2,
+            100,
+            claim_id="C1",
             dispute_window_hours=24,
         )
         tx2 = TxBuilder.claim_escrow(
-            VALID_ADDRESS, VALID_ADDRESS2, 100, claim_id="C2",
+            VALID_ADDRESS,
+            VALID_ADDRESS2,
+            100,
+            claim_id="C2",
             dispute_window_hours=48,
         )
         assert tx1.finish_after < tx2.finish_after
 
     def test_custom_cancel_buffer(self):
         tx1 = TxBuilder.claim_escrow(
-            VALID_ADDRESS, VALID_ADDRESS2, 100, claim_id="C3",
+            VALID_ADDRESS,
+            VALID_ADDRESS2,
+            100,
+            claim_id="C3",
             cancel_buffer_hours=24,
         )
         tx2 = TxBuilder.claim_escrow(
-            VALID_ADDRESS, VALID_ADDRESS2, 100, claim_id="C4",
+            VALID_ADDRESS,
+            VALID_ADDRESS2,
+            100,
+            claim_id="C4",
             cancel_buffer_hours=96,
         )
         assert tx1.cancel_after < tx2.cancel_after
@@ -4147,7 +4438,7 @@ from ward.vault_monitor import (
     VerifiedDefault,
 )
 
-ALLOWED_WS = DEFAULT_TESTNET_WS   # "wss://s.altnet.rippletest.net:51233/"
+ALLOWED_WS = DEFAULT_TESTNET_WS  # "wss://s.altnet.rippletest.net:51233/"
 
 
 def _make_vault_monitor(**kwargs):
@@ -4244,7 +4535,9 @@ class TestVaultMonitorHandleMessage:
         handled = []
         m._handle_transaction = AsyncMock(side_effect=lambda c, m: handled.append(m))
         processed = []
-        m._process_pending_confirmations = AsyncMock(side_effect=lambda c, l: processed.append(l))
+        m._process_pending_confirmations = AsyncMock(
+            side_effect=lambda c, l: processed.append(l)
+        )
         client = AsyncMock()
         await m._handle_message(client, {"type": "response"})
         assert handled == []
@@ -4461,13 +4754,15 @@ class TestVaultMonitorVerifyDefaultOnChain:
             ledger_index=200,
             confirm_count=3,
         )
-        resp = _make_success_response({
-            "node": {
-                "Flags": LSF_LOAN_DEFAULT,
-                "PrincipalOutstanding": 800_000,
-                "CollateralAmount": 640_000,
+        resp = _make_success_response(
+            {
+                "node": {
+                    "Flags": LSF_LOAN_DEFAULT,
+                    "PrincipalOutstanding": 800_000,
+                    "CollateralAmount": 640_000,
+                }
             }
-        })
+        )
         client = AsyncMock()
         client.request = AsyncMock(return_value=resp)
         result = await m._verify_default_on_chain(client, signal)
@@ -4543,6 +4838,7 @@ class TestVaultMonitorRunWithHeartbeat:
 
     def _make_ws_client_from_messages(self, messages):
         """Return a mock WS client whose __aiter__ yields messages then stops."""
+
         async def _gen():
             for msg in messages:
                 yield msg
@@ -4559,10 +4855,12 @@ class TestVaultMonitorRunWithHeartbeat:
             handled.append(msg)
 
         m._handle_message = fake_handle
-        client = self._make_ws_client_from_messages([
-            {"ledger_index": 100},
-            {"ledger_index": 101},
-        ])
+        client = self._make_ws_client_from_messages(
+            [
+                {"ledger_index": 100},
+                {"ledger_index": 101},
+            ]
+        )
         await m._run_with_heartbeat(client)
         assert len(handled) == 2
 
@@ -4703,7 +5001,9 @@ class TestMultiVaultPolicies:
                 "ward.client.build_unsigned_tx",
                 AsyncMock(return_value=MagicMock(tx_dict={})),
             ),
-            patch("ward.client.get_ledger_close_time", AsyncMock(return_value=800_000_000)),
+            patch(
+                "ward.client.get_ledger_close_time", AsyncMock(return_value=800_000_000)
+            ),
         ):
             results = await self.client.purchase_multi_vault_coverage(
                 institution_address=VALID_ADDRESS,
@@ -4729,7 +5029,7 @@ class TestMultiVaultPolicies:
         """purchase_multi_vault_coverage raises ValidationError on duplicate vault addresses."""
         with pytest.raises(ValidationError, match="duplicate"):
             await self.client.purchase_multi_vault_coverage(
-                institution_address=VALID_ADDRESS, #),
+                institution_address=VALID_ADDRESS,  # ),
                 vault_addresses=[VALID_ADDRESS, VALID_ADDRESS],
                 coverage_drops=1_000_000,
                 period_days=30,
@@ -4744,7 +5044,7 @@ class TestMultiVaultPolicies:
         vaults = [_Wallet.create().classic_address for _ in range(11)]
         with pytest.raises(ValidationError, match="10"):
             await self.client.purchase_multi_vault_coverage(
-                institution_address=VALID_ADDRESS, #),
+                institution_address=VALID_ADDRESS,  # ),
                 vault_addresses=vaults,
                 coverage_drops=1_000_000,
                 period_days=30,
@@ -4775,7 +5075,10 @@ class TestMultiVaultPolicies:
 
         assert not result.approved
         assert result.steps_passed == 2  # passes steps 1-2, rejected at step 3
-        assert "vault" in result.rejection_reason.lower() or "mismatch" in result.rejection_reason.lower()
+        assert (
+            "vault" in result.rejection_reason.lower()
+            or "mismatch" in result.rejection_reason.lower()
+        )
 
     def test_multi_vault_coverage_tracked_per_vault(self):
         """PoolHealthMonitor._vault_coverage tracks coverage per depositor+vault pair."""
@@ -4786,8 +5089,12 @@ class TestMultiVaultPolicies:
         vault_a = VALID_ADDRESS
         vault_b = _Wallet.create().classic_address
 
-        monitor.register_policy("A" * 64, 1_000_000, depositor_address=depositor, vault_address=vault_a)
-        monitor.register_policy("B" * 64, 2_000_000, depositor_address=depositor, vault_address=vault_b)
+        monitor.register_policy(
+            "A" * 64, 1_000_000, depositor_address=depositor, vault_address=vault_a
+        )
+        monitor.register_policy(
+            "B" * 64, 2_000_000, depositor_address=depositor, vault_address=vault_b
+        )
 
         assert monitor._vault_coverage[depositor][vault_a] == 1_000_000
         assert monitor._vault_coverage[depositor][vault_b] == 2_000_000
@@ -4796,12 +5103,16 @@ class TestMultiVaultPolicies:
         assert monitor._coverage_registry["B" * 64] == 2_000_000
 
         # Deregister vault_a — vault_b entry must survive
-        monitor.deregister_policy("A" * 64, depositor_address=depositor, vault_address=vault_a)
+        monitor.deregister_policy(
+            "A" * 64, depositor_address=depositor, vault_address=vault_a
+        )
         assert vault_a not in monitor._vault_coverage.get(depositor, {})
         assert monitor._vault_coverage[depositor][vault_b] == 2_000_000
 
         # Deregister vault_b — depositor entry cleaned up entirely
-        monitor.deregister_policy("B" * 64, depositor_address=depositor, vault_address=vault_b)
+        monitor.deregister_policy(
+            "B" * 64, depositor_address=depositor, vault_address=vault_b
+        )
         assert depositor not in monitor._vault_coverage
 
 
@@ -4854,7 +5165,7 @@ class TestMultiInstitutionPool:
 
     def test_pro_rata_loss_distribution(self):
         """Loss is distributed in proportion to each member's contribution."""
-        self.pool.register_member(VALID_ADDRESS, 6_000_000)   # 60 %
+        self.pool.register_member(VALID_ADDRESS, 6_000_000)  # 60 %
         self.pool.register_member(VALID_ADDRESS2, 4_000_000)  # 40 %
         claim = 1_000_000
         losses = self.pool.distribute_loss(claim)
@@ -4881,7 +5192,7 @@ class TestMultiInstitutionPool:
 
     def test_admin_can_remove_member(self):
         """Admin (first registrant) removes members; non-admin is rejected."""
-        self.pool.register_member(VALID_ADDRESS, 5_000_000)   # becomes admin
+        self.pool.register_member(VALID_ADDRESS, 5_000_000)  # becomes admin
         self.pool.register_member(VALID_ADDRESS2, 3_000_000)
 
         # Non-admin attempt raises
@@ -4951,6 +5262,7 @@ class TestUnsignedTransaction:
 
     def test_ward_signed_not_an_init_parameter(self):
         import dataclasses
+
         field_names = {f.name for f in dataclasses.fields(UnsignedTransaction)}
         init_fields = {
             f.name for f in dataclasses.fields(UnsignedTransaction) if f.init
@@ -5131,9 +5443,7 @@ class TestWormholeNTTAdapter:
         """NTTTransferPayload.ward_signed is init=False — cannot be overridden."""
         import dataclasses
 
-        init_fields = {
-            f.name for f in dataclasses.fields(NTTTransferPayload) if f.init
-        }
+        init_fields = {f.name for f in dataclasses.fields(NTTTransferPayload) if f.init}
         assert "ward_signed" not in init_fields
 
     # -- successful resolution path ------------------------------------------
@@ -5262,7 +5572,10 @@ class TestFlareAdapter:
     def test_flare_payload_ward_signed_not_init_param(self):
         """FlareResolutionPayload.ward_signed is init=False — cannot be overridden."""
         import dataclasses
-        init_fields = {f.name for f in dataclasses.fields(FlareResolutionPayload) if f.init}
+
+        init_fields = {
+            f.name for f in dataclasses.fields(FlareResolutionPayload) if f.init
+        }
         assert "ward_signed" not in init_fields
 
     # -- successful resolution path ------------------------------------------
@@ -5387,6 +5700,7 @@ class TestAxelarAdapter:
     def test_axelar_payload_ward_signed_not_init_param(self):
         """AxelarGMPPayload.ward_signed is init=False — cannot be overridden."""
         import dataclasses
+
         init_fields = {f.name for f in dataclasses.fields(AxelarGMPPayload) if f.init}
         assert "ward_signed" not in init_fields
 
@@ -5519,7 +5833,10 @@ class TestSolanaAdapter:
     def test_solana_payload_ward_signed_not_init_param(self):
         """SolanaTransferPayload.ward_signed is init=False — cannot be overridden."""
         import dataclasses
-        init_fields = {f.name for f in dataclasses.fields(SolanaTransferPayload) if f.init}
+
+        init_fields = {
+            f.name for f in dataclasses.fields(SolanaTransferPayload) if f.init
+        }
         assert "ward_signed" not in init_fields
 
     # -- successful resolution path ------------------------------------------
@@ -5648,7 +5965,10 @@ class TestHederaAdapter:
     def test_hedera_payload_ward_signed_not_init_param(self):
         """HederaTransferPayload.ward_signed is init=False — cannot be overridden."""
         import dataclasses
-        init_fields = {f.name for f in dataclasses.fields(HederaTransferPayload) if f.init}
+
+        init_fields = {
+            f.name for f in dataclasses.fields(HederaTransferPayload) if f.init
+        }
         assert "ward_signed" not in init_fields
 
     # -- successful resolution path ------------------------------------------
@@ -5762,7 +6082,10 @@ class TestStellarAdapter:
     def test_stellar_payload_ward_signed_not_init_param(self):
         """StellarPaymentPayload.ward_signed is init=False — cannot be overridden."""
         import dataclasses
-        init_fields = {f.name for f in dataclasses.fields(StellarPaymentPayload) if f.init}
+
+        init_fields = {
+            f.name for f in dataclasses.fields(StellarPaymentPayload) if f.init
+        }
         assert "ward_signed" not in init_fields
 
     # -- successful resolution path ------------------------------------------
@@ -5892,7 +6215,10 @@ class TestXDCAdapter:
     def test_xdc_payload_ward_signed_not_init_param(self):
         """XDCResolutionPayload.ward_signed is init=False — cannot be overridden."""
         import dataclasses
-        init_fields = {f.name for f in dataclasses.fields(XDCResolutionPayload) if f.init}
+
+        init_fields = {
+            f.name for f in dataclasses.fields(XDCResolutionPayload) if f.init
+        }
         assert "ward_signed" not in init_fields
 
     # -- successful resolution path ------------------------------------------
@@ -5994,6 +6320,7 @@ class TestXDCAdapter:
 # Adversarial: XRPL Core
 # ---------------------------------------------------------------------------
 
+
 class TestAdversarialXRPLCore:
     """
     Adversarial edge cases for the XRPL nine-check validation core.
@@ -6002,6 +6329,7 @@ class TestAdversarialXRPLCore:
 
     def setup_method(self):
         from ward.primitives import _rate_limit_windows
+
         _rate_limit_windows.pop(VALID_NFT_ID, None)
 
     # -- Replay: burned NFT presented as valid ------------------------------
@@ -6121,7 +6449,7 @@ class TestAdversarialXRPLCore:
     async def test_adversarial_pool_below_coverage_ratio(self):
         """Pool below 1.5× coverage ratio is rejected."""
         validator = TestClaimValidatorAdversarial()._make_validator_with_mocks(
-            pool_balance_drops=50_000,   # well below 1.5× of vault_loss=100_000
+            pool_balance_drops=50_000,  # well below 1.5× of vault_loss=100_000
             vault_loss_drops=100_000,
         )
         result = await validator.validate_claim(
@@ -6138,6 +6466,7 @@ class TestAdversarialXRPLCore:
     def test_adversarial_rate_limit_exceeded(self):
         """4th claim attempt on same NFT within 300s is rejected."""
         from ward.primitives import _rate_limit_windows, check_rate_limit
+
         unique_nft = "ADVERSARIAL" + "A" * 53
         _rate_limit_windows.pop(unique_nft, None)
         for _ in range(CLAIM_RATE_LIMIT_MAX):
@@ -6148,6 +6477,7 @@ class TestAdversarialXRPLCore:
     def test_adversarial_rate_limit_ward_signed_not_affected(self):
         """Rate limit rejection does not produce any signed output."""
         from ward.primitives import _rate_limit_windows, check_rate_limit
+
         unique_nft = "WARDLIMIT" + "B" * 55
         _rate_limit_windows.pop(unique_nft, None)
         for _ in range(CLAIM_RATE_LIMIT_MAX):
@@ -6201,6 +6531,7 @@ class TestAdversarialXRPLCore:
 # ---------------------------------------------------------------------------
 # Adversarial: WormholeNTTAdapter
 # ---------------------------------------------------------------------------
+
 
 class TestAdversarialWormhole:
     """
@@ -6285,6 +6616,7 @@ class TestAdversarialWormhole:
 # Adversarial: FlareAdapter
 # ---------------------------------------------------------------------------
 
+
 class TestAdversarialFlare:
     """Adversarial edge cases for FlareAdapter. ward_signed=False throughout."""
 
@@ -6343,6 +6675,7 @@ class TestAdversarialFlare:
 # ---------------------------------------------------------------------------
 # Adversarial: SolanaAdapter
 # ---------------------------------------------------------------------------
+
 
 class TestAdversarialSolana:
     """Adversarial edge cases for SolanaAdapter. ward_signed=False throughout."""
@@ -6403,6 +6736,7 @@ class TestAdversarialSolana:
 # ---------------------------------------------------------------------------
 # Adversarial: HederaAdapter
 # ---------------------------------------------------------------------------
+
 
 class TestAdversarialHedera:
     """Adversarial edge cases for HederaAdapter. ward_signed=False throughout."""
@@ -6466,6 +6800,7 @@ class TestAdversarialHedera:
 # ---------------------------------------------------------------------------
 # Adversarial: StellarAdapter
 # ---------------------------------------------------------------------------
+
 
 class TestAdversarialStellar:
     """Adversarial edge cases for StellarAdapter. ward_signed=False throughout."""
@@ -6546,6 +6881,7 @@ class TestAdversarialStellar:
 # Adversarial: XDCAdapter
 # ---------------------------------------------------------------------------
 
+
 class TestAdversarialXDC:
     """Adversarial edge cases for XDCAdapter. ward_signed=False throughout."""
 
@@ -6618,6 +6954,7 @@ class TestAdversarialXDC:
 # Adversarial: AxelarAdapter
 # ---------------------------------------------------------------------------
 
+
 class TestAdversarialAxelar:
     """Adversarial edge cases for AxelarAdapter. ward_signed=False throughout."""
 
@@ -6682,6 +7019,7 @@ class TestAdversarialAxelar:
     async def test_adversarial_axelar_payload_immutable_ward_signed(self):
         """AxelarGMPPayload.ward_signed is field(init=False) — cannot be overridden."""
         import dataclasses
+
         payload = AxelarGMPPayload(
             source_chain="xrpl-evm",
             dest_chain="ethereum",
@@ -6702,6 +7040,7 @@ class TestAdversarialAxelar:
 # Adversarial: Cross-adapter — ward_signed invariant enforced everywhere
 # ---------------------------------------------------------------------------
 
+
 class TestAdversarialCoreInvariant:
     """
     Exhaustive ward_signed=False verification across all adapters and
@@ -6720,35 +7059,51 @@ class TestAdversarialCoreInvariant:
         wormhole = WormholeNTTAdapter()
 
         flare_tx = await flare.build_resolution_tx(
-            pool_address=VALID_ADDRESS, claimant_address=VALID_ADDRESS2,
+            pool_address=VALID_ADDRESS,
+            claimant_address=VALID_ADDRESS2,
             payout_amount=1_000_000,
         )
         axelar_tx = await axelar.build_resolution_tx(
-            pool_address=VALID_ADDRESS, claimant_address=VALID_ADDRESS2,
+            pool_address=VALID_ADDRESS,
+            claimant_address=VALID_ADDRESS2,
             payout_amount=1_000_000,
         )
         solana_tx = await solana.build_resolution_tx(
-            pool_token_account=SOL_ADDRESS, claimant_token_account=SOL_ADDRESS2,
-            authority_address=SOL_ADDRESS, payout_amount=1_000_000,
+            pool_token_account=SOL_ADDRESS,
+            claimant_token_account=SOL_ADDRESS2,
+            authority_address=SOL_ADDRESS,
+            payout_amount=1_000_000,
         )
         hedera_tx = await hedera.build_resolution_tx(
-            pool_address=HEDERA_ACCOUNT, claimant_address=HEDERA_ACCOUNT2,
+            pool_address=HEDERA_ACCOUNT,
+            claimant_address=HEDERA_ACCOUNT2,
             payout_amount=1_000_000,
         )
         stellar_tx = await stellar.build_resolution_tx(
-            pool_address=STELLAR_ACCOUNT, claimant_address=STELLAR_ACCOUNT2,
+            pool_address=STELLAR_ACCOUNT,
+            claimant_address=STELLAR_ACCOUNT2,
             payout_amount=1_000_000,
         )
         xdc_tx = await xdc.build_resolution_tx(
-            pool_address=XDC_ADDRESS, claimant_address=XDC_ADDRESS2,
+            pool_address=XDC_ADDRESS,
+            claimant_address=XDC_ADDRESS2,
             payout_amount=1_000_000,
         )
         wormhole_tx = await wormhole.build_resolution_tx(
-            pool_address=VALID_ADDRESS, claimant_address=VALID_ADDRESS2,
+            pool_address=VALID_ADDRESS,
+            claimant_address=VALID_ADDRESS2,
             payout_drops=1_000_000,
         )
 
-        for tx in [flare_tx, axelar_tx, solana_tx, hedera_tx, stellar_tx, xdc_tx, wormhole_tx]:
+        for tx in [
+            flare_tx,
+            axelar_tx,
+            solana_tx,
+            hedera_tx,
+            stellar_tx,
+            xdc_tx,
+            wormhole_tx,
+        ]:
             assert tx.ward_signed is False, f"ward_signed=True on {tx.tx_type}"
 
     @pytest.mark.asyncio
@@ -6763,17 +7118,76 @@ class TestAdversarialCoreInvariant:
         wormhole = WormholeNTTAdapter()
 
         results = []
-        results.append((await flare.build_resolution_tx(pool_address=VALID_ADDRESS, claimant_address=VALID_ADDRESS2, payout_amount=1)).send_max)
-        results.append((await axelar.build_resolution_tx(pool_address=VALID_ADDRESS, claimant_address=VALID_ADDRESS2, payout_amount=1)).send_max)
-        results.append((await solana.build_resolution_tx(pool_token_account=SOL_ADDRESS, claimant_token_account=SOL_ADDRESS2, authority_address=SOL_ADDRESS, payout_amount=1)).send_max)
-        results.append((await hedera.build_resolution_tx(pool_address=HEDERA_ACCOUNT, claimant_address=HEDERA_ACCOUNT2, payout_amount=1)).send_max)
-        results.append((await stellar.build_resolution_tx(pool_address=STELLAR_ACCOUNT, claimant_address=STELLAR_ACCOUNT2, payout_amount=1)).send_max)
-        results.append((await xdc.build_resolution_tx(pool_address=XDC_ADDRESS, claimant_address=XDC_ADDRESS2, payout_amount=1)).send_max)
-        results.append((await wormhole.build_resolution_tx(pool_address=VALID_ADDRESS, claimant_address=VALID_ADDRESS2, payout_drops=1)).send_max)
+        results.append(
+            (
+                await flare.build_resolution_tx(
+                    pool_address=VALID_ADDRESS,
+                    claimant_address=VALID_ADDRESS2,
+                    payout_amount=1,
+                )
+            ).send_max
+        )
+        results.append(
+            (
+                await axelar.build_resolution_tx(
+                    pool_address=VALID_ADDRESS,
+                    claimant_address=VALID_ADDRESS2,
+                    payout_amount=1,
+                )
+            ).send_max
+        )
+        results.append(
+            (
+                await solana.build_resolution_tx(
+                    pool_token_account=SOL_ADDRESS,
+                    claimant_token_account=SOL_ADDRESS2,
+                    authority_address=SOL_ADDRESS,
+                    payout_amount=1,
+                )
+            ).send_max
+        )
+        results.append(
+            (
+                await hedera.build_resolution_tx(
+                    pool_address=HEDERA_ACCOUNT,
+                    claimant_address=HEDERA_ACCOUNT2,
+                    payout_amount=1,
+                )
+            ).send_max
+        )
+        results.append(
+            (
+                await stellar.build_resolution_tx(
+                    pool_address=STELLAR_ACCOUNT,
+                    claimant_address=STELLAR_ACCOUNT2,
+                    payout_amount=1,
+                )
+            ).send_max
+        )
+        results.append(
+            (
+                await xdc.build_resolution_tx(
+                    pool_address=XDC_ADDRESS,
+                    claimant_address=XDC_ADDRESS2,
+                    payout_amount=1,
+                )
+            ).send_max
+        )
+        results.append(
+            (
+                await wormhole.build_resolution_tx(
+                    pool_address=VALID_ADDRESS,
+                    claimant_address=VALID_ADDRESS2,
+                    payout_drops=1,
+                )
+            ).send_max
+        )
 
         for payload in results:
             assert payload is not None
-            assert payload["ward_signed"] is False, f"ward_signed=True in payload: {payload}"
+            assert payload["ward_signed"] is False, (
+                f"ward_signed=True in payload: {payload}"
+            )
 
     @pytest.mark.asyncio
     async def test_invariant_all_adapters_escrow_create_ward_signed_false(self):
@@ -6789,19 +7203,39 @@ class TestAdversarialCoreInvariant:
         ]
         for adapter in adapters:
             # Use appropriate address format per adapter
-            pool = HEDERA_ACCOUNT if isinstance(adapter, HederaAdapter) else (STELLAR_ACCOUNT if isinstance(adapter, StellarAdapter) else VALID_ADDRESS)
-            claimant = HEDERA_ACCOUNT2 if isinstance(adapter, HederaAdapter) else (STELLAR_ACCOUNT2 if isinstance(adapter, StellarAdapter) else VALID_ADDRESS2)
+            pool = (
+                HEDERA_ACCOUNT
+                if isinstance(adapter, HederaAdapter)
+                else (
+                    STELLAR_ACCOUNT
+                    if isinstance(adapter, StellarAdapter)
+                    else VALID_ADDRESS
+                )
+            )
+            claimant = (
+                HEDERA_ACCOUNT2
+                if isinstance(adapter, HederaAdapter)
+                else (
+                    STELLAR_ACCOUNT2
+                    if isinstance(adapter, StellarAdapter)
+                    else VALID_ADDRESS2
+                )
+            )
             tx = await adapter.build_unsigned_escrow_create(
                 pool_address=pool,
                 claimant_address=claimant,
                 amount=1_000_000,
                 condition_hex="ABCD1234",
             )
-            assert tx["ward_signed"] is False, f"ward_signed=True on {type(adapter).__name__}"
+            assert tx["ward_signed"] is False, (
+                f"ward_signed=True on {type(adapter).__name__}"
+            )
+
 
 # ===========================================================================
 # Tests: Network configuration guard (B1 — WARD_XRPL_URL / WARD_NETWORK)
 # ===========================================================================
+
 
 class TestNetworkConfig:
     """
@@ -6820,6 +7254,7 @@ class TestNetworkConfig:
         monkeypatch.delenv("WARD_NETWORK", raising=False)
         from ward import ConfigurationError
         from ward.validator import ClaimValidator
+
         with pytest.raises(ConfigurationError, match="WARD_XRPL_URL"):
             ClaimValidator()
 
@@ -6828,6 +7263,7 @@ class TestNetworkConfig:
         monkeypatch.delenv("WARD_NETWORK", raising=False)
         from ward import ConfigurationError
         from ward.client import WardClient
+
         with pytest.raises(ConfigurationError, match="WARD_XRPL_URL"):
             WardClient()
 
@@ -6836,6 +7272,7 @@ class TestNetworkConfig:
         monkeypatch.delenv("WARD_NETWORK", raising=False)
         from ward import ConfigurationError
         from ward.resolver import Resolver
+
         with pytest.raises(ConfigurationError, match="WARD_XRPL_URL"):
             Resolver()
 
@@ -6844,6 +7281,7 @@ class TestNetworkConfig:
         monkeypatch.delenv("WARD_NETWORK", raising=False)
         from ward import ConfigurationError
         from ward.settlement import EscrowSettlement
+
         with pytest.raises(ConfigurationError, match="WARD_XRPL_URL"):
             EscrowSettlement()
 
@@ -6852,6 +7290,7 @@ class TestNetworkConfig:
         monkeypatch.delenv("WARD_NETWORK", raising=False)
         from ward import ConfigurationError
         from ward.pool import PoolHealthMonitor
+
         with pytest.raises(ConfigurationError, match="WARD_XRPL_URL"):
             PoolHealthMonitor(pool_address=VALID_ADDRESS)
 
@@ -6860,6 +7299,7 @@ class TestNetworkConfig:
         monkeypatch.delenv("WARD_NETWORK", raising=False)
         from ward import ConfigurationError
         from ward.vault_monitor import VaultMonitor
+
         with pytest.raises(ConfigurationError, match="WARD_XRPL_WS"):
             VaultMonitor(vault_addresses=[VALID_ADDRESS])
 
@@ -6871,6 +7311,7 @@ class TestNetworkConfig:
         monkeypatch.setenv("WARD_NETWORK", "mainnet")
         from ward import ConfigurationError
         from ward.validator import ClaimValidator
+
         with pytest.raises(ConfigurationError, match="mainnet"):
             ClaimValidator()
 
@@ -6880,6 +7321,7 @@ class TestNetworkConfig:
         monkeypatch.setenv("WARD_NETWORK", "testnet")
         from ward import ConfigurationError
         from ward.validator import ClaimValidator
+
         with pytest.raises(ConfigurationError, match="testnet"):
             ClaimValidator()
 
@@ -6888,6 +7330,7 @@ class TestNetworkConfig:
         monkeypatch.setenv("WARD_NETWORK", "testnet")
         from ward import ConfigurationError
         from ward.validator import ClaimValidator
+
         with pytest.raises(ConfigurationError, match="testnet"):
             ClaimValidator(url="https://xrplcluster.com/")
 
@@ -6897,6 +7340,7 @@ class TestNetworkConfig:
         monkeypatch.setenv("WARD_NETWORK", "staging")
         from ward import ConfigurationError
         from ward.validator import ClaimValidator
+
         with pytest.raises(ConfigurationError, match="invalid"):
             ClaimValidator()
 
@@ -6907,6 +7351,7 @@ class TestNetworkConfig:
         monkeypatch.setenv("WARD_XRPL_URL", "https://xrplcluster.com/")
         monkeypatch.setenv("WARD_NETWORK", "mainnet")
         from ward.validator import ClaimValidator
+
         v = ClaimValidator()
         assert v._url == "https://xrplcluster.com/"
 
@@ -6915,6 +7360,7 @@ class TestNetworkConfig:
         monkeypatch.setenv("WARD_XRPL_URL", "https://s.altnet.rippletest.net:51234/")
         monkeypatch.delenv("WARD_NETWORK", raising=False)
         from ward.validator import ClaimValidator
+
         v = ClaimValidator()
         assert "altnet" in v._url
 
@@ -6924,6 +7370,7 @@ class TestNetworkConfig:
         monkeypatch.delenv("WARD_NETWORK", raising=False)
         from ward import ConfigurationError
         from ward.validator import ClaimValidator
+
         with pytest.raises(ConfigurationError) as exc_info:
             ClaimValidator()
         msg = str(exc_info.value)
