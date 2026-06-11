@@ -107,6 +107,13 @@ export default function AssurancePage() {
       {/* Hero */}
       <section className="relative overflow-hidden">
         <div className="site-container pb-24 pt-24 lg:pt-28">
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full border px-3 py-1.5"
+            style={{ borderColor: 'rgba(22,163,74,0.3)', background: 'rgba(22,163,74,0.06)' }}>
+            <span className="inline-block h-1.5 w-1.5 rounded-full bg-[#16a34a]" />
+            <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#16a34a]">
+              Last scanned: June 11, 2026
+            </span>
+          </div>
           <div className="grid gap-14 lg:grid-cols-[1fr_0.9fr] lg:items-center">
             <div className="max-w-4xl">
               <p className="site-label">High-Assurance Infrastructure</p>
@@ -119,7 +126,7 @@ export default function AssurancePage() {
               </p>
 
               <div className="mt-8 flex flex-wrap gap-3">
-                {['537 tests', '92% coverage on critical paths', 'TLA+ model checked', 'ward_signed = False — always'].map(
+                {['634 tests', '92% coverage on critical paths', 'TLA+ model checked', 'ward_signed = False — always'].map(
                   (item) => (
                     <span
                       key={item}
@@ -408,6 +415,55 @@ Ward must not:  sign transactions
                   <h3 className="text-[15px] font-semibold text-[#0f2439]">{item.label}</h3>
                   <p className="mt-3 text-[14px] leading-[1.75] text-[#5a7a99]">{item.body}</p>
                 </article>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Security Report */}
+      <section className="site-section">
+        <div className="site-container py-20">
+          <div className="grid gap-14 lg:grid-cols-[1fr_1fr] lg:items-start">
+            <div>
+              <p className="site-label">Security Report · June 2026</p>
+              <h2 className="mt-5 text-[32px] font-semibold leading-tight tracking-[-0.02em] text-[#0f2439]">
+                Aikido Security rescan — 18 findings resolved.
+              </h2>
+              <p className="mt-5 text-[15px] leading-[1.75] text-[#5a7a99]">
+                An automated SAST/SCA scan was completed June 11, 2026. All critical and high-severity findings were
+                remediated in-sprint. The full report is available for download.
+              </p>
+              <div className="mt-8 flex flex-wrap gap-3">
+                <a
+                  href="/reports/Ward_Protocol_Security_Report_June2026.pdf"
+                  download
+                  className="inline-flex items-center gap-2 rounded-lg bg-[#0f2439] px-6 py-3 text-[15px] font-semibold text-white transition hover:bg-[#0d1f32]"
+                >
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path d="M8 1v9m0 0L5 7m3 3l3-3M2 12v1a1 1 0 001 1h10a1 1 0 001-1v-1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  Download Security Report PDF
+                </a>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              {[
+                { value: '634', label: 'Total tests passing', sub: 'Python · Rust · TypeScript' },
+                { value: '18', label: 'SAST/SCA findings', sub: 'All resolved or accepted' },
+                { value: '0', label: 'Open CVEs', sub: 'As of June 11, 2026' },
+                { value: 'Clean', label: 'Git history', sub: 'Scrubbed June 11, 2026' },
+              ].map(({ value, label, sub }) => (
+                <div
+                  key={label}
+                  className="rounded-xl border bg-white p-5 shadow-[0_1px_3px_rgba(15,36,57,0.08)]"
+                  style={{ borderColor: 'rgba(167,197,229,0.4)' }}
+                >
+                  <p className="font-mono text-[26px] font-bold leading-none text-[#b8973a]">{value}</p>
+                  <p className="mt-2 text-[13px] font-semibold leading-snug text-[#0f2439]">{label}</p>
+                  <p className="mt-1 font-mono text-[11px] text-[#a7c5e5]">{sub}</p>
+                </div>
               ))}
             </div>
           </div>
