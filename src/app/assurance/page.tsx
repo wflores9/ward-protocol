@@ -52,8 +52,8 @@ const FORMAL_ARTIFACTS = [
     id: 'invariants-md',
     file: 'INVARIANTS.md',
     label: 'Protocol invariants register',
-    invariants: 'INV-001 – INV-026',
-    body: '26 hard invariants covering signer boundary, ledger authority, nine-check conformance, settlement, routing, and API surface. Human-readable source of truth.',
+    invariants: 'INV-001 – INV-032',
+    body: '32 hard invariants covering signer boundary, ledger authority, nine-check conformance, settlement, routing, and API surface. Human-readable source of truth.',
   },
   {
     id: 'high-assurance-md',
