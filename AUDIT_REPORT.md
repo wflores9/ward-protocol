@@ -175,3 +175,52 @@ File contains `3.13` (minor pin). This lets mise resolve the latest precompiled 
 | 42 unimplemented adapter methods | MEDIUM | Accepted — non-XRPL chains not in mainnet v1 scope |
 | Placeholder RLUSD addresses on non-XRPL chains | CRITICAL | Mitigated — `require_non_placeholder()` blocks deploy |
 | Transitive npm moderates (ws, uuid, jayson) | MODERATE | Accepted — devDep only or upstream unpatched |
+
+---
+
+## Git History Scrub
+
+**Date:** 2026-06-11  
+**Operator:** Claude Code  
+**Tool:** git-filter-repo 2.47.0  
+
+### Finding
+
+Commits `87b654b` (feat: Ward Protocol Python SDK v0.1.0) and `b878053`
+(chore: remove .venv from tracking, add to .gitignore) contained a
+committed `sdk/python/.venv/` Python virtual environment directory —
+2,241 files totalling hundreds of MB of blobs in the git object store.
+
+### Content Assessment
+
+All flagged files are **pycryptodome library self-test vectors** shipped
+inside the `.venv/lib/python3.12/site-packages/Crypto/SelfTest/` tree:
+
+- ECDH, HPKE, ECC, RSA key test fixtures (JSON/PEM)
+- PGP/OpenPGP test keys (non-real, library test vectors)
+- PKCS#1, KDF, signature test vectors
+- `Activate.ps1`, `activate`, `pip`, `fastapi`, `uvicorn` venv binaries
+
+**None of these are production secrets.** They are third-party library
+test fixtures that happen to look like key material to secret-scanning
+heuristics. They are not reachable at runtime by any Ward code path.
+
+`tests/conftest.py` was inspected and retained — it contains only XRPL
+test fixture addresses (`rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh`, etc.)
+and the `WARD_XRPL_URL`/`WARD_XRPL_WS`/`WARD_NETWORK` autouse monkeypatch
+for testnet. No real API keys.
+
+### Action Taken
+
+```
+pip install git-filter-repo --break-system-packages
+git filter-repo --path sdk/python/.venv --invert-paths --force
+git push origin main --force
+```
+
+- **399 commits rewritten.** All history before and after the .venv
+  window was preserved intact.
+- `git log --all --full-history -- "sdk/python/.venv/**"` → empty (verified).
+- `git ls-files sdk/python/.venv` → empty (verified, was already empty in HEAD).
+- Full test suite post-scrub: **559 Python / 22 Rust / 53 TypeScript — green.**
+- `.python-version` (3.13.13) untouched. `ward/` source files untouched.
