@@ -8,60 +8,53 @@
 
 ## Blocker Summary
 
-| # | Blocker | File(s) | Remediation |
-|---|---------|---------|-------------|
-| B1 | Testnet URL is the default for all five core modules | validator.py, resolver.py, settlement.py, pool.py, vault_monitor.py, client.py | Require `WARD_XRPL_URL` / `WARD_XRPL_WS` env vars; no hardcoded default |
-| B2 | Rate limiter is in-memory — bypassed across instances or restarts | primitives.py | Migrate to Redis-backed sliding window |
-| B3 | Settlement lock falls back to in-memory on Redis unavail | settlement.py | Make Redis mandatory in production; add `WARD_REQUIRE_REDIS=true` guard |
-| B4 | Coverage registry is per-instance in-memory | pool.py | Migrate to Redis-backed hash or deduplicate via claim validator gate |
+| # | Blocker | File(s) | Status |
+|---|---------|---------|--------|
+| B1 | Testnet URL was the default for all six core modules | validator.py, resolver.py, settlement.py, pool.py, vault_monitor.py, client.py | **CLOSED** — `ward/_network.py` + env guard (see below) |
+| B2 | Rate limiter is in-memory — bypassed across instances or restarts | primitives.py | **OPEN** — Migrate to Redis-backed sliding window |
+| B3 | Settlement lock falls back to in-memory on Redis unavail | settlement.py | **OPEN** — Make Redis mandatory in production |
+| B4 | Coverage registry is per-instance in-memory | pool.py | **OPEN** — Evaluate on-chain read vs Redis-backed registry |
 
 ---
 
-## B1 — Testnet URL Defaults
+## B1 — Testnet URL Defaults — CLOSED ✓
 
-### Current State
+### What Was Fixed
 
-Every public-facing constructor accepts a `url` parameter with a testnet default:
+New module `ward/_network.py` provides `get_xrpl_url()`, `get_xrpl_ws()`, and `validate_url_network_match()`. All six core constructors now default to `None` and call `get_xrpl_url()` / `get_xrpl_ws()` when no explicit URL is provided. `ConfigurationError` (new, subclass of `WardError`) is raised at construction time if:
 
-```python
-# ward/validator.py:72
-class ClaimValidator:
-    def __init__(self, url: str = DEFAULT_TESTNET_URL) -> None:
+1. `WARD_XRPL_URL` is not set (RPC modules).
+2. `WARD_XRPL_WS` is not set (VaultMonitor).
+3. `WARD_NETWORK` is set to `mainnet` or `testnet` and the URL resolves to the other network — mismatch is a hard failure regardless of whether the URL came from the env var or an explicit constructor argument.
 
-# ward/resolver.py:58
-class Resolver:
-    def __init__(self, url: str = DEFAULT_TESTNET_URL) -> None:
+```bash
+# Mainnet deployment
+export WARD_XRPL_URL=https://xrplcluster.com/
+export WARD_XRPL_WS=wss://xrplcluster.com/
+export WARD_NETWORK=mainnet
 
-# ward/settlement.py:102
-class EscrowSettlement:
-    def __init__(self, xrpl_url: str = DEFAULT_TESTNET_URL) -> None:
-
-# ward/pool.py:83
-class PoolHealthMonitor:
-    def __init__(self, url: str = DEFAULT_TESTNET_URL, ...) -> None:
-
-# ward/vault_monitor.py:102
-class VaultMonitor:
-    def __init__(self, ..., websocket_url: str = DEFAULT_TESTNET_WS, ...) -> None:
-
-# ward/client.py:71
-class WardClient:
-    def __init__(self, url: str = DEFAULT_TESTNET_URL) -> None:
+# Testnet / CI
+export WARD_XRPL_URL=https://s.altnet.rippletest.net:51234/
+export WARD_XRPL_WS=wss://s.altnet.rippletest.net:51233/
+export WARD_NETWORK=testnet
 ```
 
-Where `DEFAULT_TESTNET_URL = "https://s.altnet.rippletest.net:51234/"` (ward/constants.py:100).
+`DEFAULT_TESTNET_URL` / `DEFAULT_TESTNET_WS` constants are retained in `ward/constants.py` for use by starter scripts and integration tests — they are no longer used as constructor defaults.
 
-### Risk
+### Starter / Demo Files (Intentional Testnet Config)
 
-An operator who deploys without explicitly passing mainnet URLs will silently connect to Altnet. Claim validation will succeed against testnet-only ledger state. This is an undetectable misconfiguration that would appear to be working correctly.
+Files in `starter/python/`, `starter/typescript/`, and the dashboard demo intentionally target Altnet by passing explicit URLs. This is by design — they are learning examples, not production deployments. Each file uses `os.getenv("XRPL_JSON_RPC_URL", DEFAULT_TESTNET_URL)` so operators can override via env var.
 
-### Remediation
+### Test Coverage
 
-**Option A (recommended):** Add `WARD_XRPL_URL` / `WARD_XRPL_WS` environment variable reads with no fallback in production mode. Add `WARD_ENV=production` guard that raises `ConfigurationError` if env vars are absent.
-
-**Option B:** Remove testnet default from constructors — require explicit URL. All existing tests pass explicit URLs, so test coverage is unaffected.
-
-**Option C:** Add a deployment check script (`scripts/preflight_check.py`) that validates URLs point to mainnet before accepting traffic.
+13 new tests in `TestNetworkConfig` (`test_ward.py`) cover:
+- Missing `WARD_XRPL_URL` / `WARD_XRPL_WS` → `ConfigurationError` for all 6 classes
+- Testnet URL + `WARD_NETWORK=mainnet` → `ConfigurationError`
+- Mainnet URL + `WARD_NETWORK=testnet` → `ConfigurationError`
+- Explicit mainnet URL override while `WARD_NETWORK=testnet` → `ConfigurationError`
+- Invalid `WARD_NETWORK` value → `ConfigurationError`
+- Mainnet URL + `WARD_NETWORK=mainnet` → accepted
+- Testnet URL + no `WARD_NETWORK` → accepted (guard is opt-in)
 
 ---
 
@@ -175,7 +168,7 @@ These are hardcoded in `ward/constants.py`. XRPL reserve requirements can change
 
 ## Mainnet Go-Live Checklist
 
-- [ ] **B1**: Remove testnet defaults from all six constructors; require env var
+- [x] **B1**: Testnet defaults removed; `WARD_XRPL_URL` / `WARD_XRPL_WS` / `WARD_NETWORK` required
 - [ ] **B2**: Migrate rate limiter to Redis ZADD/ZRANGEBYSCORE
 - [ ] **B3**: Add `WARD_REQUIRE_REDIS=true` guard; prohibit in-memory fallback in prod
 - [ ] **B4**: Evaluate on-chain coverage read vs. Redis-backed registry

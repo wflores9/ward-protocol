@@ -6798,3 +6798,134 @@ class TestAdversarialCoreInvariant:
                 condition_hex="ABCD1234",
             )
             assert tx["ward_signed"] is False, f"ward_signed=True on {type(adapter).__name__}"
+
+# ===========================================================================
+# Tests: Network configuration guard (B1 — WARD_XRPL_URL / WARD_NETWORK)
+# ===========================================================================
+
+class TestNetworkConfig:
+    """
+    B1 mainnet readiness: verify that constructors require WARD_XRPL_URL /
+    WARD_XRPL_WS and that WARD_NETWORK mismatches are hard failures.
+
+    Each test clears the env vars set by the conftest autouse fixture, then
+    sets only what it needs, so the test environment is explicit.
+    """
+
+    # -- Missing env vars --------------------------------------------------
+
+    def test_claim_validator_raises_when_url_missing(self, monkeypatch):
+        """ClaimValidator() raises ConfigurationError when WARD_XRPL_URL is unset."""
+        monkeypatch.delenv("WARD_XRPL_URL", raising=False)
+        monkeypatch.delenv("WARD_NETWORK", raising=False)
+        from ward import ConfigurationError
+        from ward.validator import ClaimValidator
+        with pytest.raises(ConfigurationError, match="WARD_XRPL_URL"):
+            ClaimValidator()
+
+    def test_ward_client_raises_when_url_missing(self, monkeypatch):
+        monkeypatch.delenv("WARD_XRPL_URL", raising=False)
+        monkeypatch.delenv("WARD_NETWORK", raising=False)
+        from ward import ConfigurationError
+        from ward.client import WardClient
+        with pytest.raises(ConfigurationError, match="WARD_XRPL_URL"):
+            WardClient()
+
+    def test_resolver_raises_when_url_missing(self, monkeypatch):
+        monkeypatch.delenv("WARD_XRPL_URL", raising=False)
+        monkeypatch.delenv("WARD_NETWORK", raising=False)
+        from ward import ConfigurationError
+        from ward.resolver import Resolver
+        with pytest.raises(ConfigurationError, match="WARD_XRPL_URL"):
+            Resolver()
+
+    def test_escrow_settlement_raises_when_url_missing(self, monkeypatch):
+        monkeypatch.delenv("WARD_XRPL_URL", raising=False)
+        monkeypatch.delenv("WARD_NETWORK", raising=False)
+        from ward import ConfigurationError
+        from ward.settlement import EscrowSettlement
+        with pytest.raises(ConfigurationError, match="WARD_XRPL_URL"):
+            EscrowSettlement()
+
+    def test_pool_health_monitor_raises_when_url_missing(self, monkeypatch):
+        monkeypatch.delenv("WARD_XRPL_URL", raising=False)
+        monkeypatch.delenv("WARD_NETWORK", raising=False)
+        from ward import ConfigurationError
+        from ward.pool import PoolHealthMonitor
+        with pytest.raises(ConfigurationError, match="WARD_XRPL_URL"):
+            PoolHealthMonitor(pool_address=VALID_ADDRESS)
+
+    def test_vault_monitor_raises_when_ws_missing(self, monkeypatch):
+        monkeypatch.delenv("WARD_XRPL_WS", raising=False)
+        monkeypatch.delenv("WARD_NETWORK", raising=False)
+        from ward import ConfigurationError
+        from ward.vault_monitor import VaultMonitor
+        with pytest.raises(ConfigurationError, match="WARD_XRPL_WS"):
+            VaultMonitor(vault_addresses=[VALID_ADDRESS])
+
+    # -- WARD_NETWORK mismatch ---------------------------------------------
+
+    def test_network_mismatch_testnet_url_mainnet_env(self, monkeypatch):
+        """Testnet URL + WARD_NETWORK=mainnet is a hard ConfigurationError."""
+        monkeypatch.setenv("WARD_XRPL_URL", "https://s.altnet.rippletest.net:51234/")
+        monkeypatch.setenv("WARD_NETWORK", "mainnet")
+        from ward import ConfigurationError
+        from ward.validator import ClaimValidator
+        with pytest.raises(ConfigurationError, match="mainnet"):
+            ClaimValidator()
+
+    def test_network_mismatch_mainnet_url_testnet_env(self, monkeypatch):
+        """Mainnet URL + WARD_NETWORK=testnet is a hard ConfigurationError."""
+        monkeypatch.setenv("WARD_XRPL_URL", "https://xrplcluster.com/")
+        monkeypatch.setenv("WARD_NETWORK", "testnet")
+        from ward import ConfigurationError
+        from ward.validator import ClaimValidator
+        with pytest.raises(ConfigurationError, match="testnet"):
+            ClaimValidator()
+
+    def test_network_mismatch_explicit_url_override(self, monkeypatch):
+        """Explicitly passing a mainnet URL while WARD_NETWORK=testnet also fails."""
+        monkeypatch.setenv("WARD_NETWORK", "testnet")
+        from ward import ConfigurationError
+        from ward.validator import ClaimValidator
+        with pytest.raises(ConfigurationError, match="testnet"):
+            ClaimValidator(url="https://xrplcluster.com/")
+
+    def test_invalid_ward_network_value(self, monkeypatch):
+        """WARD_NETWORK=staging is invalid and raises ConfigurationError."""
+        monkeypatch.setenv("WARD_XRPL_URL", "https://s.altnet.rippletest.net:51234/")
+        monkeypatch.setenv("WARD_NETWORK", "staging")
+        from ward import ConfigurationError
+        from ward.validator import ClaimValidator
+        with pytest.raises(ConfigurationError, match="invalid"):
+            ClaimValidator()
+
+    # -- Happy paths -------------------------------------------------------
+
+    def test_mainnet_url_with_mainnet_env_accepted(self, monkeypatch):
+        """Mainnet URL + WARD_NETWORK=mainnet is accepted."""
+        monkeypatch.setenv("WARD_XRPL_URL", "https://xrplcluster.com/")
+        monkeypatch.setenv("WARD_NETWORK", "mainnet")
+        from ward.validator import ClaimValidator
+        v = ClaimValidator()
+        assert v._url == "https://xrplcluster.com/"
+
+    def test_testnet_url_with_no_ward_network_accepted(self, monkeypatch):
+        """Testnet URL with WARD_NETWORK unset is accepted (opt-in guard)."""
+        monkeypatch.setenv("WARD_XRPL_URL", "https://s.altnet.rippletest.net:51234/")
+        monkeypatch.delenv("WARD_NETWORK", raising=False)
+        from ward.validator import ClaimValidator
+        v = ClaimValidator()
+        assert "altnet" in v._url
+
+    def test_error_message_includes_setup_instructions(self, monkeypatch):
+        """ConfigurationError message must contain setup examples."""
+        monkeypatch.delenv("WARD_XRPL_URL", raising=False)
+        monkeypatch.delenv("WARD_NETWORK", raising=False)
+        from ward import ConfigurationError
+        from ward.validator import ClaimValidator
+        with pytest.raises(ConfigurationError) as exc_info:
+            ClaimValidator()
+        msg = str(exc_info.value)
+        assert "xrplcluster.com" in msg, "message should show mainnet example"
+        assert "altnet" in msg, "message should show testnet example"

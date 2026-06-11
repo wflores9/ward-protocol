@@ -5,8 +5,11 @@ Provides:
   - asyncio_mode = "auto"  (pytest-asyncio — no decorator needed on every test)
   - Common fixtures: valid_address, valid_address2, valid_nft_id, valid_loan_id
   - Marker registration (mirrors pytest.ini and pyproject.toml)
+  - _ward_test_network_env autouse fixture: sets WARD_XRPL_URL / WARD_XRPL_WS /
+    WARD_NETWORK for every test so constructors that no longer have a default URL
+    work without each test explicitly passing one.
 
-Ward SDK v0.2.4
+Ward SDK v0.2.6
 """
 
 import pytest
@@ -29,6 +32,22 @@ def pytest_configure(config):
 
 VALID_ADDRESS  = "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh"
 VALID_ADDRESS2 = "rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe"
+
+
+@pytest.fixture(autouse=True)
+def _ward_test_network_env(monkeypatch):
+    """
+    Set WARD_XRPL_URL / WARD_XRPL_WS / WARD_NETWORK for every test.
+
+    Ward constructors no longer have a hardcoded Altnet default (B1 mainnet fix).
+    This fixture ensures all unit tests that call constructors without an explicit
+    URL continue to work against testnet without each test having to configure env.
+    Tests that need to exercise the ConfigurationError path explicitly should use
+    monkeypatch to remove these env vars within their test body.
+    """
+    monkeypatch.setenv("WARD_XRPL_URL", "https://s.altnet.rippletest.net:51234/")
+    monkeypatch.setenv("WARD_XRPL_WS", "wss://s.altnet.rippletest.net:51233/")
+    monkeypatch.setenv("WARD_NETWORK", "testnet")
 
 
 @pytest.fixture

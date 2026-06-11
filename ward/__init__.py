@@ -48,6 +48,7 @@ from ward.constants import (
 )
 from ward.pool import PoolHealth, PoolHealthMonitor
 from ward.primitives import (
+    ConfigurationError,
     LedgerError,
     SecurityError,
     ValidationError,
@@ -94,6 +95,7 @@ __all__ = [
     "PoolHealth",
     # Errors
     "WardError",
+    "ConfigurationError",
     "ValidationError",
     "SecurityError",
     "LedgerError",
