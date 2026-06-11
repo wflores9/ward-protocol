@@ -9,7 +9,17 @@ export default function Nav() {
   const [open, setOpen] = useState(false);
 
   return (
-    <nav className="site-nav sticky top-0 z-[100] bg-white" style={{ borderBottom: '1px solid #E4E9F2', height: 64 }}>
+    <nav
+      className="site-nav sticky top-0 z-[100]"
+      style={{
+        height: 64,
+        background: 'rgba(255,255,255,0.82)',
+        backdropFilter: 'blur(16px)',
+        WebkitBackdropFilter: 'blur(16px)',
+        borderBottom: '1px solid rgba(228,233,242,0.8)',
+        boxShadow: '0 1px 12px rgba(15,36,57,0.04)',
+      }}
+    >
       <div className="site-container flex h-full items-center justify-between">
         {/* Logo */}
         <Link href="/" onClick={() => setOpen(false)} className="flex items-center gap-3 no-underline">
@@ -60,8 +70,7 @@ export default function Nav() {
             <Link
               key={link.href}
               href={link.href}
-              className="transition hover:text-[#0f2439]"
-              style={{ fontSize: 14, color: '#4a6580', textDecoration: 'none' }}
+              className="nav-link"
             >
               {link.label}
             </Link>
