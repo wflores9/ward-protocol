@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     'Formal verification, property-based tests, TLA+ model checking, and signing-boundary static analysis. Ward Protocol invariants are machine-checked, not just claimed.',
   openGraph: {
     title: 'Ward Protocol Assurance',
-    description: 'Not a claim. A provable property. Formal methods, 537 tests, 92% coverage on critical paths.',
+    description: 'Not a claim. A provable property. Formal methods, 634 tests, 92% coverage on critical paths.',
     images: [{ url: '/og-image.png', width: 1200, height: 630 }],
   },
   twitter: {
@@ -273,7 +273,7 @@ Ward must not:  sign transactions
             <div>
               <p className="site-label">Test coverage</p>
               <h2 className="mt-5 text-[32px] font-semibold leading-tight tracking-[-0.02em] text-[#0f2439]">
-                537 tests. 92% coverage on critical paths.
+                634 tests. 92% coverage on critical paths.
               </h2>
               <p className="mt-5 text-[15px] leading-[1.75] text-[#5a7a99]">
                 Coverage is not the goal — correctness is. But coverage provides a lower bound on the evidence surface.
@@ -317,7 +317,7 @@ Ward must not:  sign transactions
               </p>
               <div className="mt-5 grid gap-3">
                 {[
-                  ['Unit tests', 'test_ward.py', '496 tests'],
+                  ['Unit tests', 'test_ward.py', '449 tests'],
                   ['Property tests (Python)', 'tests/test_invariants_property.py', '61 tests'],
                   ['Coverage gap tests', 'tests/test_coverage_gaps.py', '40 tests'],
                   ['SDK tests', 'sdk/python/tests/', 'full SDK surface'],

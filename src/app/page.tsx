@@ -18,7 +18,7 @@ const pillars = [
 ];
 
 const PROOF_STATS = [
-  { num: '537', label: 'passing tests' },
+  { num: '634', label: 'passing tests' },
   { num: '92%', label: 'critical path coverage' },
   { num: '8', label: 'chain adapters' },
   { num: '32', label: 'formal invariants' },
@@ -28,7 +28,7 @@ const PROOF_STATS = [
 const API_STATS: { label: string; value: string; color: string }[] = [
   { label: 'Endpoint', value: 'api.wardprotocol.org', color: '#1d4ed8' },
   { label: 'Version', value: 'v0.2.6', color: '#0f2439' },
-  { label: 'Tests passing', value: '537 / 537', color: '#15803d' },
+  { label: 'Tests passing', value: '634 / 634', color: '#15803d' },
   { label: 'Coverage', value: '92%', color: '#15803d' },
   { label: 'Last validation', value: 'checks_passed: 1', color: '#15803d' },
 ];
@@ -154,7 +154,7 @@ export default function Home() {
                     flexShrink: 0,
                   }}
                 />
-                v0.2.6 · 8 chains · 537 tests · ward_signed = False
+                v0.2.6 · 8 chains · 634 tests · ward_signed = False
               </div>
             </div>
 

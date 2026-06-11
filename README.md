@@ -1,7 +1,7 @@
 # Ward Protocol
 
 [![Version](https://img.shields.io/badge/SDK-v0.2.6-gold)](https://pypi.org/project/ward-protocol/)
-[![Tests](https://img.shields.io/badge/tests-537%20Python%20%C2%B7%2022%20Rust%20%C2%B7%2053%20TypeScript-brightgreen)](#running-tests)
+[![Tests](https://img.shields.io/badge/tests-559%20Python%20%C2%B7%2022%20Rust%20%C2%B7%2053%20TypeScript-brightgreen)](#running-tests)
 [![CI](https://github.com/wflores9/ward-protocol/actions/workflows/test.yml/badge.svg)](https://github.com/wflores9/ward-protocol/actions/workflows/test.yml)
 [![PyPI](https://img.shields.io/pypi/v/ward-protocol)](https://pypi.org/project/ward-protocol/)
 [![License](https://img.shields.io/badge/license-MIT-lightgrey)](LICENSE)
@@ -46,7 +46,7 @@ Nine deterministic on-ledger checks:
 |--------|-------|
 | SDK Version | v0.2.6 |
 | Hosted API | api.wardprotocol.org — live |
-| Python Tests | 537/537 passing (3.11 · 3.12 · 3.13) |
+| Python Tests | 559/559 passing (3.11 · 3.12 · 3.13) |
 | Rust Tests | 22/22 passing |
 | TypeScript Tests | 53/53 passing |
 | Live Testnets | 8 live testnet rails in the multi-chain demo |
@@ -109,7 +109,7 @@ Integration plans: [docs/integration/](docs/integration/)
 ## Running Tests
 
 ```bash
-# Python (537 tests)
+# Python (559 tests)
 pip install -r requirements.txt
 python -m pytest test_ward.py -m "not integration" -v
 python -m pytest sdk/python/tests/ -v
