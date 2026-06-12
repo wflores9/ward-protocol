@@ -1,7 +1,7 @@
 # Ward Protocol
 
-[![Version](https://img.shields.io/badge/SDK-v0.2.6-gold)](https://pypi.org/project/ward-protocol/)
-[![Tests](https://img.shields.io/badge/tests-449%20Python%20%C2%B7%2022%20Rust%20%C2%B7%2053%20TypeScript-brightgreen)](#running-tests)
+[![Version](https://img.shields.io/badge/SDK-v0.2.9-gold)](https://pypi.org/project/ward-protocol/)
+[![Tests](https://img.shields.io/badge/tests-634%20Python%20%C2%B7%2022%20Rust%20%C2%B7%2053%20TypeScript-brightgreen)](#running-tests)
 [![CI](https://github.com/wflores9/ward-protocol/actions/workflows/test.yml/badge.svg)](https://github.com/wflores9/ward-protocol/actions/workflows/test.yml)
 [![PyPI](https://img.shields.io/pypi/v/ward-protocol)](https://pypi.org/project/ward-protocol/)
 [![License](https://img.shields.io/badge/license-MIT-lightgrey)](LICENSE)
