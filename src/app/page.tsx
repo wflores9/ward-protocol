@@ -1,444 +1,248 @@
+import Image from 'next/image';
 import Link from 'next/link';
 
+import ChainLogo from '@/components/ChainLogo';
+import MermaidDiagram from '@/components/MermaidDiagram';
 import { PILOT_URL } from '@/lib/navigation';
+import { CHAIN_ADAPTERS, PILOT_READINESS_PHASES } from '@/lib/wardPlatform';
 
-const pillars = [
+const proofStats = [
+  { value: '634', label: 'tests passing', note: 'Python, Rust, TypeScript' },
+  { value: '32', label: 'invariants', note: 'Signer, ledger, routing, receipts' },
+  { value: '8', label: 'testnet rails', note: 'XRPL plus cross-chain adapters' },
+  { value: '0', label: 'Ward signing keys', note: 'ward_signed = False' },
+];
+
+const platformCards = [
   {
-    title: 'Deterministic evidence model',
-    body: 'Ward re-reads authoritative ledger state and applies the same resolution logic every time. Inspectable and repeatable under institutional review.',
+    title: 'Conformance engine',
+    body: 'Nine deterministic checks convert policy, vault, ownership, coverage, and default evidence into an approval or rejection that can be inspected by risk, engineering, and compliance.',
   },
   {
-    title: 'Signer boundary preserved',
-    body: 'Ward validates and returns unsigned settlement instructions. Institutions sign. The chain settles. Ward never holds keys and never becomes a signatory.',
+    title: 'Signer boundary',
+    body: 'Ward prepares validation results and unsigned settlement instructions. Institutions sign. The chain settles. Ward never becomes a counterparty, custodian, or signer.',
   },
   {
-    title: 'Designed for scrutiny',
-    body: 'Evidence gates, control boundaries, and on-ledger checks are packaged so engineering, risk, and compliance teams can review the same record.',
+    title: 'Evidence receipts',
+    body: 'Every run exports the evidence path: chain state, failed or passed checks, settlement readiness, and the invariant that no operator can override the result.',
   },
 ];
 
-const PROOF_STATS = [
-  { num: '634', label: 'passing tests' },
-  { num: '92%', label: 'critical path coverage' },
-  { num: '8', label: 'chain adapters' },
-  { num: '32', label: 'formal invariants' },
-  { num: 'v0.2.6', label: 'PyPI + npm' },
+const trustRows = [
+  ['Mainnet posture', 'XRPL mainnet launch is treated as a dependency on XLS-65 and XLS-66 amendment status, not as a marketing claim.'],
+  ['Security standard', 'High-assurance architecture, invariants register, threat model work, and pre-mainnet audit artifacts are part of the buyer packet.'],
+  ['Developer path', 'Python SDK, TypeScript SDK, hosted API, and demo receipts give partners a reviewable integration surface.'],
+  ['Market wedge', 'Tokenized credit needs default resolution that is deterministic, on-ledger, and separate from the signing institution.'],
 ];
 
-const API_STATS: { label: string; value: string; color: string }[] = [
-  { label: 'Endpoint', value: 'api.wardprotocol.org', color: '#1d4ed8' },
-  { label: 'Version', value: 'v0.2.6', color: '#0f2439' },
-  { label: 'Tests passing', value: '634 / 634', color: '#15803d' },
-  { label: 'Coverage', value: '92%', color: '#15803d' },
-  { label: 'Last validation', value: 'checks_passed: 1', color: '#15803d' },
-];
+const architectureChart = `flowchart LR
+  A[Institutional credit product] --> B[Ward conformance API or SDK]
+  B --> C[Nine on-ledger evidence checks]
+  C --> D{Conformance result}
+  D -->|approved| E[Unsigned settlement packet]
+  D -->|rejected| F[Deterministic rejection reason]
+  E --> G[Institution signs]
+  G --> H[Chain settles]
+  C --> I[Shareable conformance receipt]
+  I --> J[Risk, compliance, engineering review]
+`;
 
 export default function Home() {
   return (
-    <main style={{ background: '#ffffff' }}>
-      {/* Hero */}
-      <section className="relative overflow-hidden bg-white">
-        <div className="site-container">
-          <div className="grid items-stretch lg:grid-cols-2" style={{ minHeight: 640 }}>
-            {/* Left column */}
-            <div className="flex flex-col justify-center py-20" style={{ paddingRight: 60 }}>
-              {/* Eyebrow */}
-              <p
-                style={{
-                  fontSize: 11,
-                  fontWeight: 600,
-                  letterSpacing: '0.1em',
-                  textTransform: 'uppercase',
-                  color: '#a7c5e5',
-                  marginBottom: 20,
-                  fontFamily: 'DM Mono, monospace',
-                }}
-              >
-                Institutional tokenized credit · conformance standard
-              </p>
-
-              {/* H1 */}
-              <h1
-                style={{
-                  fontSize: 'clamp(48px, 5.5vw, 64px)',
-                  fontWeight: 700,
-                  lineHeight: 1.0,
-                  letterSpacing: '-0.025em',
-                  color: '#0f2439',
-                }}
-              >
-                <span style={{ display: 'block' }}>
-                  Default<span style={{ color: '#b8973a' }}>.</span>
-                </span>
-                <span style={{ display: 'block' }}>
-                  Resolved<span style={{ color: '#b8973a' }}>.</span>
-                </span>
-                <span style={{ display: 'block' }}>
-                  On-chain<span style={{ color: '#b8973a' }}>.</span>
-                </span>
+    <main className="premium-shell">
+      <section className="premium-hero">
+        <div className="premium-hero-grid" />
+        <div className="site-container relative z-10 py-20 md:py-28 lg:py-32">
+          <div className="grid gap-12 lg:grid-cols-[1.02fr_0.98fr] lg:items-center">
+            <div className="max-w-5xl">
+              <div className="premium-kicker">
+                <span /> Institutional tokenized credit infrastructure
+              </div>
+              <h1 className="premium-h1">
+                The conformance and default-resolution layer for tokenized credit.
               </h1>
-
-              {/* Gold rule */}
-              <div style={{ width: 56, height: 3, background: '#b8973a', borderRadius: 2, margin: '20px 0 24px' }} />
-
-              {/* Subtitle */}
-              <p style={{ fontSize: 17, color: '#5a7a99', lineHeight: 1.7, maxWidth: 420, marginBottom: 36 }}>
-                Ward gives lenders, vault operators, and credit protocols a deterministic way to validate defaults,
-                preserve the signer boundary, and export reviewable conformance receipts.
+              <p className="premium-lede">
+                Ward lets institutions, lending vaults, and credit protocols resolve defaults deterministically, on-ledger, without Ward signing or deciding outcomes.
               </p>
-
-              {/* CTAs */}
-              <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-                <a
-                  href={PILOT_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="transition hover:bg-[#0d1f32]"
-                  style={{
-                    background: '#0f2439',
-                    color: '#fff',
-                    fontSize: 15,
-                    fontWeight: 600,
-                    padding: '13px 28px',
-                    borderRadius: 8,
-                    textDecoration: 'none',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                  }}
-                >
+              <div className="mt-9 flex flex-wrap gap-4">
+                <a href={PILOT_URL} target="_blank" rel="noopener noreferrer" className="premium-button premium-button-primary">
                   Discuss a pilot
                 </a>
-                <Link
-                  href="/spec"
-                  className="transition hover:bg-[rgba(167,197,229,0.12)]"
-                  style={{
-                    background: 'transparent',
-                    color: '#0f2439',
-                    fontSize: 15,
-                    padding: '12px 24px',
-                    borderRadius: 8,
-                    border: '1.5px solid #c8d9eb',
-                    textDecoration: 'none',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                  }}
-                >
-                  View the protocol →
+                <Link href="/demo" className="premium-button premium-button-secondary">
+                  Open conformance workspace
+                </Link>
+                <Link href="/assurance" className="premium-button premium-button-ghost">
+                  Review assurance
                 </Link>
               </div>
-
-              {/* Version badge */}
-              <div
-                style={{
-                  marginTop: 24,
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  background: '#F9FAFC',
-                  border: '1px solid #E4E9F2',
-                  borderRadius: 6,
-                  padding: '6px 12px',
-                  fontFamily: 'DM Mono, monospace',
-                  fontSize: 12,
-                  color: '#6b8ba4',
-                  width: 'fit-content',
-                }}
-              >
-                <span
-                  style={{
-                    width: 7,
-                    height: 7,
-                    borderRadius: '50%',
-                    background: '#16a34a',
-                    display: 'inline-block',
-                    flexShrink: 0,
-                  }}
-                />
-                v0.2.6 · 8 chains · 634 tests · ward_signed = False
+              <div className="premium-trust-strip mt-10">
+                <span>ward_signed = False</span>
+                <span>9 evidence checks</span>
+                <span>XLS-66 mainnet dependent</span>
               </div>
             </div>
 
-            {/* Right column — full-bleed visual panel */}
-            <div
-              className="relative hidden overflow-hidden lg:block"
-              style={{ borderRadius: '24px 0 0 0', minHeight: 520, marginRight: '-3rem' }}
-            >
-              {/* Background gradient */}
-              <div
-                style={{
-                  position: 'absolute',
-                  inset: 0,
-                  background: 'linear-gradient(135deg, #e8eef5 0%, #dce8f5 40%, #c8d9eb 100%)',
-                }}
-              />
-
-              {/* Decorative shape 1 — large circle top-right */}
-              <div
-                style={{
-                  position: 'absolute',
-                  top: -60,
-                  right: -80,
-                  width: 420,
-                  height: 420,
-                  borderRadius: '50%',
-                  background: 'rgba(167,197,229,0.25)',
-                }}
-              />
-
-              {/* Decorative shape 2 — smaller circle bottom-left */}
-              <div
-                style={{
-                  position: 'absolute',
-                  bottom: -40,
-                  left: -40,
-                  width: 280,
-                  height: 280,
-                  borderRadius: '50%',
-                  background: 'rgba(15,36,57,0.06)',
-                }}
-              />
-
-              {/* Floating data card */}
-              <div
-                style={{
-                  position: 'absolute',
-                  top: '50%',
-                  left: '50%',
-                  transform: 'translate(-50%, -56%)',
-                  width: 300,
-                  background: 'rgba(255,255,255,0.88)',
-                  borderRadius: 16,
-                  padding: 20,
-                  border: '1px solid rgba(255,255,255,0.9)',
-                  backdropFilter: 'blur(8px)',
-                }}
-              >
-                {/* Card header */}
-                <div
-                  style={{
-                    borderBottom: '1px solid #E4E9F2',
-                    marginBottom: 16,
-                    paddingBottom: 12,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                  }}
-                >
-                  <span
-                    style={{
-                      fontFamily: 'DM Mono, monospace',
-                      fontSize: 10,
-                      fontWeight: 700,
-                      letterSpacing: '0.1em',
-                      textTransform: 'uppercase',
-                      color: '#a7c5e5',
-                    }}
-                  >
-                    Live API Status
-                  </span>
-                  <span
-                    style={{
-                      background: '#dcfce7',
-                      color: '#15803d',
-                      fontSize: 10,
-                      fontWeight: 700,
-                      padding: '3px 10px',
-                      borderRadius: 20,
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: 5,
-                    }}
-                  >
-                    <span
-                      style={{
-                        width: 5,
-                        height: 5,
-                        borderRadius: '50%',
-                        background: '#15803d',
-                        display: 'inline-block',
-                        flexShrink: 0,
-                      }}
-                    />
-                    XRPL Altnet
-                  </span>
+            <div className="premium-console" aria-label="Ward conformance receipt preview">
+              <div className="premium-console-top">
+                <div>
+                  <p>Ward Conformance Receipt</p>
+                  <h2>Tokenized Credit Vault</h2>
                 </div>
-
-                {/* Stat rows */}
-                {API_STATS.map(({ label, value, color }) => (
-                  <div
-                    key={label}
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      borderBottom: '1px solid #F9FAFC',
-                      padding: '6px 0',
-                    }}
-                  >
-                    <span style={{ fontSize: 12, color: '#8a9bb0' }}>{label}</span>
-                    <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 12, fontWeight: 600, color }}>
-                      {value}
-                    </span>
+                <span>READY</span>
+              </div>
+              <div className="premium-console-body">
+                {[
+                  ['Decision source', 'Authoritative ledger state only'],
+                  ['Resolution layer', 'Default validation and unsigned settlement packet'],
+                  ['Signer boundary', 'Institution signs every settlement action'],
+                  ['Audit artifact', 'Shareable conformance receipt'],
+                ].map(([label, value]) => (
+                  <div key={label} className="premium-console-row">
+                    <p>{label}</p>
+                    <strong>{value}</strong>
                   </div>
                 ))}
               </div>
-
-              {/* Invariant banner — pinned to bottom */}
-              <div
-                style={{
-                  position: 'absolute',
-                  bottom: 32,
-                  left: 24,
-                  right: 24,
-                  background: 'rgba(255,255,255,0.9)',
-                  borderLeft: '3px solid #b8973a',
-                  borderRadius: '0 8px 8px 0',
-                  padding: '10px 14px',
-                }}
-              >
-                <p
-                  style={{
-                    fontFamily: 'DM Mono, monospace',
-                    fontSize: 9,
-                    fontWeight: 700,
-                    letterSpacing: '0.1em',
-                    textTransform: 'uppercase',
-                    color: '#b8973a',
-                  }}
-                >
-                  Core Invariant
-                </p>
-                <p
-                  style={{
-                    fontFamily: 'DM Mono, monospace',
-                    fontSize: 13,
-                    fontWeight: 700,
-                    color: '#0f2439',
-                    marginTop: 4,
-                  }}
-                >
-                  ward_signed = False — always.
-                </p>
+              <div className="premium-code-line">
+                <span>ward_signed</span> = False <em>- always</em>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Proof strip */}
-      <div style={{ background: '#ffffff', borderTop: '1px solid #E4E9F2', borderBottom: '1px solid #E4E9F2' }}>
+      <section className="premium-proof">
         <div className="site-container">
-          <div className="grid grid-cols-2 md:grid-cols-5">
-            {PROOF_STATS.map(({ num, label }, i) => (
-              <div
-                key={label}
-                style={{
-                  padding: '28px 20px',
-                  borderRight: i < 4 ? '1px solid #F0F4F8' : undefined,
-                  textAlign: 'center',
-                }}
-              >
-                <p
-                  style={{
-                    fontFamily: 'DM Mono, monospace',
-                    fontSize: 32,
-                    fontWeight: 700,
-                    color: '#0f2439',
-                    lineHeight: 1,
-                  }}
-                >
-                  {num}
-                </p>
-                <p style={{ fontSize: 12, color: '#8a9bb0', marginTop: 5 }}>{label}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* The standard */}
-      <section className="site-section">
-        <div className="site-container py-24">
-          <div className="max-w-xl">
-            <p className="site-label">The standard</p>
-            <h2 className="mt-5 text-[32px] font-semibold leading-tight tracking-[-0.02em] text-[#0f2439]">
-              Tokenized credit needs a default process that holds up under scrutiny.
-            </h2>
-          </div>
-
-          <div className="mt-12 grid gap-5 lg:grid-cols-3">
-            {pillars.map((pillar) => (
-              <article
-                key={pillar.title}
-                className="rounded-xl border bg-white p-5"
-                style={{ borderColor: '#E4E9F2', boxShadow: '0 1px 3px rgba(15,36,57,0.06)' }}
-              >
-                <div className="mb-5 h-[3px] w-7 rounded-sm bg-[#b8973a]" />
-                <h3 className="text-[18px] font-semibold leading-snug text-[#0f2439]">{pillar.title}</h3>
-                <p className="mt-4 text-[15px] leading-[1.75] text-[#5a7a99]">{pillar.body}</p>
+          <div className="grid gap-px md:grid-cols-4">
+            {proofStats.map((stat) => (
+              <article key={stat.label} className="premium-proof-cell">
+                <p>{stat.value}</p>
+                <h2>{stat.label}</h2>
+                <span>{stat.note}</span>
               </article>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Core invariant card */}
-      <section className="site-section">
-        <div className="site-container py-24">
-          <div
-            className="rounded-xl border bg-white p-8 md:p-10"
-            style={{ borderColor: '#E4E9F2', borderLeft: '3px solid #b8973a', boxShadow: '0 1px 3px rgba(15,36,57,0.06)' }}
-          >
-            <div className="max-w-2xl">
-              <p
-                className="font-mono font-bold uppercase"
-                style={{ fontSize: 11, letterSpacing: '0.12em', color: '#b8973a' }}
-              >
-                Core invariant
+      <section className="premium-section">
+        <div className="site-container">
+          <div className="premium-section-head">
+            <p className="premium-label">Infrastructure standard</p>
+            <h2>Ward is not a demo, oracle, or claims app.</h2>
+            <p>
+              It is the control plane serious credit products use to prove that default handling is deterministic, evidenced, and outside Ward custody.
+            </p>
+          </div>
+          <div className="mt-12 grid gap-5 lg:grid-cols-3">
+            {platformCards.map((card) => (
+              <article key={card.title} className="premium-card">
+                <div className="premium-card-rule" />
+                <h3>{card.title}</h3>
+                <p>{card.body}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="premium-section premium-section-muted">
+        <div className="site-container">
+          <div className="grid gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
+            <div className="premium-section-head sticky top-28">
+              <p className="premium-label">Chain readiness</p>
+              <h2>One conformance model. Chain-native evidence.</h2>
+              <p>
+                XRPL Altnet is the live wallet lane. Other rails are testnet proof surfaces until their partner-specific integration path is finalized.
               </p>
-              <h2 className="mt-4 text-[32px] font-semibold leading-tight tracking-[-0.02em] text-[#0f2439]">
-                ward_signed = False — always.
-              </h2>
-              <p className="mt-5 text-[15px] leading-[1.75] text-[#5a7a99]">
-                Ward prepares deterministic validation and unsigned settlement instructions. Institutions sign. The chain
-                settles. Ward is never a counterparty, never a custodian, and never a signatory.
-              </p>
+            </div>
+            <div className="premium-chain-grid">
+              {CHAIN_ADAPTERS.map((chain) => (
+                <article key={chain.id} className="premium-chain-card">
+                  <div className="flex items-start justify-between gap-4">
+                    <ChainLogo id={chain.logo} label={`${chain.name} logo`} className="h-12 w-12" />
+                    <span>{chain.status}</span>
+                  </div>
+                  <h3>{chain.name}</h3>
+                  <p>{chain.network}</p>
+                  <small>{chain.integrationSurface}</small>
+                </article>
+              ))}
             </div>
           </div>
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="site-section">
-        <div className="site-container py-24">
-          <div
-            className="rounded-xl border bg-white p-8 md:p-12"
-            style={{ borderColor: '#E4E9F2', boxShadow: '0 1px 3px rgba(15,36,57,0.06)' }}
-          >
-            <div className="max-w-2xl">
-              <p className="site-label">Pilots open now</p>
-              <h2 className="mt-5 text-[32px] font-semibold leading-tight tracking-[-0.02em] text-[#0f2439]">
-                Ward Protocol is pre-mainnet. Pilots open now.
-              </h2>
-              <p className="mt-5 text-[15px] leading-[1.75] text-[#5a7a99]">
-                Run the conformance demo, inspect the evidence surface, and book a pilot call when you are ready.
+      <section className="premium-section">
+        <div className="site-container">
+          <div className="grid gap-10 lg:grid-cols-[0.82fr_1.18fr] lg:items-center">
+            <div className="premium-section-head">
+              <p className="premium-label">Architecture</p>
+              <h2>Reviewable by design.</h2>
+              <p>
+                The diagram is rendered from Mermaid source so the architecture remains inspectable text, not a decorative bitmap. It can evolve with the protocol and stay close to the GitHub design docs.
               </p>
+              <Link href="/docs" className="premium-inline-link">Open developer docs</Link>
+            </div>
+            <MermaidDiagram chart={architectureChart} title="Ward conformance architecture" />
+          </div>
+        </div>
+      </section>
+
+      <section className="premium-section premium-section-muted">
+        <div className="site-container">
+          <div className="premium-section-head">
+            <p className="premium-label">Enterprise diligence</p>
+            <h2>The buyer packet is evidence, not adjectives.</h2>
+          </div>
+          <div className="premium-diligence">
+            {trustRows.map(([label, body]) => (
+              <article key={label}>
+                <h3>{label}</h3>
+                <p>{body}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="premium-section">
+        <div className="site-container">
+          <div className="grid gap-10 lg:grid-cols-[0.78fr_1.22fr] lg:items-start">
+            <div className="premium-section-head">
+              <p className="premium-label">Pilot readiness</p>
+              <h2>From self-serve review to production certification.</h2>
+              <p>
+                Ward’s next phase is turning working infrastructure into trusted market infrastructure through pilots, audit scope, and partner-run conformance.
+              </p>
+            </div>
+            <div className="premium-timeline">
+              {PILOT_READINESS_PHASES.map((phase) => (
+                <article key={phase.phase}>
+                  <div>{phase.phase}</div>
+                  <section>
+                    <span>{phase.window}</span>
+                    <h3>{phase.title}</h3>
+                    <p>{phase.body}</p>
+                  </section>
+                </article>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="premium-final-cta">
+        <div className="site-container">
+          <div className="premium-final-panel">
+            <Image src="/brand/ward-mark-square.png" alt="" width={96} height={96} className="rounded-[22px]" />
+            <div>
+              <p className="premium-label">Pilots open now</p>
+              <h2>Ward is proving that serious credit markets should standardize on deterministic default resolution.</h2>
+              <p>Start with the conformance workspace. Move into a pilot packet when the evidence is ready for your team.</p>
               <div className="mt-8 flex flex-wrap gap-4">
-                <Link
-                  href="/demo"
-                  className="inline-flex items-center rounded-lg bg-[#0f2439] px-6 py-3 text-[15px] font-semibold text-white transition hover:bg-[#0d1f32]"
-                >
-                  Enter the Demo
-                </Link>
-                <a
-                  href={PILOT_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center rounded-lg border px-6 py-3 text-[15px] font-semibold text-[#0f2439] transition hover:bg-[rgba(167,197,229,0.12)]"
-                  style={{ borderColor: 'rgba(15,36,57,0.18)' }}
-                >
-                  Discuss a Pilot
-                </a>
+                <Link href="/demo" className="premium-button premium-button-primary">Run the workspace</Link>
+                <a href={PILOT_URL} target="_blank" rel="noopener noreferrer" className="premium-button premium-button-secondary">Talk to Ward</a>
               </div>
             </div>
           </div>

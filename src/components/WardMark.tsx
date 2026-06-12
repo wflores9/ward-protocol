@@ -1,37 +1,22 @@
+import Image from 'next/image';
+
 interface WardMarkProps {
   size?: number;
   shape?: 'circle' | 'square';
   className?: string;
 }
 
-export default function WardMark({ size = 44, shape = 'circle', className }: WardMarkProps) {
-  const bg =
-    shape === 'circle' ? (
-      <circle cx="50" cy="50" r="50" fill="#0f2439" />
-    ) : (
-      <rect width="100" height="100" rx="9" fill="#0f2439" />
-    );
+export default function WardMark({ size = 44, shape = 'square', className }: WardMarkProps) {
+  const src = size <= 96 ? '/brand/ward-nav-88.png' : '/brand/ward-mark-square.png';
 
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 100 100"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
+    <span
+      className={`${className || ''} relative block shrink-0 overflow-hidden ${shape === 'circle' ? 'rounded-full' : 'rounded-[12px]'}`}
+      style={{ width: size, height: size }}
       aria-label="Ward Protocol"
       role="img"
-      className={className}
     >
-      {bg}
-      {/* W: filled polygon traced from master. Outer pentagon minus two notch triangles (evenodd). */}
-      <path
-        fillRule="evenodd"
-        fill="#a7c5e5"
-        d="M 25,25 L 75,25 L 62,70 L 50,43 L 38,70 Z M 34.5,25 L 45.6,25 L 38,70 Z M 54.4,25 L 65.5,25 L 62,70 Z"
-      />
-      {/* Gold underline bar */}
-      <rect x="32.5" y="77" width="35" height="1.5" fill="#b8973a" rx="0.5" />
-    </svg>
+      <Image src={src} alt="" fill sizes={`${size}px`} className="object-cover" priority={size > 80} />
+    </span>
   );
 }

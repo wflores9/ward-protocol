@@ -56,7 +56,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${dmSans.variable} ${dmMono.variable}`}>
-      <body className={`${dmSans.className} bg-white text-[#0f2439]`}>
+      <body className={`${dmSans.className} bg-[#050b12] text-[#f7fbff]`}>
         <WalletProvider>
           <Nav />
           {children}
