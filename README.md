@@ -46,7 +46,7 @@ Nine deterministic on-ledger checks:
 |--------|-------|
 | SDK Version | v0.2.6 |
 | Hosted API | api.wardprotocol.org — live |
-| Python Tests | 449/449 passing |
+| Python Tests | 634/634 passing |
 | Rust Tests | 22/22 passing |
 | TypeScript Tests | 53/53 passing |
 | Live Testnets | 8 live testnet rails in the multi-chain demo |
