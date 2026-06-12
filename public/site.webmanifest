@@ -1,0 +1,13 @@
+{
+  "name": "Ward Protocol",
+  "short_name": "Ward",
+  "description": "Deterministic default resolution infrastructure for institutional tokenized credit.",
+  "start_url": "/",
+  "display": "browser",
+  "background_color": "#0f2439",
+  "theme_color": "#0f2439",
+  "icons": [
+    { "src": "/brand/ward-mark-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/brand/ward-mark-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
