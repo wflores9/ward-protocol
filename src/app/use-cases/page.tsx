@@ -82,7 +82,7 @@ const USE_CASES = [
 
 export default function UseCasesPage() {
   return (
-    <main className="site-shell">
+    <main className="site-shell use-cases-page">
       {/* Hero */}
       <section className="relative overflow-hidden">
         <div className="site-container pb-24 pt-24 lg:pt-28">
@@ -117,44 +117,44 @@ export default function UseCasesPage() {
       {/* Six use-case cards */}
       <section className="site-section">
         <div className="site-container py-20">
-          <div className="grid gap-5 lg:grid-cols-2 xl:grid-cols-3">
+          <div className="use-case-grid">
             {USE_CASES.map((uc) => (
               <article
                 key={uc.id}
-                className="flex flex-col rounded-xl border bg-white p-6 shadow-[0_1px_3px_rgba(15,36,57,0.08)]"
+                className="use-case-card flex flex-col rounded-xl border bg-white shadow-[0_1px_3px_rgba(15,36,57,0.08)]"
                 style={{ borderColor: 'rgba(167,197,229,0.4)' }}
               >
                 {/* Gold accent bar */}
                 <div className="mb-5 h-[3px] w-7 rounded-sm bg-[#b8973a]" />
 
                 {/* Eyebrow */}
-                <p className="font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-[#a7c5e5]">
+                <p className="use-case-eyebrow font-mono font-bold uppercase text-[#6f849b]">
                   {uc.eyebrow}
                 </p>
 
                 {/* Title */}
-                <h2 className="mt-3 text-[18px] font-semibold leading-snug text-[#0f2439]">{uc.title}</h2>
+                <h2 className="use-case-title mt-4 font-semibold text-[#0f2439]">{uc.title}</h2>
 
                 {/* Problem */}
                 <div className="mt-5">
                   <p
-                    className="mb-1.5 font-mono text-[10px] font-bold uppercase tracking-[0.1em]"
+                    className="use-case-kicker mb-2 font-mono font-bold uppercase"
                     style={{ color: '#dc2626' }}
                   >
                     Without Ward
                   </p>
-                  <p className="text-[14px] leading-[1.7] text-[#5a7a99]">{uc.problem}</p>
+                  <p className="use-case-copy text-[#4f667c]">{uc.problem}</p>
                 </div>
 
                 {/* Ward solution */}
                 <div className="mt-4">
                   <p
-                    className="mb-1.5 font-mono text-[10px] font-bold uppercase tracking-[0.1em]"
+                    className="use-case-kicker mb-2 font-mono font-bold uppercase"
                     style={{ color: '#16a34a' }}
                   >
                     With Ward
                   </p>
-                  <p className="text-[14px] leading-[1.7] text-[#5a7a99]">{uc.ward}</p>
+                  <p className="use-case-copy text-[#4f667c]">{uc.ward}</p>
                 </div>
 
                 {/* Outcome */}
@@ -162,14 +162,14 @@ export default function UseCasesPage() {
                   className="mt-5 rounded-lg p-4"
                   style={{ background: 'rgba(184,151,58,0.07)', borderLeft: '3px solid #b8973a' }}
                 >
-                  <p className="text-[13px] leading-[1.65] text-[#0f2439]">{uc.outcome}</p>
+                  <p className="use-case-outcome text-[#0f2439]">{uc.outcome}</p>
                 </div>
 
                 {/* CTA */}
                 <div className="mt-5 pt-4" style={{ borderTop: '1px solid rgba(167,197,229,0.28)' }}>
                   <Link
                     href="/demo"
-                    className="font-mono text-[13px] font-semibold text-[#2a5f9e] transition hover:text-[#0f2439]"
+                    className="use-case-link font-mono font-semibold text-[#2a5f9e] transition hover:text-[#0f2439]"
                   >
                     See how it works →
                   </Link>

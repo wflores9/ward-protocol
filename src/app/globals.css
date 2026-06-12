@@ -1034,3 +1034,64 @@ footer a {
     padding-bottom: 58px !important;
   }
 }
+
+
+/* Use cases page: six readable institutional panels. */
+.use-cases-page .use-case-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 28px;
+  margin: 0 auto;
+  max-width: 1220px;
+}
+
+.use-cases-page .use-case-card {
+  min-height: 0;
+  padding: 34px;
+}
+
+.use-cases-page .use-case-eyebrow {
+  color: #6f849b !important;
+  font-size: 14px !important;
+  letter-spacing: 0.06em !important;
+}
+
+.use-cases-page .use-case-title {
+  max-width: 92%;
+  color: #07131f !important;
+  font-size: clamp(28px, 2.7vw, 38px) !important;
+  font-weight: 800 !important;
+  letter-spacing: 0 !important;
+  line-height: 1.08 !important;
+}
+
+.use-cases-page .use-case-kicker {
+  font-size: 14px !important;
+  letter-spacing: 0.06em !important;
+}
+
+.use-cases-page .use-case-copy {
+  font-size: 15px !important;
+  line-height: 1.74 !important;
+}
+
+.use-cases-page .use-case-outcome {
+  font-size: 14px !important;
+  line-height: 1.7 !important;
+}
+
+.use-cases-page .use-case-link {
+  font-size: 14px !important;
+}
+
+@media (min-width: 1024px) {
+  .use-cases-page .use-case-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1440px) {
+  .use-cases-page .use-case-grid {
+    max-width: 1280px;
+  }
+}
