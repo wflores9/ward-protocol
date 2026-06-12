@@ -160,7 +160,7 @@ export default function Home() {
 
             {/* Right column — full-bleed visual panel */}
             <div
-              className="relative hidden overflow-hidden lg:block"
+              className="relative hidden overflow-hidden lg:flex lg:items-center lg:justify-center"
               style={{ borderRadius: '24px 0 0 0', minHeight: 520, marginRight: '-3rem' }}
             >
               {/* Background gradient */}
@@ -198,13 +198,11 @@ export default function Home() {
                 }}
               />
 
-              {/* Floating data card */}
+              {/* Data card — flex-flow centered so it stays in the right column */}
               <div
                 style={{
-                  position: 'absolute',
-                  top: '50%',
-                  left: '50%',
-                  transform: 'translate(-50%, -56%)',
+                  position: 'relative',
+                  zIndex: 1,
                   width: 300,
                   background: 'rgba(255,255,255,0.88)',
                   borderRadius: 16,
