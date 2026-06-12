@@ -16,7 +16,7 @@ Changelog:
     v0.2.0  Initial modular split from ward_client monolith.
 """
 
-__version__ = "0.2.6"
+__version__ = "0.2.9"
 
 
 from ward.client import WardClient
