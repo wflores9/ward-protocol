@@ -1,15 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 44 44">
-  <!-- Navy background -->
-  <rect width="44" height="44" rx="4" fill="#0f2439"/>
-  <!-- Bold geometric W — ice blue; geometry mirrors WardMark.tsx -->
-  <polyline
-    points="7,10 13.5,32 19,19.5 22,27 25,19.5 30.5,32 37,10"
-    fill="none"
-    stroke="#a7c5e5"
-    stroke-width="3.7"
-    stroke-linecap="square"
-    stroke-linejoin="round"
-  />
-  <!-- Gold underline bar -->
-  <rect x="7" y="35" width="30" height="2.5" fill="#b8973a" rx="0.5"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <rect width="100" height="100" rx="9" fill="#0f2439"/>
+  <path fill-rule="evenodd" fill="#a7c5e5"
+    d="M 25,25 L 75,25 L 62,70 L 50,43 L 38,70 Z
+       M 34.5,25 L 45.6,25 L 38,70 Z
+       M 54.4,25 L 65.5,25 L 62,70 Z"/>
+  <rect x="32.5" y="77" width="35" height="1.5" fill="#b8973a" rx="0.5"/>
 </svg>
