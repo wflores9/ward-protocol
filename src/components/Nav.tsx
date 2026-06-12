@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 
+import WardMark from '@/components/WardMark';
 import { PILOT_URL, SITE_NAVIGATION } from '@/lib/navigation';
 
 export default function Nav() {
@@ -13,28 +14,7 @@ export default function Nav() {
       <div className="site-container flex h-full items-center justify-between">
         {/* Logo */}
         <Link href="/" onClick={() => setOpen(false)} className="flex items-center gap-3 no-underline">
-          <div
-            className="relative flex shrink-0 items-center justify-center rounded-full bg-[#0f2439]"
-            style={{ width: 44, height: 44 }}
-          >
-            <span
-              style={{
-                fontFamily: 'Georgia, serif',
-                fontSize: 22,
-                fontWeight: 800,
-                color: '#a7c5e5',
-                lineHeight: 1,
-                marginBottom: 4,
-                display: 'block',
-              }}
-            >
-              W
-            </span>
-            <div
-              className="absolute rounded-[1px] bg-[#b8973a]"
-              style={{ bottom: 8, left: 10, right: 10, height: 2 }}
-            />
-          </div>
+          <WardMark size={44} shape="circle" />
           <div className="flex flex-col" style={{ gap: 3 }}>
             <span style={{ fontSize: 16, fontWeight: 700, color: '#0f2439', letterSpacing: '0.04em', lineHeight: 1 }}>
               WARD

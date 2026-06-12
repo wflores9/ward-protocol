@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import WardMark from '@/components/WardMark';
 
 const DOCS_LINKS = [
   { label: 'Whitepaper', href: '/docs' },
@@ -110,28 +111,7 @@ export default function Footer() {
           {/* Brand */}
           <div>
             <Link href="/" className="flex items-center gap-3 no-underline" style={{ width: 'fit-content' }}>
-              <div
-                className="relative flex shrink-0 items-center justify-center rounded-full bg-[#0f2439]"
-                style={{ width: 40, height: 40 }}
-              >
-                <span
-                  style={{
-                    fontFamily: 'Georgia, serif',
-                    fontSize: 20,
-                    fontWeight: 800,
-                    color: '#a7c5e5',
-                    lineHeight: 1,
-                    marginBottom: 4,
-                    display: 'block',
-                  }}
-                >
-                  W
-                </span>
-                <div
-                  className="absolute rounded-[1px] bg-[#b8973a]"
-                  style={{ bottom: 8, left: 9, right: 9, height: 2 }}
-                />
-              </div>
+              <WardMark size={40} shape="circle" />
               <div className="flex flex-col" style={{ gap: 3 }}>
                 <span style={{ fontSize: 15, fontWeight: 700, color: '#0f2439', letterSpacing: '0.04em', lineHeight: 1 }}>
                   WARD

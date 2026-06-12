@@ -1,5 +1,15 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <rect width="32" height="32" fill="#050d1a"/>
-  <text x="16" y="24" font-family="'Barlow Condensed', sans-serif" font-weight="900" font-size="26" fill="#a8c5e8" text-anchor="middle" letter-spacing="-1">W</text>
-  <line x1="4" y1="28" x2="28" y2="28" stroke="#c8a94a" stroke-width="1.5"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 44 44">
+  <!-- Navy background -->
+  <rect width="44" height="44" rx="4" fill="#0f2439"/>
+  <!-- Bold geometric W — ice blue; geometry mirrors WardMark.tsx -->
+  <polyline
+    points="7,10 13.5,32 19,19.5 22,27 25,19.5 30.5,32 37,10"
+    fill="none"
+    stroke="#a7c5e5"
+    stroke-width="3.7"
+    stroke-linecap="square"
+    stroke-linejoin="round"
+  />
+  <!-- Gold underline bar -->
+  <rect x="7" y="35" width="30" height="2.5" fill="#b8973a" rx="0.5"/>
 </svg>
