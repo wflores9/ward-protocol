@@ -850,3 +850,169 @@ footer a {
     padding: 76px 0;
   }
 }
+/* Inner page enterprise polish: extends the approved homepage visual system across product pages. */
+.site-shell {
+  position: relative;
+  overflow-x: clip;
+  background:
+    linear-gradient(120deg, rgba(246, 249, 252, 0.98) 0%, #ffffff 34%, rgba(231, 240, 249, 0.68) 100%);
+  color: #07131f;
+}
+
+.site-shell::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image:
+    linear-gradient(rgba(15, 36, 57, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 36, 57, 0.035) 1px, transparent 1px);
+  background-size: 96px 96px;
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.72), transparent 72%);
+}
+
+.site-shell > section,
+.site-shell .site-container {
+  position: relative;
+  z-index: 1;
+}
+
+.site-shell > section:first-child {
+  border-bottom: 1px solid rgba(15, 36, 57, 0.08);
+  background:
+    radial-gradient(circle at 82% 20%, rgba(167, 197, 229, 0.28), transparent 34%),
+    linear-gradient(110deg, rgba(255, 255, 255, 0.94), rgba(246, 249, 252, 0.88));
+}
+
+.site-shell > section:first-child .site-container {
+  padding-top: clamp(76px, 8vw, 116px) !important;
+  padding-bottom: clamp(68px, 7vw, 104px) !important;
+}
+
+.site-shell .site-label {
+  color: #6f849b;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.site-shell > section:first-child h1 {
+  max-width: 880px;
+  color: #07131f !important;
+  font-size: clamp(46px, 5.4vw, 78px) !important;
+  font-weight: 800 !important;
+  letter-spacing: 0 !important;
+  line-height: 0.98 !important;
+}
+
+.site-shell > section:first-child p:not(.site-label),
+.site-shell .site-copy {
+  color: #435a70 !important;
+  font-size: clamp(16px, 1.25vw, 19px) !important;
+  line-height: 1.78 !important;
+}
+
+.site-section {
+  border-top: 0 !important;
+  border-bottom: 1px solid rgba(15, 36, 57, 0.08);
+  background: rgba(255, 255, 255, 0.88);
+}
+
+.site-shell .site-section:nth-of-type(odd) {
+  background: rgba(246, 249, 252, 0.86);
+}
+
+.site-shell h2 {
+  color: #07131f !important;
+  font-size: clamp(32px, 3.4vw, 56px) !important;
+  font-weight: 800 !important;
+  letter-spacing: 0 !important;
+  line-height: 1.04 !important;
+}
+
+.site-shell h3 {
+  color: #07131f !important;
+  font-weight: 800 !important;
+  letter-spacing: 0 !important;
+}
+
+.site-shell p,
+.site-shell li {
+  letter-spacing: 0;
+}
+
+.site-shell .grid > *,
+.site-shell [class*="grid-cols"] > * {
+  min-width: 0;
+}
+
+.site-shell article,
+.site-shell [class*="rounded-xl"][class*="border"],
+.site-shell [class*="rounded-lg"][class*="border"] {
+  border-color: rgba(15, 36, 57, 0.09) !important;
+  box-shadow: 0 16px 52px rgba(7, 19, 31, 0.055) !important;
+}
+
+.site-shell [class*="rounded-xl"][class*="border"] {
+  border-radius: 28px !important;
+}
+
+.site-shell [class*="rounded-lg"][class*="border"] {
+  border-radius: 18px !important;
+}
+
+.site-shell [class*="bg-white"] {
+  background-color: rgba(255, 255, 255, 0.94) !important;
+}
+
+.site-shell pre {
+  max-width: 100%;
+  overflow-x: auto;
+  border-radius: 18px !important;
+}
+
+.site-shell code {
+  overflow-wrap: anywhere;
+}
+
+.site-shell a[class*="bg-[#0f2439]"],
+.site-shell button[class*="bg-[#0f2439]"],
+.site-shell .btn-primary,
+.site-shell .btn-gold {
+  min-height: 52px;
+  border-radius: 999px !important;
+  padding-inline: 24px !important;
+  box-shadow: 0 12px 28px rgba(7, 19, 31, 0.12);
+}
+
+.site-shell a[class*="border"],
+.site-shell button[class*="border"],
+.site-shell .btn-ghost {
+  border-radius: 999px !important;
+}
+
+.site-shell .badge-live {
+  min-height: 34px;
+  border-radius: 999px;
+  padding-inline: 14px;
+}
+
+@media (min-width: 1024px) {
+  .site-shell [class*="lg:grid-cols-[240px_1fr_260px]"] {
+    grid-template-columns: minmax(260px, 0.78fr) minmax(0, 1.54fr) minmax(320px, 0.95fr) !important;
+    gap: 28px !important;
+    align-items: start;
+  }
+}
+
+@media (max-width: 768px) {
+  .site-shell > section:first-child h1 {
+    font-size: 44px !important;
+  }
+
+  .site-shell > section:first-child .site-container {
+    padding-top: 64px !important;
+    padding-bottom: 58px !important;
+  }
+}
