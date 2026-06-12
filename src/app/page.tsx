@@ -1,5 +1,6 @@
 import Link from 'next/link';
 
+import HeroApiCard from '@/components/HeroApiCard';
 import { PILOT_URL } from '@/lib/navigation';
 
 const pillars = [
@@ -18,20 +19,13 @@ const pillars = [
 ];
 
 const PROOF_STATS = [
-  { num: '537', label: 'passing tests' },
+  { num: '634', label: 'passing tests' },
   { num: '92%', label: 'critical path coverage' },
   { num: '8', label: 'chain adapters' },
   { num: '32', label: 'formal invariants' },
   { num: 'v0.2.6', label: 'PyPI + npm' },
 ];
 
-const API_STATS: { label: string; value: string; color: string }[] = [
-  { label: 'Endpoint', value: 'api.wardprotocol.org', color: '#1d4ed8' },
-  { label: 'Version', value: 'v0.2.6', color: '#0f2439' },
-  { label: 'Tests passing', value: '537 / 537', color: '#15803d' },
-  { label: 'Coverage', value: '92%', color: '#15803d' },
-  { label: 'Last validation', value: 'checks_passed: 1', color: '#15803d' },
-];
 
 export default function Home() {
   return (
@@ -154,7 +148,7 @@ export default function Home() {
                     flexShrink: 0,
                   }}
                 />
-                v0.2.6 · 8 chains · 537 tests · ward_signed = False
+                v0.2.6 · 8 chains · 634 tests · ward_signed = False
               </div>
             </div>
 
@@ -198,88 +192,7 @@ export default function Home() {
                 }}
               />
 
-              {/* Data card — flex-flow centered so it stays in the right column */}
-              <div
-                style={{
-                  position: 'relative',
-                  zIndex: 1,
-                  width: 300,
-                  background: 'rgba(255,255,255,0.88)',
-                  borderRadius: 16,
-                  padding: 20,
-                  border: '1px solid rgba(255,255,255,0.9)',
-                  backdropFilter: 'blur(8px)',
-                }}
-              >
-                {/* Card header */}
-                <div
-                  style={{
-                    borderBottom: '1px solid #E4E9F2',
-                    marginBottom: 16,
-                    paddingBottom: 12,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                  }}
-                >
-                  <span
-                    style={{
-                      fontFamily: 'DM Mono, monospace',
-                      fontSize: 10,
-                      fontWeight: 700,
-                      letterSpacing: '0.1em',
-                      textTransform: 'uppercase',
-                      color: '#a7c5e5',
-                    }}
-                  >
-                    Live API Status
-                  </span>
-                  <span
-                    style={{
-                      background: '#dcfce7',
-                      color: '#15803d',
-                      fontSize: 10,
-                      fontWeight: 700,
-                      padding: '3px 10px',
-                      borderRadius: 20,
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: 5,
-                    }}
-                  >
-                    <span
-                      style={{
-                        width: 5,
-                        height: 5,
-                        borderRadius: '50%',
-                        background: '#15803d',
-                        display: 'inline-block',
-                        flexShrink: 0,
-                      }}
-                    />
-                    XRPL Altnet
-                  </span>
-                </div>
-
-                {/* Stat rows */}
-                {API_STATS.map(({ label, value, color }) => (
-                  <div
-                    key={label}
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      borderBottom: '1px solid #F9FAFC',
-                      padding: '6px 0',
-                    }}
-                  >
-                    <span style={{ fontSize: 12, color: '#8a9bb0' }}>{label}</span>
-                    <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 12, fontWeight: 600, color }}>
-                      {value}
-                    </span>
-                  </div>
-                ))}
-              </div>
+              <HeroApiCard />
 
               {/* Invariant banner — pinned to bottom */}
               <div
