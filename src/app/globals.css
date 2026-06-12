@@ -445,14 +445,14 @@ a { color: inherit; }
   z-index: 1;
   display: grid;
   min-height: 720px;
-  grid-template-columns: minmax(0, 1.02fr) minmax(420px, 0.98fr);
+  grid-template-columns: minmax(0, 0.92fr) minmax(460px, 0.82fr);
   align-items: center;
-  gap: 72px;
+  gap: 112px;
   padding: 88px 0 96px;
 }
 
 .fb-hero-copy {
-  max-width: 780px;
+  max-width: 660px;
 }
 
 .fb-eyebrow,
@@ -467,9 +467,9 @@ a { color: inherit; }
 
 .fb-hero h1 {
   margin-top: 18px;
-  max-width: 760px;
+  max-width: 620px;
   color: #07131f;
-  font-size: clamp(58px, 7vw, 104px);
+  font-size: clamp(54px, 6.1vw, 92px);
   font-weight: 800;
   letter-spacing: 0;
   line-height: 0.94;

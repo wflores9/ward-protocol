@@ -7,7 +7,7 @@ import WardMark from '@/components/WardMark';
 const DOCS_LINKS = [
   { label: 'Whitepaper', href: '/docs' },
   { label: 'PyPI', href: 'https://pypi.org/project/ward-protocol/', external: true },
-  { label: 'npm', href: 'https://www.npmjs.com/package/ward-protocol', external: true },
+  { label: 'npm', href: 'https://www.npmjs.com/package/@wardprotocol/sdk', external: true },
 ];
 
 const COMMUNITY_LINKS = [
