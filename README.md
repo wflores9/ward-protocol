@@ -1,7 +1,7 @@
 # Ward Protocol
 
 [![Version](https://img.shields.io/badge/SDK-v0.2.6-gold)](https://pypi.org/project/ward-protocol/)
-[![Tests](https://img.shields.io/badge/tests-537%20Python%20%C2%B7%2022%20Rust%20%C2%B7%2053%20TypeScript-brightgreen)](#running-tests)
+[![Tests](https://img.shields.io/badge/tests-449%20Python%20%C2%B7%2022%20Rust%20%C2%B7%2053%20TypeScript-brightgreen)](#running-tests)
 [![CI](https://github.com/wflores9/ward-protocol/actions/workflows/test.yml/badge.svg)](https://github.com/wflores9/ward-protocol/actions/workflows/test.yml)
 [![PyPI](https://img.shields.io/pypi/v/ward-protocol)](https://pypi.org/project/ward-protocol/)
 [![License](https://img.shields.io/badge/license-MIT-lightgrey)](LICENSE)
@@ -14,7 +14,7 @@
 
 ## Overview
 
-Ward Protocol is deterministic default-resolution infrastructure for institutional tokenized credit. It gives lenders, vault operators, and capital partners a consistent way to validate defaults, prepare unsigned settlement packets, and export reviewable conformance receipts without handing signing authority to Ward.
+Ward Protocol delivers deterministic default resolution for institutional lending vaults on the XRP Ledger (XLS-66 amendment in validator voting). It gives lenders, vault operators, and capital partners a consistent way to validate defaults, prepare unsigned settlement packets, and export reviewable conformance receipts without handing signing authority to Ward.
 
 On XRPL and across the live multi-chain testnet demo, Ward re-reads authoritative ledger state, applies the same nine evidence gates, and returns a deterministic result. No oracle, no discretionary operator step, and no Ward signature. The outcome stays inspectable for risk, compliance, engineering, and capital review. See real-world scenarios at [wardprotocol.org/use-cases](https://wardprotocol.org/use-cases).
 
@@ -46,7 +46,7 @@ Nine deterministic on-ledger checks:
 |--------|-------|
 | SDK Version | v0.2.6 |
 | Hosted API | api.wardprotocol.org — live |
-| Python Tests | 537/537 passing (3.11 · 3.12 · 3.13) |
+| Python Tests | 449/449 passing (3.11 · 3.12 · 3.13) |
 | Rust Tests | 22/22 passing |
 | TypeScript Tests | 53/53 passing |
 | Live Testnets | 8 live testnet rails in the multi-chain demo |
@@ -59,8 +59,9 @@ Nine deterministic on-ledger checks:
 
 ## Quick Start
 
-```python
-pip install ward-protocol==0.2.6
+```bash
+pip install ward-protocol==0.2.6       # Python SDK
+npm install @wardprotocol/sdk           # TypeScript SDK
 ```
 
 ```python
@@ -96,7 +97,6 @@ Institutional readiness: [docs/institutional-readiness.md](docs/institutional-re
 | XRPL Altnet | **E2E verified** | NFT policy and XLS-66-aligned validation path |
 | XRPL EVM | **Contract deployed** | XRPL-aligned EVM rail in the live demo |
 | Stellar | **Account funded** | Soroban path ready in the live demo |
-| Hedera | **Testnet-ready** | HTS / mirror-node integration lane live |
 | Solana | **Account funded** | Devnet adapter lane live |
 | XDC | **Contract deployed** | Apothem adapter lane live |
 | Algorand | **Account funded** | Testnet adapter lane live |
@@ -109,7 +109,7 @@ Integration plans: [docs/integration/](docs/integration/)
 ## Running Tests
 
 ```bash
-# Python (537 tests)
+# Python (449 unit tests)
 pip install -r requirements.txt
 python -m pytest test_ward.py -m "not integration" -v
 python -m pytest sdk/python/tests/ -v
