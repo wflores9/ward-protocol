@@ -224,3 +224,68 @@ git push origin main --force
 - `git ls-files sdk/python/.venv` → empty (verified, was already empty in HEAD).
 - Full test suite post-scrub: **559 Python / 22 Rust / 53 TypeScript — green.**
 - `.python-version` (3.13.13) untouched. `ward/` source files untouched.
+
+---
+
+## Post-Audit Hardening — June 12, 2026
+
+### Repository Preparation for Public Release
+
+**Branch cleanup:** 16 stale Claude/Copilot session branches deleted.
+All work consolidated to main + redesign/premium-motion only.
+
+**Dependabot:** Enabled. Initial scan found 28 vulnerabilities.
+Resolved to 2 (no fix available) through:
+- yarn.lock removed (5,307 lines, multi-chain dev toolchain, not production)
+- starter/ directory removed from git tracking (example code, not production)
+- package-lock.json regenerated to reflect uuid 14.0.0 override
+- .gitignore updated to exclude starter/
+
+**Remaining 2 (accepted risk, documented):**
+- postcss moderate: bundled in Next.js internals, XSS only exploitable
+  if attacker controls CSS during build pipeline — not possible on CI
+- uuid moderate: override targeting 14.0.0 in package.json,
+  nested lockfile copy will clear on next Next.js update
+
+**Community files added:**
+- SECURITY.md — vulnerability reporting to security@wardprotocol.org
+- COMMERCIAL.md — MIT SDK free, mainnet API commercial
+- CODE_OF_CONDUCT.md — Contributor Covenant 2.1
+- CHANGELOG.md — version history 0.2.4 through 0.2.9
+- .github/dependabot.yml — weekly npm, monthly maven/starter scans
+
+**GitHub Security settings enabled:**
+- Private vulnerability reporting
+- Dependabot alerts
+- Dependabot security updates
+- Secret scanning (was already enabled)
+- Push protection
+
+**Package releases:**
+- @wardprotocol/sdk@0.2.9 published to npm with README
+- ward-protocol 0.2.9 built, pending PyPI publish via Trusted Publishing
+- publish.yml workflow pending — requires PyPI Trusted Publishing setup
+
+**Repository settings:**
+- Description updated: "Deterministic default resolution for
+  XLS-66 institutional lending vaults on the XRP Ledger"
+- Topics added: xrpl, xls-66, defi, default-resolution, rwa,
+  blockchain, typescript, python, rust
+- Wikis: disabled
+- Discussions: enabled
+- Preserve: disabled
+
+**Versions at close of June 12:**
+- Python SDK: 0.2.9 (PyPI)
+- TypeScript SDK: 0.2.9 (npm)
+- API: v0.2.6 (Railway — needs bump to 0.2.9)
+- Site: wardprotocol.org — version chip shows v0.2.6 (needs update)
+
+### Outstanding items
+- [ ] PyPI Trusted Publishing setup + v0.2.9 tag push
+- [ ] Site version chip: v0.2.6 → v0.2.9
+- [ ] API health endpoint version: 0.2.6 → 0.2.9
+- [ ] publish.yml committed to repo
+- [ ] CONTRIBUTING.md test counts updated (559/22/53)
+- [ ] redesign/premium-motion branch — review and merge or close
+- [ ] v0.2.9 GitHub release tag created
