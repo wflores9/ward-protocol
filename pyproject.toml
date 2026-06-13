@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ward-protocol"
-version = "0.2.9"
+version = "0.2.10"
 description = "Deterministic default resolution for XLS-66 lending vaults on the XRP Ledger"
 readme = "README.md"
 requires-python = ">=3.10"
