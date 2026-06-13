@@ -1,5 +1,5 @@
 """
-Ward Protocol SDK — Public Package API  v0.2.6
+Ward Protocol SDK — Public Package API  v0.2.10
 
     from ward import WardClient, VaultMonitor, ClaimValidator
     from ward import EscrowSettlement, PoolHealthMonitor
@@ -7,7 +7,7 @@ Ward Protocol SDK — Public Package API  v0.2.6
     from ward import PoolHealth, VerifiedDefault, ValidationResult
 
 Changelog:
-    v0.2.6  Pre-mainnet audit: dep freshness, SSRF, XSS, GHA SHA pins, hygiene.
+    v0.2.10  Pre-mainnet audit: dep freshness, SSRF, XSS, GHA SHA pins, hygiene.
     v0.2.5  SSRF RPC allowlist; ward_signed structural invariant test.
     v0.2.4  README/stats corrected; CI workflows overhauled; ruff.toml added.
     v0.2.3  On-chain coverage registry; webhook notifications; TypeScript SDK.
