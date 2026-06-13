@@ -1,6 +1,11 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 
+import { getPublishedPackageVersions } from '@/lib/packageVersions';
+import { formatPackageVersion } from '@/lib/wardMetrics';
+
+export const revalidate = 3600;
+
 export const metadata: Metadata = {
   title: 'Ward Protocol Specification | Deterministic Default Resolution',
   description:
@@ -88,7 +93,9 @@ const CONSTANTS = [
   ['XRPL_OWNER_RESERVE_DROPS', '200_000'],
 ] as const;
 
-export default function SpecPage() {
+export default async function SpecPage() {
+  const packageVersions = await getPublishedPackageVersions();
+
   return (
     <main className="site-shell">
       {/* Hero */}
@@ -106,7 +113,12 @@ export default function SpecPage() {
               </p>
 
               <div className="mt-6 flex flex-wrap gap-2">
-                {['9 on-ledger checks', '8 attack vectors mitigated', 'ward_signed = False', 'SDK v0.2.10'].map(
+                {[
+                  '9 on-ledger checks',
+                  '8 attack vectors mitigated',
+                  'ward_signed = False',
+                  `SDK ${formatPackageVersion(packageVersions.display)}`,
+                ].map(
                   (item) => (
                     <span
                       key={item}

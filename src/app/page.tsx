@@ -1,10 +1,11 @@
-'use client';
-
-import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 
-import WardMark from '@/components/WardMark';
+import LiveApiStatusCard from '@/components/LiveApiStatusCard';
 import { PILOT_URL } from '@/lib/navigation';
+import { getPublishedPackageVersions } from '@/lib/packageVersions';
+import { formatPackageVersion, WARD_MARKETING_STATS, wardMarketingStatusLine } from '@/lib/wardMetrics';
+
+export const revalidate = 3600;
 
 const pillars = [
   {
@@ -21,102 +22,15 @@ const pillars = [
   },
 ];
 
-const PROOF_STATS = [
-  { num: '634', label: 'passing tests' },
-  { num: '92%', label: 'critical path coverage' },
-  { num: '8', label: 'chain adapters' },
-  { num: '32', label: 'formal invariants' },
-  { num: 'v0.2.10', label: 'PyPI + npm' },
-];
-
-type WardHealth = {
-  status?: string;
-  timestamp?: string;
-  version?: string;
-  tests_passing?: number | string;
-  tests_total?: number | string;
-  tests?: { passing?: number | string; total?: number | string };
-  coverage?: number | string;
-  last_validation?: string;
-  lastValidation?: string;
-  checks_passed?: number | string;
-};
-
-const HEALTH_URL = 'https://api.wardprotocol.org/health';
-const HEALTH_PROXY_URL = '/api/ward-health';
-
-const secondsAgo = (date: Date | null, now: number) => {
-  if (!date) return '0s';
-  return `${Math.max(0, Math.floor((now - date.getTime()) / 1000))}s`;
-};
-
-const formatVersion = (version?: string) => {
-  if (!version) return 'v0.2.10';
-  return version.startsWith('v') ? version : `v${version}`;
-};
-
-const apiStats = (health: WardHealth | null) => {
-  const passing = health?.tests_passing ?? health?.tests?.passing ?? '634';
-  const total = health?.tests_total ?? health?.tests?.total ?? '634';
-  const coverage = health?.coverage ? `${health.coverage}`.replace(/%$/, '') + '%' : '92%';
-  const validation =
-    health?.last_validation ??
-    health?.lastValidation ??
-    (health?.checks_passed ? `checks_passed: ${health.checks_passed}` : health?.timestamp ?? 'checks_passed: 1');
-
-  return [
-    { label: 'Endpoint', value: 'api.wardprotocol.org', color: '#1d4ed8' },
-    { label: 'Version', value: formatVersion(health?.version), color: '#0f2439' },
-    { label: 'Tests passing', value: `${passing} / ${total}`, color: '#15803d' },
-    { label: 'Coverage', value: coverage, color: '#15803d' },
-    { label: 'Last validation', value: validation, color: '#15803d' },
+export default async function Home() {
+  const packageVersions = await getPublishedPackageVersions();
+  const proofStats = [
+    { num: String(WARD_MARKETING_STATS.testsPassing), label: 'passing tests' },
+    { num: `${WARD_MARKETING_STATS.coveragePercent}%`, label: 'critical path coverage' },
+    { num: String(WARD_MARKETING_STATS.chainAdapters), label: 'chain adapters' },
+    { num: String(WARD_MARKETING_STATS.formalInvariants), label: 'formal invariants' },
+    { num: formatPackageVersion(packageVersions.display), label: 'PyPI + npm' },
   ];
-};
-
-export default function Home() {
-  const [health, setHealth] = useState<WardHealth | null>(null);
-  const [isHealthy, setIsHealthy] = useState(false);
-  const [lastCheckedAt, setLastCheckedAt] = useState<Date | null>(null);
-  const [now, setNow] = useState(() => Date.now());
-
-  useEffect(() => {
-    let cancelled = false;
-
-    const readHealth = async (url: string) => {
-      const response = await fetch(url, { cache: 'no-store' });
-      if (!response.ok) throw new Error(`Health check failed: ${response.status}`);
-      return (await response.json()) as WardHealth;
-    };
-
-    const checkHealth = async () => {
-      try {
-        let data: WardHealth;
-        try {
-          data = await readHealth(HEALTH_URL);
-        } catch {
-          data = await readHealth(HEALTH_PROXY_URL);
-        }
-        if (cancelled) return;
-        setHealth(data);
-        setIsHealthy(data.status === 'healthy');
-        setLastCheckedAt(new Date());
-      } catch {
-        if (cancelled) return;
-        setIsHealthy(false);
-        setLastCheckedAt(new Date());
-      }
-    };
-
-    void checkHealth();
-    const clock = window.setInterval(() => setNow(Date.now()), 1000);
-    return () => {
-      cancelled = true;
-      window.clearInterval(clock);
-    };
-  }, []);
-
-  const stats = useMemo(() => apiStats(health), [health]);
-  const checkedAgo = secondsAgo(lastCheckedAt, now);
 
   return (
     <main className="fb-page">
@@ -139,34 +53,11 @@ export default function Home() {
                 </Link>
               </div>
               <div className="fb-version-badge">
-                <span /> v0.2.10 · 8 chains · 634 tests · ward_signed = False
+                <span /> {wardMarketingStatusLine(packageVersions.display)}
               </div>
             </div>
 
-            <div className="fb-hero-product" aria-label="Ward API status preview">
-              <div className="fb-product-orbit">
-                <WardMark size={108} shape="square" />
-              </div>
-              <div className="fb-api-card">
-                <div className="fb-api-card-head">
-                  <span>Live API Status</span>
-                  <strong className={isHealthy ? 'is-live' : 'is-offline'}>{isHealthy ? '● XRPL Altnet' : '● API OFFLINE'}</strong>
-                </div>
-                {stats.map(({ label, value, color }) => (
-                  <div key={label} className="fb-api-row">
-                    <span>{label}</span>
-                    <strong style={{ color }}>{value}</strong>
-                  </div>
-                ))}
-                <p className={isHealthy ? 'fb-api-updated is-live' : 'fb-api-updated is-offline'}>
-                  {isHealthy ? 'Last updated' : 'Last checked'}: {checkedAgo} ago
-                </p>
-                <div className="fb-invariant-card">
-                  <span>Core Invariant</span>
-                  <strong>ward_signed = False — always.</strong>
-                </div>
-              </div>
-            </div>
+            <LiveApiStatusCard />
           </div>
         </div>
       </section>
@@ -174,7 +65,7 @@ export default function Home() {
       <section className="fb-proof-strip">
         <div className="site-container">
           <div className="fb-proof-grid">
-            {PROOF_STATS.map(({ num, label }) => (
+            {proofStats.map(({ num, label }) => (
               <div key={label} className="fb-proof-item">
                 <p>{num}</p>
                 <span>{label}</span>

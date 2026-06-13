@@ -4,13 +4,15 @@
  * Do NOT import this into spec/, docs/, demo/, or any technical pages.
  */
 
+import { WARD_MARKETING_STATS } from '@/lib/wardMetrics'
+
 export const MARKETING = {
   // Hero
   eyebrow: 'INSTITUTIONAL TOKENIZED CREDIT · CONFORMANCE STANDARD',
   headline: 'Deterministic default-resolution infrastructure for institutional tokenized credit.',
   subheadline:
     'Ward gives lenders, vault operators, and credit protocols a deterministic way to validate defaults, preserve the signer boundary, and export reviewable conformance receipts serious partners can inspect.',
-  statusLine: 'v0.2.10 · 9 testnet rails · 537 tests across Python, Rust, and TypeScript · June 2026 hardening complete.',
+  statusLine: `${WARD_MARKETING_STATS.chainAdapters} chains · ${WARD_MARKETING_STATS.testsPassing} tests across Python, Rust, and TypeScript · June 2026 hardening complete.`,
 
   // Brand
   tagline: 'Deterministic default-resolution infrastructure for institutional tokenized credit.',
@@ -22,7 +24,7 @@ export const MARKETING = {
     'Ward Protocol is deterministic default-resolution infrastructure for institutional tokenized credit: reviewable conformance, unsigned settlement packets, and ward_signed = False.',
 
   // Status
-  version: 'v0.2.10',
+  version: 'registry-sourced',
   network: 'XRPL Altnet',
-  tests: '436/436',
+  tests: `${WARD_MARKETING_STATS.testsPassing}/${WARD_MARKETING_STATS.testsPassing}`,
 } as const

@@ -1,6 +1,11 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 
+import { getPublishedPackageVersions } from '@/lib/packageVersions';
+import { formatPackageVersion } from '@/lib/wardMetrics';
+
+export const revalidate = 3600;
+
 export const metadata: Metadata = {
   title: 'Ward Conformance | Certification for Tokenized Credit',
   description:
@@ -25,7 +30,6 @@ const registry = [
     status: 'Reference',
     checks: '9/9',
     signerBoundary: 'Institution signs',
-    version: 'v0.2.10',
   },
 ];
 
@@ -45,7 +49,13 @@ const doesNotCover = [
   'Third-party audit replacement before mainnet launch',
 ];
 
-export default function CertifiedPage() {
+export default async function CertifiedPage() {
+  const packageVersions = await getPublishedPackageVersions();
+  const registryWithVersion = registry.map((item) => ({
+    ...item,
+    version: formatPackageVersion(packageVersions.display),
+  }));
+
   return (
     <main className="site-shell">
       {/* Hero */}
@@ -106,7 +116,7 @@ export default function CertifiedPage() {
                 </tr>
               </thead>
               <tbody>
-                {registry.map((item) => (
+                {registryWithVersion.map((item) => (
                   <tr key={item.id} style={{ borderTop: '1px solid #E4E9F2' }}>
                     <td className="px-5 py-4 font-mono text-[12px] font-bold text-[#b8973a]">{item.id}</td>
                     <td className="px-5 py-4 text-[14px] font-semibold text-[#0f2439]">{item.product}</td>

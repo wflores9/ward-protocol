@@ -23,12 +23,10 @@ wardprotocol.org | wardprotocol.org/assurance | wardprotocol.org/demo
 
 | Metric | Value |
 |--------|-------|
-| SDK Version | v0.2.9 |
+| SDK Version | PyPI/npm badges above |
 | Hosted API | api.wardprotocol.org — live |
-| Python Tests | 634/634 passing (3.10 · 3.11 · 3.12) |
-| Rust Tests | 22/22 passing |
-| TypeScript Tests | 53/53 passing |
-| Critical Path Coverage | 92% |
+| Test Counts | Latest CI + `src/lib/wardMetrics.ts` |
+| Critical Path Coverage | `src/lib/wardMetrics.ts` |
 | Formal Invariants | 32 (TLA+ verified) |
 | Open CVEs | 0 |
 | XRPLF Standard | Discussion #474 — active |
@@ -92,14 +90,14 @@ print(claim.ward_signed)        # False — always
 ## Running Tests
 
 ```bash
-# Python (634 tests)
+# Python
 pip install -r requirements.txt
 python3 -m pytest tests/ -v
 
-# Rust (22 tests)
+# Rust
 cd ward && cargo test
 
-# TypeScript (53 tests)
+# TypeScript
 cd sdk/typescript && npm install && npm test
 ```
 
@@ -108,7 +106,7 @@ cd sdk/typescript && npm install && npm test
 Full pre-mainnet security report, TLA+ formal spec, and continuous
 scanning results: wardprotocol.org/assurance
 
-- 634 automated tests, 92% critical path coverage
+- Automated test and coverage totals are maintained in `src/lib/wardMetrics.ts`
 - 32 formal invariants verified in TLA+
 - 0 open CVEs (Aikido continuous SAST/SCA scanning)
 - Git history scrubbed and verified clean

@@ -11,31 +11,6 @@ type InstallBlock = {
   viewLabel?: string;
 };
 
-const installBlocks: InstallBlock[] = [
-  {
-    id: 'python-sdk',
-    label: 'Python SDK',
-    command: 'pip install ward-protocol==0.2.10',
-    body: 'Validator services, vault monitors, conformance jobs, and institutional backend flows.',
-    viewHref: 'https://pypi.org/project/ward-protocol/',
-    viewLabel: 'View on PyPI',
-  },
-  {
-    id: 'typescript-sdk',
-    label: 'TypeScript SDK',
-    command: 'npm install @wardprotocol/sdk',
-    body: 'Product consoles, dashboards, rail orchestration, and receipt export.',
-    viewHref: 'https://www.npmjs.com/package/@wardprotocol/sdk',
-    viewLabel: 'View on npm',
-  },
-  {
-    id: 'hosted-api',
-    label: 'Hosted API',
-    command: 'POST https://api.wardprotocol.org/conformance/run',
-    body: 'Pilot integrations where teams want Ward-managed infrastructure and enterprise onboarding.',
-  },
-];
-
 const linkBtnStyle: React.CSSProperties = {
   border: '1px solid #E4E9F2',
   background: '#F9FAFC',
@@ -50,8 +25,32 @@ const linkBtnStyle: React.CSSProperties = {
   lineHeight: 1.4,
 };
 
-export default function InstallBlocks() {
+export default function InstallBlocks({ pythonVersion }: { pythonVersion: string }) {
   const [copied, setCopied] = useState<string | null>(null);
+  const installBlocks: InstallBlock[] = [
+    {
+      id: 'python-sdk',
+      label: 'Python SDK',
+      command: `pip install ward-protocol==${pythonVersion}`,
+      body: 'Validator services, vault monitors, conformance jobs, and institutional backend flows.',
+      viewHref: 'https://pypi.org/project/ward-protocol/',
+      viewLabel: 'View on PyPI',
+    },
+    {
+      id: 'typescript-sdk',
+      label: 'TypeScript SDK',
+      command: 'npm install @wardprotocol/sdk',
+      body: 'Product consoles, dashboards, rail orchestration, and receipt export.',
+      viewHref: 'https://www.npmjs.com/package/@wardprotocol/sdk',
+      viewLabel: 'View on npm',
+    },
+    {
+      id: 'hosted-api',
+      label: 'Hosted API',
+      command: 'POST https://api.wardprotocol.org/conformance/run',
+      body: 'Pilot integrations where teams want Ward-managed infrastructure and enterprise onboarding.',
+    },
+  ];
 
   const copy = async (id: string, command: string) => {
     if (!navigator.clipboard) return;

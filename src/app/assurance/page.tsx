@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 
 import { PILOT_URL } from '@/lib/navigation';
+import { WARD_MARKETING_STATS } from '@/lib/wardMetrics';
 
 export const metadata: Metadata = {
   title: 'Ward Protocol Assurance | Formal Methods & High-Assurance Architecture',
@@ -9,7 +10,7 @@ export const metadata: Metadata = {
     'Formal verification, property-based tests, TLA+ model checking, and signing-boundary static analysis. Ward Protocol invariants are machine-checked, not just claimed.',
   openGraph: {
     title: 'Ward Protocol Assurance',
-    description: 'Not a claim. A provable property. Formal methods, 634 tests, 92% coverage on critical paths.',
+    description: `Not a claim. A provable property. Formal methods, ${WARD_MARKETING_STATS.testsPassing} tests, ${WARD_MARKETING_STATS.coveragePercent}% coverage on critical paths.`,
     images: [{ url: '/og-image.png', width: 1200, height: 630 }],
   },
   twitter: {
@@ -126,8 +127,12 @@ export default function AssurancePage() {
               </p>
 
               <div className="mt-8 flex flex-wrap gap-3">
-                {['634 tests', '92% coverage on critical paths', 'TLA+ model checked', 'ward_signed = False — always'].map(
-                  (item) => (
+                {[
+                  `${WARD_MARKETING_STATS.testsPassing} tests`,
+                  `${WARD_MARKETING_STATS.coveragePercent}% coverage on critical paths`,
+                  'TLA+ model checked',
+                  'ward_signed = False — always',
+                ].map((item) => (
                     <span
                       key={item}
                       className="rounded-md border px-4 py-2 font-mono text-[13px] text-[#5a7a99]"
@@ -135,8 +140,7 @@ export default function AssurancePage() {
                     >
                       {item}
                     </span>
-                  ),
-                )}
+                  ))}
               </div>
 
               <div className="mt-8 flex flex-wrap gap-4">
@@ -273,7 +277,7 @@ Ward must not:  sign transactions
             <div>
               <p className="site-label">Test coverage</p>
               <h2 className="mt-5 text-[32px] font-semibold leading-tight tracking-[-0.02em] text-[#0f2439]">
-                634 tests. 92% coverage on critical paths.
+                {WARD_MARKETING_STATS.testsPassing} tests. {WARD_MARKETING_STATS.coveragePercent}% coverage on critical paths.
               </h2>
               <p className="mt-5 text-[15px] leading-[1.75] text-[#5a7a99]">
                 Coverage is not the goal — correctness is. But coverage provides a lower bound on the evidence surface.
@@ -450,7 +454,7 @@ Ward must not:  sign transactions
 
             <div className="grid grid-cols-2 gap-4">
               {[
-                { value: '634', label: 'Total tests passing', sub: 'Python · Rust · TypeScript' },
+                { value: String(WARD_MARKETING_STATS.testsPassing), label: 'Total tests passing', sub: 'Python · Rust · TypeScript' },
                 { value: '18', label: 'SAST/SCA findings', sub: 'All resolved or accepted' },
                 { value: '0', label: 'Open CVEs', sub: 'As of June 11, 2026' },
                 { value: 'Clean', label: 'Git history', sub: 'Scrubbed June 11, 2026' },

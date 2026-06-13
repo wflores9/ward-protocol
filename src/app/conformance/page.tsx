@@ -2,7 +2,11 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 
 import { PILOT_URL } from '@/lib/navigation';
+import { getPublishedPackageVersions } from '@/lib/packageVersions';
+import { formatPackageVersion } from '@/lib/wardMetrics';
 import { PILOT_READINESS_PHASES } from '@/lib/wardPlatform';
+
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: 'Ward Conformance | Institutional Default-Resolution Standard',
@@ -135,7 +139,9 @@ const VERIFICATION_STEPS = [
   },
 ] as const;
 
-export default function ConformancePage() {
+export default async function ConformancePage() {
+  const packageVersions = await getPublishedPackageVersions();
+
   return (
     <main className="site-shell">
       {/* Hero */}
@@ -308,7 +314,7 @@ export default function ConformancePage() {
               </h2>
               <p className="mt-5 text-[15px] leading-[1.75] text-[#5a7a99]">
                 The June 2026 sprint focused on closing audit findings, removing unsafe assumptions, and hardening the
-                protocol surface for institutional review. The result was v0.2.10, a stricter implementation of the same
+                protocol surface for institutional review. The result was {formatPackageVersion(packageVersions.display)}, a stricter implementation of the same
                 conformance model.
               </p>
             </div>

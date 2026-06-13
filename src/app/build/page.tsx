@@ -4,7 +4,10 @@ import Link from 'next/link';
 import ChainLogo from '@/components/ChainLogo';
 import InstallBlocks from '@/components/InstallBlocks';
 import { PILOT_URL } from '@/lib/navigation';
+import { getPublishedPackageVersions } from '@/lib/packageVersions';
 import { CHAIN_ADAPTERS, PILOT_READINESS_PHASES } from '@/lib/wardPlatform';
+
+export const revalidate = 3600;
 
 const ARCHITECTURE_MODULES = [
   ['Module 1', 'WardClient', 'High-level SDK entrypoint for institutions and integrators.'],
@@ -51,7 +54,9 @@ export const metadata: Metadata = {
   },
 };
 
-export default function BuildPage() {
+export default async function BuildPage() {
+  const packageVersions = await getPublishedPackageVersions();
+
   return (
     <main className="site-shell">
       {/* Hero */}
@@ -295,7 +300,7 @@ CoverageRatio   = Vault.AssetsTotal / LoanBroker.DebtTotal  # must be >= 1.5`}</
               Start with the SDK. Finish with a conformance receipt.
             </h2>
           </div>
-          <InstallBlocks />
+          <InstallBlocks pythonVersion={packageVersions.python} />
         </div>
       </section>
 
