@@ -22,7 +22,7 @@
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-ethers": "^4.0.13",
-    "@types/node": "^20.12.7",
+    "@types/node": "^25.9.3",
     "@types/react": "^18.3.3",
     "@typescript-eslint/eslint-plugin": "^8.61.0",
     "@typescript-eslint/parser": "^8.61.0",
