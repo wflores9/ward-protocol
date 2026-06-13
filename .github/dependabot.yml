@@ -1,0 +1,14 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+  - package-ecosystem: maven
+    directory: /starter/java
+    schedule:
+      interval: monthly
+  - package-ecosystem: npm
+    directory: /starter/typescript
+    schedule:
+      interval: monthly
