@@ -177,5 +177,5 @@ These are hardcoded in `ward/constants.py`. XRPL reserve requirements can change
 - [ ] Add preflight check script that validates all URLs point to mainnet
 - [ ] Confirm XRPL reserve constants match current live mainnet `server_info`
 - [ ] Ensure Redis is provisioned and `WARD_REDIS_URL` is set in all production environments
-- [ ] All 537 Python / 22 Rust / 53 TypeScript tests green on mainnet network config
+- [ ] All 634 tests (Python / 22 Rust / 53 TypeScript) green on mainnet network config
 - [ ] Load test multi-instance deployment with Redis to verify rate limiter correctness
