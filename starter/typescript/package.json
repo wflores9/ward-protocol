@@ -12,7 +12,7 @@
     "escrow-settlement":  "ts-node 03-escrow-settlement.ts"
   },
   "dependencies": {
-    "xrpl": "4.6.0"
+    "xrpl": "5.0.0"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
