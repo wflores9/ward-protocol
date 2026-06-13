@@ -24,7 +24,9 @@ from typing import Optional
 try:
     _VERSION = importlib.metadata.version("ward-protocol")
 except importlib.metadata.PackageNotFoundError:
-    _VERSION = "0.2.6"  # fallback
+    # Should never fire in normal operation: ward-protocol is pinned in requirements.txt.
+    # If this path executes, the package install failed.
+    _VERSION = "0.2.10"
 
 from fastapi import FastAPI, HTTPException, Depends, Header, Request, Body
 from fastapi.middleware.cors import CORSMiddleware
