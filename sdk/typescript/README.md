@@ -3,6 +3,9 @@
 > `ward_signed = False — always.`
 > Ward constructs unsigned transactions. Institutions sign. XRPL settles.
 
+[![npm](https://img.shields.io/npm/v/@wardprotocol/sdk)](https://www.npmjs.com/package/@wardprotocol/sdk)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](../../LICENSE)
+
 ## Install
 
 ```bash
@@ -25,17 +28,19 @@ const result = await validator.validateClaim({
   poolAddress: 'rPool...'
 });
 
-console.log(result.approved);    // true
-console.log(result.stepsPassed); // 9
-console.log(result.wardSigned);  // false — always
+console.log(result.approved);      // true
+console.log(result.stepsPassed);   // 9
+console.log(result.wardSigned);    // false — always
 ```
 
 ## Stats
 
-- 634 automated tests passing
-- 92% critical path coverage
-- 0 open CVEs
-- ward_signed = False enforced at 4 layers
+| Metric | Value |
+|--------|-------|
+| Version | 0.2.9 |
+| Tests | 53/53 passing |
+| Open CVEs | 0 |
+| ward_signed | false — always |
 
 ## Links
 
@@ -43,8 +48,12 @@ console.log(result.wardSigned);  // false — always
 - [Assurance](https://wardprotocol.org/assurance)
 - [Docs](https://wardprotocol.org/build)
 - [PyPI](https://pypi.org/project/ward-protocol/)
+- [GitHub](https://github.com/wflores9/ward-protocol)
 
 ## License
 
-MIT — SDK is free. Mainnet API requires commercial license.
+MIT — SDK is free forever.
+Mainnet API requires commercial license.
 Contact: team@wardprotocol.org
+
+ward_signed = False — always.
