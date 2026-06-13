@@ -308,7 +308,7 @@ export default function ConformancePage() {
               </h2>
               <p className="mt-5 text-[15px] leading-[1.75] text-[#5a7a99]">
                 The June 2026 sprint focused on closing audit findings, removing unsafe assumptions, and hardening the
-                protocol surface for institutional review. The result was v0.2.6, a stricter implementation of the same
+                protocol surface for institutional review. The result was v0.2.10, a stricter implementation of the same
                 conformance model.
               </p>
             </div>

@@ -10,7 +10,7 @@ export const MARKETING = {
   headline: 'Deterministic default-resolution infrastructure for institutional tokenized credit.',
   subheadline:
     'Ward gives lenders, vault operators, and credit protocols a deterministic way to validate defaults, preserve the signer boundary, and export reviewable conformance receipts serious partners can inspect.',
-  statusLine: 'v0.2.6 · 9 testnet rails · 537 tests across Python, Rust, and TypeScript · June 2026 hardening complete.',
+  statusLine: 'v0.2.10 · 9 testnet rails · 537 tests across Python, Rust, and TypeScript · June 2026 hardening complete.',
 
   // Brand
   tagline: 'Deterministic default-resolution infrastructure for institutional tokenized credit.',
@@ -22,7 +22,7 @@ export const MARKETING = {
     'Ward Protocol is deterministic default-resolution infrastructure for institutional tokenized credit: reviewable conformance, unsigned settlement packets, and ward_signed = False.',
 
   // Status
-  version: 'v0.2.6',
+  version: 'v0.2.10',
   network: 'XRPL Altnet',
   tests: '436/436',
 } as const

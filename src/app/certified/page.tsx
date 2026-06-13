@@ -25,7 +25,7 @@ const registry = [
     status: 'Reference',
     checks: '9/9',
     signerBoundary: 'Institution signs',
-    version: 'v0.2.6',
+    version: 'v0.2.10',
   },
 ];
 

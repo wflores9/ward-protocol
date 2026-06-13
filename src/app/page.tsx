@@ -26,7 +26,7 @@ const PROOF_STATS = [
   { num: '92%', label: 'critical path coverage' },
   { num: '8', label: 'chain adapters' },
   { num: '32', label: 'formal invariants' },
-  { num: 'v0.2.6', label: 'PyPI + npm' },
+  { num: 'v0.2.10', label: 'PyPI + npm' },
 ];
 
 type WardHealth = {
@@ -51,7 +51,7 @@ const secondsAgo = (date: Date | null, now: number) => {
 };
 
 const formatVersion = (version?: string) => {
-  if (!version) return 'v0.2.6';
+  if (!version) return 'v0.2.10';
   return version.startsWith('v') ? version : `v${version}`;
 };
 
@@ -139,7 +139,7 @@ export default function Home() {
                 </Link>
               </div>
               <div className="fb-version-badge">
-                <span /> v0.2.6 · 8 chains · 634 tests · ward_signed = False
+                <span /> v0.2.10 · 8 chains · 634 tests · ward_signed = False
               </div>
             </div>
 

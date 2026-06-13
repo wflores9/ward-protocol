@@ -15,7 +15,7 @@ const installBlocks: InstallBlock[] = [
   {
     id: 'python-sdk',
     label: 'Python SDK',
-    command: 'pip install ward-protocol==0.2.6',
+    command: 'pip install ward-protocol==0.2.10',
     body: 'Validator services, vault monitors, conformance jobs, and institutional backend flows.',
     viewHref: 'https://pypi.org/project/ward-protocol/',
     viewLabel: 'View on PyPI',
