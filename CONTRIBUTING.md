@@ -6,7 +6,7 @@ Core rule: Ward **never** signs or submits transactions. Every mutation returns 
 
 ## Architectural Layers
 
-- **`ward/`** — Protocol SDK (15 modules, 296 Python · 40 Rust · 45 TypeScript tests)
+- **`ward/`** — Protocol SDK (15 modules, 559 Python · 22 Rust · 53 TypeScript tests)
   - `WardClient`: Purchases default-protection coverage (unsigned NFTokenMint + Payment)
   - `ClaimValidator`: 9-step on-chain claim validation — all state from XRPL
   - `EscrowSettlement`: PREIMAGE-SHA-256 conditioned escrow lifecycle
