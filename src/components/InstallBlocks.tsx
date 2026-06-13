@@ -47,8 +47,8 @@ export default function InstallBlocks({ pythonVersion }: { pythonVersion: string
     {
       id: 'hosted-api',
       label: 'Hosted API',
-      command: 'POST https://api.wardprotocol.org/conformance/run',
-      body: 'Pilot integrations where teams want Ward-managed infrastructure and enterprise onboarding.',
+      command: 'GET https://api.wardprotocol.org/health',
+      body: 'Live API status endpoint for pilot integrations, operational checks, and enterprise onboarding.',
     },
   ];
 
@@ -71,14 +71,14 @@ export default function InstallBlocks({ pythonVersion }: { pythonVersion: string
           <p className="font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-[#a7c5e5]">{block.label}</p>
           <div className="relative mt-4">
             <pre
-              className="overflow-hidden whitespace-pre-wrap break-all rounded-lg border p-4 font-mono text-sm leading-7 text-[#0f2439]"
+              className="overflow-x-auto whitespace-pre rounded-lg border p-4 font-mono text-sm leading-7 text-[#0f2439]"
               style={{
                 borderColor: 'rgba(167,197,229,0.35)',
                 background: '#f8fafc',
                 paddingRight: block.viewHref ? '1rem' : '5rem',
               }}
             >
-              <code>{block.command}</code>
+              <code className="block min-w-max">{block.command}</code>
             </pre>
             {block.viewHref ? null : (
               <button
