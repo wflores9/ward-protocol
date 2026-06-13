@@ -21,8 +21,8 @@ jobs:
         with:
           python-version: '3.13'
 
-      - name: Install build
-        run: pip install build
+      - name: Install build dependencies
+        run: pip install build setuptools wheel
 
       - name: Build package
         run: python3 -m build --no-isolation
